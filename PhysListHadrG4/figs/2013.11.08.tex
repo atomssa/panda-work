@@ -1,0 +1,485 @@
+\documentclass{beamer}
+%\usepackage{beamerthemeshadow}
+\usetheme{Madrid}
+
+%\usepackage[utf8]{inputenc}
+%\usepackage{xspace}
+%\usepackage[T1]{fontenc}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+
+\begin{document}
+
+\renewcommand{\inserttotalframenumber}{16}
+
+\title[Physics List Comparisons]{Physics List Comparisons}
+\author[Ermias ATOMSSA]{Ermias ATOMSSA}
+\date{\today}
+\institute[IPNO]{Institut de Physique Nucleaire d'Orsay}
+
+\newcommand{\dm}{\mathrm{d}m}
+\newcommand{\dpt}{\mathrm{d}p_T} 
+\newcommand{\pt}{p_T}
+\newcommand{\pta}{p^a_T}
+\newcommand{\ptb}{p^b_T}
+\newcommand{\dph}{\Delta\phi}
+\newcommand{\jaa}{J_{AA}}
+\newcommand{\iaa}{I_{AA}}
+\newcommand{\raa}{R_{AA}}
+\newcommand{\ncoll}{N_{coll}}
+
+\setlength{\belowdisplayskip}{0pt} \setlength{\belowdisplayshortskip}{0pt}
+\setlength{\abovedisplayskip}{0pt} \setlength{\abovedisplayshortskip}{0pt}
+
+
+\frame{\titlepage}
+
+
+\frame{
+  \frametitle{Objective of study}
+  \begin{itemize}
+    \scriptsize
+  \item Understand the implication of using various available physics lists for Geant 4
+    \begin{itemize}
+      \scriptsize
+    \item Previous PiD algorithm work done using Geant 3
+    \item Feasibility of physics measurements $\bar{p}p\rightarrow\pi^0e^+e^-$ critically dependent on PiD
+    \item Tail of hadronic response plays dominant role in hadron rejection 
+    \end{itemize}
+    \vspace{0.3cm}
+  \item How does Geant 4 physics lists compare to the default option of Geant 3 (used so far)? 
+    \vspace{0.3cm}
+  \item Strategy: Select Geant 4 physics list with largest tail to be conservative? 
+    \vspace{0.3cm}
+  \item Geant 4 also offers other options with more or less cpu cost. What to use? 
+    \begin{itemize}
+      \scriptsize
+    \item ``Optical physics'' simulation (very high cpu/storage cost)
+    \item ``High precision neutron data'' (very high cpu)
+    \item Most accurate parametrization of EM physics vs. tuned (for cpu) less accurate one 
+    \end{itemize}
+    \vspace{0.3cm}
+  \item PandaROOT setup
+    \begin{itemize}
+      \scriptsize
+    \item Full PANDA simulation vs. EMCal only simulation
+    \end{itemize}
+  \end{itemize}
+
+}
+
+\frame{
+  \frametitle{PandaROOT setup}
+  \begin{itemize}
+    \scriptsize
+  \item Events
+    \begin{itemize}
+      \scriptsize
+    \item 50k $\pi^+$ and 50k $\pi^-$ for each physics list
+    \item Uniform in $\phi\in$ (0, 360$^\circ$) and $\theta\in$ (85$^\circ$, 95$^\circ$)
+    \item Acceptance cut to exclude $\phi\in$ (-100$^\circ$,90$^\circ$) and  $\phi\in$ (90$^\circ$,100$^\circ$)
+    \item Each setup at 5 different momenta (in GeV/c: 0.5, 0.8, 1.0, 1.5, 3.0 and 5.0)
+    \item All tracks start from $(v_x,v_y,v_z)=0.0$
+    \end{itemize}
+    \vspace{0.1cm}
+  \end{itemize}
+  \only<2>{
+    \begin{figure}
+      \includegraphics[width=0.65\columnwidth]{tc.eps}
+    \end{figure}
+  }
+  \only<1>{
+    \begin{itemize}
+    \item Detector setup for transport stage
+      \begin{itemize}
+        \scriptsize
+      \item More details on Geant physics lists next slide
+      \item EMCal only setup used for most comparisons
+      \item For sanity check, full panda setup compared to EMCal only in a few setups
+      \end{itemize}
+      \vspace{0.1cm}
+    \item Reconstruction of the EMCal
+      \begin{itemize}
+        \scriptsize
+      \item Full EMCal reconstruction used with the following modules: \\
+        {\tiny PndEmcHitProducer, PndEmcHitsToWaveform, PndEmcWaveformToDigi, \\
+          PndEmcMakeCluster, PndEmcHdrFiller, PndEmcMakeBump, PndEmcMakeRecoHit.}
+      \item Bug/Feature? Cluster, Bump and RecoHit containers have
+        exactly the same multiplicity and same energy for all
+        objects.
+      \end{itemize}
+      \vspace{0.1cm}
+    \item Plotted quantity: $E_{reco}/E_{true}$
+      \begin{itemize}
+        \scriptsize
+      \item $E_{true}$: Energy of simulated pion track
+      \item $E_{reco}$: Energy of EmcRecoHit object with closest $\theta_{reco}$ to $\theta_{origin}$ of simulated pion
+      \end{itemize}
+    \end{itemize}
+  }
+}
+
+
+%\frame{
+%  \frametitle{PandaROOT setup}
+%  \begin{itemize}
+%    \scriptsize
+%  \item Events
+%    \begin{itemize}
+%      \scriptsize
+%    \item 50k $\pi^+$ and 50k $\pi^-$ for each physics list
+%    \item Uniform in $\phi\in$ (0, 360$^\circ$) and $\theta\in$ (85$^\circ$, 95$^\circ$)
+%    \item Acceptance cut to exclude $\phi\in$ (-100$^\circ$,90$^\circ$) and  $\phi\in$ (90$^\circ$,100$^\circ$)
+%    \item Each setup at 5 different momenta (in GeV/c: 0.5, 0.8, 1.0, 1.5, 3.0 and 5.0)
+%    \item All tracks start from $(v_x,v_y,v_z)=0.0$
+%    \end{itemize}
+%    \vspace{0.1cm}
+%  \item Detector setup for transport stage
+%    \begin{itemize}
+%      \scriptsize
+%    \item More details on Geant physics lists next slide
+%    \item EMCal only setup used for most comparisons
+%    \item For sanity check, full panda setup compared to EMCal only in a few setups
+%    \end{itemize}
+%    \vspace{0.1cm}
+%  \item Reconstruction of the EMCal
+%    \begin{itemize}
+%      \scriptsize
+%    \item Full EMCal reconstruction used with the following modules: \\
+%      {\tiny PndEmcHitProducer, PndEmcHitsToWaveform, PndEmcWaveformToDigi, \\
+%        PndEmcMakeCluster, PndEmcHdrFiller, PndEmcMakeBump, PndEmcMakeRecoHit.}
+%    \item Bug/Feature? Cluster, Bump and RecoHit containers have
+%      exactly the same multiplicity and same energy for all
+%      objects.
+%    \end{itemize}
+%    \vspace{0.1cm}
+%  \item Plotted quantity: $E_{reco}/E_{true}$
+%    \begin{itemize}
+%      \scriptsize
+%    \item $E_{true}$: Energy of simulated pion track
+%    \item $E_{reco}$: Energy of EmcRecoHit object with closest $\theta_{reco}$ to $\theta_{origin}$ of simulated pion
+%    \end{itemize}
+%  \end{itemize}
+%}
+
+\frame{
+  \frametitle{Hadronic Physics Lists}
+  Geant 3
+  \begin{itemize}
+    \scriptsize
+  \item Limited number of choices for hadronic physics lists
+  \item Default: HADR=3 (GEANH+NUCRIN)
+  \item Other choices: HADR=4 ({\bf FLUKA}), HADR=5 ({\bf MICAP}), HADR=6 ({\bf GCALOR})
+  \end{itemize}
+  Geant 4
+  \begin{itemize}
+    \scriptsize
+  \item Options depending on hadronic interaction and cascade (nuclear de-excitation) model
+  \item Two ``large'' classes: Quark Gluon String (QGS) and Fritiof (FTF)
+  \item Variations based on low energy hadronic interaction and nuclear de-excitation (cascade)
+    \begin{itemize}
+      \scriptsize
+    \item {\bf QGSP\_BERT} and {\bf FTFP\_BERT} (Bertini for LE interaction)\\
+      $\rightarrow$ P=``Precompound model'': HE parametrisation for nuclear dexcitation
+    \item {\bf QGSP\_BIC} (Binary cascade for LE interaction) \\
+      $\rightarrow$ P same as above, no FTFP\_BIC list available
+    \item {\bf QGS\_BIC} and {\bf FTF\_BIC} \\
+      $\rightarrow$ (Binary cascade used for nuclear de-excitation for the high energy model)
+    \item High precision neutron data versions: \\
+      {\bf QGSP\_BERT\_HP}, {\bf QGSP\_BIC\_HP} {\bf FTFP\_BERT\_HP}
+    \end{itemize}
+  \item Soon to be deleted in Geant 4.10
+    \begin{itemize}
+      \scriptsize
+    \item {\bf LHEP}: both high and low energy interactions use parametrized models
+    \item Chiral Invariant Phase Space (CHIPS) model for all nuclear de-excitations {\bf QGSC\_BERT}, {\bf QGSC}
+    \end{itemize}
+  \end{itemize}
+}
+
+\frame{
+
+  \frametitle{Hadronic Physics List Table}
+
+  %QGSP\_BERT
+  %PionPlusInelastic  Models:
+  %QGSP: Emin(GeV)=   12  Emax(GeV)= 100000
+  %G4LEPionPlusInelastic: Emin(GeV)=  9.5  Emax(GeV)= 25
+  %BertiniCascade: Emin(GeV)=    0  Emax(GeV)= 9.9
+  %
+  %QGSP\_BIC
+  %PionPlusInelastic  Models:
+  %QGSP: Emin(GeV)=   12  Emax(GeV)= 100000
+  %G4LEPionPlusInelastic: Emin(GeV)=    0  Emax(GeV)= 25
+  %
+  % FTFP\_BERT
+  %PionPlusInelastic  Models:
+  %FTFP: Emin(GeV)=    4  Emax(GeV)= 100000
+  %BertiniCascade: Emin(GeV)=    0  Emax(GeV)= 5
+  %
+  % QGS\_BIC
+  %PionPlusInelastic  Models:
+  %QGSB: Emin(GeV)=   12  Emax(GeV)= 100000
+  %Binary Cascade: Emin(GeV)=    0  Emax(GeV)= 1.3
+  %G4LEPionPlusInelastic: Emin(GeV)=  1.2  Emax(GeV)= 25
+  % FTF\_BIC
+  %PionPlusInelastic  Models:
+  %FTFB: Emin(GeV)=    4  Emax(GeV)= 100000
+  %Binary Cascade: Emin(GeV)=    0  Emax(GeV)= 5
+
+  
+  \begin{center}
+    \scriptsize
+    \begin{tabular}{|c|c|c|c|c|c|c|c|}
+      \hline
+        & \multicolumn{3}{|c|}{Low Energy}  & \multicolumn{3}{|c|}{High Energy} & \\
+      \hline
+       Phys. List & h-N & de-ex. & R($\pi^{\pm}$) &  h-N  &   de-ex. & R($\pi^\pm$)  & C   \\
+      \hline                                                                     
+      \hline                                                                     
+      QGSP\_BERT           &  Bert. & Bert. & 0 - 9.9 & QGS  & Prec. &  12 - $\infty$ & LEP: 9.5 - 25 \\
+      \hline
+      QGSP\_BIC            &  LEP  & LEP  & 0 - 9.9 & QGS  & Prec. & 12 - $\infty$ & G4 Bug? \\
+      \hline
+      QGS\_BIC             &  Bin. & Bin. & 0 - 1.3 & QGS  & Bin.  & 12 - $\infty$ & LEP: 1.2 - 25 \\
+      \hline
+      FTFP\_BERT           &  Bert. & Bert. & 0 - 5 & FTF  & Prec. & 4 - $\infty$ & \\
+      \hline
+      FTF\_BIC             &  Bin. & Bin. & 0 - 5 & FTF & Bic & 4 - $\infty$ & \\
+      \hline
+    \end{tabular}
+  \end{center}
+
+  \hfill
+  {
+    \tiny
+    
+    h-N: Hadron-Nucleus interaction\\
+    de-ex: Nuclear de-excitation\\
+    R: Range\\
+    C: Comments (patching model when gap between LE \& HE)\\
+    LEP: Low Energy Parametrization\\
+  }
+}
+
+
+
+\frame{
+  \frametitle{Full PANDA simulation vs. EMCal only}
+  \vskip -.4cm
+  \begin{figure}
+    \includegraphics[width=0.75\columnwidth]{fvse.eps}
+  \end{figure}
+  \begin{itemize}
+    \scriptsize
+  \item Slight difference at low $E_{reco}/E_{true}$ but the high end tail looks very similar
+  \item Large gain in CPU usage with EMCal only simulation
+  \item For purpose of comparison, will use EMCal only simulation consistently
+  \end{itemize}
+
+}
+
+
+\frame{
+  \frametitle{}
+  
+  \begin{block}{}
+    \begin{center}
+      \Huge
+      Momentum dependence
+    \end{center}
+  \end{block}
+
+}
+
+
+
+\frame{
+  \frametitle{$\pi^+$ and $\pi^-$ G3 HADR=3 (GEISHA,NUCRIN) }
+  \vskip -0.3cm
+  \begin{figure}
+    \includegraphics[width=0.85\columnwidth]{pvsm_G3_HADR3_NUCRIN.eps}
+  \end{figure}
+}
+
+\frame{
+  \frametitle{$\pi^+$ and $\pi^-$ G4 QGSP, Binary cascade, param. EM processes (QGSP\_BIC\_EMV) }
+  \vskip -0.3cm
+  \begin{figure}
+    \includegraphics[width=0.85\columnwidth]{pvsm_QGSP_BIC_EMV.eps}
+  \end{figure}
+}
+
+\frame{
+  \frametitle{$\pi^+$ and $\pi^-$ G4 QGSP, Bertini cascade, param. EM processes (QGSP\_BERT\_EMV) }
+  \vskip -0.3cm
+  \begin{figure}
+    \includegraphics[width=0.85\columnwidth]{pvsm_QGSP_BERT_EMV.eps}
+  \end{figure}
+}
+
+
+
+\frame{
+  \frametitle{}
+  
+  \begin{block}{}
+    \begin{center}
+      \huge
+      Performance tuned EM parameters and optical physics options
+    \end{center}
+  \end{block}
+
+}
+
+\frame{
+  \frametitle{QGSP\_BERT W and W/O EMV and optical physics}
+  \vskip -0.3cm
+  \begin{figure}
+    \includegraphics[width=0.85\columnwidth]<1>{g4_emv_opt_pip.eps}
+    \includegraphics[width=0.85\columnwidth]<2>{g4_emv_opt_pim.eps}
+  \end{figure}
+  \vskip -0.2cm
+  \begin{itemize}
+    \scriptsize
+  \item No visible difference whether EMV parameters are tuned or not ($\implies$ Use EMV)
+  \item No visible difference whether optical physics is turned on or not ($\implies$ Do not use optical)
+  \end{itemize}
+  
+}
+
+
+
+
+\frame{
+  \frametitle{}
+  
+  \begin{block}{}
+    \begin{center}
+      {\huge
+        High precision neutron data \\
+        }
+      for neutron transport below 20~MeV
+    \end{center}
+  \end{block}
+
+}
+
+\frame{
+  \frametitle{QGSP\_BERT\_EMV vs. QGSP\_BERT\_HP}
+  \vskip -0.3cm
+  \begin{figure}
+    \includegraphics[width=0.85\columnwidth]<1>{g4_hp_opt_pip.eps}
+    \includegraphics[width=0.85\columnwidth]<2>{g4_hp_opt_pim.eps}
+  \end{figure}
+  \vskip -0.2cm
+  \begin{itemize}
+    \scriptsize
+  \item No visible difference whether HP neutron data is used ($\implies$ Do not Use HP)
+  \end{itemize}
+  
+}
+
+
+
+
+
+
+
+
+\frame{
+  \frametitle{}
+  \begin{block}{}
+    \begin{center}
+      {\huge
+        Geant3 vs. Geant4 
+        }
+    \end{center}
+  \end{block}
+}
+
+\frame{
+  \frametitle{G4 \only<1>{$\pi^+$}\only<2>{$\pi^{-}$} G3 vs. QGSP\_BERT\_EMV vs. QGSP\_BIC\_EMV}
+  \begin{figure}
+    \includegraphics[width=0.85\columnwidth]<1>{g3vsg4_pip.eps}
+    \includegraphics[width=0.85\columnwidth]<2>{g3vsg4_pim.eps}
+  \end{figure}
+}
+
+
+
+\frame{
+  \frametitle{}
+  \begin{block}{}
+    \begin{center}
+      {\huge
+        Backup
+        }
+    \end{center}
+  \end{block}
+}
+
+\frame{
+  \frametitle{G3 options}
+
+  HADR=1: GEANH
+  
+  HADR=3: GEANH+NUCRIN (Default)
+  \begin{itemize}
+    \scriptsize
+    \item GEANH: Transport
+    \item NUCRIN: ?
+  \end{itemize}
+  
+
+  HADR=4: FLUKA
+  \begin{itemize}
+    \scriptsize
+    \item GEANH: Transport ?
+    \item FLUKA: The FLUKA fragmentation model is utilized for interactions above the HETC limit
+  \end{itemize}
+  
+  HADR=5: MICAP
+  \begin{itemize}
+    \scriptsize
+    \item GEANH: Transport ?
+    \item MICAP: Neutron code from the Monte-carlo-Ionization-Chamber-Analysis-Program for neutrons with a kinetic energy below 20 MeV.
+  \end{itemize}
+  
+  
+  HADR=6: GCALOR
+  \begin{itemize}
+    \scriptsize
+    \item HETC: The High-Energy-Transport-Code is transporting charged hadrons up to an energy of 10 GeV through the materials of the setup
+    \item FLUKA and MICAP are also used in their validity domain
+  \end{itemize}
+
+}
+
+\frame{
+  \frametitle{$\pi^+$ vs $\pi^-$ G4 QGSP, Bertini cascade, Full EM Physics + Optical physics (QGSP\_BERT\_OPTICAL) }
+  \vskip -0.3cm
+  \begin{figure}
+    \includegraphics[width=0.85\columnwidth]{pvsm_QGSP_BERT_OPTICAL.eps}
+  \end{figure}
+}
+
+\frame{
+  \frametitle{$\pi^+$ vs $\pi^-$ G4 QGSP, Binary cascade, param. EM processes + Optical physics (QGSP\_BIN\_EMV\_OPTICAL) }
+  \vskip -0.3cm
+  \begin{figure}
+    \includegraphics[width=0.85\columnwidth]{pvsm_QGSP_BERT_EMV_OPTICAL.eps}
+  \end{figure}
+}
+
+\frame{
+  \frametitle{$\pi^+$ vs $\pi^-$ G4 QGSP, Binary cascade, High Precision Neutron Package (QGSP\_BERT\_HP) }
+  \vskip -0.3cm
+  \begin{figure}
+    \includegraphics[width=0.85\columnwidth]{pvsm_QGSP_BERT_HP.eps}
+  \end{figure}
+}
+
+\end{document}

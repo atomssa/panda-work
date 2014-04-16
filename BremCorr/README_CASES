@@ -1,0 +1,11 @@
+
+
+case 1: Run old style (no phi bump splitting and no Brem Correction)
+     	    (only run sim_complete.C and digi_complete.C compairison is on DigiComplet time)
+
+case 2: Turn on phi-bump splitting but no brem correction
+            (run sim_complete.C, digi_complete.C, reco_complete.C and pid_complete.C - compairison is on DigiComplet time with case 1 and on pid_complete.C time with case 2)
+
+case 3: Turn on both phi-bump splitting and brem correction
+     	     (run sim_complete.C, digi_complete.C, reco_complete.C and pid_complete.C - compairison is on DigiComplet time with case 1 and on pid_complete.C time with case 2)
+

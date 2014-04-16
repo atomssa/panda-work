@@ -1,0 +1,6 @@
+noPhotos
+Decay pbarpSystem
+  1.0  pi+ pi- PHSP;
+Enddecay
+
+End

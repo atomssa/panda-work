@@ -1,0 +1,15 @@
+noPhotos
+
+Decay pbarpSystem
+   1.0  anti-Lambda0  Lambda0    PHSP; 
+Enddecay
+ 
+Decay Lambda0
+   1.0  p+ pi-      PHSP;
+Enddecay
+
+Decay anti-Lambda0
+   1.0  anti-p- pi+      PHSP;  
+Enddecay
+
+End

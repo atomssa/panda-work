@@ -1,0 +1,29 @@
+1***************************************************************************************************
+ *                                                                                                 *
+ *    G E A N T  Version 3.2111      DATE/TIME 140221/2129          R U N      1                   *
+ *                                                                                                 *
+ *      Data structure   Date   Time    GVERSN    ZVERSN                                           *
+ *                                                                                                 *
+ *           INIT       140221  2129    3.2111     3.77                                            *
+ *           KINE       140221  2129    3.2111     3.77                                            *
+ *           HITS       140221  2129    3.2111     3.77                                            *
+ *           DIGI       140221  2129    3.2111     3.77                                            *
+ *                                                                                                 *
+ *                                                                                                 *
+ *              Standard TPAR for this run are                                                     *
+ *                                                                                                 *
+ *  CUTGAM=  1.00 MeV  CUTELE=  1.00 MeV  CUTNEU=  1.00 MeV  CUTHAD=  1.00 MeV  CUTMUO=  1.00 MeV  *
+ *  BCUTE = 10.00 TeV  BCUTM = 10.00 TeV  DCUTE = 10.00 TeV  DCUTM = 10.00 TeV  PPCUTM= 10.00 TeV  *
+ *  IPAIR=  0.  ICOMP=  0.  IPHOT=  0.  IPFIS=  0.  IDRAY=  0.  IANNI=  0.  IBREM=  1.  IHADR=  0. *
+ *  IMUNU=  0.  IDCAY=  0.  ILOSS=  4.  IMULS=  1.  IRAYL=  0.  ILABS=  0.  ISYNC=  0.  ISTRA=  0. *
+ *                                                                                                 *
+ *                                                                                                 *
+ *     Special TPAR for TMED  51   vacuum                                                          *
+ *  CUTGAM=  1.00 MeV  CUTELE=  1.00 MeV  CUTNEU=  1.00 MeV  CUTHAD=  1.00 MeV  CUTMUO=  1.00 MeV  *
+ *  BCUTE = 10.00 TeV  BCUTM = 10.00 TeV  DCUTE = 10.00 TeV  DCUTM = 10.00 TeV  PPCUTM= 10.00 TeV  *
+ *  IPAIR=  0.  ICOMP=  0.  IPHOT=  0.  IPFIS=  0.  IDRAY=  0.  IANNI=  0.  IBREM=  0.  IHADR=  0. *
+ *  IMUNU=  0.  IDCAY=  0.  ILOSS=  0.  IMULS=  0.  IRAYL=  0.  ILABS=  0.  ISYNC=  0.  ISTRA=  0. *
+ *                                                                                                 *
+ ***************************************************************************************************
+
+

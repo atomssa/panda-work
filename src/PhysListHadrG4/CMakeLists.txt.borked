@@ -1,0 +1,156 @@
+# Check if cmake has the required version
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0 FATAL_ERROR)
+
+
+
+#set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
+
+
+
+
+MACRO (ROOT_GENERATE_DICTIONARY_OLD INFILES LINKDEF_FILE OUTFILE INCLUDE_DIRS_IN)
+ 
+  set(INCLUDE_DIRS)
+
+  foreach (_current_FILE ${INCLUDE_DIRS_IN})
+    set(INCLUDE_DIRS ${INCLUDE_DIRS} -I${_current_FILE})   
+  endforeach (_current_FILE ${INCLUDE_DIRS_IN})
+ 
+#  Message("Definitions: ${DEFINITIONS}")
+#  MESSAGE("INFILES: ${INFILES}")
+#  MESSAGE("OutFILE: ${OUTFILE}")
+#  MESSAGE("LINKDEF_FILE: ${LINKDEF_FILE}")
+#  MESSAGE("INCLUDE_DIRS: ${INCLUDE_DIRS}")
+
+  STRING(REGEX REPLACE "^(.*)\\.(.*)$" "\\1.h" bla "${OUTFILE}")
+#  MESSAGE("BLA: ${bla}")
+  SET (OUTFILES ${OUTFILE} ${bla})
+
+
+  if (CMAKE_SYSTEM_NAME MATCHES Linux)
+    ADD_CUSTOM_COMMAND(OUTPUT ${OUTFILES}
+       COMMAND LD_LIBRARY_PATH=${ROOT_LIBRARY_DIR}:${_intel_lib_dirs} ROOTSYS=${ROOTSYS} ${ROOT_CINT_EXECUTABLE}
+       ARGS -f ${OUTFILE} -c -DHAVE_CONFIG_H ${INCLUDE_DIRS} ${INFILES} ${LINKDEF_FILE} DEPENDS ${INFILES} ${LINKDEF_FILE})
+  else (CMAKE_SYSTEM_NAME MATCHES Linux)
+    if (CMAKE_SYSTEM_NAME MATCHES Darwin)
+      ADD_CUSTOM_COMMAND(OUTPUT ${OUTFILES}
+       COMMAND DYLD_LIBRARY_PATH=${ROOT_LIBRARY_DIR} ROOTSYS=${ROOTSYS} ${ROOT_CINT_EXECUTABLE}
+       ARGS -f ${OUTFILE} -c -DHAVE_CONFIG_H ${INCLUDE_DIRS} ${INFILES} ${LINKDEF_FILE} DEPENDS ${INFILES} ${LINKDEF_FILE})
+    endif (CMAKE_SYSTEM_NAME MATCHES Darwin)
+  endif (CMAKE_SYSTEM_NAME MATCHES Linux)
+
+ENDMACRO (ROOT_GENERATE_DICTIONARY_OLD)
+
+Macro(ROOT_GENERATE_DICTIONARY_NEW)
+
+  # All Arguments needed for this new version of the macro are defined
+  # in the parent scope, namely in the CMakeLists.txt of the submodule 
+  set(Int_LINKDEF ${LINKDEF})
+  set(Int_DICTIONARY ${DICTIONARY})
+
+  #  Message("DEFINITIONS: ${DEFINITIONS}")
+  set(Int_INC ${INCLUDE_DIRECTORIES})
+  set(Int_HDRS ${HDRS})
+  set(Int_DEF ${DEFINITIONS})
+
+  # Convert the values of the variable to a semi-colon separated list
+  separate_arguments(Int_INC)
+  separate_arguments(Int_HDRS)
+  separate_arguments(Int_DEF)
+
+  # Format neccesary arguments
+  # Add -I and -D to include directories and definitions
+  Format(Int_INC "${Int_INC}" "-I" "")
+  Format(Int_DEF "${Int_DEF}" "-D" "")
+
+  set_source_files_properties(${Int_DICTIONARY} PROPERTIES GENERATED TRUE)
+  If (CMAKE_SYSTEM_NAME MATCHES Linux)
+    add_custom_command(OUTPUT  ${Int_DICTIONARY}
+                       COMMAND LD_LIBRARY_PATH=${ROOT_LIBRARY_DIR}:${_intel_lib_dirs}:$ENV{LD_LIBRARY_PATH} ROOTSYS=${ROOTSYS} ${ROOT_CINT_EXECUTABLE} -f ${Int_DICTIONARY} -c  ${Int_DEF} ${Int_INC} ${Int_HDRS} ${Int_LINKDEF}
+                       DEPENDS ${Int_HDRS} ${Int_LINKDEF}
+                       )
+  Else (CMAKE_SYSTEM_NAME MATCHES Linux)
+    If (CMAKE_SYSTEM_NAME MATCHES Darwin)
+      add_custom_command(OUTPUT  ${Int_DICTIONARY}
+                         COMMAND DYLD_LIBRARY_PATH=${ROOT_LIBRARY_DIR}:$ENV{DYLD_LIBRARY_PATH} ROOTSYS=${ROOTSYS} ${ROOT_CINT_EXECUTABLE} -f ${Int_DICTIONARY} -c  ${Int_DEF} ${Int_INC} ${Int_HDRS} ${Int_LINKDEF}
+                         DEPENDS ${Int_HDRS} ${Int_LINKDEF}
+                         )
+    EndIf (CMAKE_SYSTEM_NAME MATCHES Darwin)
+  EndIf (CMAKE_SYSTEM_NAME MATCHES Linux)
+
+endmacro(ROOT_GENERATE_DICTIONARY_NEW)
+
+Macro(ROOT_GENERATE_DICTIONARY)
+  # Macro to switch between the old implementation with parameters
+  # and the new implementation without parameters.
+  # For the new implementation some CMake variables has to be defined
+  # before calling the macro.
+  If(${ARGC} EQUAL 0)
+    #    Message("New Version")
+    ROOT_GENERATE_DICTIONARY_NEW()
+  Else(${ARGC} EQUAL 0)
+    If(${ARGC} EQUAL 4)
+      #      Message("Old Version")
+      ROOT_GENERATE_DICTIONARY_OLD("${ARGV0}" "${ARGV1}" "${ARGV2}" "${ARGV3}")
+    Else(${ARGC} EQUAL 4)
+      Message(FATAL_ERROR "Has to be implemented")  
+    EndIf(${ARGC} EQUAL 4)
+  EndIf(${ARGC} EQUAL 0)
+EndMacro(ROOT_GENERATE_DICTIONARY)
+
+
+
+
+
+
+
+
+#set(ROOT_INCLUDE_DIR)
+
+set(PANDAROOT_SOURCE_DIR /vol0/panda/root)
+
+
+# Create a library called "histfillertask" 
+set(INCLUDE_DIRECTORIES
+${ROOT_INCLUDE_DIR} 
+${BASE_INCLUDE_DIRECTORIES} 
+${PANDAROOT_SOURCE_DIR}/pnddata
+${PANDAROOT_SOURCE_DIR}/emc/EmcData
+${PANDAROOT_SOURCE_DIR}/emc/EmcReco
+${PANDAROOT_SOURCE_DIR}/emc/EmcTools
+${PANDAROOT_SOURCE_DIR}/macro/PhysListHadrG4
+)
+
+
+
+include_directories( ${INCLUDE_DIRECTORIES})
+
+set(LINK_DIRECTORIES
+${ROOT_LIBRARY_DIR}
+)
+ 
+link_directories( ${LINK_DIRECTORIES})
+
+set(histfillertask_SRCS
+HistFillerTask.cxx
+)
+
+set(histfillertask_HEADERS
+HistFillerTask.h
+)
+
+set(histfillertask_LINKDEF HistFillerLinkDef.h)
+set(histfillertask_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/HistFiller_Dict.cxx) 
+ROOT_GENERATE_DICTIONARY("${histfillertask_HEADERS}" "${histfillertask_LINKDEF}" "${histfillertask_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
+
+set(histfillertask_SRCS ${histfillertask_SRCS} ${histfillertask_DICTIONARY})
+set(histfillertask_SRCS ${histfillertask_SRCS})
+
+add_library(histfillertask SHARED ${histfillertask_SRCS})
+target_link_libraries(histfillertask ${ROOT_LIBRARIES})
+
+#set_target_properties(histfillertask PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
+
+
+################ install ###################
+#install(TARGETS histfillertask DESTINATION ${CMAKE_BINARY_DIR}/lib)

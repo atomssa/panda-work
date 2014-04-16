@@ -1,0 +1,41 @@
+1***************************************************************************************************
+ *                                                                                                 *
+ *    G E A N T  Version 3.2111      DATE/TIME 131117/ 729          R U N      1                   *
+ *                                                                                                 *
+ *      Data structure   Date   Time    GVERSN    ZVERSN                                           *
+ *                                                                                                 *
+ *           INIT       131117   729    3.2111     3.77                                            *
+ *           KINE       131117   729    3.2111     3.77                                            *
+ *           HITS       131117   729    3.2111     3.77                                            *
+ *           DIGI       131117   729    3.2111     3.77                                            *
+ *                                                                                                 *
+ *                                                                                                 *
+ *              Standard TPAR for this run are                                                     *
+ *                                                                                                 *
+ *  CUTGAM=  1.00 MeV  CUTELE=  1.00 MeV  CUTNEU=  1.00 MeV  CUTHAD=  1.00 MeV  CUTMUO=  1.00 MeV  *
+ *  BCUTE =  1.00 MeV  BCUTM =  1.00 MeV  DCUTE =  1.00 MeV  DCUTM =  1.00 MeV  PPCUTM=  2.04 MeV  *
+ *  IPAIR=  1.  ICOMP=  1.  IPHOT=  1.  IPFIS=  0.  IDRAY=  1.  IANNI=  1.  IBREM=  1.  IHADR=  1. *
+ *  IMUNU=  1.  IDCAY=  1.  ILOSS=  1.  IMULS=  1.  IRAYL=  1.  ILABS=  0.  ISYNC=  0.  ISTRA=  0. *
+ *                                                                                                 *
+ *                                                                                                 *
+ *     Special TPAR for TMED   2   lead                                                            *
+ *  CUTGAM=100.00 keV  CUTELE=100.00 keV  CUTNEU=100.00 keV  CUTHAD=100.00 keV  CUTMUO=100.00 keV  *
+ *  BCUTE =100.00 keV  BCUTM =100.00 keV  DCUTE =100.00 keV  DCUTM =100.00 keV  PPCUTM=  2.04 MeV  *
+ *  IPAIR=  1.  ICOMP=  1.  IPHOT=  1.  IPFIS=  0.  IDRAY=  1.  IANNI=  1.  IBREM=  1.  IHADR=  1. *
+ *  IMUNU=  1.  IDCAY=  1.  ILOSS=  1.  IMULS=  1.  IRAYL=  1.  ILABS=  0.  ISYNC=  0.  ISTRA=  0. *
+ *                                                                                                 *
+ *     Special TPAR for TMED   4   FscScint                                                        *
+ *  CUTGAM=100.00 keV  CUTELE=100.00 keV  CUTNEU=100.00 keV  CUTHAD=100.00 keV  CUTMUO=100.00 keV  *
+ *  BCUTE =100.00 keV  BCUTM =100.00 keV  DCUTE =100.00 keV  DCUTM =100.00 keV  PPCUTM=  2.04 MeV  *
+ *  IPAIR=  1.  ICOMP=  1.  IPHOT=  1.  IPFIS=  0.  IDRAY=  1.  IANNI=  1.  IBREM=  1.  IHADR=  1. *
+ *  IMUNU=  1.  IDCAY=  1.  ILOSS=  1.  IMULS=  1.  IRAYL=  1.  ILABS=  0.  ISYNC=  0.  ISTRA=  0. *
+ *                                                                                                 *
+ *     Special TPAR for TMED   7   FscFiber                                                        *
+ *  CUTGAM=100.00 keV  CUTELE=100.00 keV  CUTNEU=100.00 keV  CUTHAD=100.00 keV  CUTMUO=100.00 keV  *
+ *  BCUTE =100.00 keV  BCUTM =100.00 keV  DCUTE =100.00 keV  DCUTM =100.00 keV  PPCUTM=  2.04 MeV  *
+ *  IPAIR=  1.  ICOMP=  1.  IPHOT=  1.  IPFIS=  0.  IDRAY=  1.  IANNI=  1.  IBREM=  1.  IHADR=  1. *
+ *  IMUNU=  1.  IDCAY=  1.  ILOSS=  1.  IMULS=  1.  IRAYL=  1.  ILABS=  0.  ISYNC=  0.  ISTRA=  0. *
+ *                                                                                                 *
+ ***************************************************************************************************
+
+

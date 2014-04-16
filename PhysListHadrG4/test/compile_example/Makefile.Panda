@@ -1,0 +1,168 @@
+# Generic makefile for PandaRoot programs.
+# Elwin Dijck, December 2009
+
+# Based on the ROOT Makefile by Fons Rademakers.
+
+#------------------------------------------------------------------------------
+
+include Makefile.ROOT
+
+#------------------------------------------------------------------------------
+
+PANDADIR     := $(VMCWORKDIR)
+
+# Add include directories for the PandaRoot header files.
+INCLUDE       = -I$(PANDADIR)/base \
+                -I$(PANDADIR)/dch \
+                -I$(PANDADIR)/dch/DchData \
+                -I$(PANDADIR)/dch/DchFitting \
+                -I$(PANDADIR)/dch/DchTracking \
+                -I$(PANDADIR)/drc \
+                -I$(PANDADIR)/drc/drcprop \
+                -I$(PANDADIR)/dsk \
+                -I$(PANDADIR)/dsk/DskMC \
+                -I$(PANDADIR)/emc \
+                -I$(PANDADIR)/emc/EmcData \
+                -I$(PANDADIR)/emc/EmcDigi \
+                -I$(PANDADIR)/emc/EmcMC \
+                -I$(PANDADIR)/emc/EmcReco \
+                -I$(PANDADIR)/emc/EmcTools \
+                -I$(PANDADIR)/emc/pwo25 \
+                -I$(PANDADIR)/endrc \
+                -I$(PANDADIR)/eventdisplay \
+                -I$(PANDADIR)/field \
+                -I$(PANDADIR)/fsim \
+                -I$(PANDADIR)/ftof \
+                -I$(PANDADIR)/fwd \
+                -I$(PANDADIR)/geane \
+                -I$(PANDADIR)/gem \
+                -I$(PANDADIR)/generators \
+                -I$(PANDADIR)/genfit \
+                -I$(PANDADIR)/geobase \
+                -I$(PANDADIR)/gpid \
+                -I$(PANDADIR)/gpid/hspace \
+                -I$(PANDADIR)/hyp \
+                -I$(PANDADIR)/hyp/hypData \
+                -I$(PANDADIR)/hyp/hypDigi \
+                -I$(PANDADIR)/hyp/hypFullAna \
+                -I$(PANDADIR)/hyp/hypPID \
+                -I$(PANDADIR)/hyp/hypReco \
+                -I$(PANDADIR)/hyp/hypTools \
+                -I$(PANDADIR)/hyp/hypTracking \
+                -I$(PANDADIR)/hypGe \
+                -I$(PANDADIR)/lhetrack \
+                -I$(PANDADIR)/lmd/LmdDigiNew \
+                -I$(PANDADIR)/lumi \
+                -I$(PANDADIR)/lumi/LumiData \
+                -I$(PANDADIR)/lumi/LumiDigi \
+                -I$(PANDADIR)/lumi/LumiMC \
+                -I$(PANDADIR)/lumi/LumiReco \
+                -I$(PANDADIR)/lumi/LumiTools \
+                -I$(PANDADIR)/macro/tpc/dedx \
+                -I$(PANDADIR)/mdt \
+                -I$(PANDADIR)/mdt/MdtDigi \
+                -I$(PANDADIR)/mdt/MdtMC \
+                -I$(PANDADIR)/mdt/MdtReco \
+                -I$(PANDADIR)/mdt/old \
+                -I$(PANDADIR)/mvd \
+                -I$(PANDADIR)/mvd/MvdDAQ \
+                -I$(PANDADIR)/mvd/MvdData \
+                -I$(PANDADIR)/mvd/MvdDigi \
+                -I$(PANDADIR)/mvd/MvdMC \
+                -I$(PANDADIR)/mvd/MvdPid \
+                -I$(PANDADIR)/mvd/MvdReco \
+                -I$(PANDADIR)/mvd/MvdTools \
+                -I$(PANDADIR)/mvd/MvdTracking \
+                -I$(PANDADIR)/ora \
+                -I$(PANDADIR)/parbase \
+                -I$(PANDADIR)/passive \
+                -I$(PANDADIR)/pgenerators \
+                -I$(PANDADIR)/pgenerators/PndJRGen \
+                -I$(PANDADIR)/pid \
+                -I$(PANDADIR)/pid/PidClassifier \
+                -I$(PANDADIR)/pid/PidClassifier/KNN \
+                -I$(PANDADIR)/pid/PidClassifier/LVQ1 \
+                -I$(PANDADIR)/pid/PidClassifier/TMVA_PDE_FOAM \
+                -I$(PANDADIR)/pid/PidClassifier/TMVAkd_KNN \
+                -I$(PANDADIR)/pid/PidCorr \
+                -I$(PANDADIR)/pid/PidData \
+                -I$(PANDADIR)/pndbase \
+                -I$(PANDADIR)/pndbase/AssocTools \
+                -I$(PANDADIR)/pndbase/PndStdUtils \
+                -I$(PANDADIR)/pndbase/gblenv \
+                -I$(PANDADIR)/pndbase/globaltasks \
+                -I$(PANDADIR)/pndbase/proxydict \
+                -I$(PANDADIR)/pnddata \
+                -I$(PANDADIR)/pnddata/DrcData \
+                -I$(PANDADIR)/pnddata/DskData \
+                -I$(PANDADIR)/pnddata/GemData \
+                -I$(PANDADIR)/pnddata/HypData \
+                -I$(PANDADIR)/pnddata/MdtData \
+                -I$(PANDADIR)/pnddata/MvdData \
+                -I$(PANDADIR)/pnddata/RpcData \
+                -I$(PANDADIR)/pnddata/SttData \
+                -I$(PANDADIR)/pnddata/TofData \
+                -I$(PANDADIR)/pnddata/TrackData \
+                -I$(PANDADIR)/recotasks \
+                -I$(PANDADIR)/recotasks/demo \
+                -I$(PANDADIR)/rho \
+                -I$(PANDADIR)/rho/RhoBase \
+                -I$(PANDADIR)/rho/RhoMath \
+                -I$(PANDADIR)/rho/RhoSelector \
+                -I$(PANDADIR)/rho/RhoTools \
+                -I$(PANDADIR)/rpc \
+                -I$(PANDADIR)/stt \
+                -I$(PANDADIR)/stt/sttreco \
+                -I$(PANDADIR)/tof \
+                -I$(PANDADIR)/tpc \
+                -I$(PANDADIR)/tpc/TestChamber/alignment/src \
+                -I$(PANDADIR)/tpc/TestChamber/analysis/beamTelescope \
+                -I$(PANDADIR)/tpc/TestChamber/analysis/beamTelescope/Tracking \
+                -I$(PANDADIR)/tpc/TestChamber/analysis/beamTelescope/ampltudeCuts \
+                -I$(PANDADIR)/tpc/TestChamber/analysis/beamTelescope/trackingRewrite \
+                -I$(PANDADIR)/tpc/TestChamber/helpers/TCevent \
+                -I$(PANDADIR)/tpc/TestChamber/hexReadout \
+                -I$(PANDADIR)/tpc/TestChamber/hexReadout/mappingTest \
+                -I$(PANDADIR)/tpc/TestChamber/noiseStudies \
+                -I$(PANDADIR)/tpc/TestChamber/src \
+                -I$(PANDADIR)/tpc/TestChamber/src/old \
+                -I$(PANDADIR)/tpc/spacecharge \
+                -I$(PANDADIR)/tpc/test \
+                -I$(PANDADIR)/tpc/tpcCuda \
+                -I$(PANDADIR)/tpc/tpcparallel \
+                -I$(PANDADIR)/tpc/tpcreco \
+                -I$(PANDADIR)/tpc/tpcreco/test \
+                -I$(PANDADIR)/trackbase \
+		-I$(PANDADIR)/GenfitTools/adapters \
+                -I$(PANDADIR)/GenfitTools/trackrep \
+                -I$(PANDADIR)/GenfitTools/trackrep/GeaneTrackRep \
+                -I$(PANDADIR)/GenfitTools/trackrep/GeaneTrackRep2 \
+                -I$(PANDADIR)/GenfitTools/trackrep/LSLtrackRep \
+                -I$(PANDADIR)/GenfitTools/trackrep/RKtrackRep \
+                -I$(PANDADIR)/PndEventdisplay \
+                -I$(PANDADIR)/PndTools/AnalysisTools \
+                -I$(PANDADIR)/PndTools/AnalysisTools/Fitter \
+                -I$(PANDADIR)/PndTools/MVA \
+                -I$(PANDADIR)/PndTools/MVA/GenInputTree/genInputTree_old \
+                -I$(PANDADIR)/PndTools/MVA/GenInputTree/makeTrainFile \
+                -I$(PANDADIR)/PndTools/MVA/KNN \
+                -I$(PANDADIR)/PndTools/MVA/LVQ1 \
+                -I$(PANDADIR)/PndTools/MVA/ProjectedKNN \
+                -I$(PANDADIR)/PndTools/MVA/TMVAkd_KNN \
+                -I$(PANDADIR)/PndTools/MVA/kd_KNN \
+                -I$(PANDADIR)/PndTools/riemannfit
+
+# Add extra ROOT libraries needed for PandaRoot.
+LIBS         += -lEG -lGenVector -lGeom -lGeomPainter -lMinuit \
+		-lMLP -lRIO -lRootAuth -lTMVA -lGX11 -lGui -lGX11TTF \
+		-lTreePlayer -lVMC -lXMLIO
+
+# Add PandaROOT libraries (not every lib is actually needed).
+LIBS         += -L$(FAIRLIBDIR) -lDsk -lGpid -lTof -lRpc \
+		-lrecotasks -lPGen -lMva -lMdt -lLumi -lHyp -lDrc -lDrcProp \
+		-lDpmEvtGen -lDch -lcharmtask -lAnalysisTools -lLheTrack \
+		-lGem -lSttReco -lStt -lfsim -lPid -lMvdTrk -lMvdReco -lMvd \
+		-ltpcreco -ltrackrep -lgenfitAdapters -lgenfit -ltpc \
+		-lriemann -lGeane -lRho -lGen -lEmc -lPassive -lField \
+		-lPndData -lTrkBase -lPndBase -lGlobalTasks -lBase -lParBase \
+		-lGeoBase

@@ -1,0 +1,144 @@
+% Created 2013-11-08 Fri 17:54
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{fixltx2e}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{soul}
+\usepackage{textcomp}
+\usepackage{marvosym}
+\usepackage{wasysym}
+\usepackage{latexsym}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\tolerance=1000
+\providecommand{\alert}[1]{\textbf{#1}}
+
+\title{table}
+\author{Ermias Atomssa}
+\date{\today}
+\hypersetup{
+  pdfkeywords={},
+  pdfsubject={},
+  pdfcreator={Emacs Org-mode version 7.9.3f}}
+
+\begin{document}
+
+\setcounter{tocdepth}{3}
+
+%%% \begin{center}
+%%% \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
+%%%   \hline
+%%%   Phys. List           &\multicolumn{2}{|c|}{Optical} & \multicolumn{7}{|c|}{EM Proc Tuning} \\
+%%%   \hline
+%%%   {}                   &   Yes       &     No       &    NON     &    EMV    &   EMX      &   EMY      &   EMZ      &   LIV      &   PEN      \\
+%%%   \hline                                                                                                                                      
+%%%   \hline                                                                                                                                      
+%%%   FTFP\_BERT           &             &              &            &           &            &            &            &            &            \\
+%%%   \hline                                                                                                                                      
+%%%   FTFP\_BERT\_TRV      &             &              &            &           &            &            &            &            &            \\
+%%%   \hline                                                                                                                                      
+%%%   FTFP\_BERT\_HP       &             &              &            &           &            &            &            &            &            \\
+%%%   \hline                                                                                                                                      
+%%%   FTF\_BIC             &             &              &            &           &            &            &            &            &            \\
+%%%   \hline                                                                                                                                      
+%%%   \hline                                                                                                                                      
+%%%   QGSP                 &             &              &            &           &            &            &            &            &            \\
+%%%   \hline                                                                                                                                      
+%%%   QGSP\_BERT           &             &              &            &           &            &            &            &            &            \\
+%%%   \hline                                                                                                                                      
+%%%   QGSP\_BERT\_CHIPS    &             &              &            &           &            &            &            &            &            \\
+%%%   \hline                                                                                                                                      
+%%%   QGSP\_BERT\_HP       &             &              &            &           &            &            &            &            &            \\
+%%%   \hline                                                                                                                                      
+%%%   QGSP\_BIC            &             &              &            &           &            &            &            &            &            \\
+%%%   \hline                                                                                                                                      
+%%%   QGSP\_BIC\_HP        &             &              &            &           &            &            &            &            &            \\
+%%%   \hline                                                                                                                                      
+%%%   \hline                                                                                                                                      
+%%%   QGSP\_FTFP\_BERT     &             &              &            &           &            &            &            &            &            \\
+%%%   \hline                                                                                                                                      
+%%%   \hline                                                                                                                                      
+%%%   QGS\_BIC             &             &              &            &           &            &            &            &            &            \\
+%%%   \hline                                                                                                                                      
+%%%   \hline                                                                                                                                      
+%%%   QGSC\_BERT           &             &              &            &           &            &            &            &            &            \\
+%%%   \hline                                                                                                                                      
+%%%   \hline                                                                                                                                      
+%%%   CHIPS                &             &              &            &           &            &            &            &            &            \\
+%%%   \hline                                                                                                                                      
+%%%   \hline                                                                                                                                      
+%%%   LHEP                 &             &              &            &           &            &            &            &            &            \\
+%%%   \hline                                                                                                                                      
+%%%   \hline                                                                                                                                      
+%%%   LBE                  &             &              &            &           &            &            &            &            &            \\
+%%%   \hline                                                                                                                                      
+%%%   \hline                                                                                                                                      
+%%%   QBBC                 &             &              &            &           &            &            &            &            &            \\
+%%%   \hline
+%%% \end{tabular}
+%%% \end{center}
+\thispagestyle{empty}
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}
+  \hline
+  Phys. List           &           \multicolumn{4}{|c|}{Optical}                \\
+  \hline
+  {}                   & \multicolumn{2}{|c|}{YES}  & \multicolumn{2}{|c|}{NON} \\
+  \hline
+  {}                   & \multicolumn{2}{|c|}{EMP Tuning} & \multicolumn{2}{|c|}{EMP Tuning} \\
+  \hline               &   NON       &   EMV        &   NON      &   EMV        \\
+  \hline                                                                     
+  \hline                                                                     
+  FTFP\_BERT           &             &              &            &              \\
+  \hline                                                                        
+  FTFP\_BERT\_TRV      &             &              &            &              \\
+  \hline                                                                        
+  FTFP\_BERT\_HP       &             &              &            &              \\
+  \hline                                                                        
+  FTF\_BIC             &             &              &            &              \\
+  \hline                                                                        
+  \hline                                                                        
+  QGSP                 &             &              &            &              \\
+  \hline                                                                        
+  QGSP\_BERT           &             &              &            &              \\
+  \hline                                                                        
+  QGSP\_BERT\_CHIPS    &             &              &            &              \\
+  \hline                                                                        
+  QGSP\_BERT\_HP       &             &              &            &              \\
+  \hline                                                                        
+  QGSP\_BIC            &             &              &            &              \\
+  \hline                                                                        
+  QGSP\_BIC\_HP        &             &              &            &              \\
+  \hline                                                                        
+  \hline                                                                        
+  QGSP\_FTFP\_BERT     &             &              &            &              \\
+  \hline                                                                        
+  \hline                                                                        
+  QGS\_BIC             &             &              &            &              \\
+  \hline                                                                        
+  \hline                                                                        
+  QGSC\_BERT           &             &              &            &              \\
+  \hline                                                                        
+  \hline                                                                        
+  CHIPS                &             &              &            &              \\
+  \hline                                                                        
+  \hline                                                                        
+  LHEP                 &             &              &            &              \\
+  \hline                                                                        
+  \hline                                                                        
+  LBE                  &             &              &            &              \\
+  \hline                                                                        
+  \hline                                                                        
+  QBBC                 &             &              &            &              \\
+  \hline
+\end{tabular}
+\end{center}
+
+
+
+\end{document}
