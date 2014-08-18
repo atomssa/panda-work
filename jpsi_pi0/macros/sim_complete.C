@@ -5,9 +5,19 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
+sim_complete(string file_in, Float_t mom = 5.513)
 {
+  
+  // Figure out the number of events from input 
+  TFile *f = TFile::Open(file_in.c_str());
+  TTree *t = (TTree*) f->Get("data");
+  int nEvents = t->GetEntries();
+  f->Close();
+
+  nEvents = 100;
+  
   //-----User Settings:-----------------------------------------------
+  TString  SimEngine ="TGeant4";
   TString  OutputFile     ="sim_complete.root";
   TString  ParOutputfile  ="simparams.root";
   TString  MediaFile      ="media_pnd.geo";
@@ -15,8 +25,8 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6
   TString digiFile        = "all.par"; //The emc run the hit producer directly 
   // choose your event generator 
   Bool_t UseEvtGen	      =kFALSE; 
-  Bool_t UseEvtGenDirect      =kTRUE;     
-  Bool_t UseDpm 	      =kFALSE;
+  Bool_t UseEvtGenDirect      =kFALSE;     
+  Bool_t UseDpm 	      =kTRUE;
   Bool_t UseBoxGenerator      =kFALSE;
 
   Double_t BeamMomentum = 0.; // beam momentum ONLY for the scaling of the dipole field.
@@ -55,16 +65,15 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6
   parIo1->open(allDigiFile.Data(),"in");
   rtdb->setFirstInput(parIo1);        
 
- //---------------------Set Parameter output      ---------- 
+  //---------------------Set Parameter output      ---------- 
   Bool_t kParameterMerged=kTRUE;
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open(ParOutputfile.Data());
   rtdb->setOutput(output);
 
-   // Create and add detectors
+  // Create and add detectors
 
- //-------------------------  CAVE      -----------------
-
+  //-------------------------  CAVE      -----------------
   FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
@@ -139,47 +148,49 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6
   fRun->SetGenerator(primGen);
 	 
   if(UseBoxGenerator){	// Box Generator
-     FairBoxGenerator* boxGen = new FairBoxGenerator(22, 5); // 13 = muon; 1 = multipl.
-     boxGen->SetPRange(mom,mom); // GeV/c
-     boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
-     boxGen->SetThetaRange(0., 90.); // Polar angle in lab system range [degree]
-     boxGen->SetXYZ(0., 0., 0.); // cm
-     primGen->AddGenerator(boxGen);
+    FairBoxGenerator* boxGen = new FairBoxGenerator(22, 5); // 13 = muon; 1 = multipl.
+    boxGen->SetPRange(mom,mom); // GeV/c
+    boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
+    boxGen->SetThetaRange(0., 90.); // Polar angle in lab system range [degree]
+    boxGen->SetXYZ(0., 0., 0.); // cm
+    primGen->AddGenerator(boxGen);
   }
   if(UseDpm){
-  	  PndDpmDirect *Dpm= new PndDpmDirect(mom,1);
-	  primGen->AddGenerator(Dpm);
+    
+    PndDpmGenerator* dpmGen = new PndDpmGenerator(file_in.c_str());
+    primGen->AddGenerator(dpmGen);
+
   }
   if(UseEvtGen){	
-	  TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
-	  EvtInput+="/input/psi2s_jpsi2pi_1k.evt";	
-	  FairEvtGenGenerator* evtGen = new FairEvtGenGenerator(EvtInput.Data());
-	  primGen->AddGenerator(evtGen);
+    TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
+    EvtInput+="/input/psi2s_jpsi2pi_1k.evt";	
+    FairEvtGenGenerator* evtGen = new FairEvtGenGenerator(EvtInput.Data());
+    primGen->AddGenerator(evtGen);
   }	
   if(UseEvtGenDirect){
-          TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
-          EvtInput+="/macro/run/psi2s_Jpsi2pi_Jpsi_mumu.dec";	
-          PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem", EvtInput.Data(), mom);
-	  EvtGen->SetStoreTree(kTRUE);
-	  primGen->AddGenerator(EvtGen);
+    TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
+    EvtInput+="/macro/run/psi2s_Jpsi2pi_Jpsi_mumu.dec";	
+    PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem", EvtInput.Data(), mom);
+    EvtGen->SetStoreTree(kTRUE);
+    primGen->AddGenerator(EvtGen);
   }	
 
- //---------------------Create and Set the Field(s)---------- 
+  //---------------------Create and Set the Field(s)---------- 
   PndMultiField *fField= new PndMultiField("AUTO");
   fRun->SetField(fField);
 
- // EMC Hit producer
+  // EMC Hit producer
   //-------------------------------
   PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
   fRun->AddTask(emcHitProd);
   
- //-------------------------  Initialize the RUN  -----------------  
+  //-------------------------  Initialize the RUN  -----------------  
   fRun->Init();
- //-------------------------  Run the Simulation  -----------------   
+  //-------------------------  Run the Simulation  -----------------   
   fRun->Run(nEvents);
- //-------------------------  Save the parameters ----------------- 
+  //-------------------------  Save the parameters ----------------- 
   rtdb->saveOutput();
- //------------------------Print some info and exit----------------     
+  //------------------------Print some info and exit----------------     
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
