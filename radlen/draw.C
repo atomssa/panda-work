@@ -79,7 +79,7 @@ draw(string fname="radlen_20k_upto_emc.root") {
 
   TCanvas *tc_mvd = new TCanvas("tc_mvd","tc_mvd",1400,1000);
   tc_mvd->cd(2);
-  TH1D *h_mvd = vect_tprof[5]->ProjectionX("RadLenProf_MVD");  
+  TH1D *h_mvd = vect_tprof[7]->ProjectionX("RadLenProf_MVD");  
   h_mvd->SetLineColor(4);
   h_mvd->SetLineWidth(3);
   h_mvd->SetTitle("Radiation Length Profile of MVD;#theta[deg];X/X_{0}");
@@ -89,7 +89,7 @@ draw(string fname="radlen_20k_upto_emc.root") {
 
   TCanvas *tc_gem = new TCanvas("tc_gem","tc_gem",1400,1000);
   tc_gem->cd(1);
-  TH1D *h_gem = vect_tprof[6]->ProjectionX("RadLenProf_GEM");
+  TH1D *h_gem = vect_tprof[5]->ProjectionX("RadLenProf_GEM");
   h_gem->SetLineColor(42);
   h_gem->SetLineWidth(3);  
   h_gem->SetTitle("Radiation Length Profile of GEM;#theta[deg];X/X_{0}");    
@@ -99,7 +99,7 @@ draw(string fname="radlen_20k_upto_emc.root") {
 
   TCanvas *tc_emc = new TCanvas("tc_emc","tc_emc",1400,1000);
   tc_emc->cd(1);
-  TH1D *h_emc = vect_tprof[7]->ProjectionX("RadLenProf_EMC");
+  TH1D *h_emc = vect_tprof[6]->ProjectionX("RadLenProf_EMC");
   h_emc->SetLineColor(45);
   h_emc->SetLineWidth(3);  
   h_emc->SetTitle("Radiation Length Profile of EMC;#theta[deg];X/X_{0}");    

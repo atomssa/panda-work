@@ -1,3 +1,7 @@
+///-- E.A. Run with the suggested temporary fix of putting MVD module addition at the end after all detectors
+
+// ج
+
 // Macro for running Panda simulation  with Geant3  or Geant4 (M. Al-Turany)
 // This macro is supposed to run the full simulation of the panda detector
 // to run the macro:
@@ -5,20 +9,20 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-sim_complete_prod(Int_t batch = 0)
+sim_complete_prod(Int_t batch = 0, TString SimEngine="TGeant4" /* or TGeant3 */ )
 {
 
   Int_t nEvents = 200000;
   //-----User Settings:-----------------------------------------------
-  TString  OutputFile     =Form("output/sim_complete_%d.root",batch);
-  TString  ParOutputfile  =Form("output/simparams_%d.root",batch);
+  TString  OutputFile     =Form("output/sim_complete_%s_%d.root",SimEngine.Data(), batch);
+  TString  ParOutputfile  =Form("output/simparams_%s_%d.root",SimEngine.Data(),batch);
   TString  MediaFile      ="media_pnd.geo";
   gDebug                  = 0;
   TString digiFile        = "all.par"; //The emc run the hit producer directly 
 
   double BeamMomentum   =15.0; // ** change HERE if you run Box generator
 
-  TString  SimEngine ="TGeant3";
+  //TString  SimEngine ="TGeant3";
   
   //------------------------------------------------------------------
   TStopwatch timer;
@@ -58,7 +62,7 @@ sim_complete_prod(Int_t batch = 0)
 
   // Create and add detectors
 
-  //-------------------------  CAVE      -----------------
+  //-------------------------  CAVE      ----------------- 
   FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
@@ -82,11 +86,6 @@ sim_complete_prod(Int_t batch = 0)
   Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
   fRun->AddModule(Stt);
   
-  //-------------------------  MVD       -----------------
-  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
-  Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
-  fRun->AddModule(Mvd);
-  
   //-------------------------  GEM       -----------------
   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
   Gem->SetGeometryFileName("gem_3Stations.root");
@@ -97,6 +96,11 @@ sim_complete_prod(Int_t batch = 0)
   Emc->SetGeometryVersion(1);
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
+
+  //-------------------------  MVD       -----------------
+  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
+  fRun->AddModule(Mvd);
   
   //-------------------------  SCITIL    -----------------
   FairDetector *SciT = new PndSciT("SCIT",kTRUE);
@@ -139,6 +143,7 @@ sim_complete_prod(Int_t batch = 0)
   FairDetector *Rich= new PndRich("RICH",kFALSE);
   Rich->SetGeometryFileName("rich_v2_shift.geo");
   fRun->AddModule(Rich);
+
   
   // Create and Set Event Generator
   //-------------------------------
