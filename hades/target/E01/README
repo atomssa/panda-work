@@ -1,0 +1,59 @@
+$Id: README 515 2010-07-20 10:56:33Z ivana $
+
+------------------------------------------------
+ The Virtual Monte Carlo examples
+ Copyright (C) 2007 - 2010 Ivana Hrivnacova
+ All rights reserved.
+
+ For the licensing terms see geant4_vmc/LICENSE.
+ Contact: vmc@pcroot.cern.ch
+-------------------------------------------------
+
+
+Example01
+=========
+  Geant4 ExampleN01 adapted to Virtual Monte Carlo.
+
+  Demonstrates:
+    Simple geometry (Gsvolu, Gspos)
+    Simple primary generator 
+      one geantino with a fixed position and direction
+    Access to particle in stepping
+
+  See also description of in 
+    geant4/examples/novice/N01/README
+
+
+Macros:
+=======
+
+  For running example with G3:
+  
+  run_g3.C        - macro for running example 
+  g3tgeoConfig.C  - configuration macro for G3 with TGeo geometry (default)
+  g3Config.C      - configuration macro for G3 with native geometry 
+
+  For running example with G4:
+  
+  run_g4.C       - macro for running example 
+  g4Config.C     - configuration macro for G4 with native geometry navigation (default)
+  g4tgeoConfig.C - configuration macro for G4 with TGeo geometry navigation
+  
+To run example:
+===============
+  
+  With G3 + TGeo:
+  root[0] .x run_g3.C  
+  
+  With G4:
+  root[0] .x run_g4.C  
+  
+  With G4 + TGeo navigation:
+  root[0] .x run_g4.C("g4tgeoConfig.C");  
+  
+
+  Note that as geometry is defined via TGeo,
+  the example cannot be run with TGeant3 with its native geometry.
+  One has to switch to geometry definition via VMC 
+  (see test_E01.C)
+  

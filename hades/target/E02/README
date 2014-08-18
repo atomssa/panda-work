@@ -1,0 +1,63 @@
+$Id: README 536 2011-03-09 17:06:04Z ivana $
+
+------------------------------------------------
+ The Virtual Monte Carlo examples
+ Copyright (C) 2007 - 2010 Ivana Hrivnacova
+ All rights reserved.
+
+ For the licensing terms see geant4_vmc/LICENSE.
+ Contact: vmc@pcroot.cern.ch
+-------------------------------------------------
+
+
+Example02
+=========
+  Geant4 ExampleN02 adapted to Virtual Monte Carlo.
+
+  Demonstrates:
+    Geometry - parameterised volume (Gsposp)
+    Definition of sensitive volumes
+    Physics - hadronics processes off
+    Particles cuts 
+      - default G3 cuts, G4 cut in range: 1cm
+    Simple primary generator 
+      one proton with a fixed position and direction
+    Generating hits
+    Drawing geometry (G3, G3+TGeo, G4) 
+    Drawing trajectories (G3+TGeo, G4+TGeo, G4)
+    Storing hits, particles stack in Root file
+
+  See also description of in 
+    geant4/examples/novice/N02/README
+
+
+Macros:
+=======
+
+  For running example with G3:
+  
+  run_g3.C        - macro for running example 
+  g3tgeoConfig.C  - configuration macro for G3 with TGeo geometry (default)
+  g3Config.C      - configuration macro for G3 with native geometry
+
+
+  For running example with G4:
+  
+  run_g4.C        - macro for running example 
+  g4Config.C      - configuration macro for G4 with native geometry navigation (default)
+  g4tgeoConfig.C  - configuration macro for G4 with TGeo geometry navigation
+  g4config.in     - macro for G4 configuration using G4 commands
+  g4vis.in        - macro for G4 visualization settings
+
+
+To run example:
+===============
+  
+  With G3 + TGeo:
+  root[0] .x run_g3.C
+  
+  With G4:
+  root[0] .x run_g4.C  
+  
+  With G4 + TGeo navigation:
+  root[0] .x run_g4.C("g4tgeoConfig.C");  

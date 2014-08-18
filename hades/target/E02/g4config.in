@@ -1,0 +1,20 @@
+# $Id: g4config.in 482 2010-02-09 15:07:33Z ivana $
+
+#------------------------------------------------
+# The Virtual Monte Carlo examples
+# Copyright (C) 2007, 2008 Ivana Hrivnacova
+# All rights reserved.
+#
+# For the licensing terms see geant4_vmc/LICENSE.
+# Contact: vmc@pcroot.cern.ch
+#-------------------------------------------------
+
+#
+# Geant4 configuration macro for Example02
+# (called from Root macro Config.C)
+
+/mcPhysics/rangeCuts 10. mm
+/mcVerbose/all 1
+#/mcMagField/stepperType HelixHeum
+#/mcMagField/printParameters
+#/tracking/verbose 1
