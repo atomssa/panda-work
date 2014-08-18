@@ -1,7 +1,7 @@
 # root files
 *.root
 *.dat
-
+*.input
 
 # root macro compile helpers
 *__.cxx
