@@ -7,10 +7,13 @@ void parse_mc(int model = 0 /*0=>Dpm, 1=>FTF*/ ) {
   gStyle->SetOptStat(0);
   
   string fname;
+  string tag;
   if (model == 0) {
-    fname="Dpm_PipPimPi0.dat";
+    fname="DPM_PipPimPi0.dat";
+    tag="DPM";
   } else {
     fname="FTF_PipPimPi0.dat";
+    tag="FTF";
   }
   
   ifstream inf;
@@ -21,47 +24,55 @@ void parse_mc(int model = 0 /*0=>Dpm, 1=>FTF*/ ) {
   int partnum, pdgid, dummy_i;
   double px,py,pz,E;
   double t,x,y,z;
-  TLorentzVector mom_pbar;
 
-  //mom_pbar.SetXYZM(0.0,0.0,3.5/2.0,0.938);
-  if (model==0) {
-    mom_pbar.SetXYZM(0.0,0.0,1.477425,0.938);   // Seems to work for Dpm file (trial and error)
-  } else {
-    mom_pbar.SetXYZM(0.0,0.0,1.4771898,0.938); // Seems to work for FTF file (trial and error)
-  }
+  double m_prot= 0.938;
+  double p_antip = 5.513;
+  double E_antip = TMath::Hypot(m_prot, p_antip);
+  double beta_cm = p_antip/(E_antip + m_prot);
+  cout << "betac_cm = " << beta_cm << endl;
+  
+  TVector3 boost_vector(0,0,-beta_cm);
+  boost_vector.Print();
+  
+  //TH1F* dthe_cm = new TH1F("dthe_cm","dthe_cm",200,179.99,180.01);
+  TH1F* dthe_cm = new TH1F(Form("dthe_cm_%s",tag.c_str()),Form("dthe_cm_%s",tag.c_str()),200,0,200);
+  TH1F* dthe_lab = new TH1F(Form("dthe_lab_%s",tag.c_str()),Form("dthe_lab_%s",tag.c_str()),200,0,185);
+  TH1F* dphi_cm = new TH1F(Form("dphi_cm_%s",tag.c_str()),Form("dphi_cm_%s",tag.c_str()),200,179.99,180.01);  
 
-  TVector3 boost_vector = -((mom_pbar).BoostVector());
-
-  TH1F* dthe_cm = new TH1F("dthe_cm","dthe_cm",200,179.99,180.01);
-  //TH1F* dthe_cm = new TH1F("dthe_cm","dthe_cm",200,0,200);
-  TH1F* dthe_lab = new TH1F("dthe_lab","dthe_lab",200,0,185);
-  TH1F* dphi_cm = new TH1F("dphi_cm","dphi_cm",200,179.99,180.01);  
-
-  TH1F* the_pi0_cm = new TH1F("the_pi0_cm","#theta_{#pi^{0}}^{cm};#theta[deg];dN/d#theta",200,0,180);
+  TH1F* the_pi0_cm = new TH1F(Form("the_pi0_cm_%s",tag.c_str()),Form("%s #theta_{#pi^{0}}^{cm};#theta[deg];dN/d#theta",tag.c_str()),200,0,180);
   the_pi0_cm->SetLineColor(2);
   the_pi0_cm->SetLineWidth(2);
-  TH1F* the_pippim_cm = new TH1F("the_pippim_cm","#theta_{#pi^{+}#pi^{-}}^{cm};#theta[deg];dN/d#theta",200,0,180);
+  TH1F* the_pippim_cm = new TH1F(Form("the_pippim_cm_%s",tag.c_str()),Form("%s #theta_{#pi^{+}#pi^{-}}^{cm};#theta[deg];dN/d#theta",tag.c_str()),200,0,180);
   the_pippim_cm->SetLineColor(4);
   the_pippim_cm->SetLineWidth(2);
-  TH1F* the_pi0_lab = new TH1F("the_pi0_lab","#theta_{#pi^{0}}^{lab};#theta[deg];dN/d#theta",200,0,180);
+  TH1F* the_pi0_lab = new TH1F(Form("the_pi0_lab_%s",tag.c_str()),Form("%s #theta_{#pi^{0}}^{lab};#theta[deg];dN/d#theta",tag.c_str()),200,0,180);
   the_pi0_lab->SetLineColor(2);
   the_pi0_lab->SetLineWidth(2);
-  TH1F* the_pippim_lab = new TH1F("the_pippim_lab","#theta_{#pi^{+}#pi^{-}}^{lab};#theta[deg];dN/d#theta",200,0,180);
+  TH1F* the_pippim_lab = new TH1F(Form("the_pippim_lab_%s",tag.c_str()),Form("%s #theta_{#pi^{+}#pi^{-}}^{lab};#theta[deg];dN/d#theta",tag.c_str()),200,0,180);
   the_pippim_lab->SetLineColor(4);
   the_pippim_lab->SetLineWidth(2);
-  TH1F* phi_pi0_cm = new TH1F("phi_pi0_cm","#phi_{#pi^{0}}^{cm};#phi[deg];dN/d#phi",200,0,180);
+  TH1F* phi_pi0_cm = new TH1F(Form("phi_pi0_cm_%s",tag.c_str()),Form("%s #phi_{#pi^{0}}^{cm};#phi[deg];dN/d#phi",tag.c_str()),200,0,180);
   phi_pi0_cm->SetLineColor(2);
   phi_pi0_cm->SetLineWidth(2);
-  TH1F* phi_pippim_cm = new TH1F("phi_pippim_cm","#phi_{#pi^{+}#pi^{-}}^{cm};#phi[deg];dN/d#phi",200,0,180);
+  TH1F* phi_pippim_cm = new TH1F(Form("phi_pippim_cm_%s",tag.c_str()),Form("%s #phi_{#pi^{+}#pi^{-}}^{cm};#phi[deg];dN/d#phi",tag.c_str()),200,0,180);
   phi_pippim_cm->SetLineColor(4);
   phi_pippim_cm->SetLineWidth(2);
-  TH1F* phi_pi0_lab = new TH1F("phi_pi0_lab","#phi_{#pi^{0}}^{lab};#phi[deg];dN/d#phi",200,0,180);
+  TH1F* phi_pi0_lab = new TH1F(Form("phi_pi0_lab_%s",tag.c_str()),Form("%s #phi_{#pi^{0}}^{lab};#phi[deg];dN/d#phi",tag.c_str()),200,0,180);
   phi_pi0_lab->SetLineColor(2);
   phi_pi0_lab->SetLineWidth(2);
-  TH1F* phi_pippim_lab = new TH1F("phi_pippim_lab","#phi_{#pi^{+}#pi^{-}}^{lab};#phi[deg];dN/d#phi",200,0,180);
+  TH1F* phi_pippim_lab = new TH1F(Form("phi_pippim_lab_%s",tag.c_str()),Form("%s #phi_{#pi^{+}#pi^{-}}^{lab};#phi[deg];dN/d#phi",tag.c_str()),200,0,180);
   phi_pippim_lab->SetLineColor(4);
   phi_pippim_lab->SetLineWidth(2);
-  
+
+  TH1F* minv_pippim_lab = new TH1F(Form("minv_pippim_lab_%s",tag.c_str()),Form("%s minv_pippim_lab; M_{inv} [GeV/c^2]; dN/dM_{inv}",tag.c_str()),200,0,4);
+  minv_pippim_lab->SetLineColor(2);
+  minv_pippim_lab->SetLineWidth(2);
+  TH1F* minv_pippim_cm = new TH1F(Form("minv_pippim_cm_%s",tag.c_str()),Form("%s minv_pippim_cm; M_{inv} [GeV/c^2]; dN/dM_{inv}",tag.c_str()),200,0,4);
+  minv_pippim_cm->SetLineColor(4);
+  minv_pippim_cm->SetLineWidth(2);
+
+  int in2Sig=0, tot=0;
+    
   while(1) {
     inf >> evtnum >> npart;
     //if (evtnum>=10) break;
@@ -70,7 +81,7 @@ void parse_mc(int model = 0 /*0=>Dpm, 1=>FTF*/ ) {
       return;
     }
     if (!inf.good()) break;
-    cout << " ================  EventNo= " << evtnum << " ================= " << endl;
+    if (evtnum%1000==0) cout << " ================  EventNo= " << evtnum << " ================= " << endl;
 
     for (int i=0; i<15; ++i) inf>>dummy_s;
     TLorentzVector mom_pi0,mom_cm_pi0;
@@ -96,26 +107,25 @@ void parse_mc(int model = 0 /*0=>Dpm, 1=>FTF*/ ) {
 
     double rtd= TMath::RadToDeg();
     
-    mom_cm_pip.Print();
+    //mom_cm_pip.Print();
 
-    cout << "Mpi0 = " << mom_pi0.M() << " Mpip= " << mom_pip.M() << " Mpim= " << mom_pim.M() << endl;
-    cout << "Minv = " << mom_tot.M() << "  Minv(cm) = " << mom_tot_cm.M() << endl;
-    cout << "Minv(pi+pi-)= " << mom_pich.M() << " Minv(cm,pi+pi-)= " << mom_pich.M() << endl;
-    cout << "CM Total Mom = "; mom_tot_cm.Print();
-    cout << "LAB Tot Mom= "; mom_tot.Print();
-
-    cout << "THETA LAB: pi0= " << rtd*mom_pi0.Theta() << " pip= " << rtd*mom_pip.Theta() << " pim= " << rtd*mom_pim.Theta()
-	 << " pich= " << rtd*mom_pich.Theta() << " D0-ch= " << rtd*(mom_pi0.Theta()+mom_pich.Theta()) <<endl;
-
-    cout << "THETA  CM: pi0= " << rtd*mom_cm_pi0.Theta() << " pip= " << rtd*mom_cm_pip.Theta() << " pim= " << rtd*mom_cm_pim.Theta()
-	 << " pich= " << rtd*mom_cm_pich.Theta() << " D0-ch= " << rtd*(mom_cm_pi0.Theta()+mom_cm_pich.Theta()) << endl;
-
-    cout << "PHI   LAB: pi0= " << rtd*mom_pi0.Phi() << " pip= " << rtd*mom_pip.Phi() << " pim= " << rtd*mom_pim.Phi()
-	 << " pich= " << rtd*mom_pich.Phi() << " D0-ch= " << rtd*(mom_pi0.Phi()-mom_pich.Phi()) << endl;
-
-    cout << "PHI    CM: pi0= " << rtd*mom_cm_pi0.Phi() << " pip= " << rtd*mom_cm_pip.Phi() << " pim= " << rtd*mom_cm_pim.Phi()
-	 << " pich= " << rtd*mom_cm_pich.Phi() << " D0-ch= " << rtd*(mom_cm_pi0.Phi()-mom_cm_pich.Phi()) << endl;
-
+    //cout << "Mpi0 = " << mom_pi0.M() << " Mpip= " << mom_pip.M() << " Mpim= " << mom_pim.M() << endl;
+    //cout << "Minv = " << mom_tot.M() << "  Minv(cm) = " << mom_tot_cm.M() << endl;
+    //cout << "Minv(pi+pi-)= " << mom_pich.M() << " Minv(cm,pi+pi-)= " << mom_pich.M() << endl;
+    //cout << "CM Total Mom = "; mom_tot_cm.Print();
+    //cout << "LAB Tot Mom= "; mom_tot.Print();
+    //
+    //cout << "THETA LAB: pi0= " << rtd*mom_pi0.Theta() << " pip= " << rtd*mom_pip.Theta() << " pim= " << rtd*mom_pim.Theta()
+    //	 << " pich= " << rtd*mom_pich.Theta() << " D0-ch= " << rtd*(mom_pi0.Theta()+mom_pich.Theta()) <<endl;
+    //
+    //cout << "THETA  CM: pi0= " << rtd*mom_cm_pi0.Theta() << " pip= " << rtd*mom_cm_pip.Theta() << " pim= " << rtd*mom_cm_pim.Theta()
+    //	 << " pich= " << rtd*mom_cm_pich.Theta() << " D0-ch= " << rtd*(mom_cm_pi0.Theta()+mom_cm_pich.Theta()) << endl;
+    //
+    //cout << "PHI   LAB: pi0= " << rtd*mom_pi0.Phi() << " pip= " << rtd*mom_pip.Phi() << " pim= " << rtd*mom_pim.Phi()
+    //	 << " pich= " << rtd*mom_pich.Phi() << " D0-ch= " << rtd*(mom_pi0.Phi()-mom_pich.Phi()) << endl;
+    //
+    //cout << "PHI    CM: pi0= " << rtd*mom_cm_pi0.Phi() << " pip= " << rtd*mom_cm_pip.Phi() << " pim= " << rtd*mom_cm_pim.Phi()
+    //	 << " pich= " << rtd*mom_cm_pich.Phi() << " D0-ch= " << rtd*(mom_cm_pi0.Phi()-mom_cm_pich.Phi()) << endl;
 
     dthe_cm->Fill( rtd*(mom_cm_pi0.Theta()+mom_cm_pich.Theta()) );    
     dthe_lab->Fill( rtd*(mom_pi0.Theta()+mom_pich.Theta()) );
@@ -129,16 +139,31 @@ void parse_mc(int model = 0 /*0=>Dpm, 1=>FTF*/ ) {
     phi_pippim_cm->Fill( rtd*mom_cm_pich.Phi() );
     phi_pi0_lab->Fill( rtd*mom_pi0.Phi() );
     phi_pippim_lab->Fill( rtd*mom_pich.Phi() );
+
+    minv_pippim_cm->Fill( mom_cm_pich.M() );
+    minv_pippim_lab->Fill( mom_pich.M() );
+
+    tot++;
+    if ( 2.96 < mom_pich.M() && mom_pich.M() < 3.22 ) in2Sig++;
     
   }
 
+  double frac = (double)in2Sig/(double)tot;
+  cout << "Frac ( %): " << frac*100 << endl;
+  
+  return;
+  
   TCanvas *c0 = new TCanvas("c0","c0");
   dphi_cm->Draw();  
   TCanvas *c1 = new TCanvas("c1","c1");
   dthe_cm->Draw();
   //TCanvas *c2 = new TCanvas("c2","c2");  
   //dthe_lab->Draw();
-
+  TCanvas *c_minv = new TCanvas("cminv","cminv");
+  c_minv->cd();
+  minv_pippim_cm->Draw();
+  minv_pippim_lab->Draw("same");
+  
   TLegend *tl = new TLegend(0.35,0.65,0.65,0.89);
   tl->SetBorderSize(0);
   tl->SetFillStyle(0);
@@ -148,9 +173,9 @@ void parse_mc(int model = 0 /*0=>Dpm, 1=>FTF*/ ) {
   c3->cd(1);
   the_pi0_cm->SetTitle(Form("%s, %s", the_pi0_cm->GetTitle(), the_pippim_cm->GetTitle() ));
   the_pi0_cm->Draw();
-  tl->AddEntry(the_pi0_cm,Form("#pi^{0}, %s",(model==0?"DPM":"FTF")),"l");
+  tl->AddEntry(the_pi0_cm,Form("#pi^{0}, %s",tag.c_str()),"l");
   the_pippim_cm->Draw("same");
-  tl->AddEntry(the_pippim_cm,Form("#pi^{+}#pi^{-}, %s",(model==0?"DPM":"FTF")),"l");  
+  tl->AddEntry(the_pippim_cm,Form("#pi^{+}#pi^{-}, %s",tag.c_str()),"l");  
   tl->Draw();
 
   c3->cd(2);
@@ -174,31 +199,30 @@ void parse_mc(int model = 0 /*0=>Dpm, 1=>FTF*/ ) {
   phi_pippim_lab->Draw("same");
   tl->Draw();
 
-  if (model==0) {
-    c3->Print("ang_dist_pbarp_pi0pippim_dpm.png");
-  } else {
-    c3->Print("ang_dist_pbarp_pi0pippim_ftf.png");    
-  }
+  c3->Print(Form("ang_dist_pbarp_pi0pippim_%s.png",tag.c_str()));
+  //if (model==0) {
+  //  c3->Print("ang_dist_pbarp_pi0pippim_dpm.png");
+  //} else {
+  //  c3->Print("ang_dist_pbarp_pi0pippim_ftf.png");    
+  //}
+
+
+  //TFile *fout = TFile::Open(Form("output_%s.root",fname.c_str()),"RECREATE");
+  //fout->cd();
+  //dthe_cm->Write();
+  //dthe_lab->Write();
+  //dphi_cm->Write();
+  //the_pi0_cm->Write();
+  //the_pippim_cm->Write();
+  //the_pi0_lab->Write();
+  //the_pippim_lab->Write();
+  //phi_pi0_cm->Write();
+  //phi_pippim_cm->Write();
+  //phi_pi0_lab->Write();
+  //phi_pippim_lab->Write();
+  //minv_pippim_lab->Write();
+  //minv_pippim_cm->Write();
+
+    
   
-  //  ================  EventNo= 9999 ================= (boost = pbarmom/2 )
-  //(x,y,z,t)=(0.217625,0.090804,12.220965,12.224041) (P,eta,phi,E)=(12.223240,4.641125,0.395290,12.224041)
-  //Mpi0 = 0.134003 Mpip= 0.139953 Mpim= 0.139905
-  //Minv = 3.49916  Minv(cm) = 3.49916
-  //Minv(pi+pi-)= 1.31048 Minv(cm,pi+pi-)= 1.31048
-  //THETA LAB: pi0= 90.8613 pip= 4.40236 pim= 21.9122 pich= 8.10117
-  //THETA  CM: pi0= 28.2517 pip= 1.10541 pim= 5.56212 pich= 2.01164
-  //PHI   LAB: pi0= 57.1132 pip= 22.6484 pim= -130.636 pich= -122.887
-  //PHI    CM: pi0= 57.1132 pip= 22.6484 pim= -130.636 pich= -122.887
-
-  // ================  EventNo= 9999 ================= (boost = pbarmom)
-  //(x,y,z,t)=(0.217625,0.090804,23.307016,23.308629) (P,eta,phi,E)=(23.308208,5.286659,0.395290,23.308629)
-  //Mpi0 = 0.134003 Mpip= 0.139953 Mpim= 0.139905
-  //Minv = 3.49916  Minv(cm) = 3.49916
-  //Minv(pi+pi-)= 1.31048 Minv(cm,pi+pi-)= 1.31048
-  //THETA LAB: pi0= 90.8613 pip= 4.40236 pim= 21.9122 pich= 8.10117
-  //THETA  CM: pi0= 15.0175 pip= 0.579672 pim= 2.91831 pich= 1.05432
-  //PHI   LAB: pi0= 57.1132 pip= 22.6484 pim= -130.636 pich= -122.887
-  //PHI    CM: pi0= 57.1132 pip= 22.6484 pim= -130.636 pich= -122.887
-
-		       
 }
