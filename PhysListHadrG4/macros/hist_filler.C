@@ -18,11 +18,11 @@ void hist_filler(const char *tag="QGSP_INCLXX_EMV_MOM_0.5_pip")
   fRun->SetInputFile(inFile);	
   fRun->SetOutputFile(outFile);
 	
-  HistFillerTask *hft = new HistFillerTask();
+  HistFillerTask *hft = new HistFillerTask(0.35,0.45);
   fRun->AddTask(hft);
 	
   fRun->Init(); 
-  fRun->Run(0,0);
+  fRun->Run(1000,0);
 
 }
 
