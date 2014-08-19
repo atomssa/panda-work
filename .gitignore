@@ -2,6 +2,7 @@
 *.root
 *.dat
 *.input
+*.pyc 
 
 # root macro compile helpers
 *__.cxx
@@ -93,3 +94,6 @@ Thumbs.db
 
 # .svn directories
 .svn/
+
+.batch/
+log/

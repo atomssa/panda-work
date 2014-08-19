@@ -64,12 +64,12 @@ void print_log(int ievt, int npart, vector<int> &pdg_codes){
 }
 
 
-void dpm_filter(string file_name) {
+void dpm_filter(string file_name_in, string file_name_out) {
 
   bool verb = false;
   
   // input
-  TFile *file_in = TFile::Open(file_name.c_str());
+  TFile *file_in = TFile::Open(file_name_in.c_str());
   TTree *data_in = (TTree*) file_in->Get("data");
   TClonesArray *part_array = new TClonesArray("TParticle");
   data_in->SetBranchAddress("Particles",&part_array);
@@ -82,9 +82,8 @@ void dpm_filter(string file_name) {
   //  return;
   //}
   //file_name.replace(s,5,"_filt.root");
-  string file_out_name = "filtered_dpm_file.root";
-  std::cout << "Filtered output file = " << file_out_name << std::endl;
-  TFile *file_out = TFile::Open(file_out_name.c_str(),"RECREATE");
+  std::cout << "Filtered output file = " << file_name_out << std::endl;
+  TFile *file_out = TFile::Open(file_name_out.c_str(),"RECREATE");
   TTree *data_out_pipmpi0 = new TTree("data","DPM Background");
   TTree *data_out_jpsipi0 = new TTree("data_jpsi_pi0","data_jpsi_pi0");
   data_out_jpsipi0->Branch("Particles", &part_array, 32000, 0);

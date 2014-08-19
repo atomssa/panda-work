@@ -11,10 +11,8 @@ sim_complete(string file_in, Float_t mom = 5.513)
   // Figure out the number of events from input 
   TFile *f = TFile::Open(file_in.c_str());
   TTree *t = (TTree*) f->Get("data");
-  int nEvents = t->GetEntries();
+  const int nEvents = t->GetEntries();
   f->Close();
-
-  nEvents = 100;
   
   //-----User Settings:-----------------------------------------------
   TString  SimEngine ="TGeant4";
