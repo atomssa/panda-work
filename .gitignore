@@ -98,3 +98,5 @@ Thumbs.db
 .batch/
 log/
 .trash/
+
+test_*/
