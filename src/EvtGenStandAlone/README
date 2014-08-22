@@ -1,0 +1,7 @@
+The code in here should be linked into the directory:
+
+/vol0/panda/svn/pandaroot-scrut14/pgenerators/EvtGen
+
+And that directory's CMakeList.txt should be modified to add the following line at the end:
+
+add_subdirectory (EvtGenStandAlone)

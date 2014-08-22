@@ -1,0 +1,12 @@
+Here is where the files need to to inorder to compile and work
+
+mar14 setup: (this is the root of all evils: /vol0/panda/svn/pandaroot-mar14/pgenerators/EvtGen/EvtGen)
+
+New files:
+    EvtPpbarPi0Gamma.cpp -> /vol0/panda/svn/pandaroot-mar14/pgenerators/EvtGen/EvtGen/Private/EvtPpbarPi0Gamma.cpp
+    EvtPpbarPi0Gamma.hh -> /vol0/panda/svn/pandaroot-mar14/pgenerators/EvtGen/EvtGen/Private/EvtGenModels/EvtPpbarPi0Gamma.hh
+Modification to:
+    CMakeList.txt -> /vol0/panda/svn/pandaroot-mar14/pgenerators/EvtGen/EvtGen/CMakeList.txt
+    EvtModelReg.cpp -> /vol0/panda/svn/pandaroot-mar14/pgenerators/EvtGen/EvtGen/Private/EvtModelReg.cpp
+
+    
