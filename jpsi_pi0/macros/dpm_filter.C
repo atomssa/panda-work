@@ -64,7 +64,7 @@ void print_log(int ievt, int npart, vector<int> &pdg_codes){
 }
 
 
-void dpm_filter(string file_name_in, string file_name_out) {
+void dpm_filter(string file_name_in) {
 
   bool verb = false;
   
@@ -75,13 +75,7 @@ void dpm_filter(string file_name_in, string file_name_out) {
   data_in->SetBranchAddress("Particles",&part_array);
   int Nevt = data_in->GetEntries();
 
-  // filtered output
-  //size_t s = file_name.find(".root", s);
-  //if (s == string::npos) {
-  //  std::cout << "You have to supply a root file" << std::endl;
-  //  return;
-  //}
-  //file_name.replace(s,5,"_filt.root");
+  string file_name_out = "Background-nano.root";
   std::cout << "Filtered output file = " << file_name_out << std::endl;
   TFile *file_out = TFile::Open(file_name_out.c_str(),"RECREATE");
   TTree *data_out_pipmpi0 = new TTree("data","DPM Background");
