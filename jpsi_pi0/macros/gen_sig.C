@@ -8,7 +8,7 @@ void gen_sig()
   gSystem->Load("libEvtGenSA");
   gSystem->ListLibraries();
 
-  PndEvtGenStandAlone *gen = new PndEvtGenStandAlone("pbarpSystem", "jpsi_pi0.dec", mom);
+  PndEvtGenStandAlone *gen = new PndEvtGenStandAlone("pbarpSystem", "/vol0/panda/work/jpsi_pi0/macros/jpsi_pi0.dec", mom);
   gen->Initialize();
 
   gen->SetVerbose(0);
