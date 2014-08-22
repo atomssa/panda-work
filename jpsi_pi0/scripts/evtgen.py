@@ -43,11 +43,14 @@ def dpm_in(in_file):
 def run_dpm():
     my_utils.dbg_msg("========= running dpm for uniq_id = %d " % my_utils.uniq_id)
     (out_file,log_file,in_file) = my_utils.file_names("evt")
-    with open(log_file,'w') as log, open(dpm_in(in_file),"r") as inpipe:
-        execute("DPMGen", log, inpipe)
-    my_utils.move_file(my_utils.dpm_default_out, out_file)
-    return out_file
-    
+    if not os.path.exists(out_file):
+        with open(log_file,'w') as log, open(dpm_in(in_file),"r") as inpipe:
+            execute("DPMGen", log, inpipe)
+        if not my_utils.delete_unfiltered_dpm:
+            my_utils.move_file(my_utils.dpm_default_out, out_file)
+    else:
+        my_utils.dbg_msg("%s exists. will skip this step (evt)" % out_file)
+
 def root_in(in_file,dpm_file):
     src_file = "%s/dpm_filter.C" % my_utils.macro_dir
     my_utils.copy_file_to_batch_dir(src_file)
@@ -56,12 +59,15 @@ def root_in(in_file,dpm_file):
         write_lines(inpipe,lines)
     return in_file
 
-def filter_dpm(dpm_out):
+def filter_dpm():
     my_utils.dbg_msg("========= filtering for uniq_id = %d " % my_utils.uniq_id)
     (out_file,log_file,in_file) = my_utils.file_names("filt")
-    with open(log_file,'w') as log, open(root_in(in_file, dpm_out),"r") as inpipe:
-        execute("root -b", log, inpipe)
-    my_utils.move_file(my_utils.filter_default_out,out_file)
+    if not os.path.exists(out_file):
+        with open(log_file,'w') as log, open(root_in(in_file, my_utils.dpm_default_out),"r") as inpipe:
+            execute("root -b", log, inpipe)
+        my_utils.move_file(my_utils.filter_default_out,out_file)
+    else:
+        my_utils.dbg_msg("%s exists. will skip this step (filt)" % out_file)
     return out_file
     
 def generate():
@@ -73,7 +79,7 @@ def generate():
     (dummy,log_file,dummy) = my_utils.file_names("timer")
     
     dpm_out = run_dpm()
-    filt_out = filter_dpm(dpm_out)
+    filt_out = filter_dpm()
 
     # make delete_unfiltered_dpm golbal in my_utils at the next ocasion 
     if (my_utils.delete_unfiltered_dpm):
