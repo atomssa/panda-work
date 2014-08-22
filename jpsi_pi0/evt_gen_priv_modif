@@ -1,0 +1,12 @@
+
+# Add the x-sect weighting functions here:
+EvtGen/EvtGen/Private/EvtPpbarJpsiPi0.cpp
+EvtGen/EvtGen/Private/EvtGenModels/EvtPpbarJpsiPi0.hh
+
+# Add the model to the list of registered models
+EvtGen/EvtGen/R01-03-00/src/EvtGenModels/EvtModelReg.cpp
+
+# Add the selector code to CMakeList
+EvtGen/EvtGen/CMakeLists.txt
+
+# compile and have fun
