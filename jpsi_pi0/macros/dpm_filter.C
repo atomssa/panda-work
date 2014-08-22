@@ -80,8 +80,8 @@ void dpm_filter(string file_name_in) {
   TFile *file_out = TFile::Open(file_name_out.c_str(),"RECREATE");
   TTree *data_out_pipmpi0 = new TTree("data","DPM Background");
   TTree *data_out_jpsipi0 = new TTree("data_jpsi_pi0","data_jpsi_pi0");
-  data_out_jpsipi0->Branch("Particles", &part_array, 32000, 0);
-  data_out_pipmpi0->Branch("Particles", &part_array, 32000, 0);
+  data_out_jpsipi0->Branch("Particles", &part_array, 32000, 2);
+  data_out_pipmpi0->Branch("Particles", &part_array, 32000, 2);
 
   std::vector<int> ref1;
   ref1.push_back(-211);
