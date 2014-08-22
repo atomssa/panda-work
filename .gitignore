@@ -2,7 +2,7 @@
 *.root
 *.dat
 *.input
-*.pyc 
+*.pyc
 
 # root macro compile helpers
 *__.cxx

@@ -35,7 +35,9 @@ if arg == 2:
         
 print "series: %s" % series
 
-#for i in series:
-#    my_utils.uniq_id = i
-#    my_utils.dbg_msg("run_series: doing uniq id %d" % my_utils.uniq_id)
-#    full_sim.run()
+my_utils.test_run = False
+
+for i in series:
+    my_utils.uniq_id = i
+    my_utils.dbg_msg("run_series: doing uniq id %d" % my_utils.uniq_id)
+    full_sim.run()
