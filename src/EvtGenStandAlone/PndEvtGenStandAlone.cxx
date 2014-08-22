@@ -168,7 +168,6 @@ PndEvtGenStandAlone::PndEvtGenStandAlone(TString particle,TString decfile,Double
 PndEvtGenStandAlone::~PndEvtGenStandAlone() {
 }
 
-
 void PndEvtGenStandAlone::init_root_tree() {
 
   iEvt = 0;
@@ -181,7 +180,7 @@ void PndEvtGenStandAlone::init_root_tree() {
 
   fTree = new TTree("data","TDA Signal");
   fTree->Branch("Npart",&fNpart,"Npart/I");
-  fTree->Branch("Particles",&fEvt, 32000, 0);
+  fTree->Branch("Particles",&fEvt, 32000, 2);
 
 }
 
@@ -231,71 +230,10 @@ void PndEvtGenStandAlone::close_root_file() {
   fFile->Close();
 }
 
-//// -----   Public method ReadEvent   --------------------------------------
-//Bool_t PndEvtGenStandAlone::generate_event() {
-//  
-//  if (iEvt%1000==0) cout << "PndEvtGenStandAlone::generate_event generating event " << iEvt << endl;
-//
-//  // Loop to create nEvents, starting from an Upsilon(4S)
-//  // Set up the parent particle
-//  EvtParticle *parent;
-//  EvtVector4R pInit(fEnergy,  0.0000, -0.0000,  fMomentum);
-//  parent=EvtParticleFactory::particleFactory(PART,pInit);
-//  parent->setDiagonalSpinDensity();  
-//
-//  fGenerator->generateDecay(parent);
-//
-//  fEvtStdHep.init();
-//  parent->makeStdHep(fEvtStdHep);
-//
-//  if (verb_flag()) print_detail(parent);
-//    
-//  // Write the output
-//  fNpart = fEvtStdHep.getNPart();
-//
-//  fEvt->Clear();
-//  for(Int_t iPart=0; iPart<fNpart; iPart++){
-//
-//    // add track
-//    const Int_t nFD = fEvtStdHep.getFirstDaughter(iPart);
-//    const Int_t nLD = fEvtStdHep.getLastDaughter(iPart);
-//
-//    if( nFD==-1 && nLD==-1 )
-//      {
-//
-//	const int fId = fEvtStdHep.getStdHepID(iPart);
-//	TLorentzVector p4, v4;
-//	set_p4_v4(fEvtStdHep, iPart, p4, v4);
-//
-//	// onto the free store for the TCA
-//	TParticle *tmp = new((*fEvt)[iPart]) TParticle(fId,1,0,0,0,0,p4,v4);
-//	if(verb_flag()) {
-//	  cout << "- I -: New particle " << iPart << " -> " << endl;
-//	  tmp->Print();
-//	}
-//	
-//      }
-//
-//  }
-//
-//  if (!compare()) print_detail(parent);
-//  
-//  if (verb_flag()) cout <<"==== compare end ==="<<endl;
-//
-//  fTree->Fill();
-//
-//  parent->deleteTree();  
-//
-//  return kTRUE;
-//
-//}
-
 // -----   Public method ReadEvent   --------------------------------------
 Bool_t PndEvtGenStandAlone::generate_event(TClonesArray*evt) {
   
   if (iEvt%1000==0) cout << "PndEvtGenStandAlone::generate_event generating event " << iEvt << endl;
-
-  cout << "==================================================== From code:" << endl;
 
   // Loop to create nEvents, starting from an Upsilon(4S)
   // Set up the parent particle
@@ -314,6 +252,8 @@ Bool_t PndEvtGenStandAlone::generate_event(TClonesArray*evt) {
   // Write the output
   fNpart = fEvtStdHep.getNPart();
 
+  fEvt->Clear();
+  
   int tca_idx = 0;
   for(Int_t iPart=0; iPart<fNpart; iPart++){
 
@@ -330,15 +270,13 @@ Bool_t PndEvtGenStandAlone::generate_event(TClonesArray*evt) {
 
 	// onto the free store for the TCA
 	TParticle *tmp = new((*evt)[tca_idx++]) TParticle(fId,1,0,0,0,0,p4,v4);
-	//if(verb_flag()) {
-	cout << "- I -: New particle " << iPart << " -> " << endl;
-	tmp->Print();
-	//}
+	if(verb_flag()) {
+	  cout << "- I -: New particle " << iPart << " -> " << endl;
+	  tmp->Print();
+	}
 
       }
   }
-
-  evt->Print();
 
   if (!compare()) print_detail(parent);
   
