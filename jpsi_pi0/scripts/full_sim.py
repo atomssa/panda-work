@@ -25,9 +25,11 @@ def execute_root(step, log, prev_out, prev_step, args=None):
     my_utils.dbg_msg("========= executing root with args %s " % args)
     my_utils.cd_to_batch_dir()
     my_utils.soft_link(prev_out, "%s_complete.root" % prev_step)
-    proc = subprocess.Popen("root -b -q %s" % args,shell=True, stdout=log, stderr=log)
-    proc.wait()
-    #test_exec(step,log,prev_step,prev_out,args)
+    if not my_utils.test_run:
+        proc = subprocess.Popen("root -b -q %s" % args,shell=True, stdout=log, stderr=log)
+        proc.wait()
+    else:
+        test_exec(step,log,prev_step,prev_out,args)
     
 def execute_step(step, prev_out, prev_step):
     my_utils.dbg_msg( "====== executing step %s with uniq id %d " % (step,my_utils.uniq_id) )

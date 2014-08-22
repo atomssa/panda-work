@@ -7,6 +7,8 @@ uniq_id = None
 
 debug = True
 
+test_run = False
+
 base_dir = "/vol0/panda/work/jpsi_pi0"
 macro_dir = "%s/macros" % base_dir
 batch_dir = None

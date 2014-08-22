@@ -25,9 +25,11 @@ def test_exec(log,inpipe):
         
 def execute(cmd,log,inpipe):
     my_utils.cd_to_batch_dir()
-    proc = subprocess.Popen(cmd, shell=True, stdout=log, stderr=log, stdin=inpipe);
-    proc.wait()
-    #test_exec(log,inpipe)
+    if not my_utils.test_run:
+        proc = subprocess.Popen(cmd, shell=True, stdout=log, stderr=log, stdin=inpipe);
+        proc.wait()
+    else:
+        test_exec(log,inpipe)
     
 def write_lines(file_handle, lines):
     for line in lines:
@@ -50,7 +52,11 @@ def run_dpm():
             my_utils.move_file(my_utils.dpm_default_out, out_file)
     else:
         my_utils.dbg_msg("%s exists. will skip this step (evt)" % out_file)
+    if (my_utils.delete_unfiltered_dpm):
+        if os.path.exists(out_file):
+            os.remove(out_file)
 
+        
 def root_in(in_file,dpm_file):
     src_file = "%s/dpm_filter.C" % my_utils.macro_dir
     my_utils.copy_file_to_batch_dir(src_file)
@@ -78,13 +84,8 @@ def generate():
 
     (dummy,log_file,dummy) = my_utils.file_names("timer")
     
-    dpm_out = run_dpm()
+    run_dpm()
     filt_out = filter_dpm()
-
-    # make delete_unfiltered_dpm golbal in my_utils at the next ocasion 
-    if (my_utils.delete_unfiltered_dpm):
-        if os.path.exists(dpm_out):
-            os.remove(dpm_out)
     
     return filt_out
     
