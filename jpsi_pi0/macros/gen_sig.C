@@ -2,7 +2,7 @@ void gen_sig()
 {
 
   Float_t mom = 6.5; // TODO: will hav to be fixed
-  Int_t nEvents = 10000;
+  Int_t nEvents = 10; //10000;
   
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gSystem->Load("libEvtGenSA");

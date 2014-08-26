@@ -5,14 +5,21 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-sim_complete(string file_in, Float_t mom = 5.513)
+sim_complete(int type /*1:Signal 0:Background */)
 {
-  
-  // Figure out the number of events from input 
-  TFile *f = TFile::Open(file_in.c_str());
-  TTree *t = (TTree*) f->Get("data");
-  const int nEvents = t->GetEntries();
-  f->Close();
+
+  //string file_in,
+  Float_t mom = 5.513;
+
+  int nEvents = 10000;
+
+  if (type == 0 ) {
+    // Figure out the number of events from input 
+    TFile *f = TFile::Open(file_in.c_str());
+    TTree *t = (TTree*) f->Get("data");
+    nEvents = t->GetEntries();
+    f->Close();
+  }
   
   //-----User Settings:-----------------------------------------------
   TString  SimEngine ="TGeant4";
@@ -23,8 +30,8 @@ sim_complete(string file_in, Float_t mom = 5.513)
   TString digiFile        = "all.par"; //The emc run the hit producer directly 
   // choose your event generator 
   Bool_t UseEvtGen	      =kFALSE; 
-  Bool_t UseEvtGenDirect      =kFALSE;     
-  Bool_t UseDpm 	      =kTRUE;
+  Bool_t UseEvtGenDirect      = (type==1); // Signal simulation
+  Bool_t UseDpm 	      = (type==0); // Background simulation
   Bool_t UseBoxGenerator      =kFALSE;
 
   Double_t BeamMomentum = 0.; // beam momentum ONLY for the scaling of the dipole field.
@@ -154,10 +161,8 @@ sim_complete(string file_in, Float_t mom = 5.513)
     primGen->AddGenerator(boxGen);
   }
   if(UseDpm){
-    
-    PndDpmGenerator* dpmGen = new PndDpmGenerator(file_in.c_str());
+    PndDpmGenerator* dpmGen = new PndDpmGenerator("filt_complete.root");
     primGen->AddGenerator(dpmGen);
-
   }
   if(UseEvtGen){	
     TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
@@ -166,8 +171,9 @@ sim_complete(string file_in, Float_t mom = 5.513)
     primGen->AddGenerator(evtGen);
   }	
   if(UseEvtGenDirect){
-    TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
-    EvtInput+="/macro/run/psi2s_Jpsi2pi_Jpsi_mumu.dec";	
+    //TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
+    //EvtInput+="/macro/run/psi2s_Jpsi2pi_Jpsi_mumu.dec";
+    TString EvtInput = "/vol0/panda/work/jpsi_pi0/macros/jpsi_pi0.dec";
     PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem", EvtInput.Data(), mom);
     EvtGen->SetStoreTree(kTRUE);
     primGen->AddGenerator(EvtGen);
