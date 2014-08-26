@@ -12,8 +12,10 @@
 #define EVTPPABRJPSIPI0_HH
 
 #include "EvtGenBase/EvtDecayProb.hh"
+#include "EvtGenBase/EvtStdHep.hh"
 
 class EvtParticle;
+class EvtStdHep;
 
 class EvtPpbarJpsiPi0:public EvtDecayProb{
 
@@ -27,8 +29,10 @@ public:
   void decay(EvtParticle *p);
 
 private:
+  
   double _qsit;
   double _s;
+
 };
 
 #endif
