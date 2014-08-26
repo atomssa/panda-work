@@ -100,3 +100,9 @@ log/
 .trash/
 
 test_*/
+
+.bkp
+./hades/pionbeam/pibeam_set6_mod.data
+./hades/target/E01/macro
+./radlen/geant3/draw.C
+./radlen/geant3/radlen.C
