@@ -24,14 +24,14 @@ echo step3 nominal beam spot segmented pion tracker, MS on pion trackers 1 and 2
 echo step3a nominal beam spot segmented pion tracker and start detectors, MS on pion trackers 1 and 2 
 ./gen 100000 50 10 0.5 11 10 >& report.v3/step3a.log
 
-echo step3aI nominal beam spot segmented pion tracker and start detectors, start detector strip size halfed, MS on pion trackers 1 and 2 
-./gen 100000 50 10 0.5 11 10 7 >& report.v3/step3aI.log
-
-echo step3aII nominal beam spot segmented pion tracker and start detectors, start detector strip size quartered, MS on pion trackers 1 and 2 
-./gen 100000 50 10 0.5 11 10 3.5 >& report.v3/step3aII.log
-
-echo step3aIII nominal beam spot segmented pion tracker and start detectors, start detector strip size set to 1mm, MS on pion trackers 1 and 2 
-./gen 100000 50 10 0.5 11 10 1 >& report.v3/step3aIII.log
+#echo step3aI nominal beam spot segmented pion tracker and start detectors, start detector strip size halfed, MS on pion trackers 1 and 2 
+#./gen 100000 50 10 0.5 11 10 7 >& report.v3/step3aI.log
+#
+#echo step3aII nominal beam spot segmented pion tracker and start detectors, start detector strip size quartered, MS on pion trackers 1 and 2 
+#./gen 100000 50 10 0.5 11 10 3.5 >& report.v3/step3aII.log
+#
+#echo step3aIII nominal beam spot segmented pion tracker and start detectors, start detector strip size set to 1mm, MS on pion trackers 1 and 2 
+#./gen 100000 50 10 0.5 11 10 1 >& report.v3/step3aIII.log
 
 echo step3b nominal beam spot segmented pion tracker, MS on pion trackers 1 and 2 and Start Detector
 ./gen 100000 50 10 0.5 10 11 >& report.v3/step3b.log

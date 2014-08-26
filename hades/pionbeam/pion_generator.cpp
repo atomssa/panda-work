@@ -45,7 +45,7 @@ int main( int argc, const char **argv )
 
   if (argc<7) {
     cout << "need 6 arguments. only " << argc-1 << " given" << endl;
-    cout << "./gen Nevt[10000] dphi[50mrad] dth[10mrad] xyr[0.5mm] MS[00,01,10/11] MS[00,01,10/11]" << endl;
+    cout << "./gen Nevt[10000] dphi[50mrad] dth[10mrad] xyr[0.5mm] Digitzie?[00,01,10/11] MS[00,01,10/11]" << endl;
     return -1;
   }
 
@@ -64,12 +64,15 @@ int main( int argc, const char **argv )
   const bool do_ms_pitrk = (atoi(argv[6])/10 == 1);
   const bool do_ms_diam = (atoi(argv[6])%10 == 1);
 
-  double diam_seg = 14.0;
+  double diam_seg = 2.45; // 14.7mm/6 
   if (argc == 8 ) {
     diam_seg = atof(argv[7]); // Argument for academic study on what finer element size on start detector would bring
   }
   
-  TString outfile=Form("report.v3/ms%d%d_ds%d%d%s_xy%3.1fmm_dth%d_dph%d_p%4.2f.evt", do_ms_pitrk?1:0, do_ms_diam?1:0, digi_pitrk?1:0, digi_diam?1:0, (argc==8?Form("_seg%3.1f",diam_seg):""), xyr, (int)dth, (int)dph, pbeam);
+  TString outfile=Form("report.v3/ms%d%d_ds%d%d%s_xy%3.1fmm_dth%d_dph%d_p%4.2f.evt",
+		       do_ms_pitrk?1:0, do_ms_diam?1:0, digi_pitrk?1:0, digi_diam?1:0,
+		       (argc==8?Form("_seg%3.1f",diam_seg):""), xyr, (int)dth, (int)dph, pbeam);
+  
   cout << "Output file name: " << outfile << endl;
 
   map<Int_t,TString> elementNames;
@@ -206,16 +209,16 @@ int main( int argc, const char **argv )
   fout->mkdir("dir");    
 
   vector<HBeamParticle>& vhistory = pionbeam.newParticle();
-  static const unsigned int ndet = vhistory.size();
+  const unsigned int ndet = vhistory.size();
   vector<HBeamParticle>& vms_history = pionbeam.get_ms_history();
-  static const unsigned int nmspt = vms_history.size();
+  const unsigned int nmspt = vms_history.size();
   vector<HBeamParticle>& vsolution = pionbeam.get_solution();
-  static const unsigned int nrec = vsolution.size();
+  const unsigned int nrec = vsolution.size();
   
   for (unsigned int kk=0; kk<vhistory.size(); ++kk) cout << "history["<< kk << "].fName= " << vhistory[kk].fName << endl;
   for (unsigned int kk=0; kk<vms_history.size(); ++kk) cout << "vms_history["<< kk << "].fName= " << vms_history[kk].fName << endl;
   for (unsigned int kk=0; kk<vsolution.size(); ++kk) cout << "vsolution["<< kk << "].fName= " << vsolution[kk].fName << endl;	    
-  
+
   TTree *tt = new TTree("t","t");
   int _ndet=ndet;    tt->Branch("ndet",&_ndet,"ndet/I");
   int _acc=0;      tt->Branch("acc",&_acc,"acc/I");
@@ -242,7 +245,7 @@ int main( int argc, const char **argv )
   float _yms[_nmspt];  tt->Branch("yms[nmspt]",&_yms,"yms[nmspt]/F");
   float _phms[_nmspt]; tt->Branch("phms[nmspt]",&_phms,"phms[nmspt]/F");
   float _pms[_nmspt]; tt->Branch("pms[nmspt]",&_pms,"pms[nmspt]/F");
-  
+
   TH2F* h_xy[ndet], *h_xyAcc[ndet];
   TH2F* h_xth[ndet], *h_xthAcc[ndet];
   TH2F* h_yph[ndet], *h_yphAcc[ndet];    
@@ -255,13 +258,13 @@ int main( int argc, const char **argv )
   int indexDet[2] = {0};
   double r_pos = 100.0;
   double r_ang = 20;  
-
   for (UInt_t idet=0; idet< ndet; ++idet) {
     const char *det_name = vhistory[idet].fName.Data();
     if (strcmp(det_name, "plane")) indexOut = idet;
     if (strcmp(det_name, "det1")) indexDet[0] = idet;
     if (strcmp(det_name, "det2")) indexDet[1] = idet;
-
+    cout << Form("hxy_%s",det_name) << " " << Form("hxyAcc_%s",det_name) << endl;
+    
     h_xy[idet] = new TH2F( Form("hxy_%s",det_name), Form("x vs. y [%s]; x[mm]; y[mm]; counts",det_name), 2000, -r_pos, r_pos, 2000, -r_pos, r_pos );
     h_xyAcc[idet] = new TH2F( Form("hxyAcc_%s",det_name), Form("x vs. y, accepted [%s]; x[mm]; y[mm]",det_name), 2000, -r_pos, r_pos, 2000, -r_pos, r_pos );
 
@@ -387,34 +390,25 @@ int main( int argc, const char **argv )
 	    
 	    hxDir->Fill(TMath::ATan2(vPion[0].Px(),vPion[0].Pz())*1000);
 	    hyDir->Fill(TMath::ATan2(vPion[0].Py(),vPion[0].Pz())*1000);
-	    std::cout << "vhistory.size() = " << vhistory.size() << std::endl;
 	    for(UInt_t i=0; i< vhistory.size();i++){
-	      std::cout << "ihist=" << i << std::endl;
 	      const double the_mrad = TMath::ATan2(vPion[i].Px(),vPion[i].Pz())*1000;
 	      const double phi_mrad = TMath::ATan2(vPion[i].Py(),vPion[i].Pz())*1000;
-	      std::cout << "setting ntuple vars" << std::endl;
 	      _p[i] = vPion[i].P();
 	      _dp[i] = (vPion[i].P() - pbeam)*100./pbeam;
 	      _x[i] = vhistory[i].fPos.X();
 	      _y[i] = vhistory[i].fPos.Y();
 	      _th[i] = the_mrad;
 	      _ph[i] = phi_mrad;
-	      std::cout << "filling hists" << std::endl;
-	      std::cout << "h_xy["<< i<<"]= "  <<h_xy[i] << std::endl;
-	      //h_xy[i]->Fill(0.,0.); cout << "step 0" << endl;
-	      //h_xy[i]->Fill(vhistory[i].fPos.X(),vhistory[i].fPos.Y()); cout << "step 1" << endl;
-	      //h_xth[i]->Fill(vhistory[i].fPos.X(), the_mrad); cout << "step 2" << endl;
-	      //h_yph[i]->Fill(vhistory[i].fPos.Y(), phi_mrad); cout << "step 3" << endl;
-	      //h_mom[i]->Fill(vPion   [i].P()); cout << "step 3" << endl;
-	      //h_mom_x[i]->Fill(vPion   [i].Px()); cout << "step 4" << endl;
-	      //h_mom_y[i]->Fill(vPion   [i].Py()); cout << "step 5" << endl;
-	      //h_mom_z[i]->Fill(vPion   [i].Pz()); cout << "step 6" << endl;
-	      cout << "done? " << endl;
+	      h_xy[i]->Fill(vhistory[i].fPos.X(),vhistory[i].fPos.Y());
+	      h_xth[i]->Fill(vhistory[i].fPos.X(), the_mrad);
+	      h_yph[i]->Fill(vhistory[i].fPos.Y(), phi_mrad);
+	      h_mom[i]->Fill(vPion   [i].P());
+	      h_mom_x[i]->Fill(vPion   [i].Px());
+	      h_mom_y[i]->Fill(vPion   [i].Py());
+	      h_mom_z[i]->Fill(vPion   [i].Pz());
 	    }
 
-	    std::cout << "vms_history.size() = " << vms_history.size() << std::endl;
 	    for (unsigned int j=0; j<vms_history.size() && j<(unsigned int)_nmspt; ++j) {
-	      std::cout << "jvmshist=" << j << std::endl;
 	      TLorentzVector ms_pion;
 	      ms_pion.SetXYZM(vms_history[j].fP.X(),vms_history[j].fP.Y(),vms_history[j].fP.Z(), 139.56995*0.001);
 	      const double ms_the_mrad = TMath::ATan2(ms_pion.Px(),ms_pion.Pz())*1000;
@@ -428,9 +422,7 @@ int main( int argc, const char **argv )
 
 	    }
 
-	    std::cout << "vsolution.size() = " << vsolution.size() << std::endl;
 	    for (unsigned int j=0; j<vsolution.size() && j<(unsigned int)_nrec; ++j) {
-	      std::cout << "jsol=" << j << std::endl;
 	      TLorentzVector rec_pion;
 	      rec_pion.SetXYZM(vsolution[j].fP.X(),vsolution[j].fP.Y(),vsolution[j].fP.Z(), 139.56995*0.001);
 	      const double rec_the_mrad = TMath::ATan2(rec_pion.Px(),rec_pion.Pz())*1000;
@@ -486,7 +478,7 @@ int main( int argc, const char **argv )
 	  }
 
 	  n++; // succesfull
-	  cout << "Done with event " << n << endl;
+
 	  //-----------------------------------------------------------
 	  //-----------------------------------------------------------
 	  // new particle
@@ -511,7 +503,7 @@ int main( int argc, const char **argv )
 	      }
 	    }
 	  //-----------------------------------------------------------
-	  cout << "filling qa plots" <<endl;
+
 	  //-----------------------------------------------------------
 	  // qa plots
 	  if(Accepted){
@@ -519,9 +511,7 @@ int main( int argc, const char **argv )
 
 	      const double the_mrad = TMath::ATan2(vPion[i].Px(),vPion[i].Pz())*1000;
 	      const double phi_mrad = TMath::ATan2(vPion[i].Py(),vPion[i].Pz())*1000;
-	      cout << "filling h_xyAcc["<< i<<"] = " << h_xyAcc[i] <<endl;
 	      h_xyAcc[i]->Fill(vhistory[i].fPos.X(),vhistory[i].fPos.Y());
-	      cout << "done filling h_xyAcc" <<endl;
 	      h_xthAcc[i]->Fill(vhistory[i].fPos.X(), the_mrad);
 	      h_yphAcc[i]->Fill(vhistory[i].fPos.Y(), phi_mrad);	      
 	      h_momAcc[i]->Fill(vPion   [i].P());

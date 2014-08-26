@@ -34,9 +34,9 @@ void style_tgraph(TGraph *tg, const char *name, const char *title, int col, int 
   tg->SetLineColor(col);
 }
 
-TF1* fit_xy_res(double &x, double &xe, double &max, bool do_fit, int idel, TCanvas *tc, TH1F* h, const char *meth, const char *var_tag, const char *det_tag, const char *var, const char *det_desc) {
+TF1* fit_xy_res(double &x, double &xe, double &max, bool do_fit, int idel, int ipad, TCanvas *tc, TH1F* h, const char *meth, const char *var_tag, const char *det_tag, const char *var, const char *det_desc) {
 
-  tc->cd(1+idel);
+  tc->cd(1+ipad);
 
   cout << "var_tag = " << var_tag << endl;
   TLatex *tt = new TLatex();
@@ -51,7 +51,7 @@ TF1* fit_xy_res(double &x, double &xe, double &max, bool do_fit, int idel, TCanv
 
   if (do_fit) {
 
-    h->Fit(f,"R+");
+    h->Fit(f,"R+Q");
     x = f->GetParameter(2);
     xe = f->GetParError(2);
 
@@ -86,7 +86,8 @@ void plot_pres(int CASE=0) {
   //double fmy = 2.2;
   bool do_fit = true;
 
-  const char *path = "report.v3/";
+  //const char *path = "report.v3_fix_xy_gen/";
+  const char *path = "report.v2/";  
   //const char *path = "";
   
   int idx_dia = 4;
@@ -179,7 +180,7 @@ void plot_pres(int CASE=0) {
   TH1F *hyres_dia[nmeth][ndel];
   TH1F *hxres_had[nmeth][ndel];
   TH1F *hyres_had[nmeth][ndel];
-
+  
   const char  *cmeth[2] = {"TDR","MINUIT"};
   cout << "cmeth[0]= " << cmeth[0] << endl;
   cout << "cmeth[1]= " << cmeth[1] << endl;	
@@ -234,7 +235,7 @@ void plot_pres(int CASE=0) {
     //cout << "p[0]= " << p[0] 
     if (sr[0] != 0 ) continue;
     
-    //if (acc!=1) continue;
+    if (acc!=1) continue;
     for (int imeth=0; imeth<nmeth_max; ++imeth) {
       hpres[imeth][idel]->Fill(pr[idx_pr[imeth]]);
       hxres_dia[imeth][idel]->Fill(xr[idx_xyr_dia[imeth]]-x[idx_dia]);
@@ -278,6 +279,7 @@ void plot_pres(int CASE=0) {
   //outf << endl;
   //outf.close();
   
+  TCanvas *tc_xyres[nmeth];
   TCanvas *tc_xres_dia[nmeth];
   TCanvas *tc_yres_dia[nmeth];
   TCanvas *tc_xres_had[nmeth];
@@ -299,28 +301,37 @@ void plot_pres(int CASE=0) {
   double max_xyres = 0.0;
   for (int imeth=0; imeth<nmeth_max; ++imeth) {
 
-    tc_xres_dia[imeth] = new TCanvas(Form("tc_xres_dia_%s",cmeth[imeth]),Form("tc_xres_dia_%s",cmeth[imeth]));
-    tc_xres_dia[imeth]->Divide(4,3);
-    tc_yres_dia[imeth] = new TCanvas(Form("tc_yres_dia_%s",cmeth[imeth]),Form("tc_yres_dia_%s",cmeth[imeth]));
-    tc_yres_dia[imeth]->Divide(4,3);
-    tc_xres_had[imeth] = new TCanvas(Form("tc_xres_had_%s",cmeth[imeth]),Form("tc_xres_had_%s",cmeth[imeth]));
-    tc_xres_had[imeth]->Divide(4,3);
-    tc_yres_had[imeth] = new TCanvas(Form("tc_yres_had_%s",cmeth[imeth]),Form("tc_yres_had_%s",cmeth[imeth]));
-    tc_yres_had[imeth]->Divide(4,3);
+    tc_xyres[imeth] = new TCanvas(Form("tc_xres_dia_%s",cmeth[imeth]),Form("tc_xres_dia_%s",cmeth[imeth]),1600,1000);
+    tc_xyres[imeth]->Divide(8,6);
+    //tc_xres_dia[imeth] = new TCanvas(Form("tc_xres_dia_%s",cmeth[imeth]),Form("tc_xres_dia_%s",cmeth[imeth]));
+    //tc_xres_dia[imeth]->Divide(4,3);
+    //tc_yres_dia[imeth] = new TCanvas(Form("tc_yres_dia_%s",cmeth[imeth]),Form("tc_yres_dia_%s",cmeth[imeth]));
+    //tc_yres_dia[imeth]->Divide(4,3);
+    //tc_xres_had[imeth] = new TCanvas(Form("tc_xres_had_%s",cmeth[imeth]),Form("tc_xres_had_%s",cmeth[imeth]));
+    //tc_xres_had[imeth]->Divide(4,3);
+    //tc_yres_had[imeth] = new TCanvas(Form("tc_yres_had_%s",cmeth[imeth]),Form("tc_yres_had_%s",cmeth[imeth]));
+    //tc_yres_had[imeth]->Divide(4,3);
 
     for (int idel=0; idel<13; ++idel) {
       
-      fxres_dia[imeth][idel] = (TF1*) fit_xy_res(d_xres_dia[imeth][idel], d_xres_dia_e[imeth][idel], max_xyres, do_fit, idel, tc_xres_dia[imeth], hxres_dia[imeth][idel], cmeth[imeth], "xres", "dia", "X_{rec}-X", "Diam. Det.");
-      fyres_dia[imeth][idel] = (TF1*) fit_xy_res(d_yres_dia[imeth][idel], d_yres_dia_e[imeth][idel], max_xyres, do_fit, idel, tc_yres_dia[imeth], hyres_dia[imeth][idel], cmeth[imeth], "xres", "dia", "Y_{rec}-Y", "Diam. Det." );
-      fxres_had[imeth][idel] = (TF1*) fit_xy_res(d_xres_had[imeth][idel], d_xres_had_e[imeth][idel], max_xyres, do_fit, idel, tc_xres_had[imeth], hxres_had[imeth][idel], cmeth[imeth], "xres", "had", "X_{rec}-X", "HADES" );
-      fyres_had[imeth][idel] = (TF1*) fit_xy_res(d_yres_had[imeth][idel], d_yres_had_e[imeth][idel], max_xyres, do_fit, idel, tc_yres_had[imeth], hyres_had[imeth][idel], cmeth[imeth], "xres", "had", "Y_{rec}-Y", "HADES" );
+      //fxres_dia[imeth][idel] = (TF1*) fit_xy_res(d_xres_dia[imeth][idel], d_xres_dia_e[imeth][idel], max_xyres, do_fit, idel, tc_xres_dia[imeth], hxres_dia[imeth][idel], cmeth[imeth], "xres", "dia", "X_{rec}-X", "Diam. Det.");
+      //fyres_dia[imeth][idel] = (TF1*) fit_xy_res(d_yres_dia[imeth][idel], d_yres_dia_e[imeth][idel], max_xyres, do_fit, idel, tc_yres_dia[imeth], hyres_dia[imeth][idel], cmeth[imeth], "yres", "dia", "Y_{rec}-Y", "Diam. Det." );
+      //fxres_had[imeth][idel] = (TF1*) fit_xy_res(d_xres_had[imeth][idel], d_xres_had_e[imeth][idel], max_xyres, do_fit, idel, tc_xres_had[imeth], hxres_had[imeth][idel], cmeth[imeth], "xres", "had", "X_{rec}-X", "HADES" );
+      //fyres_had[imeth][idel] = (TF1*) fit_xy_res(d_yres_had[imeth][idel], d_yres_had_e[imeth][idel], max_xyres, do_fit, idel, tc_yres_had[imeth], hyres_had[imeth][idel], cmeth[imeth], "yres", "had", "Y_{rec}-Y", "HADES" );
+
+      const int ii = ((idel/4)*8) + (idel%4);
+      cout << "idel= " << idel << " ii= " << ii<< endl;
+      fxres_dia[imeth][idel] = (TF1*) fit_xy_res(d_xres_dia[imeth][idel], d_xres_dia_e[imeth][idel], max_xyres, do_fit, idel, ii, tc_xyres[imeth], hxres_dia[imeth][idel], cmeth[imeth], "xres", "dia", "X_{rec}-X", "Diam. Det.");
+      fyres_dia[imeth][idel] = (TF1*) fit_xy_res(d_yres_dia[imeth][idel], d_yres_dia_e[imeth][idel], max_xyres, do_fit, idel, 4+ii, tc_xyres[imeth], hyres_dia[imeth][idel], cmeth[imeth], "xres", "dia", "Y_{rec}-Y", "Diam. Det." );
+      fxres_had[imeth][idel] = (TF1*) fit_xy_res(d_xres_had[imeth][idel], d_xres_had_e[imeth][idel], max_xyres, do_fit, idel, 24+ii, tc_xyres[imeth], hxres_had[imeth][idel], cmeth[imeth], "xres", "had", "X_{rec}-X", "HADES" );
+      fyres_had[imeth][idel] = (TF1*) fit_xy_res(d_yres_had[imeth][idel], d_yres_had_e[imeth][idel], max_xyres, do_fit, idel, 28+ii, tc_xyres[imeth], hyres_had[imeth][idel], cmeth[imeth], "xres", "had", "Y_{rec}-Y", "HADES" );
 	
     }
 
-    tc_xres_dia[imeth]->Print(Form("slides/%s_case%s.eps",tc_xres_dia[imeth]->GetName(),s_tag.c_str()));
-    tc_yres_dia[imeth]->Print(Form("slides/%s_case%s.eps",tc_yres_dia[imeth]->GetName(),s_tag.c_str()));
-    tc_xres_had[imeth]->Print(Form("slides/%s_case%s.eps",tc_xres_had[imeth]->GetName(),s_tag.c_str()));
-    tc_yres_had[imeth]->Print(Form("slides/%s_case%s.eps",tc_yres_had[imeth]->GetName(),s_tag.c_str()));
+    //tc_xres_dia[imeth]->Print(Form("slides/%s_case%s.eps",tc_xres_dia[imeth]->GetName(),s_tag.c_str()));
+    //tc_yres_dia[imeth]->Print(Form("slides/%s_case%s.eps",tc_yres_dia[imeth]->GetName(),s_tag.c_str()));
+    //tc_xres_had[imeth]->Print(Form("slides/%s_case%s.eps",tc_xres_had[imeth]->GetName(),s_tag.c_str()));
+    //tc_yres_had[imeth]->Print(Form("slides/%s_case%s.eps",tc_yres_had[imeth]->GetName(),s_tag.c_str()));
 
   }
 
@@ -344,7 +355,7 @@ void plot_pres(int CASE=0) {
   outf << endl;
   outf.close();
 
-  
+
   TF1 *fpres[nmeth][ndel];
   double d_pres[nmeth][13] = {{0.0}}, d_pres_e[nmeth][13] = {{0.0}};  
   if (do_fit) {
@@ -401,7 +412,7 @@ void plot_pres(int CASE=0) {
       if (idel==imaxdel[imeth]) continue;
       hpres[imeth][idel]->Draw("same");
     }
-    tc_pres[imeth]->Print(Form("slides/%s_case%s.eps",tc_pres[imeth]->GetName(), s_tag.c_str()));
+    //tc_pres[imeth]->Print(Form("slides/%s_case%s.eps",tc_pres[imeth]->GetName(), s_tag.c_str()));
   }
   
   if (do_fit) {
@@ -495,6 +506,7 @@ void plot_pres(int CASE=0) {
     gPad->SetGridy();    
     tmg_pres->Draw("a");
     tmg_pres->SetMinimum(0.0);
+    tmg_pres->SetMaximum(0.6);    
     tl_pres->Draw();
 
     tc_res->cd(2);
@@ -503,8 +515,8 @@ void plot_pres(int CASE=0) {
     tmg_xres->Draw("a");
     tmg_xres->SetMinimum(0.0);
     //tmg_xres->SetMaximum(max_xyres*1.1);
-    tmg_xres->SetMaximum(20);    
-    tl_xres->Draw();
+    tmg_xres->SetMaximum(8);    
+    //tl_xres->Draw();
 
     tc_res->cd(3);
     gPad->SetGridx();
@@ -512,7 +524,7 @@ void plot_pres(int CASE=0) {
     tmg_yres->Draw("a");
     tmg_yres->SetMinimum(0.0);
     //tmg_yres->SetMaximum(max_xyres*1.1);
-    tmg_yres->SetMaximum(20);
+    tmg_yres->SetMaximum(8);
     //tl_yres->Draw();
 
     tc_res->ls();
@@ -540,7 +552,7 @@ void plot_pres(int CASE=0) {
     pad2->SetRightMargin(eps);
     pad1->SetRightMargin(0.05);
     pad1->SetLeftMargin(0.15);    
-    tc_res->Print(Form("slides/%s_case%s.eps",tc_res->GetName(),s_tag.c_str()) );
+    //tc_res->Print(Form("slides/%s_case%s.eps",tc_res->GetName(),s_tag.c_str()) );
 
     TFile *rootfout = TFile::Open(Form("%s_graphs.root", fName.c_str()),"RECREATE");
     rootfout->cd();
