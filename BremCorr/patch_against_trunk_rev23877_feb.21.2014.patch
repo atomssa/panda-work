@@ -1,0 +1,1079 @@
+Index: emc/EmcLinkDef.h
+===================================================================
+--- emc/EmcLinkDef.h	(révision 23877)
++++ emc/EmcLinkDef.h	(copie de travail)
+@@ -54,6 +54,7 @@
+ #pragma link C++ class  PndEmcMakeBump+;
+ #pragma link C++ class  PndEmc2DLocMaxFinder+;
+ #pragma link C++ class  PndEmcExpClusterSplitter+;
++#pragma link C++ class  PndEmcPhiBumpSplitter++;
+ #pragma link C++ class  PndEmcRecoHit+;
+ #pragma link C++ class  PndEmcMakeRecoHit+;
+ #pragma link C++ class  PndEmcClusterProperties+;
+Index: emc/EmcReco/PndEmcMakeBump.cxx
+===================================================================
+--- emc/EmcReco/PndEmcMakeBump.cxx	(révision 23877)
++++ emc/EmcReco/PndEmcMakeBump.cxx	(copie de travail)
+@@ -36,6 +36,7 @@
+ #include "PndEmcSharedDigi.h"
+ #include "PndEmc2DLocMaxFinder.h"
+ #include "PndEmcExpClusterSplitter.h"
++#include "PndEmcPhiBumpSplitter.h"
+ #include "PndEmcTwoCoordIndex.h"
+ 
+ #include "TClonesArray.h"
+@@ -59,7 +60,8 @@
+ {
+   this->Add(new PndEmc2DLocMaxFinder());
+   this->Add(new PndEmcExpClusterSplitter());
+-
++  this->Add(new PndEmcPhiBumpSplitter());
++  
+   TList* thistasks = this->GetListOfTasks();
+   for(Int_t i=0;i<thistasks->GetEntries();i++)
+   {
+@@ -75,6 +77,7 @@
+   TList* thistasks = this->GetListOfTasks();
+   ((PndEmc2DLocMaxFinder*)thistasks->At(0))->SetStorageOfData(fPersistance);
+   ((PndEmcExpClusterSplitter*)thistasks->At(1))->SetStorageOfData(fPersistance);
++  ((PndEmcPhiBumpSplitter*)thistasks->At(2))->SetStorageOfData(fPersistance);  
+   return;
+ }
+ 
+Index: emc/EmcReco/PndEmcPhiBumpSplitter.h
+===================================================================
+--- emc/EmcReco/PndEmcPhiBumpSplitter.h	(révision 0)
++++ emc/EmcReco/PndEmcPhiBumpSplitter.h	(révision 0)
+@@ -0,0 +1,114 @@
++//--------------------------------------------------------------------------
++// File and Version Information:
++// 	$Id:$
++//
++// Description:
++//	
++// Environment:
++//	
++//
++// 
++// Author List:
++//              
++//
++// Copyright Information:
++//	Copyright (C) 1997               Imperial College
++//
++// Modified:
++// 
++//------------------------------------------------------------------------
++#pragma once
++#ifndef PNDEMCPHIBUMPSPLITTER_H
++#define PNDEMCPHIBUMPSPLITTER_H
++
++// Path of file:
++// ----- $pandaroot/emc/EmcReco
++
++//---------------
++// C++ Headers --
++//---------------
++#include <vector>
++#include <map>
++
++#include "FairTask.h"
++#include "TObject.h"
++#include "PndEmcDataTypes.h"
++//#include "PndEmcDigiCalibrator.h"
++//------------------------------------
++// Collaborating Class Declarations --
++//------------------------------------
++
++class PndEmcCluster;
++class PndEmcBump;
++class PndEmcDigi;
++class PndEmcTwoCoordIndex;
++
++class PndEmcGeoPar;
++class PndEmcDigiPar;
++class PndEmcRecoPar;
++
++class PndEmcSharedDigi;
++
++//		---------------------
++// 		-- Class Interface --
++//		---------------------
++
++class PndEmcPhiBumpSplitter: public FairTask
++{
++  
++ public:
++  
++	PndEmcPhiBumpSplitter(Int_t verbose=0);
++	
++	// Destructor
++	virtual ~PndEmcPhiBumpSplitter( );
++	
++	// Methods
++	/** Virtual method Init **/
++	virtual InitStatus Init();
++	
++	/** Virtual method Exec **/
++	virtual void Exec(Option_t* opt);
++	
++	void SetStorageOfData(Bool_t p = kTRUE) {fPersistance=p;};
++	PndEmcBump* AddPhiBump();
++	//PndEmcSharedDigi* AddPhiBumpSharedDigi(PndEmcDigi*, Double_t);
++	
++	virtual void FinishTask();
++  
++ private:
++	/** Input array of PndEmcClusters **/
++	TClonesArray* fDigiArray;
++	TClonesArray* fClusterArray;
++	
++	/** Output array of PndEmcBumps **/
++	TClonesArray* fPhiBumpArray;
++	//TClonesArray* fPhiBumpSharedDigiArray;
++
++
++	PndEmcGeoPar*     fGeoPar;       /** Geometry parameter container **/
++	PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
++	PndEmcRecoPar*    fRecoPar;      /** Reconstruction parameter container **/
++	/** Get parameter containers **/
++	virtual void SetParContainers();
++	
++	std::vector<Double_t> fClusterPosParam;
++	
++	Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
++	// Data members
++
++	/** Verbosity level **/
++	Int_t fVerbose;
++
++        PndEmcPhiBumpSplitter(const  PndEmcPhiBumpSplitter& L);
++        PndEmcPhiBumpSplitter& operator= (const  PndEmcPhiBumpSplitter&) {return *this;};
++	
++	ClassDef(PndEmcPhiBumpSplitter,1);
++
++//added for time information
++
++	//PndEmcDigiCalibrator digiCalibrator;
++	//Int_t HowManyDidis;
++
++};
++#endif
+Index: emc/EmcReco/PndEmcPhiBumpSplitter.cxx
+===================================================================
+--- emc/EmcReco/PndEmcPhiBumpSplitter.cxx	(révision 0)
++++ emc/EmcReco/PndEmcPhiBumpSplitter.cxx	(révision 0)
+@@ -0,0 +1,284 @@
++//--------------------------------------------------------------------------
++// File and Version Information:
++// 	$Id:$
++//
++// Description:
++//	Class PndEmcPhiBumpSplitter
++//      Implementation of PhiBumpSplitter which splits clusters based on
++//      local maxima in the Phi Direction for use with Bremstrahlung correction
++//
++// Environment:
++//	Software developed for the BaBar Detector at the SLAC B-Factory.
++//
++// Adapted for the PANDA experiment at GSI
++//
++// Author List:
++//      Phil Strother               
++//
++// Copyright Information:
++//	Copyright (C) 1997               Imperial College
++//
++// Modified:
++// Binsong Ma, Ermias Atomssa
++//------------------------------------------------------------------------
++
++// Path of file:
++// ----- $pandaroot/emc/EmcReco
++
++//-----------------------
++// This Class's Header --
++//-----------------------
++#include "PndEmcPhiBumpSplitter.h"
++
++//---------------
++// C++ Headers --
++//---------------
++//#include <vector>
++//#include <set>
++//#include <map>
++#include <iostream>
++
++//-------------------------------
++// Collaborating Class Headers --
++//-------------------------------
++
++#include "FairRootManager.h"
++#include "FairRunAna.h"
++#include "FairRuntimeDb.h"
++#include "TClonesArray.h"
++
++#include "PndEmcClusterProperties.h"
++#include "PndEmcXClMoments.h"
++
++#include "PndEmcRecoPar.h"
++#include "PndEmcGeoPar.h"
++#include "PndEmcDigiPar.h"
++#include "PndEmcStructure.h"
++#include "PndEmcMapper.h"
++
++#include "PndDetectorList.h"
++#include "PndEmcTwoCoordIndex.h"
++#include "PndEmcBump.h"
++#include "PndEmcCluster.h"
++#include "PndEmcDigi.h"
++#include "PndEmcSharedDigi.h"
++#include "PndEmcXtal.h"
++#include "PndEmcDataTypes.h"
++
++
++using std::endl;
++
++//----------------
++// Constructors --
++//----------------
++
++PndEmcPhiBumpSplitter::PndEmcPhiBumpSplitter(Int_t verbose):
++  fDigiArray(0), fClusterArray(0), fPhiBumpArray(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fPersistance(kTRUE), fClusterPosParam(), fVerbose(verbose)
++{
++  fClusterPosParam.clear();
++}
++
++//--------------
++// Destructor --
++//--------------
++
++PndEmcPhiBumpSplitter::~PndEmcPhiBumpSplitter()
++{
++  // 	delete fGeoPar;
++  // 	delete fDigiPar;
++  // 	delete fRecoPar;
++}
++
++InitStatus PndEmcPhiBumpSplitter::Init() {
++  
++  // Get RootManager
++  FairRootManager* ioman = FairRootManager::Instance();
++  if ( ! ioman ){
++    cout << "-E- PndEmcMakeBump::Init: "
++	 << "RootManager not instantiated!" << endl;
++    return kFATAL;
++  }
++	
++  // Geometry loading
++  fGeoPar->InitEmcMapper();
++  PndEmcStructure::Instance();
++  
++  // Get input array
++  fDigiArray = dynamic_cast<TClonesArray *> (ioman->GetObject("EmcDigi"));
++  if ( ! fDigiArray ) {
++    cout << "-W- PndEmcMakeCluster::Init: "
++	 << "No PndEmcDigi array!" << endl;
++    return kERROR;
++  }
++  
++  fClusterArray = dynamic_cast<TClonesArray *> (ioman->GetObject("EmcCluster"));
++  if ( ! fClusterArray ) {
++    cout << "-W- PndEmcMakeBump::Init: "
++	 << "No PndEmcCluster array!" << endl;
++    return kERROR;
++  }
++
++  // Set minimum SharedDigi energy to 20keV.
++  if (!strcmp(fRecoPar->GetEmcClusterPosMethod(),"lilo"))
++    {
++      cout<<"Lilo cluster position method"<<endl;
++      fClusterPosParam.push_back(fRecoPar->GetOffsetParmA());
++      fClusterPosParam.push_back(fRecoPar->GetOffsetParmB());
++      fClusterPosParam.push_back(fRecoPar->GetOffsetParmC());
++    }	
++
++  // Create and register output array
++  fPhiBumpArray = new TClonesArray("PndEmcBump");
++  ioman->Register("EmcPhiBump","Emc",fPhiBumpArray,fPersistance);
++  
++  //fPhiBumpSharedDigiArray = new TClonesArray("	");
++  //ioman->Register("EmcPhiBumpSharedDigi","Emc",fPhiBumpSharedDigiArray,fPersistance);
++  //HowManyDidis = 0;
++
++  cout << "-I- PndEmcPhiBumpSplitter: Intialization successfull" << endl;
++
++}
++
++void PndEmcPhiBumpSplitter::Exec(Option_t* opt) 
++{
++
++  PndEmcMapper *fEmcMap=PndEmcMapper::Instance();
++
++  // Reset output array
++  if ( ! fPhiBumpArray ) Fatal("Exec", "No Phi-Bump Array");
++  fPhiBumpArray->Delete();
++  
++  // loop on each cluster. For each cluster there can be any number of phi_bumps (atleast one) 
++  int nClusters = fClusterArray->GetEntriesFast();
++  for (Int_t iCluster = 0; iCluster < nClusters; iCluster++){  
++
++    PndEmcCluster* theCluster = (PndEmcCluster*) fClusterArray->At(iCluster);
++        
++    vector<double> phi_bump(160,0);
++    
++    Int_t digiSize = theCluster->DigiList().size();
++    std::vector<Int_t> digiList = theCluster->DigiList();
++    for (Int_t i_digi = 0; i_digi<digiSize; ++i_digi)
++      {
++	PndEmcDigi *emcDigi = (PndEmcDigi *) fDigiArray->At(digiList[i_digi]);
++	Double_t emcDigiPhi = emcDigi->GetPhi()*TMath::RadToDeg();
++	Double_t emcDigiEnergy = emcDigi->GetEnergy();
++	if ( fabs(emcDigiPhi)<=180 ) {
++	  Int_t iEmcDigiPhi = int( 160. * (emcDigiPhi + 180.) / 360. );
++	  phi_bump.at(iEmcDigiPhi) += emcDigiEnergy;
++	}
++      }
++    
++    Int_t TotNumOfHitPhi = 160;
++
++    vector<double> vDepoEnergyList;
++    vector<int> vGapSizeList;
++    
++    int i_phi_prev = 0;
++    for (Int_t i_phi=0; i_phi < TotNumOfHitPhi; ++i_phi) {
++      Double_t BinValue = phi_bump.at(i_phi);
++      if (BinValue != 0) 
++	{
++	  vDepoEnergyList.push_back(BinValue);
++	  vGapSizeList.push_back(i_phi - i_phi_prev ); 
++	  i_phi_prev = i_phi;
++	}
++    }
++    
++    // Find start bin number for the phi projection of cluster.
++    Int_t StartIndex = 0;
++    for (Int_t i = 0;i < vGapSizeList.size();i++)
++      {
++	if (vGapSizeList.at(i) > vGapSizeList.at(StartIndex)) StartIndex = i;
++      }
++
++    std::rotate(vDepoEnergyList.begin(),vDepoEnergyList.begin()+StartIndex,vDepoEnergyList.end());
++    vDepoEnergyList.push_back(0);
++    vDepoEnergyList.push_back(0);
++    std::rotate(vDepoEnergyList.begin(),vDepoEnergyList.begin()+(vDepoEnergyList.size()-1),vDepoEnergyList.end());
++
++    // Loop through deposited energy vector and classify bins 
++    vector<int> Type;
++    vector<double> enePhiBump, Weight;
++    Weight.push_back(0);
++    Type.push_back(-3);
++    for (Int_t n_sel = 1; n_sel < vDepoEnergyList.size()-1; n_sel++)
++      { 
++	if (vDepoEnergyList.at(n_sel-1) < vDepoEnergyList.at(n_sel) && vDepoEnergyList.at(n_sel) < vDepoEnergyList.at(n_sel+1) ) Type.push_back(1);
++	else if(vDepoEnergyList.at(n_sel-1) < vDepoEnergyList.at(n_sel) && vDepoEnergyList.at(n_sel) > vDepoEnergyList.at(n_sel+1) )
++	  {
++	    Type.push_back(0);
++	    Weight.push_back(vDepoEnergyList.at(n_sel));
++	  }
++	else if(vDepoEnergyList.at(n_sel-1) > vDepoEnergyList.at(n_sel) && vDepoEnergyList.at(n_sel) > vDepoEnergyList.at(n_sel+1) ) Type.push_back(-1);
++	else if(vDepoEnergyList.at(n_sel-1) > vDepoEnergyList.at(n_sel) && vDepoEnergyList.at(n_sel) < vDepoEnergyList.at(n_sel+1) ) Type.push_back(-2);
++      }
++    Weight.push_back(0);
++
++    // 
++    int ValleyIndex = 0;
++    int iWeight = 0;
++    for (Int_t n_sel = 1; n_sel < vDepoEnergyList.size()-1; n_sel++)
++      {
++	if (Type.at(n_sel) == -2 || n_sel == vDepoEnergyList.size()-2)
++	  {
++	    iWeight++;
++	    double _enePhiBump = vDepoEnergyList.at(ValleyIndex)*(Weight.at(iWeight)/(Weight.at(iWeight)+Weight.at(iWeight-1)));
++	    for(Int_t p = ValleyIndex;p < n_sel;p++) _enePhiBump += vDepoEnergyList.at(p);
++	    _enePhiBump += vDepoEnergyList.at(n_sel)*(Weight.at(iWeight)/(Weight.at(iWeight)+Weight.at(iWeight+1) ));
++	    enePhiBump.push_back(_enePhiBump);
++	    ValleyIndex = n_sel;
++	  }
++      }
++    
++    for (int i_phibump=0; i_phibump<enePhiBump.size(); ++i_phibump) {
++      //cout<< " i_phibump= " <<i_phibump<<endl;
++      PndEmcBump* theNewPhiBump = AddPhiBump(); 
++      theNewPhiBump->MadeFrom(iCluster);
++      theNewPhiBump->SetLink(FairLink("EmcCluster", iCluster));  
++      theNewPhiBump->SetEnergy(enePhiBump.at(i_phibump));
++      //  TVector3 pos = calcPosition(phiPhiBump.at(i));
++      //  theNewBump->SetPhi(phiPhiBump.at(i));              
++    }
++        
++  }
++	
++}
++
++PndEmcBump* PndEmcPhiBumpSplitter::AddPhiBump(){
++  TClonesArray& clref = *fPhiBumpArray;
++  Int_t size = clref.GetEntriesFast();
++  return new(clref[size]) PndEmcBump();
++}
++
++/*PndEmcSharedDigi* PndEmcPhiBumpSplitter::AddPhiBumpSharedDigi(PndEmcDigi* digi, Double_t weight){
++  TClonesArray& clref = *fPhiBumpSharedDigiArray;
++  Int_t size = clref.GetEntriesFast();
++  return new(clref[size]) PndEmcSharedDigi(*digi, weight);
++}
++*/
++void PndEmcPhiBumpSplitter::FinishTask()
++{
++  cout<<"================================================="<<endl;
++  cout<<"PndEmcPhiBumpSplitter::FinishTask"<<endl;
++  cout<<"================================================="<<endl;
++ // cout<<"read digis #"<<HowManyDidis<<endl;
++}
++
++void PndEmcPhiBumpSplitter::SetParContainers() {
++
++  // Get run and runtime database
++  FairRun* run = FairRun::Instance();
++  if ( ! run ) Fatal("SetParContainers", "No analysis run");
++
++  FairRuntimeDb* db = run->GetRuntimeDb();
++  if ( ! db ) Fatal("SetParContainers", "No runtime database");
++  // Get Emc digitisation parameter container
++  fGeoPar = (PndEmcGeoPar*) db->getContainer("PndEmcGeoPar");
++  // Get Emc digitisation parameter container
++  fDigiPar = (PndEmcDigiPar*) db->getContainer("PndEmcDigiPar");
++  // Get Emc reconstruction parameter container
++  fRecoPar = (PndEmcRecoPar*) db->getContainer("PndEmcRecoPar");
++}
++
++ClassImp(PndEmcPhiBumpSplitter)
+Index: emc/CMakeLists.txt
+===================================================================
+--- emc/CMakeLists.txt	(révision 23877)
++++ emc/CMakeLists.txt	(copie de travail)
+@@ -103,6 +103,7 @@
+ EmcReco/PndEmcMakeBump.cxx
+ EmcReco/PndEmc2DLocMaxFinder.cxx
+ EmcReco/PndEmcExpClusterSplitter.cxx
++EmcReco/PndEmcPhiBumpSplitter.cxx
+ EmcReco/PndEmcMakeRecoHit.cxx
+ EmcReco/PndEmcErrorMatrix.cxx
+ EmcReco/PndEmcErrorMatrixPar.cxx
+Index: pnddata/CMakeLists.txt
+===================================================================
+--- pnddata/CMakeLists.txt	(révision 23877)
++++ pnddata/CMakeLists.txt	(copie de travail)
+@@ -103,6 +103,7 @@
+ 
+ PidData/PndPidCandidate.cxx
+ PidData/PndPidProbability.cxx
++PidData/PndPidBremCorrected4Mom.cxx
+ 
+ FairRecoCandidate.cxx
+ )
+@@ -191,6 +192,7 @@
+ 
+ PidData/PndPidCandidate.h
+ PidData/PndPidProbability.h
++PidData/PndPidBremCorrected4Mom.h
+ 
+ FairRecoCandidate.h
+ )
+Index: pnddata/PndDataLinkDef.h
+===================================================================
+--- pnddata/PndDataLinkDef.h	(révision 23877)
++++ pnddata/PndDataLinkDef.h	(copie de travail)
+@@ -102,6 +102,7 @@
+ 
+ #pragma link C++ class PndPidCandidate+;
+ #pragma link C++ class PndPidProbability+;
++#pragma link C++ class PndPidBremCorrected4Mom+;
+ 
+ #pragma link C++ class FairRecoCandidate;
+ #pragma link C++ function operator << ( ostream &, const FairRecoCandidate & );
+Index: pnddata/PidData/PndPidBremCorrected4Mom.cxx
+===================================================================
+--- pnddata/PidData/PndPidBremCorrected4Mom.cxx	(révision 0)
++++ pnddata/PidData/PndPidBremCorrected4Mom.cxx	(révision 0)
+@@ -0,0 +1,95 @@
++//////////////////////////////////////////////////////////////////////////
++//                                                                      //
++// PndPidBremCorrected4Mom	                                        //
++//                                                                      //
++// Container for Bremstrahlung radiaton corrected momentum              //
++//                                                                      //
++// Author: Klaus Goetzen, GSI, 12.06.08		                        //
++// Copyright (C) 2008, GSI Darmstadt.		         		//
++//                                                                      //
++//////////////////////////////////////////////////////////////////////////
++
++#include "PndPidBremCorrected4Mom.h"
++
++PndPidBremCorrected4Mom::PndPidBremCorrected4Mom(): 
++  fXmomentum(0.),
++  fYmomentum(0.),
++  fZmomentum(0.),
++  fEnergy(0.)
++{  
++}
++
++PndPidBremCorrected4Mom::PndPidBremCorrected4Mom(TLorentzVector &p4) :
++  fXmomentum(p4.X()),
++  fYmomentum(p4.Y()),  
++  fZmomentum(p4.Z()),
++  fEnergy(p4.E())
++{
++}
++
++PndPidBremCorrected4Mom::~PndPidBremCorrected4Mom() {
++
++}
++
++// Do we need to propagate the covariance matrix?
++
++//TMatrixD& PndPidBremCorrected4Mom::P4Cov() const
++//{
++//  static TMatrixD covP4(4,4);
++//	
++//  covP4(0,0) = fErrP7[18];  covP4(1,0) = fErrP7[19]; covP4(1,1) = fErrP7[20];
++//  covP4(2,0) = fErrP7[21];  covP4(2,1) = fErrP7[22]; covP4(2,2) = fErrP7[23];
++//  covP4(3,0) = fErrP7[24];  covP4(3,1) = fErrP7[25]; covP4(3,2) = fErrP7[26]; 
++//  covP4(3,3) = fErrP7[27];
++//	
++//  for (int i=0; i<3; i++)
++//    for (int j=i+1; j<4; j++)
++//      covP4(i,j)=covP4(j,i);
++//			
++//  return covP4;
++//}
++
++//void PndPidBremCorrected4Mom::SetCov7(const TMatrixD &cov7 )
++//{
++//  // position error
++//    
++//  fErrP7[0] = cov7(0,0);  fErrP7[1] = cov7(1,0); fErrP7[2] = cov7(1,1);  
++//  fErrP7[3] = cov7(2,0);  fErrP7[4] = cov7(2,1); fErrP7[5] = cov7(2,2);
++//    
++//  // position-momentum covariance
++//    
++//  fErrP7[6] = cov7(3,0);   fErrP7[7] = cov7(3,1);  fErrP7[8] = cov7(3,2);
++//  fErrP7[9] = cov7(4,0);   fErrP7[10] = cov7(4,1); fErrP7[11] = cov7(4,2);
++//  fErrP7[12] = cov7(5,0);  fErrP7[13] = cov7(5,1); fErrP7[14] = cov7(5,2);
++//  fErrP7[15] = cov7(6,0);  fErrP7[16] = cov7(6,1); fErrP7[17] = cov7(6,2);
++//    
++//  // momentum error
++//  fErrP7[18] = cov7(3,3);  fErrP7[19] = cov7(4,3); fErrP7[20] = cov7(4,4);
++//  fErrP7[21] = cov7(5,3);  fErrP7[22] = cov7(5,4); fErrP7[23] = cov7(5,5);
++//  fErrP7[24] = cov7(6,3);  fErrP7[25] = cov7(6,4); fErrP7[26] = cov7(6,5); 
++//  fErrP7[27] = cov7(6,6);
++//}
++
++//void PndPidBremCorrected4Mom::SetP4Cov(const TMatrixD &covP4 )
++//{
++//  // position error
++//    
++//  fErrP7[0] = 0;  fErrP7[1] = 0; fErrP7[2] = 0;  
++//  fErrP7[3] = 0;  fErrP7[4] = 0; fErrP7[5] = 0;
++//    
++//  // position-momentum covariance
++//    
++//  fErrP7[6] = 0;   fErrP7[7] = 0;  fErrP7[8] = 0;
++//  fErrP7[9] = 0;   fErrP7[10] = 0; fErrP7[11] = 0;
++//  fErrP7[12] = 0;  fErrP7[13] = 0; fErrP7[14] = 0;
++//  fErrP7[15] = 0;  fErrP7[16] = 0; fErrP7[17] = 0;
++//    
++//  // momentum error
++//  fErrP7[18] = covP4(0,0);  fErrP7[19] = covP4(1,0); fErrP7[20] = covP4(1,1);
++//  fErrP7[21] = covP4(2,0);  fErrP7[22] = covP4(2,1); fErrP7[23] = covP4(2,2);
++//  fErrP7[24] = covP4(3,0);  fErrP7[25] = covP4(3,1); fErrP7[26] = covP4(3,2); 
++//  fErrP7[27] = covP4(3,3);
++//}
++
++
++ClassImp(PndPidBremCorrected4Mom)
+Index: pnddata/PidData/PndPidBremCorrected4Mom.h
+===================================================================
+--- pnddata/PidData/PndPidBremCorrected4Mom.h	(révision 0)
++++ pnddata/PidData/PndPidBremCorrected4Mom.h	(révision 0)
+@@ -0,0 +1,61 @@
++#ifndef PNDPIDBREMCORRECTED4MOM_H
++#define PNDPIDBREMCORRECTED4MOM_H
++//////////////////////////////////////////////////////////////////////////
++//                                                                      //
++// PndPidBremCorrected4Mom	                                                //
++//                                                                      //
++// Definition of the Panda pid candidate.	                        //
++//                                                                      //
++// Author: Klaus Goetzen, GSI, 12.06.08		                        //
++// Copyright (C) 2008, GSI Darmstadt.					//
++//                                                                      //
++//////////////////////////////////////////////////////////////////////////
++
++#include <iostream>
++#include <vector>
++
++#include <assert.h>
++
++#include "FairRecoCandidate.h"
++#include "TArrayI.h"
++#include "TMatrixD.h"
++#include "TVector3.h"
++#include "TLorentzVector.h"
++
++class PndPidBremCorrected4Mom : public FairMultiLinkedData
++{
++
++ public:
++
++  PndPidBremCorrected4Mom();
++  PndPidBremCorrected4Mom(TLorentzVector &p4);
++  
++  ~PndPidBremCorrected4Mom();
++
++  TVector3  GetMomentum() const { return TVector3(fXmomentum, fYmomentum, fZmomentum); }
++  Double_t  GetEnergy()   const { return fEnergy; }
++  Int_t GetPidCandIdx() const { return fPidCandIdx; }
++  std::vector<Int_t> GetPhiBumpIdxList() {return fPhiBumpIdx; }
++
++  void	SetMomentum(TVector3 &mom) { fXmomentum=mom.X(); fYmomentum=mom.Y(); fZmomentum=mom.Z(); }
++  void	SetEnergy(Double_t en)     { fEnergy=(Float_t) en;}
++  void  AddPhiBumpIdxList(Int_t idx) { fPhiBumpIdx.push_back(idx); }
++  void  SetPidCandIdx(Int_t idx) { fPidCandIdx = idx; }
++  
++ protected:
++
++  Double_t fXmomentum;		// The momentum in x
++  Double_t fYmomentum;		// The momentum in y
++  Double_t fZmomentum;		// The momentum in z
++  Double_t fEnergy; 
++  
++  Int_t fPidCandIdx;
++  std::vector<Int_t> fPhiBumpIdx;
++  
++  ClassDef(PndPidBremCorrected4Mom,1)
++
++};
++
++
++#endif                                           
++
+Index: pid/CMakeLists.txt
+===================================================================
+--- pid/CMakeLists.txt	(révision 23877)
++++ pid/CMakeLists.txt	(copie de travail)
+@@ -69,6 +69,7 @@
+ PidCorr/PndPidFscInfo.cxx
+ PidCorr/PndPidFtofInfo.cxx
+ PidCorr/PndPidMdtInfo.cxx
++PidCorr/PndPidBremCorrector.cxx
+ PndPidContFact.cxx
+ 
+ ###### Associator
+@@ -90,6 +91,7 @@
+ set(HEADERS
+ PidCorr/PndPidCorrPar.h
+ PidCorr/PndPidCorrelator.h
++PidCorr/PndPidBremCorrector.h
+ PndPidContFact.h
+ 
+ ###### Associator Headers
+Index: pid/PidLinkDef.h
+===================================================================
+--- pid/PidLinkDef.h	(révision 23877)
++++ pid/PidLinkDef.h	(copie de travail)
+@@ -11,6 +11,7 @@
+ #pragma link C++ class  PndPidCorrPar+;
+ #pragma link C++ class  PndPidMvdPar+;
+ #pragma link C++ class  PndPidCorrelator+;
++#pragma link C++ class  PndPidBremCorrector+;
+ #pragma link C++ class  PndPidIdealAssociatorTask+;
+ #pragma link C++ class  PndPidIdealFwdOnlyAssociatorTask+;
+ #pragma link C++ class  PndPidMvdAssociatorTask+;
+Index: pid/PidCorr/PndPidBremCorrector.cxx
+===================================================================
+--- pid/PidCorr/PndPidBremCorrector.cxx	(révision 0)
++++ pid/PidCorr/PndPidBremCorrector.cxx	(révision 0)
+@@ -0,0 +1,288 @@
++//-----------------------
++// This Class's Header --
++//-----------------------
++#include "PndPidBremCorrector.h"
++
++//---------------
++// C++ Headers --
++//---------------
++#include <vector>
++//#include <set>
++//#include <map>
++#include <iostream>
++
++// Path of file:
++//  ----- $pandaroot/pid/PidCorr
++
++//-------------------------------
++// Collaborating Class Headers --
++//-------------------------------
++
++#include "FairRootManager.h"
++#include "FairRunAna.h"
++#include "FairRuntimeDb.h"
++#include "TClonesArray.h"
++
++#include "PndEmcBump.h"
++#include "PndEmcCluster.h"
++
++#include "PndPidCandidate.h"
++
++#include "PndPidBremCorrected4Mom.h"
++
++using std::cout;
++using std::endl;
++
++PndPidBremCorrector::PndPidBremCorrector():
++   fClusterArray(0), fPhiBumpArray(0), fBumpArray(0), fChargedCandidateArray(0), fNeutralCandidateArray(0), fBremCorrected4MomArray(0),fRecMomOfEle(0), fRecThetaOfEle(0), fRecPhiOfEle(0), fCharge(0), fSepPhotonE(0.), fMergPhotonE(0.), fEmcPhiBumpList(), fPersistance(kTRUE)
++{
++  
++}
++
++PndPidBremCorrector::~PndPidBremCorrector()
++{
++  
++}
++
++InitStatus PndPidBremCorrector::Init() {
++  
++  // Get RootManager
++  FairRootManager* ioman = FairRootManager::Instance();
++  if ( ! ioman ){
++    cout << "-E- PndPidBremCorrector::Init: "
++	 << "RootManager not instantiated!" << endl;
++    return kFATAL;
++  }
++
++
++ fClusterArray = dynamic_cast<TClonesArray *> (ioman->GetObject("EmcCluster"));
++  if ( ! fClusterArray ) {
++    cout << "-W- PndEmcMakeBump::Init: "
++	 << "No PndEmcCluster array!" << endl;
++    return kERROR;
++  }
++
++
++ fPhiBumpArray = dynamic_cast<TClonesArray *> (ioman->GetObject("EmcPhiBump"));
++  if ( ! fPhiBumpArray ) {
++    cout << "-W- PndEmcMakePhiBump::Init: "
++	 << "No PhiBumpArray array!" << endl;
++    return kERROR;
++  }
++
++ fBumpArray = dynamic_cast<TClonesArray *> (ioman->GetObject("EmcBump"));
++  if ( ! fBumpArray ) {
++    cout << "-W- PndEmcMakeBump::Init: "
++	 << "No PndEmcBump array!" << endl;
++    return kERROR;
++  }
++
++ fChargedCandidateArray = dynamic_cast<TClonesArray *> (ioman->GetObject("PidChargedCand"));
++  if ( ! fChargedCandidateArray ) {
++    cout << "-W- PndEmcMakeBump::Init: "
++	 << "No PidChargedCand array!" << endl;
++    return kERROR;
++  }
++
++
++ fNeutralCandidateArray = dynamic_cast<TClonesArray *> (ioman->GetObject("PidNeutralCand"));
++  if ( ! fNeutralCandidateArray ) {
++    cout << "-W- PndEmcMakeBump::Init: "
++	 << "No PidNeutralCand array!" << endl;
++    return kERROR;
++  }
++
++
++ fBremCorrected4MomArray = new TClonesArray("PndPidBremCorrected4Mom");
++  ioman->Register("BremCorrected4Mom","Pid",fBremCorrected4MomArray,fPersistance);
++
++
++}
++
++
++void PndPidBremCorrector::Exec(Option_t* opt) 
++{
++
++
++  // Reset output array
++  if ( ! fBremCorrected4MomArray ) Fatal("Exec", "No BremCorrected4Mom Array");
++  fBremCorrected4MomArray->Delete();
++  
++  int nChargedCand = fChargedCandidateArray->GetEntriesFast();
++
++  for (int iCand = 0; iCand<nChargedCand; ++iCand){
++
++    PndPidCandidate* theChargedCand = (PndPidCandidate*) fChargedCandidateArray->At(iCand);
++    fRecMomOfEle = theChargedCand->GetMomentum().Mag(); 		
++    fRecThetaOfEle = theChargedCand->GetMomentum().Theta()*TMath::RadToDeg();
++    fRecPhiOfEle = theChargedCand->GetMomentum().Phi()*TMath::RadToDeg();
++    fCharge = theChargedCand->GetCharge();
++
++    TVector3 mom = theChargedCand->GetMomentum();
++    double ene = theChargedCand->GetEnergy();
++    TLorentzVector m4 = TLorentzVector(mom,ene);
++    //double mass = m4.M();
++    double mass = 0.000511; // Electron mass hypothesis (GeV)
++
++    fSepPhotonE = GetSepPhotonE(theChargedCand);
++    fMergPhotonE = GetMergPhotonE(theChargedCand);
++    double energy_gamma = fSepPhotonE + fMergPhotonE;
++    
++    TVector3 momCorr = ((energy_gamma+fRecMomOfEle)/fRecMomOfEle) * mom;
++    double eneCorr = TMath::Hypot(mass, momCorr.Mag());
++    
++    PndPidBremCorrected4Mom *bremCorr = AddBremCorrected4Mom();
++    bremCorr->SetMomentum(momCorr);
++    bremCorr->SetEnergy(eneCorr);
++    bremCorr->SetPidCandIdx(iCand);
++    
++  }
++
++}
++  
++
++
++PndPidBremCorrected4Mom* PndPidBremCorrector::AddBremCorrected4Mom(){
++  TClonesArray& clref = *fBremCorrected4MomArray;
++  Int_t size = clref.GetEntriesFast();
++  return new(clref[size]) PndPidBremCorrected4Mom();
++}
++
++
++
++double PndPidBremCorrector::GetSepPhotonE(PndPidCandidate *ChargedCand){
++
++  int nNeutralCand = fNeutralCandidateArray->GetEntriesFast();
++
++  Float_t PhotonTotEnergySep = 0;
++  for(Int_t iNeutralCand = 0; iNeutralCand<nNeutralCand; ++iNeutralCand)
++    {   
++      Float_t PhotonEnergySep = 0;
++      PndPidCandidate *PhotonCand = (PndPidCandidate *) fNeutralCandidateArray->At(iNeutralCand);
++      PhotonEnergySep = PhotonCand->GetEmcCalEnergy();
++      PndEmcBump *PhotonBump = (PndEmcBump *) fBumpArray->At(PhotonCand->GetEmcIndex());
++      double PhotonThetaSep = PhotonBump->position().Theta()*TMath::RadToDeg();  
++      double PhotonPhiSep = PhotonBump->position().Phi()*TMath::RadToDeg(); 
++            
++      Float_t Pt = fRecMomOfEle*TMath::Sin(fRecThetaOfEle/TMath::RadToDeg());
++      Float_t DeltaPhiBarrel = TMath::ASin(0.12/Pt)*2.*TMath::RadToDeg();
++      Float_t DeltaPhiForward = (0.6*2.0/Pt)*TMath::Tan(fRecThetaOfEle/57.3)*57.3;
++      Float_t RealDeltaPhi = 0, RealDeltaTheta =0;
++
++ 
++      if (fCharge < 0){
++	RealDeltaPhi = PhotonPhiSep - fRecPhiOfEle;
++	RealDeltaTheta = PhotonThetaSep - fRecThetaOfEle;
++      }
++      else {
++	RealDeltaPhi = fRecPhiOfEle - PhotonPhiSep;
++	RealDeltaTheta =fRecThetaOfEle - PhotonThetaSep;
++      }
++
++      Float_t PhiCutUp = 0, ThetaCutUp = 0 ,  PhiCutDown = 0, ThetaCutDown = 0;
++ 
++      if (fRecThetaOfEle <= 23.)
++	{ 
++	  PhiCutUp = DeltaPhiForward;
++	  PhiCutDown = -1.;
++	  ThetaCutUp = 2.;
++	  ThetaCutDown = -2.;
++	}
++      else if (fRecThetaOfEle > 23.)
++	{ 
++	  PhiCutUp = DeltaPhiBarrel;
++	  PhiCutDown = -1.;
++	  ThetaCutUp = 2.;
++	  ThetaCutDown = -2.;
++	}
++      Bool_t PhiCut = RealDeltaPhi <= PhiCutUp && RealDeltaPhi >= PhiCutDown;
++      Bool_t ThetaCut = RealDeltaTheta <= ThetaCutUp && RealDeltaTheta >= ThetaCutDown;
++      if (PhiCut && ThetaCut) PhotonTotEnergySep += PhotonEnergySep;
++
++    }//loop neutralcand
++
++  if(PhotonTotEnergySep > fRecMomOfEle/100.)
++    { 
++      return PhotonTotEnergySep;
++       
++           
++    }  
++  else return 0.;   
++
++}
++
++double PndPidBremCorrector::GetMergPhotonE(PndPidCandidate *ChargedCand){
++
++  Double_t PhotonTotEnergyMerg = 0.0;
++  
++  // no EMcal cluster associated with track ... 
++  if (ChargedCand->GetEmcIndex() < 0) return 0.0;
++  
++  PndEmcBump *EleBump = (PndEmcBump *) fBumpArray->At(ChargedCand->GetEmcIndex());
++  Int_t EleRefCluster = EleBump->GetClusterIndex();
++  
++  if (EleRefCluster < 0) return 0.0;
++  GetEmcPhiBumpList(EleRefCluster);
++  
++  Double_t EnergyCut = 0.15/TMath::Sin(fRecThetaOfEle*TMath::DegToRad());
++  Double_t EleEnergy = 0;
++
++  if (fCharge<0) {
++    for (Int_t i_phibump = fEmcPhiBumpList.size()-1; i_phibump >= 0; --i_phibump) {
++      if( fEmcPhiBumpList[i_phibump]->energy() > EnergyCut) {
++	for(Int_t r = 0; r<i_phibump; r++) PhotonTotEnergyMerg += fEmcPhiBumpList[r]->energy();
++	i_phibump = -1;           
++      }
++    } 
++  } else {
++    for (Int_t i_phibump =0; i_phibump < fEmcPhiBumpList.size(); ++i_phibump) {
++      if( fEmcPhiBumpList[i_phibump]->energy() > EnergyCut) {
++	for(Int_t r = 0; r<i_phibump; r++) PhotonTotEnergyMerg += fEmcPhiBumpList[r]->energy();
++	i_phibump = fEmcPhiBumpList.size()+1;           
++      }
++    } 
++  }
++
++  if(PhotonTotEnergyMerg > fRecMomOfEle/100.)  { 
++    return PhotonTotEnergyMerg;
++  } else {
++    return 0.0;
++  }
++  
++}
++
++void PndPidBremCorrector::GetEmcPhiBumpList(int iClust) {
++  fEmcPhiBumpList.clear();
++  int nPhiBump = fPhiBumpArray->GetEntriesFast();
++  for (int ipb=0; ipb<nPhiBump; ++ipb) {
++    PndEmcBump *phibump = (PndEmcBump*) fPhiBumpArray->At(ipb);
++    if ( phibump->GetClusterIndex() == iClust ) {
++      fEmcPhiBumpList.push_back(phibump);
++    }
++  }
++}
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
+Index: pid/PidCorr/PndPidBremCorrector.h
+===================================================================
+--- pid/PidCorr/PndPidBremCorrector.h	(révision 0)
++++ pid/PidCorr/PndPidBremCorrector.h	(révision 0)
+@@ -0,0 +1,89 @@
++#ifndef PID_BREMCORRECTOR_H
++#define PID_BREMCORRECTOR_H
++
++#include <vector>
++#include <map>
++
++#include "FairTask.h"
++#include "TObject.h"
++
++
++#include "TString.h"
++#include "TClonesArray.h"
++
++class PndPidCandidate;
++
++class PndPidBremCorrected4Mom;
++class PndEmcCluster;
++class PndEmcBump;
++
++// Path of file:
++//  ----- $pandaroot/pid/PidCorr
++
++class PndPidBremCorrector: public FairTask
++{
++  
++ public:
++
++        PndPidBremCorrector();
++	
++	// Destructor
++	virtual ~PndPidBremCorrector();
++	
++	// Methods
++	/** Virtual method Init **/
++	virtual InitStatus Init();
++	
++	/** Virtual method Exec **/
++	virtual void Exec(Option_t* opt);
++
++        void SetStorageOfData(Bool_t p = kTRUE) {fPersistance=p;};
++
++
++        virtual void FinishTask() {};
++        
++ private:
++
++        PndPidBremCorrected4Mom* AddBremCorrected4Mom();
++
++        double GetSepPhotonE(PndPidCandidate *);
++        double GetMergPhotonE(PndPidCandidate *);
++
++        void GetEmcPhiBumpList(int iClust);
++
++	/** Input array of PndEmcClusters **/
++	TClonesArray* fBumpArray;
++	TClonesArray* fClusterArray;
++	
++
++        TClonesArray* fPhiBumpArray;
++        
++        TClonesArray* fChargedCandidateArray;
++        TClonesArray* fNeutralCandidateArray;
++
++        TClonesArray* fBremCorrected4MomArray;
++
++        double fRecMomOfEle;
++        double fRecThetaOfEle;
++        double fRecPhiOfEle;
++        int fCharge;
++
++        Double_t fSepPhotonE;
++        Double_t fMergPhotonE;
++        
++	std::vector<PndEmcBump*> fEmcPhiBumpList;
++
++	Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
++	// Data members
++
++        PndPidBremCorrector(const PndPidBremCorrector& L);
++        PndPidBremCorrector& operator= (const PndPidBremCorrector&) {return *this;};
++	
++	ClassDef(PndPidBremCorrector,1);
++
++};
++
++#endif
++
++
++
