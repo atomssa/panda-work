@@ -1,0 +1,272 @@
+- compilation works fine with gcc48 from MacPorts, but running fails on some Geant3 step with the error shown below
+- Solution downgrade to gcc46 and use gfortran from gcc46 (needs softlinking gfortran-mp-4.6 to gfortran in /opt/local/bin/gfortran)
+- Not tested but needs testing: Will geant3 sims run with gcc48 activated instead of gcc46? If so revert back to gcc48
+
+
+root [0] .x tut_sim.C(1000)
+FairRootManager::OpenOutFile("sim_complete.root")
+[INFO   ] Media file used : /Users/tujuba/pandaROOT/panda-apr13/pandaroot/geometry/media_pnd.geo  
+Info in (PndGeoHandling::Instance): Making a new instance using the framework.
+Error in <TClonesArray::SetClass>: called with a null pointer
+ -I container name PndEmcGeoPar
+<I> PndEvtGenDirect
+<I> Particle: psi(2S)
+<I> decfile: /Users/tujuba/pandaROOT/panda-apr13/pandaroot/tutorials/rho/psi2s_Jpsi2pi_Jpsi_mumu.dec
+<I> pbar-Momentum: 7.24
+<I> Rnd Seed: -1
+<I> Rnd Seed changed to 4221567786
+EvtGen:Initializing EvtGen
+EvtGen:Storing known decay models
+Will register EvtPythia
+EvtGen:Main decay file name  :/Users/tujuba/pandaROOT/panda-apr13/pandaroot/pgenerators/EvtGen/DECAY.DEC
+EvtGen:PDT table file name   :/Users/tujuba/pandaROOT/panda-apr13/pandaroot/pgenerators/EvtGen/evt.pdl
+EvtGen:Initializing RadCorr=PHOTOS
+EvtGen:No RadCorr engine given in EvtGen::EvtGen constructor, will use default EvtPHOTOS.
+EvtGen:In readDecayFile, reading:/Users/tujuba/pandaROOT/panda-apr13/pandaroot/pgenerators/EvtGen/DECAY.DEC
+EvtGen:As requested, PHOTOS will be turned on.
+EvtGen:VSS_BMIXCPT will generate mixing and CPT/CP effects in mixing:
+
+    Upsilon(4S) --> B0 + anti-B0
+
+using parameters:
+
+  delta(m)  = 0.489 hbar/ps
+  _freq     = 1.63113 hbar/mm
+  dgog      = 0
+  dGamma    = 0 hbar/mm
+  q/p       = (1,0)
+  z         = (0,0)
+  tau       = 1.54107 ps
+  x         = 0.753581
+ chi(B0->B0bar) = 0.181099
+ chi(B0bar->B0) = 0.181099
+ Af         = (1,0)
+ Abarf      = (0,0)
+ Afbar      = (0,0)
+ Abarfbar   = (1,0)
+
+EvtGen:Redefined Partial wave for D_1+ to D*+ pi0 (2)
+EvtGen:Redefined Partial wave for D_1+ to D*0 pi+ (2)
+EvtGen:Redefined Partial wave for D_1- to D*- pi0 (2)
+EvtGen:Redefined Partial wave for D_1- to anti-D*0 pi- (2)
+EvtGen:Redefined Partial wave for D_10 to D*0 pi0 (2)
+EvtGen:Redefined Partial wave for D_10 to D*+ pi- (2)
+EvtGen:Redefined Partial wave for anti-D_10 to anti-D*0 pi0 (2)
+EvtGen:Redefined Partial wave for anti-D_10 to D*- pi+ (2)
+EvtGen:Redefined Partial wave for D_2*+ to D*+ pi0 (2)
+EvtGen:Redefined Partial wave for D_2*+ to D*0 pi+ (2)
+EvtGen:Redefined Partial wave for D_2*- to D*- pi0 (2)
+EvtGen:Redefined Partial wave for D_2*- to anti-D*0 pi- (2)
+EvtGen:Redefined Partial wave for D_2*0 to D*0 pi0 (2)
+EvtGen:Redefined Partial wave for D_2*0 to D*+ pi- (2)
+EvtGen:Redefined Partial wave for anti-D_2*0 to anti-D*0 pi0 (2)
+EvtGen:Redefined Partial wave for anti-D_2*0 to D*- pi+ (2)
+EvtGen:Warning, sum of branching fractions for Lambda_b0 is 0.2338
+EvtGen:rescaled to one! 
+EvtGen:Warning, sum of branching fractions for anti-Lambda_b0 is 0.2338
+EvtGen:rescaled to one! 
+EvtGen:Warning, sum of branching fractions for Xi_b- is 0.18118
+EvtGen:rescaled to one! 
+EvtGen:Warning, sum of branching fractions for anti-Xi_b+ is 0.18118
+EvtGen:rescaled to one! 
+EvtGen:Warning, sum of branching fractions for Xi_b0 is 0.18244
+EvtGen:rescaled to one! 
+EvtGen:Warning, sum of branching fractions for anti-Xi_b0 is 0.18244
+EvtGen:rescaled to one! 
+EvtGen:Warning, sum of branching fractions for Omega_b- is 0.1817
+EvtGen:rescaled to one! 
+EvtGen:Warning, sum of branching fractions for anti-Omega_b+ is 0.1817
+EvtGen:rescaled to one! 
+EvtGen:Warning, sum of branching fractions for B_c- is 0.93993
+EvtGen:rescaled to one! 
+EvtGen:Warning, sum of branching fractions for B_c+ is 0.93993
+EvtGen:rescaled to one! 
+EvtGen:Given allowed decays, resetting minMass Lambda(1405)0 0.657 to 1.32753
+EvtGen:Given allowed decays, resetting minMass anti-Lambda(1405)0 0.657 to 1.32753
+EvtGen:Given allowed decays, resetting minMass Lambda(1800)0 0 to 1.32753
+EvtGen:Given allowed decays, resetting minMass anti-Lambda(1800)0 0 to 1.32753
+EvtGen:Given allowed decays, resetting minMass Lambda(1810)0 0 to 1.32753
+EvtGen:Given allowed decays, resetting minMass anti-Lambda(1810)0 0 to 1.32753
+EvtGen:Given allowed decays, resetting minMass Sigma(1660)0 0.16 to 1.25066
+EvtGen:Given allowed decays, resetting minMass anti-Sigma(1660)0 0.16 to 1.25066
+EvtGen:Given allowed decays, resetting minMass Sigma(1775)0 0 to 1.25066
+EvtGen:Given allowed decays, resetting minMass anti-Sigma(1775)0 0 to 1.25066
+EvtGen:Given allowed decays, resetting minMass Sigma_c*0 2.3225 to 2.42447
+EvtGen:Given allowed decays, resetting minMass anti-Sigma_c*0 2.3225 to 2.42447
+EvtGen:Given allowed decays, resetting minMass Sigma_c++ 2.4226 to 2.42447
+EvtGen:Given allowed decays, resetting minMass anti-Sigma_c-- 2.4226 to 2.42447
+EvtGen:Given allowed decays, resetting minMass Sigma_c*++ 2.2494 to 2.42447
+EvtGen:Given allowed decays, resetting minMass anti-Sigma_c*-- 2.2494 to 2.42447
+EvtGen:Done initializing EvtGen
+EvtGen:In readDecayFile, reading:/Users/tujuba/pandaROOT/panda-apr13/pandaroot/tutorials/rho/psi2s_Jpsi2pi_Jpsi_mumu.dec
+EvtGen:Redefined decay of psi(2S)
+EvtGen:Redefined decay of J/psi
+EvtGen:Reading /Users/tujuba/pandaROOT/panda-apr13/pandaroot/tutorials/rho/psi2s_Jpsi2pi_Jpsi_mumu.dec to override decay table.
+
+############# Generating with following conditions:
+
+incident 4-mom : (7.23819, 0, 0, 6.22966), m = 3.68548
+
+######################
+
+
+[INFO   ] ==============  FairRunSim: Initialising simulation run ============== 
+Info in <TGeoManager::TGeoManager>: Geometry FAIRGeom, FAIR geometry created
+-I- FairGeoMedia  Read media
+ -I container name PndEmcDigiPar
+ -I container name PndEmcDigiNonuniformityPar
+
+************************************************************* 
+     initialisation for run id 1382353042
+************************************************************* 
+-I- FairRunTimeDB::InitContainer() PndEmcGeoPar
+[ERROR  ] init() PndEmcGeoPar  not initialized 
+-I- FairRunTimeDB::InitContainer() PndSensorNamePar
+[ERROR  ] init() PndSensorNamePar  not initialized 
+-I- FairRunTimeDB::InitContainer() PndEmcDigiPar
+PndEmcDigiPar initialized from Ascii file
+-I- FairRunTimeDB::InitContainer() PndEmcDigiNonuniformityPar
+[ERROR  ] init() PndEmcDigiNonuniformityPar  not initialized 
+Error in <FairRuntimeDb::initContainers()>: Error occured during initialization
+[INFO   ] PndFieldMap: Reading field map from ROOT file  /Users/tujuba/pandaROOT/panda-apr13/pandaroot/input/TransMap.0890.root  
+[INFO   ] PndFieldMap: Reading field map from ROOT file  /Users/tujuba/pandaROOT/panda-apr13/pandaroot/input/DipoleMap1.0890.root  
+[INFO   ] PndFieldMap: Reading field map from ROOT file  /Users/tujuba/pandaROOT/panda-apr13/pandaroot/input/DipoleMap2.0890.root  
+[INFO   ] PndFieldMap: Reading field map from ROOT file  /Users/tujuba/pandaROOT/panda-apr13/pandaroot/input/SolenoidMap1.root  
+[INFO   ] PndFieldMap: Reading field map from ROOT file  /Users/tujuba/pandaROOT/panda-apr13/pandaroot/input/SolenoidMap2.root  
+[INFO   ] PndFieldMap: Reading field map from ROOT file  /Users/tujuba/pandaROOT/panda-apr13/pandaroot/input/SolenoidMap3.root  
+[INFO   ] PndFieldMap: Reading field map from ROOT file  /Users/tujuba/pandaROOT/panda-apr13/pandaroot/input/SolenoidMap4.root  
+[INFO   ] -------------- Standard Config is called ------------------------------------ 
+Loading Geant3 libraries ...
+Loading Geant3 libraries ... finished
+
+ MZSTOR.  ZEBRA table base TAB(0) in /MZCC/ at adr   117224903     6FCB5C7 HEX
+
+ MZSTOR.  Initialize Store  0  in /GCBANK/
+          with Store/Table at absolute adrs   117375669   117224903
+                                        HEX     6FF02B5     6FCB5C7
+                                        HEX       24B32           0
+                              relative adrs      150322           0
+          with     1 Str. in     2 Links in   5300 Low words in 4999970 words.
+          This store has a fence of   16 words.
+
+ MZLOGL.  Set Log Level 0 for store  0
+1*****  GEANT Version  3.21/11 Released on 100298
+0*****  Correction Cradle Version  0.1100
+
+ MZDIV.   Initialize Division  Constant  in Store  0
+          NW/NWMAX=   20004000000,  MODE/KIND=  1  2
+          Division 20 initialized.
+
+ MZLINK.  Initialize Link Area  /GCLINK/  for Store  0 NL/NS=    20    20
+
+ MZLINK.  Initialize Link Area  /GCSLNK/  for Store  0 NL/NS=   100   100
+-I- G3Config: Geant3 with TGeo has been created.
+SetCuts Macro: Setting Processes..
+SetCuts Macro: Setting cuts..
+Info in <TGeoManager::SetTopVolume>: Top volume is cave. Master volume is cave
+Info in <TGeoNavigator::BuildCache>: --- Maximum geometry depth set to 100
+<I> PndPipe - Using geometry /Users/tujuba/pandaROOT/panda-apr13/pandaroot/geometry/beampipe_201112.root
+ -I container name PndGeoSttPar
+-I- STT total number of tubes: 4542
+fwendcap & bwendcap flags == 1 / 1
+                                               
+ ====== EMC 2)::  ConstructASCIIGeometry() === 
+ ============================================= 
+PndEmcReader: EMC geometry file == /Users/tujuba/pandaROOT/panda-apr13/pandaroot/geometry/emc_module12.dat
+Emc module = 1
+******** 
+Emc module = 2
+******** 
+                                               
+ ====== EMC::  ConstructRootGeometry() m3a === 
+ ============================================= 
+File name = /Users/tujuba/pandaROOT/panda-apr13/pandaroot/geometry/emc_module3_2012_new.root
+                                               
+ ====== EMC::  ConstructRootGeometry() m4a === 
+ ============================================= 
+fgeoName3:: /Users/tujuba/pandaROOT/panda-apr13/pandaroot/geometry/emc_module4_StraightGeo24.4.root
+File name Bw1= /Users/tujuba/pandaROOT/panda-apr13/pandaroot/geometry/emc_module4_StraightGeo24.4.root
+                                               
+ ====== EMC::  ConstructRootGeometry() m5a === 
+ ============================================= 
+fgeoName4:: /Users/tujuba/pandaROOT/panda-apr13/pandaroot/geometry/emc_module5_fsc.root
+File name Fsc= /Users/tujuba/pandaROOT/panda-apr13/pandaroot/geometry/emc_module5_fsc.root
+                                               
+ =======  DRC::  ConstructGeometry()  ======== 
+ ============================================= 
+Focusing = 0
+ ============================================= 
+ -I container name PndGeoFtsPar
+BBBB->36
+cccc->12269
+Info in <TGeoManager::CheckGeometry>: Fixing runtime shapes...
+Info in <TGeoManager::CheckGeometry>: ...Nothing to fix
+Info in <TGeoManager::CloseGeometry>: Counting nodes...
+Info in <TGeoManager::Voxelize>: Voxelizing...
+Info in <TGeoManager::CloseGeometry>: Building cache...
+Info in <TGeoManager::CountLevels>: max level = 12, max placements = 4550
+Info in <TGeoManager::CloseGeometry>: 2003701 nodes/ 5804 volume UID's in FAIR geometry
+Info in <TGeoManager::CloseGeometry>: ----------------modeler ready----------------
+ ==================================================== 
+ =======  DRC::  ConstructOpticalGeometry()  ======== 
+Warning in <TGeant3TGeo::DefineOpSurface>: Called for surface LensSurface. Not applicable in Geant3 - setting is ignored.
+Warning in <TGeant3TGeo::DefineOpSurface>: Called for surface MirrSurface. Not applicable in Geant3 - setting is ignored.
+Warning in <TGeant3TGeo::DefineOpSurface>: Called for surface EVSurface. Not applicable in Geant3 - setting is ignored.
+Warning in <TGeant3TGeo::DefineOpSurface>: Called for surface BlackSurface. Not applicable in Geant3 - setting is ignored.
+Warning in <TGeant3TGeo::SetMaterialProperty>: Called for material surface  BlackSurface. Not applicable in Geant3 - setting is ignored.
+Warning in <TGeant3TGeo::SetMaterialProperty>: Called for material surface  MirrSurface. Not applicable in Geant3 - setting is ignored.
+Warning in <TGeant3TGeo::SetBorderSurface>: Called for border surface AirCarbonSurface. Not applicable in Geant3 - setting is ignored.
+Warning in <TGeant3TGeo::SetBorderSurface>: Called for border surface AirCarbonSurface. Not applicable in Geant3 - setting is ignored.
+Warning in <TGeant3TGeo::SetBorderSurface>: Called for border surface AirCarbonSurface. Not applicable in Geant3 - setting is ignored.
+Warning in <TGeant3TGeo::SetBorderSurface>: Called for border surface AirCarbonSurface. Not applicable in Geant3 - setting is ignored.
+Warning in <TGeant3TGeo::SetBorderSurface>: Called for border surface AirCarbonSurface. Not applicable in Geant3 - setting is ignored.
+Warning in <TGeant3TGeo::SetBorderSurface>: Called for border surface AirCarbonSurface. Not applicable in Geant3 - setting is ignored.
+Warning in <TGeant3TGeo::SetBorderSurface>: Called for border surface AirCarbonSurface. Not applicable in Geant3 - setting is ignored.
+Warning in <TGeant3TGeo::SetBorderSurface>: Called for border surface AirCarbonSurface. Not applicable in Geant3 - setting is ignored.
+Warning in <TGeant3TGeo::SetBorderSurface>: Called for border surface AirCarbonSurface. Not applicable in Geant3 - setting is ignored.
+Warning in <TGeant3TGeo::SetBorderSurface>: Called for border surface AirCarbonSurface. Not applicable in Geant3 - setting is ignored.
+Warning in <TGeant3TGeo::SetBorderSurface>: Called for border surface AirCarbonSurface. Not applicable in Geant3 - setting is ignored.
+Warning in <TGeant3TGeo::SetBorderSurface>: Called for border surface AirCarbonSurface. Not applicable in Geant3 - setting is ignored.
+Warning in <TGeant3TGeo::SetBorderSurface>: Called for border surface AirCarbonSurface. Not applicable in Geant3 - setting is ignored.
+Warning in <TGeant3TGeo::SetBorderSurface>: Called for border surface AirCarbonSurface. Not applicable in Geant3 - setting is ignored.
+Warning in <TGeant3TGeo::SetBorderSurface>: Called for border surface AirCarbonSurface. Not applicable in Geant3 - setting is ignored.
+Warning in <TGeant3TGeo::SetBorderSurface>: Called for border surface AirCarbonSurface. Not applicable in Geant3 - setting is ignored.
+Warning in <TGeant3TGeo::SetSkinSurface>: Called for skin surface AirMirrorSurface. Not applicable in Geant3 - setting is ignored.
+ =======  DRC::ConstructOpGeometry -> Finished! ====== 
+ -I- Initializing PndSdsDetector()
+[INFO   ] Branch: MVDPoint not registered! 
+-W- PndSdsDetector: New branch MVDPoint created!
+ -I- Initializing PndGemDetector()
+
+************************************************************
+PndEmc::SetSpecialPhysicsCuts():
+   using special physics cuts ...
+************************************************************
+ -I- Initializing PndSciT()
+ -I- PndDrc: Intialization started... 
+there is gGeoManager
+list of sensitives has 1 entries
+ -I- PndDrc: Switching OFF Cherenkov Propagation
+DRC parameters: fpi = 3.14159, fzup = -119, fbarnum = 5, flside = 15.8718
+bar 1 id = 5160
+lens1ID = 5160, flens2ID = 5160, lens3ID = 5160
+pd id = 5165
+bbox id = 5163
+VolId: Volume DrcEVSensor not found
+EV id = 0
+ -I- PndDrc: Intialization successfull
+ -I- Initializing PndFts()
+ -I- Initializing PndFtof()
+[INFO   ] Initialize Tasks-------------------------- 
+ INITIALIZATION *********************
+HitProducer has EnergyHitThreshold of 0.000001 GeV and Use_nonuniformity 0
+-I- PndEmcHitProducer: Intialization successfull
+[INFO   ] Simulation RunID: 1382353042   
+
+ Calculating cross section tables, see gphysi.dat for more information
+At line 41 of file gphys/gfshls.F
+Fortran runtime error: Expected INTEGER for item 1 in formatted transfer, got REAL
+                         ' Actual Z =',I5,'.')
+                                       ^
+Warning in <TStreamerInfo::Build:>: TStreamerBase: base class TStreamerElement has no streamer or dictionary it will not be saved
+Warning in <TStreamerInfo::Build:>: TStreamerSTL: base class TStreamerElement has no streamer or dictionary it will not be saved

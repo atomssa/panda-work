@@ -1,0 +1,59 @@
+OpenGL found on this system
+C++ compiler found in PATH
+*** Compiling the external packages with the GCC compiler
+*** Building the libraries with optimization
+The following parameters are set.
+System              :  64bit
+C++ compiler        :  g++
+C compiler          :  gcc
+Fortran compiler    :  gfortran
+CXXFLAGS            :  -O2
+CFLAGS              :  -O2
+FFLAGS              :  -O2
+Compiler            :  gcc
+Fortran compiler    :  gfortran
+Debug               :  no
+Optimization        :  no
+Platform            :  macosx
+Architecture        :  macosx64
+G4System            :  Darwin-g++
+g4_data_files       : 
+g4_get_data         : 
+Number of parallel    
+processes for build :  4
+Installation Directory:  /Users/tujuba/pandaROOT/panda-apr13/apr13/
+cmake not found in PATH
+install cmake as external package
+*** Package CMake is OK ***
+-- Found Subversion: /usr/bin/svn (found version "1.6.18") 
+-- FairSoft Revision - 22289 Branch - https://subversion.gsi.de/fairroot/fairsoft/release/apr13
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /Users/tujuba/pandaROOT/panda-apr13/apr13/build
+*** Package gtest is OK ***
+*** Package glpk is OK ***
+*** Package gsl is OK ***
+*** Package Boost is OK ***
+*** Package ApMon is OK ***
+*** Package ml-gsoapclient is OK ***
+*** Package Pythia6 is OK ***
+*** Package hepmc is OK ***
+*** Package pythia8 is OK ***
+*** Package Geant4-Source is OK ***
+*** Package Geant4-lib is OK ***
+/Users/tujuba/pandaROOT/panda-apr13/apr13//share/Geant4-9.6.1/geant4make/geant4make.sh: line 162: cd: /Users/tujuba/pandaROOT/panda-apr13/apr13/share/Geant4-9.6.1/geant4make/../data/G4NDL4.2: No such file or directory
+/Users/tujuba/pandaROOT/panda-apr13/apr13//share/Geant4-9.6.1/geant4make/geant4make.sh: line 163: cd: /Users/tujuba/pandaROOT/panda-apr13/apr13/share/Geant4-9.6.1/geant4make/../data/G4EMLOW6.32: No such file or directory
+/Users/tujuba/pandaROOT/panda-apr13/apr13//share/Geant4-9.6.1/geant4make/geant4make.sh: line 164: cd: /Users/tujuba/pandaROOT/panda-apr13/apr13/share/Geant4-9.6.1/geant4make/../data/PhotonEvaporation2.3: No such file or directory
+/Users/tujuba/pandaROOT/panda-apr13/apr13//share/Geant4-9.6.1/geant4make/geant4make.sh: line 165: cd: /Users/tujuba/pandaROOT/panda-apr13/apr13/share/Geant4-9.6.1/geant4make/../data/RadioactiveDecay3.6: No such file or directory
+/Users/tujuba/pandaROOT/panda-apr13/apr13//share/Geant4-9.6.1/geant4make/geant4make.sh: line 166: cd: /Users/tujuba/pandaROOT/panda-apr13/apr13/share/Geant4-9.6.1/geant4make/../data/G4NEUTRONXS1.2: No such file or directory
+/Users/tujuba/pandaROOT/panda-apr13/apr13//share/Geant4-9.6.1/geant4make/geant4make.sh: line 167: cd: /Users/tujuba/pandaROOT/panda-apr13/apr13/share/Geant4-9.6.1/geant4make/../data/G4PII1.3: No such file or directory
+/Users/tujuba/pandaROOT/panda-apr13/apr13//share/Geant4-9.6.1/geant4make/geant4make.sh: line 168: cd: /Users/tujuba/pandaROOT/panda-apr13/apr13/share/Geant4-9.6.1/geant4make/../data/RealSurface1.0: No such file or directory
+/Users/tujuba/pandaROOT/panda-apr13/apr13//share/Geant4-9.6.1/geant4make/geant4make.sh: line 169: cd: /Users/tujuba/pandaROOT/panda-apr13/apr13/share/Geant4-9.6.1/geant4make/../data/G4SAIDDATA1.1: No such file or directory
+*** Package root is OK ***
+*** Package pluto is OK ***
+*** Compiling Geant3 ................ 
+patching file Makefile
+Hunk #1 succeeded at 91 (offset -2 lines).
+patching file erdecks/eustep.F
+patching file TGeant3/TGeant3gu.cxx
+/Users/tujuba/pandaROOT/panda-apr13/apr13//bin:/Users/tujuba/pandaROOT/panda-apr13/apr13/transport/geant4//bin/Darwin-g++:/Users/tujuba/pandaROOT/panda-apr13/apr13//bin:/Users/tujuba/pandaROOT/panda-apr13/apr13//bin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/2.7/bin:/home/tujuba/work/chromium/depot_tools:/home/tujuba/android-sdk-linux/tools:/home/tujuba/android-sdk-linux/platform-tools:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin:/usr/texbin:

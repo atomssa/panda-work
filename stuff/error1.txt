@@ -1,0 +1,43 @@
+ln: libmonalisawsclient.so: File exists
+ln: libpythia8.so: File exists
+**** Checking libraries in /Users/tujuba/pandaROOT/panda-apr13/apr13//lib ****
+*** Pluto compiled successfully ***
+*** Compiling Geant3 ................ 
+cp: geant3/gphys: No such file or directory
+cp: geant3/gphys: No such file or directory
+cp: geant3/gphys: No such file or directory
+scripts/install_geant3.sh: line 18: cd: geant3: No such file or directory
+scripts/install_geant3.sh: line 21: ../Makefile_geant3.patch: No such file or directory
+scripts/install_geant3.sh: line 22: ../geant3_geane.patch: No such file or directory
+cp: ../gcalor.F: No such file or directory
+cp: ../xsneut.dat: No such file or directory
+cp: ../chetc.dat: No such file or directory
+sed: Makefile: No such file or directory
+/Users/tujuba/pandaROOT/panda-apr13/apr13//bin:/Users/tujuba/pandaROOT/panda-apr13/apr13/transport/geant4//bin/Darwin-g++:/Users/tujuba/pandaROOT/panda-apr13/apr13//bin:/Users/tujuba/pandaROOT/panda-apr13/apr13//bin:/Users/tujuba/root/bin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/2.7/bin:/home/tujuba/work/chromium/depot_tools:/home/tujuba/android-sdk-linux/tools:/home/tujuba/android-sdk-linux/platform-tools:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin:/usr/texbin:
+
+make: *** No targets specified and no makefile found.  Stop.
+cp: /Users/tujuba/pandaROOT/panda-apr13/apr13/transport/geant3/lib/tgt_macosx64/libgeant321.so: No such file or directory
+cp: /Users/tujuba/pandaROOT/panda-apr13/apr13/transport/geant3/TGeant3/*.h: No such file or directory
+cp: /Users/tujuba/pandaROOT/panda-apr13/apr13/transport/geant3/data: No such file or directory
+**** Checking libraries in /Users/tujuba/pandaROOT/panda-apr13/apr13//lib ****
+*** ERROR: Geant3 could not be created.
+*** End installation of external packages with Errors***
+
+
+
+
+
+
+
+After fixing giant3 issue....
+
+
+ln: liblhapdfdummy.so: File exists
+ln: libmonalisawsclient.1.0.0.so: File exists
+ln: libmonalisawsclient.1.so: File exists
+ln: libmonalisawsclient.so: File exists
+ln: libpythia8.so: File exists
+*** End installation of external packages without Errors***
+
+During the installation a new version of CMake has been installed in /Users/tujuba/pandaROOT/panda-apr13/apr13//bin.
+Please add thsi path to your environment variable PATH to use this new version of CMake.

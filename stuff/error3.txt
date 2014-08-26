@@ -1,0 +1,18 @@
+eant3/TGeant3f77.cxx
+TGeant3/TGeant3gu.cxx
+Generating /Users/tujuba/panda/apr13/transport/geant3/tgt_macosx64/TGeant3/geant3Cint.cxx
+/Users/tujuba/panda/apr13/transport/geant3/tgt_macosx64/TGeant3/geant3Cint.cxx
+Generating /Users/tujuba/panda/apr13/transport/geant3/lib/tgt_macosx64/libgeant321.dylib
+ld: warning: ld: warning: could not create compact unwind for _g3pparx_: stack subq instruction is too different from dwarf stack sizecould not create compact unwind for _g3pmatx_: stack subq instruction is too different from dwarf stack size
+
+ld: warning: could not create compact unwind for _g3pvolx_: stack subq instruction is too different from dwarf stack size
+**** Checking libraries in /Users/tujuba/panda/apr13/lib ****
+*** Geant3 compiled successfully ***
+*** Compiling VGM ................ 
+-- The C compiler identification is GNU 4.2.1
+-- The CXX compiler identification is GNU 4.2.1
+-- Checking whether C compiler has -isysroot
+-- Checking whether C compiler has -isysroot - yes
+-- Checking whether C compiler supports OSX deployment target flag
+-- Checking whether C compiler supports OSX deployment target flag - yes
+-
