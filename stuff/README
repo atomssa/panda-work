@@ -1,0 +1,20 @@
+Compile errors
+
+
+===========================================
+Error1)
+GCC4.7 from macports doesn't support -rdynamic option, so it has to be removed
+Add the following line:
+>> mysed  '-rdynamic ' '' Makefile  # Ermias, MacPorts GCC doesn't support rdynamic option
+in the  if [ "$platform" = "macosx" ]    block that patches the makefiles
+===========================================
+
+
+===========================================
+// Compile G4 with OPENGL drivers (change the install_geant4.sh file to the following):
+  cmake -DCMAKE_INSTALL_PREFIX=$install_prefix -DCMAKE_INSTALL_LIBDIR=$install_prefix/lib \
+        -DGEANT4_USE_G3TOG4=ON -DGEANT4_BUILD_STORE_TRAJECTORY=OFF \
+        -DG4VIS_BUILD_OPENGLX_DRIVER=1  -DG4VIS_USE_OPENGL=1  -DG4VIS_USE_OPENGLX=1 -DGEANT4_USE_OPENGL_X11=ON \
+        -DGEANT4_BUILD_VERBOSE_CODE=OFF  $install_data  ../
+===========================================
+
