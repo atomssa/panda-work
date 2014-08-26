@@ -1,0 +1,370 @@
+\documentclass[20]{article}
+\usepackage[latin1]{inputenc}
+\usepackage[dvips]{graphicx,epsfig,color}
+\usepackage{wrapfig,rotating}
+\usepackage{amssymb,amsmath,array}
+
+%\pagestyle{empty}
+
+\begin{document}
+%\title{Addition start detector }
+%\author{Ermias Atomssa}
+
+%\maketitle
+
+Described below is a simulation study to determine how much
+improvement one can gain in terms of reconstructed momentum and
+position resolution by adding hit position information from the start
+detector. The simulation is based on the pion beam line simulation
+code HBeam.h (part of HYDRA?) that generates pions with a given
+initial beam profile (object spot size, angular spread, momentum and
+momentum spread ... ). The way the code is implemented, horizontal and
+vertical initial beam spot sizes are the same. The code was modified
+to implement the solution described in the pion beam TDR to
+reconstruct, for each particle, its full state based on the crossing
+positions in the transverse plane at the location of the two pion
+tracker silicon detectors. In the simulation, they are located at 17~m
+and 5.4~m from the HADES target.
+
+In addition, a rudimentary digitization was introduced to the
+transverse crossing positions on the silicon trackers in order to
+account for the finite resolution of these detectors. The digitized
+position of a track that passes through a given stripe is calculated
+as the position of mid point of the stripe through which it
+passes. These detectors are 10x10~cm$^2$ and have 128 strips in x and
+y directions etched on either face, so the size of a strip comes to
+0.78~mm. It is assumed that the reference trajectory passes through
+the middle of the detector between stripes 63 and 64 (zero base), and
+not in the middle of stripe 64. Because of spikes observed in solution
+distributions with this scheme of digitization, the digitized position
+is re-smeared again with a uniform random number generated with width
+equal to the size of a strip.
+
+\section{TDR method}
+In order to validate the reconstruction algorithm and to demonstrate
+the degradation of resolution due to various changes, the following
+parameters were changed step by step: (a) Initial object size and
+angular spread (b) digitization of pion tracker hit as described above
+(c) addition of multiple scattering on the two pion trackers. The
+following were the four steps that were simulated:
+
+\begin{itemize}
+  \item Step 0: Zero object spot size with zero angular spread, and
+    non digitized position measurement, no multiple scattering
+  \item Step 1: Nominal object spot size and angular spread
+    (x,y$\rightarrow$0.5mm, $\theta\rightarrow$10~mrad, $\phi\rightarrow$50~mrad), with no
+    digitization and multiple scattering
+  \item Step 2: Nominal object spot size and angular spread, with
+    digitized hits but no multiple scattering
+  \item Step 3: Nominal object spot size and angular spread, with
+    digitized hits and multiple scattering
+\end{itemize}
+
+Each simulation consisted of 10k events at reference momentum
+$p_{ref}$=1.3~GeV/c. No acceptance cuts were applied. The momentum
+offset was chosen uniformly among all integral values between -6\% and
+6\% so each step had 13 distinct values of momentum offset
+$\delta$. In a first step, the quantities that were tested were (a)
+momentum resolution (b) position resolution at the HADES target and
+(c) position resolution at the start detector. The main objective of
+the study is to check if the inclusion of the hits in the start
+detector are worth adding to the reconstruction procedure. If the
+position resolution at the position of start detector is already
+better than the resolution it offers ($\approx 14mm/sqrt{12} = 4mm$),
+then there is no point in adding the position information from this
+detector to the fit.
+
+The first thing that was checked to make sure that the solution was
+implemented correctly was to check that momenta and positions are
+reconstructed perfectly in step 0. For this purpose, the reconstructed
+momenta and x and y positions at the detector and HADES target were
+plotted. These are shown in Figure~\ref{step0:pres} and
+Figure~\ref{step0:xres} respectively which show that reconstruction
+retrieves truth information perfectly. In Figure~\ref{step0:pres},
+each color is from simulated pions at a given value of momentum
+offset. These two figures indicate that the reconstruction algorithm
+was implemented correctly.
+
+\begin{figure}[tbp]
+  \includegraphics[width=\columnwidth]{tc_pres_TDR_case0.eps}
+  \caption{Reconstructed momentum distribution in Step 0. All momentum
+    offsets represented by different colors are perfectly
+    reconstructed.}
+  \label {step0:pres}
+\end{figure}
+
+
+\begin{figure}[tbp]
+  \includegraphics[width=\columnwidth]{tc_xres_dia_TDR_case0.eps}
+  \caption{Reconstructed x position (horizontal) resolution
+    distribution in Step 0 at the start detector. The difference
+    between the reconstructed x position and the ``true'' x position
+    is plotted for 12 (of 13) different momentum offset values. The
+    same is found for x position both at the HADES target and y
+    position at both the HADES target and start detector. The position
+    reconstruction thus works for all momentum offsets.}
+  \label {step0:xres}
+\end{figure}
+
+The next step was to switch to typical initial beam spot (object) size
+and angular spread. The solution in the TDR assumes that initial
+position of beam particles in the horizontal dimension is
+negligible. Introducing the spread to this variable (and at the same
+time spread in vertical object size and angular spreads) thus should
+result in a finite resolution in reconstructed quantities as shown in
+Figure~\ref{step1:pres} for reconstructed momentum and
+Figure~\ref{step1:xres} for reconstructed horizontal position
+resolution at the start detector.
+                                   
+\begin{figure}[tbp]
+  \includegraphics[width=\columnwidth]{tc_pres_TDR_case1.eps}
+  \caption{Reconstructed momentum distribution in Step 1. The effect
+    of introducing finite object extension and angular spread is
+    shown. }
+  \label {step1:pres}
+\end{figure}
+
+
+\begin{figure}[tbp]
+  \includegraphics[width=\columnwidth]{tc_xres_dia_TDR_case1.eps}
+  \caption{Reconstructed x position (horizontal) resolution
+    distribution in Step 1 at the start detector. The difference
+    between the reconstructed x position and the ``true'' x position
+    is plotted for 12 (of 13) different momentum offset values. The
+    width is no longer zero, and reflects uncertainties introduced by
+    the assumption of zero object extension in the horizontal
+    direction.}
+  \label {step1:xres}
+\end{figure}
+
+Notice that the position resolution distributions are not really
+Gaussian and the fits by a Gaussian do not work in most cases. However
+the width of the Gaussian fits are used as a rough estimate of the
+reconstruction resolution for comparison. In Figure~\ref{step1:res},
+the above mentioned figures are summarized by plotting the momentum
+resolution (left panel) and position resolution (right panel) as a
+function of momentum offset. In the position resolution plot, both
+horizontal and vertical resolutions at the start detector and HADES
+target locations are shown. At this point the vertical resolution is
+negligible at its minimum, whereas the horizontal resolution has
+sizable value (more than half size of a strip) even at its
+minimum. However, if the conditions of this step were true, there
+would be no need to include the start detector positions into a global
+fit to reconstruct momentum.
+
+\begin{figure}[tbp]
+  \includegraphics[width=\columnwidth]{tc_res_TDR_case1.eps}
+  \caption{Summary of momentum and position resolutions as a function
+    of momentum offset in step 1.}
+  \label {step1:res}
+\end{figure}
+
+In Step 2, the finite resolution of pion trackers was introduced. The
+result is shown in Figure~\ref{step2:pres} through
+Figure~\ref{step2:res}. The momentum resolution at its minimum worsens
+from $\approx$0.5\% to $\approx$0.7\% as shown in
+Figure~\ref{step2:res}. The position resolution is barely affected by
+adding finite strip size of the pion trackers.
+
+
+\begin{figure}[tbp]
+  \includegraphics[width=\columnwidth]{tc_pres_TDR_case2.eps}
+  \caption{Reconstructed momentum distribution in Step 2. The effect
+    of introducing finite position measurement resolution at the
+    silicon detector is shown. }
+  \label {step2:pres}
+\end{figure}
+
+\begin{figure}[tbp]
+  \includegraphics[width=\columnwidth]{tc_xres_dia_TDR_case2.eps}
+  \caption{Reconstructed x position (horizontal) resolution
+    distribution in Step 2 at the start detector. The difference
+    between the reconstructed x position and the ``true'' x position
+    is plotted for 12 (of 13) different momentum offset values. The
+    width is no longer zero, and reflects uncertainties introduced by
+    the assumption of zero object extension in the horizontal
+    direction.}
+  \label {step2:xres}
+\end{figure}
+
+
+\begin{figure}[tbp]
+  \includegraphics[width=\columnwidth]{tc_res_TDR_case2.eps}
+  \caption{Summary of momentum and position resolutions as a function
+    of momentum offset for Step 2}
+  \label {step2:res}
+\end{figure}
+
+In the last step (Step 3), multiple scattering emulation is enabled in
+the two pion tracker detectors. The results shown in
+Figure~\ref{step3:pres}, Figure~\ref{step3:xres} and
+Figure~\ref{step3:res} exhibit a significant amount of position
+resolution degradation, while the momentum resolution worsens further
+by a small amount. The horizontal resolution is now of the order of
+4mm at the minimum, about the same size as the resolution of start
+detectors. Based on this one can expect that the inclusion of hit
+position information from the start detector will only bring a
+marginal improvement. 
+
+\begin{figure}[tbp]
+  \includegraphics[width=\columnwidth]{tc_pres_TDR_case3.eps}
+  \caption{Reconstructed momentum distribution in Step 3. The effect
+    of introducing multiple scattering in the silicon detectors is
+    shown. }
+  \label {step3:pres}
+\end{figure}
+
+\begin{figure}[tbp]
+  \includegraphics[width=\columnwidth]{tc_xres_dia_TDR_case3.eps}
+  \caption{Reconstructed x position (horizontal) resolution
+    distribution in Step 3 at the start detector. The difference
+    between the reconstructed x position and the ``true'' x position
+    is plotted for 12 (of 13) different momentum offset values. The
+    Gaussian fits are no longer working properly.}
+  \label {step3:xres}
+\end{figure}
+
+\begin{figure}[tbp]
+  \includegraphics[width=\columnwidth]{tc_res_TDR_case3.eps}
+  \caption{Summary of momentum and position resolutions as a function
+    of momentum offset for Step 3}
+  \label {step3:res}
+\end{figure}
+
+\section{MINUIT fit on pion tracker and start detector position information}
+
+The minuit fit is implemented to minimize the following $\chi^2$ function of initial state vector $V_0=(x_0,\theta_0,y_0,\phi_0,\delta)$
+
+\begin{equation}
+  \chi^2(V_0) = \sum^{3}_{d=1} \left( \frac{x^{d}_{M} - x^{d}_{T}(V_0, T^d)}{\delta x^{d}_{M}} \right)^2 + \sum^{3}_{d=1} \left( \frac{y^{d}_{M} - y^{d}_{T}(V_0, T^d)}{\delta y^{d}_{M}} \right)^2 
+\end{equation}
+
+where the index d runs over the three detector subsystems (two pion
+trackers and the diamond start detector), and $(x^{d}_{M}, y^{d}_{M})$
+is the horizontal and vertical position measurements on detector $d$
+with errors $(\delta x^{d}_{M}, \delta y^{d}_{M})$. The errors are
+taken as the size of the segmentation for the particular detector. The
+expected positions $(x^{d}_{T}, y^{d}_{T})$ depend on the initial
+state vector $V_0$, which are the variables the minimization is
+performed on, and the transport coefficients $T^{d}_{ij}$ and
+$T^{d}_{ijk}$ at the detector d that describe the spectrometric line
+and are just constant parameters in the minimization. $x_{M}$ and
+$y_{M}$ are given by (keeping only the most significant first and
+second order terms of the transport equations)
+
+\begin{equation}
+  % Tx[0]->T11, Tx[1]->T12, Tx[2]->T14, Tx[3]->T16, Tx[4]->T116, Tx[5]->T126, Tx[6]->T146, Tx[7]->T166
+  % par[0]->x, par[1]->theta, par[2]->y, par[3]->phi, par[4]->del 
+  x^{d}_{T}(V_0, T^{d}) = T^{d}_{11} x_0 + T^{d}_{12}  \theta_0 + T^{d}_{14}  \phi_0 + T^{d}_{16}  \delta + T^{d}_{116}  x_0\delta + T^{d}_{126}  x_{0}\delta + T^{d}_{146}  \phi_0\delta + T^{d}_{166} \delta^2
+\end{equation}
+
+and 
+
+\begin{equation}
+  % Ty[0]->T32, Ty[1]->T33, Ty[2]->T34, Ty[3]->T36, Ty[4]->T336, Ty[5]->T346, Ty[6]->T366
+  % par[0]->x, par[1]->theta, par[2]->y, par[3]->phi, par[4]->del   
+  y^{d}_{T}(V_0, T^{d}) = T^{d}_{32}x_{0} + T^{d}_{33}y_{0} + T^{d}_{34}\phi_{0} + T^d_{36}\delta + T^d_{336}y_0\delta + T^d_{346}\phi_0\delta + T^d_{366}\delta^2;
+\end{equation}
+
+
+Once the initial state is known, the \emph{reconstructed} positions
+at the start detector and the HADES target are calculated by using the
+full second order transport equation and the respective theoretical
+transport coefficients. These reconstructed values are compared to the
+\emph{true} hit position.
+
+The momentum resolution results are shown below for some
+conditions.
+
+Figure~\ref{step2bis:res} shows the momentum and position resolution
+comparison using the TDR method and the MINUIT fitting method for step
+2 described above: nominal initial beam spot size and angular spread,
+with segmented pion trackers, and non segmented start detector. This
+assumes perfect start detector with no segmentation so is not
+realistic, but is shown as a reference. In this idealized case, the
+MINIUT method performs significantly better, especially on momentum
+resolution at large values of $|\delta|$.
+
+\begin{figure}[tbp]
+  \includegraphics[width=\columnwidth]{tc_res_case2.eps}
+  \caption{Summary of momentum and position resolutions as a function
+    of momentum offset for Step 2, comparing the results using TDR
+    method (that doesn't use start detector info) and global MINUIT
+    fit (uses perfect start detector information). No multiple scattering. }
+  \label {step2bis:res}
+\end{figure}
+
+When finite resolution (segmentation) is added to the start detector,
+the situation changes dramatically as shown in
+Figure~\ref{step2a:res}. The segmentation size for the start detector
+here is taken to be 14~mm, close to the real ``pixel'' size. All the
+momentum resolution improvement is lost and the two methods give
+comparable resolution, while the position resolution in the horizontal
+direction worsens significantly compared to TDR method. Note however
+that multiple scattering is not included in these comparisons.
+
+\begin{figure}[tbp]
+  \includegraphics[width=\columnwidth]{tc_res_case2a.eps}
+  \caption{Summary of momentum and position resolutions as a function
+    of momentum offset for Step 2, comparing the results using TDR
+    method (that doesn't use start detector info) and global MINUIT
+    fit (uses segmented start detector information). No multiple scattering. } 
+  \label {step2a:res}
+\end{figure}
+
+
+Figure~\ref{step3a:res} shows what the TDR-MINUIT comparison looks
+like when realistic detector segmentation is used and multiple
+scattering is enabled in the two start detectors. The observation here
+is that the the TDR solution position resolution in the horizontal
+direction worsens while the MINIUT solution resolution is more or less
+the same. Even so, this does not justify using MINUIT solution because
+at its best it performs only as good as the TDR solution.
+
+\begin{figure}[tbp]
+  \includegraphics[width=\columnwidth]{tc_res_case3a.eps}
+  \caption{Summary of momentum and position resolutions as a function
+    of momentum offset for Step 3, comparing the results using TDR
+    method (that doesn't use start detector info) and global MINUIT
+    fit (uses segmented start detector information). Multiple
+    scattering is enabled in the two pion tracker detectors. }
+  \label {step3a:res}
+\end{figure}
+
+As a reference, Figure~\ref{step3:variations} shows what the
+resolution could be if the segmentation of the start detector was
+finer. Namely, it compares the MINUIT solution resolution for finer
+segmentation's. One notices that for the vertical position resolution
+and momentum resolution, the segmentation of the pion tracker doesn't
+matter much. For the horizontal position resolution, one needs a
+segmentation diamond detector that is four times finer to have an
+appreciable advantage of using the global MINUIT fit.
+
+\begin{figure}[tbp]
+  \includegraphics[width=\columnwidth]{tc_res_var.eps}
+  \caption{Summary of momentum and position resolutions as a function
+    of momentum offset for Step 3, comparing the results of the global
+    MINUIT fit when the segmentation of the start detector is
+    varied. All other simulation conditions are constant: Nominal
+    beam spot, MS turned on the two pion trackers which use nominal
+    segmentation.}
+  \label {step3:variations}
+\end{figure}
+
+Finally the effect of enabling multiple scattering in all three
+detectors is shown in Figure~\ref{step3c:res}. This configuration is
+the one that is closest to reality. The result suggests that no
+appreciable gain in resolution (momentum or position) should be
+expected from the usage of the start detector position information.
+
+\begin{figure}[tbp]
+  \includegraphics[width=\columnwidth]{tc_res_case3c.eps}
+  \caption{Summary of momentum and position resolutions as a function
+    of momentum offset for the most realistic simulation
+    condition. True segmentation and MS is used in all three
+    detectors. The beam initial condition is set to nominal values. }
+  \label {step3c:res}
+\end{figure}
+
+
+\end{document}
