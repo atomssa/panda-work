@@ -83,9 +83,15 @@ def generate():
         my_utils.dbg_msg("====== launching event generation for uniq_id = %d" % my_utils.uniq_id)
 
     (dummy,log_file,dummy) = my_utils.file_names("timer")
-    
-    run_dpm()
-    filt_out = filter_dpm()
+
+    if my_utils.sim_type == my_utils.sim_bg:
+        run_dpm()
+        filt_out = filter_dpm()
+    else:
+        (out_file,log_file,in_file) = my_utils.file_names("filt")
+        filt_out = out_file
+        with open(out_file,'w') as out:
+            out.write("this is just a place holder for signal simulation")
     
     return filt_out
     

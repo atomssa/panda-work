@@ -13,9 +13,8 @@ base_dir = "/vol0/panda/work/jpsi_pi0"
 macro_dir = "%s/macros" % base_dir
 batch_dir = None
 
-entry_chan = "pbar_p"
-exit_chan = "pip_pim_pi0"
-proc_tag = "%s_%s" % (entry_chan, exit_chan)
+proc_tag_sig = "pbar_p_jpsi_pi0" 
+proc_tag_bg = "pbar_p_pip_pim_pi0"
 
 dpm_nevt_per_file = 2000000
 dpm_pbar_lab_mom = 5.513
@@ -23,6 +22,10 @@ dpm_proc_selection = 0
 dpm_part_status_mod = "0 0"
 dpm_default_out = "Background-micro.root"
 filter_default_out = "Background-nano.root"
+
+sim_bg = 0
+sim_sig = 1
+sim_type = sim_bg # 1:Signal 0:Background 
 
 delete_unfiltered_dpm = True
 
@@ -37,7 +40,10 @@ def get_rnd_seed():
 
 def file_tag():
     if uniq_id != None:
-        return "%s_%d" % (proc_tag, uniq_id)
+        if sim_type == sim_bg:
+            return "%s_%d" % (proc_tag_bg, uniq_id)
+        else:
+            return "%s_%d" % (proc_tag_sig, uniq_id)
     else:
         dbg_msg("file_tag called with uniq_id not set yet. calling sys.exit(-1)")
         sys.exit(-1)

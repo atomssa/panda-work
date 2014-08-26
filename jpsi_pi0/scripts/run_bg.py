@@ -4,6 +4,8 @@ import sys
 import my_utils
 import full_sim
 
+my_utils.sim_type = my_utils.sim_bg
+
 #start=int(sys.argv[1])
 #number=int(sys.argv[2])
 #series = range(start, start+number)

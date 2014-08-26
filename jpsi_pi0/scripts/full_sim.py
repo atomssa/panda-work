@@ -40,7 +40,7 @@ def execute_step(step, prev_out, prev_step):
             with open(log_file,"w") as log:
                 execute_root(step, log, prev_out, prev_step, root_args)
         else:
-            root_args = "\'%s/%s_complete.C(\"%s\")\'" % (my_utils.macro_dir, step, prev_out)
+            root_args = "\'%s/%s_complete.C(%d)\'" % (my_utils.macro_dir, step, my_utils.sim_type)
             with open(log_file,"w") as log:
                 execute_root(step, log, prev_out, prev_step, root_args)
         my_utils.move_file("%s_complete.root" % step, out_file)
