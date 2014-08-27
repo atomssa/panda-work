@@ -1,0 +1,58 @@
+The following things were done to get a working compile
+
+* Still refuse to compile boost and cmake
+** they are available on system (rejected on basis of being too new)
+** For boost, may reevaluate, because of lmd issue mentioned below
+
+
+* For externals use gcc from homebrew instead of built in clang
+** Intention was to avoid the many mac specific build failures
+** Worked mostly smoothly.
+** One still needs to remove rdynamic flag from pluto compilation
+*** even with gcc from homebrew, rdynamic is not available on mac
+*** add the following to install_pluto.sh:
+      mysed  '-rdynamic' '' Makefile
+** For root one has to modify the rootconfig.sh file located in tools/rootconfig.sh
+*** Namely --with-cc=gcc --with-cxx=g++ --with-ld=g++ has to be added
+
+* Had to roll back xquartz to version 2.7.4
+** 2.7.6 has freetype version 1.5.1 which breaks root build with the root version provided in pandaroot
+** This causes errors of the type: include/TTF.h:51:4: error: 'FT_Glyph' does not name a type
+** Lots of exploration to fix it amicably but nothing worked
+** One lead was to remove ftgl (because its needed in some useless 3d graph library)
+*** tried a patch suggested in https://github.com/root-mirror/root/commit/446a11828dcf577efd15d9057703c5bd099dd148
+*** also tried to remove from rootconfig.sh --enalble-builtin-ftgl which didn't work either
+
+
+* Tried without success to use brew gcc in panda-root
+** Main problem is with the use of -fPIE option to compile fortran that is externally linked in c++
+*** the visible culprit was inside the DPM class where the main.cc file calls fortran funcs
+*** PIE option allows adding executable in random adresses, but couldn't tell the linker to allow that
+*** consult http://stackoverflow.com/questions/2463150/fpie-position-independent-executable-option-gcc-ld
+
+* lmd class calling ptree from boost caused compile issues
+** hard to solve, so commented out offending code
+** source is in : md/LmdFit/LumiImpl/data/PndLmdDataFacade.cxx
+
+* Panda root classes that link to pluto wont compile
+** This is because of the issue of friend functions with default arguments
+** Culprit is generators/pluto/src/PStaticData.h
+** install_pluto.sh can be modified to apply the patch by adding in the osx section :
+     mysed  'friend void listModes(int id=-1);' 'friend void listModes(int id);' src/PStaticData.h
+     mysed  'friend void listParticle(int id=-1);' 'friend void listParticle(int id);' src/PStaticData.h
+
+* Obscure error: inline functions are hidden for some reason
+   (invisible = not found when used as dynamically shared library)
+** Culprit is FairMultiLinkedData::AddLinks and FairMultiLinkedDataSetLink functions
+** The code comples well (FairMultiLinkData is part of libBase )
+** At runtime, when libraries try to dynamically link against libBase, code crashes at run time
+** The reason seems that the two funcs (AddLink and SetLink) are inline
+** some exploration says there are compiler flags to hide/unhide symbols from dynamic linking
+** See refs at
+https://developer.apple.com/library/mac/documentation/DeveloperTools/Conceptual/CppRuntimeEnv/Articles/SymbolVisibility.html
+http://stackoverflow.com/questions/3570355/c-fvisibility-hidden-fvisibility-inlines-hidden
+https://www.google.com/webhp?sourceid=chrome-instant&ion=1&espv=2&ie=UTF-8#q=osx+c%2B%2B+dynamic+load+inline+function+failure
+https://gcc.gnu.org/wiki/Visibility
+** Could be a specificity of OSX that hides inlines by default unless explicity told not to
+** Temporary solution is to remove inline modifier from function definitions
+** __attribute((visibility(hidden)))__ doesn't seem to work with inline
