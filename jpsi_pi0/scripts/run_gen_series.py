@@ -32,9 +32,12 @@ import evtgen
 #    evtgen.generate()
 
 plabs = [8.0, 14.0]
+nevts = [10000000, 50000000]
 plab_index = int(sys.argv[1])
 my_utils.sim_type = my_utils.sim_bg
 my_utils.dpm_pbar_lab_mom = plabs[plab_index]
+my_utils.dpm_nevt_per_file = nevts[plab_index]
+my_utils.test_run = True
 
 start=int(sys.argv[2])
 number=int(sys.argv[3])
