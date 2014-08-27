@@ -6,7 +6,7 @@ import my_utils
 def test_exec(log,inpipe):
     my_utils.cd_to_batch_dir()
     first_input_line = inpipe.readline().strip()
-    ref = ".L %s/dpm_filter.C++" % my_utils.macro_dir
+    ref = ".L %s/dpm_filter.C++" % my_utils.macro_dir()
     my_utils.dbg_msg("first input line= %s" % first_input_line)
     my_utils.dbg_msg("reference= %s" % ref)
     if ( first_input_line == ref):
@@ -22,7 +22,7 @@ def test_exec(log,inpipe):
             "cd blah; ls>%s;echo %s>> %s;echo plab %f>>%s"%(out,inpipe.readlines(), out, my_utils.dpm_pbar_lab_mom, out),
             shell=True, stdout=log, stderr=log);
     proc.wait()
-        
+
 def execute(cmd,log,inpipe):
     my_utils.cd_to_batch_dir()
     if not my_utils.test_run:
@@ -30,11 +30,11 @@ def execute(cmd,log,inpipe):
         proc.wait()
     else:
         test_exec(log,inpipe)
-    
+
 def write_lines(file_handle, lines):
     for line in lines:
         file_handle.write(line + " \n")
-    
+
 def dpm_in(in_file):
     lines = [ str(my_utils.get_rnd_seed()), str(my_utils.dpm_pbar_lab_mom),
               str(my_utils.dpm_proc_selection), my_utils.dpm_part_status_mod, str(my_utils.dpm_nevt_per_file)]
@@ -56,11 +56,11 @@ def run_dpm():
         if os.path.exists(out_file):
             os.remove(out_file)
 
-        
+
 def root_in(in_file,dpm_file):
-    src_file = "%s/dpm_filter.C" % my_utils.macro_dir
+    src_file = "%s/dpm_filter.C" % my_utils.macro_dir()
     my_utils.copy_file_to_batch_dir(src_file)
-    lines = [".L %s/dpm_filter.C++" % my_utils.macro_dir, "dpm_filter(\"%s\")" % dpm_file, ".q"]
+    lines = [".L %s/dpm_filter.C++" % my_utils.macro_dir(), "dpm_filter(\"%s\")" % dpm_file, ".q"]
     with open(in_file,"w") as inpipe:
         write_lines(inpipe,lines)
     return in_file
@@ -75,7 +75,7 @@ def filter_dpm():
     else:
         my_utils.dbg_msg("%s exists. will skip this step (filt)" % out_file)
     return out_file
-    
+
 def generate():
     if my_utils.uniq_id == None:
         my_utils.dbg_msg("my_utils.uniq_id should be set before calling this function")
@@ -92,9 +92,9 @@ def generate():
         filt_out = out_file
         with open(out_file,'w') as out:
             out.write("this is just a place holder for signal simulation")
-    
+
     return filt_out
-    
+
 if __name__ == "__main__":
     my_utils.uniq_id = int(sys.argv[1])
     generate(False)

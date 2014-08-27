@@ -10,10 +10,9 @@ debug = True
 test_run = False
 
 base_dir = "/vol0/panda/work/jpsi_pi0"
-macro_dir = "%s/macros" % base_dir
 batch_dir = None
 
-proc_tag_sig = "pbar_p_jpsi_pi0" 
+proc_tag_sig = "pbar_p_jpsi_pi0"
 proc_tag_bg = "pbar_p_pip_pim_pi0"
 
 dpm_nevt_per_file = 2000000
@@ -25,11 +24,14 @@ filter_default_out = "Background-nano.root"
 
 sim_bg = 0
 sim_sig = 1
-sim_type = sim_bg # 1:Signal 0:Background 
+sim_type = sim_bg # 1:Signal 0:Background
 
 delete_unfiltered_dpm = True
 
 simulation_steps = [ "sim", "digi", "reco", "pid" ]
+
+def macro_dir():
+    return  "%s/macros" % base_dir
 
 def dbg_msg(msg):
     if (debug):
@@ -52,6 +54,11 @@ def file_names(step):
     out_dir = "%s/output/%s" % (base_dir,step)
     log_dir = "%s/log/%s" % (base_dir,step)
 
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+
     # small time logging logic
     timer_file = "%s/log/timer/%s.log"%(base_dir,file_tag())
     if not os.path.exists(os.path.dirname(timer_file)):
@@ -63,7 +70,7 @@ def file_names(step):
     return("%s/%s.root" % (out_dir, file_tag()),
            "%s/%s.log" % (log_dir, file_tag()),
            "%s/%s.in" % (log_dir, file_tag()))
-    
+
 def soft_link(src,dest):
     dbg_msg("Executing ln -sf %s %s" % (src,dest))
     dbg_msg("soft_link: listing cwd %s" % os.getcwd())
@@ -80,7 +87,7 @@ def soft_link(src,dest):
         else: # destination exists
             if os.path.isdir(dest): # dest path is directory
                 os.symlink(src,"%s/%s"%(dest,os.path.basename(src)))
-            else: 
+            else:
                 dbg_msg("[W] overwriting destination file: %s" % dest )
                 os.unlink(dest)
                 os.symlink(src,dest)
@@ -128,10 +135,10 @@ def move_file(src,dest):
                 os.rename(src,dest)
     else:
         dbg_msg("move_file failure: source file %s doesn't exist" % src)
-        
+
 def copy_file_to_batch_dir(src):
     if uniq_id != None:
-        batch_dir = "%s/.batch/tmp_%d" % (base_dir, uniq_id)        
+        batch_dir = "%s/.batch/tmp_%d" % (base_dir, uniq_id)
         copy_file(src,batch_dir)
     else:
         dbg_msg("cd_to_batch_dir called with uniq_id not set yet. calling sys.exit(-1)")
@@ -156,13 +163,9 @@ def cd_to_batch_dir():
 #        dbg_msg("[I] dir %s alrady exists... " % the_dir)
 
 # this should be called with extreme care!!!
-# probably only for temporary batch directories    
+# probably only for temporary batch directories
 # even then maybe not :o
 #def _empty_dir_contents(_dir):
 #    file_list = os.listdir(_dir)
 #    for file_name in file_list:
 #        os.remove(_dir+"/"+file_name)
-
-    
-
-    

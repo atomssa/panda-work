@@ -20,7 +20,7 @@ def test_exec(step,log,prev_step,prev_out,args):
         for check in checklist: fout.write(check)
     with open('simparams.root','w') as fout:
         fout.write("mehmehmeh")
-    
+
 def execute_root(step, log, prev_out, prev_step, args=None):
     my_utils.dbg_msg("========= executing root with args %s " % args)
     my_utils.cd_to_batch_dir()
@@ -30,17 +30,17 @@ def execute_root(step, log, prev_out, prev_step, args=None):
         proc.wait()
     else:
         test_exec(step,log,prev_step,prev_out,args)
-    
+
 def execute_step(step, prev_out, prev_step):
     my_utils.dbg_msg( "====== executing step %s with uniq id %d " % (step,my_utils.uniq_id) )
     (out_file,log_file,dummy) = my_utils.file_names(step)
     if not os.path.exists(out_file):
         if (step != "sim"):
-            root_args =  "%s/%s_complete.C" % (my_utils.macro_dir,step)
+            root_args =  "%s/%s_complete.C" % (my_utils.macro_dir(),step)
             with open(log_file,"w") as log:
                 execute_root(step, log, prev_out, prev_step, root_args)
         else:
-            root_args = "\'%s/%s_complete.C(%d)\'" % (my_utils.macro_dir, step, my_utils.sim_type)
+            root_args = "\'%s/%s_complete.C(%d)\'" % (my_utils.macro_dir(), step, my_utils.sim_type)
             with open(log_file,"w") as log:
                 execute_root(step, log, prev_out, prev_step, root_args)
         my_utils.move_file("%s_complete.root" % step, out_file)
