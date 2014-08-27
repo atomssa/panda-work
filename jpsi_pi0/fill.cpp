@@ -6,6 +6,7 @@
 #include "TLegend.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TChain.h"
 #include "TClonesArray.h"
 #include "TParticle.h"
 #include "TParticlePDG.h"
@@ -15,6 +16,7 @@
 #include <algorithm>
 #include <vector>
 #include <cassert>
+#include <fstream>
 
 using namespace std;
 
@@ -28,15 +30,22 @@ void print_log(int, int, vector<int>&);
 
 int main(const int argc, const char **argv) {
 
+  bool verb = false;
   if (argc<2) {
     std::cout << "Need one argument [file-name]" << std::endl;
     return -1;
   }
 
-  bool verb = false;
+  TChain *data_in = new TChain("data","data_in");
+  ifstream inf;
+  inf.open(argv[1]);
+  string root_file;
+  while(true) {
+    inf >> root_file;
+    if (!inf.good()) break;
+    data_in->AddFile(root_file.c_str());
+  }
 
-  TFile *file_in = TFile::Open(argv[1]);
-  TTree *data_in = (TTree*) file_in->Get("data");
   TClonesArray *part_array = new TClonesArray("TParticle");
   data_in->SetBranchAddress("Particles",&part_array);
 
@@ -48,13 +57,13 @@ int main(const int argc, const char **argv) {
   const char *pp[] = {"pim", "pi0", "pip"};
   std::vector<filler*> fillers;
   fillers.push_back(new mom_filler1d(1, pp[1], 200, 0, 6));
-  fillers.push_back(new mass_filler1d(0, 2, pp[0], pp[2], 200, 0, 5);
+  fillers.push_back(new mass_filler1d(0, 2, pp[0], pp[2], 200, 0, 5));
 
   const int Nevt = data_in->GetEntries();
 
   for (int ievt=0; ievt<Nevt; ievt++) {
 
-    if (ievt%10==0)
+    if (ievt%10000==0)
       std::cout << "event " << ievt << "/" << Nevt << std::endl;
     data_in->GetEntry(ievt);
 
@@ -68,9 +77,8 @@ int main(const int argc, const char **argv) {
     std::vector<int> indices(3);
     std::vector<TParticle*> parts(3);
 
+    TLorentzVector p4pi0, p4pip, p4pim, p4pic;
     for (int ipart=0; ipart < npart; ++ipart) {
-
-
       const TParticle* part = (TParticle*) part_array->At(ipart);
       if (verb) {
 	cout << "part= " << part << endl;
@@ -84,9 +92,9 @@ int main(const int argc, const char **argv) {
       pdg_codes.push_back(part->GetPDG()->PdgCode());
 
       // This would insure ordering
-      if (pdg==-211) parts[0]= (TParticle*)part_array->At(ipart);
-      if (pdg==111) parts[1] = (TParticle*)part_array->At(ipart);
-      if (pdg==211) parts[2] = (TParticle*)part_array->At(ipart);
+      if ( pdg == -211 ) ((TParticle*)part_array->At(ipart))->Momentum(p4pim);
+      if ( pdg == 111  ) ((TParticle*)part_array->At(ipart))->Momentum(p4pim);
+      if ( pdg == 211  ) ((TParticle*)part_array->At(ipart))->Momentum(p4pim);
     }
     std::sort(pdg_codes.begin(),pdg_codes.end());
 
@@ -98,19 +106,11 @@ int main(const int argc, const char **argv) {
 
     vector<TLorentzVector> p4s;
 
-    TLorentzVector p4pi0, p4pip, p4pim, p4pic;
-    parts[0]->Momentum(p4pim);
-    parts[1]->Momentum(p4pi0);
-    parts[2]->Momentum(p4pip);
-
     p4s.push_back(p4pim);
     p4s.push_back(p4pi0);
     p4s.push_back(p4pip);
 
     for (auto fill: fillers) (*fill)(p4s);
-
-    //fill_p_pi0(p4s);
-    //fill_m_pipm(p4s);
 
   }
 
