@@ -11,6 +11,7 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <vector>
 
 static const double rtd= TMath::RadToDeg();
 
@@ -19,6 +20,138 @@ bool compare_sorted(const vector<int>&, const vector<int>&);
 
 void print_event(const vector<int>&);
 void print_log(int, int, vector<int>&);
+
+class filer1d {
+  TH1F hist;
+  vector<int> part_idx;
+public:
+  filler1d(string h_name, string h_title,, vector<int> &_part_idx, int nbins, float min, float max ):hist(0),part_idx(_part_idx.size()) {
+    // constraints
+    assert(part_idx.size()>0);
+    assert(part_name.size()==_part_idx.size());
+    // initialization of members
+    part_idx = _part_idx; // copy ctor
+    hist.setNameTitle(h_name,h_title);
+    hist.setNbins(nbins);
+    hist.setMin(min);
+    hist.setMax(max);
+  }
+  virtual operator()(vector<TLorentzVector>&)=0;
+  // if needs to be boosted by some
+  virtual operator()(vector<TLorentzVector>&, TLorentzVector&)=0;
+  TH1F* getHist() {return &hist; }
+};
+
+class mom_filler1d: public filler1d {
+public:
+  mom_filler1d(vector<string> part_name, vector<int> &_part_idx, int nbins, float min, float max) {
+    assert( _part_idx.size()==1 );
+    assert( part_name.size()==_part_idx.size() );
+    string name = Form("mom_%s",part_name[_part_idx[0]]);
+    string title = Form("mom_%s",part_name[_part_idx[0]]);
+    filler1d(name, title, nbins, min, max);
+  }
+  virtual operator()(vector<TLorentzVector> &p4s) {
+    assert(p4s.size()>=_part_idx.size());
+    hist.Fill(p4s[part_idx[0]]->P3().Mag());
+  }
+  virtual operator()(vector<TLorentzVector> &p4s, TLorentzVector boost) {
+    assert(p4s.size()>=_part_idx.size());
+    hist.Fill(p4s[part_idx[0]]->P3().Mag());
+  }
+};
+
+class mass_filler1d: public filler1d {
+public:
+  mass_filler(vector<string> part_name, vector<int> &_part_idx, int nbins, float min, float max) {
+    assert( part_idx.size()== 2 );
+    assert( part_name.size()==part_idx.size() );
+    string name = Form("m_%s_%s",part_name[0],part_name[1]);
+    string title = Form("m_%s_%s",part_name[0],part_name[1]);
+    filler1d(name, title, nbins, min, max);
+  }
+  virtual operator()(vector<TLorentzVector> &p4s) {
+    assert(p4s.size()>=_part_idx.size());
+    TLorentzVector pair = p4s[0] + p4s[1];
+    hist.Fill(pair->M());
+  }
+  // This doesn't make sense for mass, it should be uncallable if possible
+  virtual operator()(vector<TLorentzVector> &p4s, TLorentzVector boost) {
+    std::cout << "Mass with lorentz boost == mass without :P " << std::endl;
+  }
+};
+
+
+int main() {
+
+  TFile *file_in = TFile::Open(file_name_in.c_str());
+  TTree *data_in = (TTree*) file_in->Get("data");
+  TClonesArray *part_array = new TClonesArray("TParticle");
+  data_in->SetBranchAddress("Particles",&part_array);
+
+  mom_filler1d f_p_pi0("pi0");
+  mass_filler f_m_pipm();
+
+  for (int ievt=0; ievt<Nevt; ievt++) {
+
+    if (ievt%10000==0)
+      std::cout << "event " << ievt << "/" << Nevt << std::endl;
+    data_in->GetEntry(ievt);
+
+    // veto events with more than three particles in final state
+    int npart = part_array->GetEntriesFast();
+    if (npart!=3) {
+      std::cout << "npart= " << npart << std::endl;
+    }
+
+    std::vector<int> pdg_codes;
+    std::vector<int> indices(3);
+    std::vector<TParticle*> parts(3);
+
+    for (int ipart=0; ipart < npart; ++ipart) {
+      const TParticle* part = (TParticle*) part_array->At(ipart);
+      if (verb) {
+	cout << "part= " << part << endl;
+	std::cout << " part " << ipart << " pdg= " << part->GetPDG()->PdgCode() << std::endl;
+	part->Print();
+      }
+      int pdg = part->GetPDG()->PdgCode();
+      if (pdg==-211) indices[0] = ipart;
+      if (pdg==111) indices[1] = ipart;
+      if (pdg==211) indices[2] = ipart;
+      pdg_codes.push_back(part->GetPDG()->PdgCode());
+
+      // This would insure ordering
+      if (pdg==-211) parts[0]= ((TParticle*)part_array->At(ipart))->Momentum(p4pim);
+      if (pdg==111) parts[1] = ((TParticle*)part_array->At(ipart))->Momentum(p4pi0);
+      if (pdg==211) parts[2] = ((TParticle*)part_array->At(ipart))->Momentum(p4pip);
+    }
+    std::sort(pdg_codes.begin(),pdg_codes.end());
+
+    //if (!compare_sorted(pdg_codes,ref1)) {
+    //  if (verb) print_log(ievt, npart, pdg_codes);
+    //  std::cout << "Event not good" << std::endl;
+    //}
+    //type1_count++;
+
+    vector<TLorentzVector> p4s;
+
+    TLorentzVector p4pi0, p4pip, p4pim, p4pic;
+    p4s.push_back(parts[0])->Momentum(p4pim);
+    p4s.push_back(parts[1])->Momentum(p4pi0);
+    p4s.push_back(parts[2])->Momentum(p4pip);
+
+    f_p_pi0(p4s);
+    f_m_pipm(p4s);
+
+  }
+
+  f_p_pi0.getHist()->Draw();
+
+}
+
+
+mom_filler f1("pi0",0, 200, 0, 5);
 
 void fill(string file_name_in) {
 
