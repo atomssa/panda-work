@@ -14,22 +14,24 @@ sim_complete(int type /*1:Signal 0:Background */)
   int nEvents = 10000;
 
   if (type == 0 ) {
-    // Figure out the number of events from input 
-    TFile *f = TFile::Open(file_in.c_str());
+    // Figure out the number of events from input
+    // assume the input file name is filt_complete.root
+    // This is true for background simulation
+    TFile *f = TFile::Open("filt_complete.root");
     TTree *t = (TTree*) f->Get("data");
     nEvents = t->GetEntries();
     f->Close();
   }
-  
+
   //-----User Settings:-----------------------------------------------
   TString  SimEngine ="TGeant4";
   TString  OutputFile     ="sim_complete.root";
   TString  ParOutputfile  ="simparams.root";
   TString  MediaFile      ="media_pnd.geo";
   gDebug                  = 0;
-  TString digiFile        = "all.par"; //The emc run the hit producer directly 
-  // choose your event generator 
-  Bool_t UseEvtGen	      =kFALSE; 
+  TString digiFile        = "all.par"; //The emc run the hit producer directly
+  // choose your event generator
+  Bool_t UseEvtGen	      =kFALSE;
   Bool_t UseEvtGenDirect      = (type==1); // Signal simulation
   Bool_t UseDpm 	      = (type==0); // Background simulation
   Bool_t UseBoxGenerator      =kFALSE;
