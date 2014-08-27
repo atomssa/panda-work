@@ -46,16 +46,9 @@ int main(const int argc, const char **argv) {
   ref1.push_back(211);
 
   const char *pp[] = {"pim", "pi0", "pip"};
-
-  //std::vector<std::string> arg1;
-  //arg1.push_back("pi0");
-  //std::vector<int> arg2;
-  //arg2.push_back(0);
-  //mom_filler1d fill_p_pi0(arg1,arg2,200,0,5);
-
-  mom_filler1d fill_p_pi0(1, pp[1], 200, 0, 10);
-
-  mass_filler1d fill_m_pipm(0, 2, pp[0], pp[2], 200, 0, 5);
+  std::vector<filler*> fillers;
+  fillers.push_back(new mom_filler1d(1, pp[1], 200, 0, 6));
+  fillers.push_back(new mass_filler1d(0, 2, pp[0], pp[2], 200, 0, 5);
 
   const int Nevt = data_in->GetEntries();
 
@@ -114,15 +107,16 @@ int main(const int argc, const char **argv) {
     p4s.push_back(p4pi0);
     p4s.push_back(p4pip);
 
-    fill_p_pi0(p4s);
-    fill_m_pipm(p4s);
+    for (auto fill: fillers) (*fill)(p4s);
+
+    //fill_p_pi0(p4s);
+    //fill_m_pipm(p4s);
 
   }
 
   TFile *fout = TFile::Open("out.root","RECREATE");
   fout->cd();
-  fill_p_pi0.getHist()->Write();
-  fill_m_pipm.getHist()->Write();
+  for (auto fill: fillers) fill->Write();
   fout->Write();
   fout->Close();
 

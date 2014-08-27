@@ -21,7 +21,9 @@ class filler {
   vector<int> part_idx;
  public:
 
- filler(const char* h_name, const char* h_title, const int &npart): hist(new TNamed(h_name,h_title)), part_idx(npart){}
+ filler(const int &npart) : part_idx(npart) {
+    cout << "begin filler ctor hist pointer= " << hist << " npart= " << npart << endl;
+  }
 
   ~filler() { delete hist; }
 
@@ -29,15 +31,23 @@ class filler {
   // if needs to be boosted by some
   virtual void operator()(const vector<TLorentzVector>&, const TLorentzVector&)=0;
 
+  void Write() { this->hist->Write(); }
+
 };
 
-class filler1d: filler {
+class filler1d: public filler {
+
  public:
- filler1d(const char* h_name, const char* h_title, const int &npart, const int &nbins, const float &min, const float &max ): filler(h_name,h_title,npart)
+ filler1d(const char* h_name, const char* h_title, const int &npart,
+	  const int &nbins, const float &min, const float &max ): filler(npart)
   {
-    TH1F *htemp = dynamic_cast<TH1F*>(hist);
-    htemp->SetBins(nbins, min, max);
+    cout << "begin filler1d ctor hist pointer before new = " << hist << endl;
+    hist = new TH1F(h_name, h_title, nbins, min, max);
+    cout << "begin filler1d ctor hist pointer after new = " << hist << endl;
+    ((TH1*)hist)->SetBins(nbins, min, max);
+    cout << "oops" << endl;
   }
+
   /*
  filler1d(string h_name, string h_title, int npart, const int &nbins, const float &min, const float &max ):
   hist(),part_idx(npart)
@@ -57,14 +67,58 @@ class filler1d: filler {
       hist.SetBins(nbins, min, max);
     }
   */
+
   // Virtual overlaod function call operators to pass the 4momenta to be filled
   virtual void operator()(const vector<TLorentzVector>&)=0;
   // if needs to be boosted by some
   virtual void operator()(const vector<TLorentzVector>&, const TLorentzVector&)=0;
 
-  TH1F* getHist() {return dynamic_cast<TH1F*>(hist); }
+  TH1* getHist() {return dynamic_cast<TH1*>(hist); }
 
 };
+
+
+class filler2d: public filler {
+ public:
+ filler2d(const char* h_name, const char* h_title, const int &npart,
+	  const int &nbinsx, const float &xmin, const float &xmax,
+	  const int &nbinsy, const float &ymin, const float &ymax): filler(npart)
+  {
+    cout << "begin filler1d ctor hist pointer before new = " << hist << endl;
+    hist = new TH2F(h_name, h_title, nbinsx, xmin, xmax, nbinsy, ymin, ymax);
+    cout << "begin filler1d ctor hist pointer after new = " << hist << endl;
+    ((TH2*)hist)->SetBins(nbinsx, xmin, xmax, nbinsy, ymin, ymax);
+    cout << "oops" << endl;
+  }
+  /*
+ filler2d(string h_name, string h_title, int npart, const int &nbins, const float &min, const float &max ):
+  hist(),part_idx(npart)
+  {
+    hist.SetNameTitle(h_name.c_str(),h_title.c_str());
+    hist.SetBins(nbins, min, max);
+  }
+
+ filler2d(string h_name, string h_title, const vector<int> &_part_idx, const int &nbins, const float &min, const float &max ):
+  hist(),part_idx(_part_idx.size())
+    {
+      // constraints
+      assert(part_idx.size()>0);
+      // initialization of members
+      part_idx = _part_idx; // copy ctor
+      hist.SetNameTitle(h_name.c_str(),h_title.c_str());
+      hist.SetBins(nbins, min, max);
+    }
+  */
+  // Virtual overlaod function call operators to pass the 4momenta to be filled
+  virtual void operator()(const vector<TLorentzVector>&)=0;
+  // if needs to be boosted by some
+  virtual void operator()(const vector<TLorentzVector>&, const TLorentzVector&)=0;
+
+  TH2* getHist() {return dynamic_cast<TH2*>(hist); }
+
+};
+
+
 
 class mom_filler1d: public filler1d {
  public:
@@ -84,13 +138,13 @@ class mom_filler1d: public filler1d {
 
   virtual void operator()(const vector<TLorentzVector> &p4s) {
     assert(p4s.size()>=part_idx.size());
-    TH1F* htemp = dynamic_cast<TH1F*> hist;
+    TH1* htemp = dynamic_cast<TH1*>(hist);
     htemp->Fill(p4s[part_idx[0]].Vect().Mag());
   }
   virtual void operator()(const vector<TLorentzVector> &p4s, const TLorentzVector &boost) {
     assert(p4s.size()>=part_idx.size());
-    TH1F* htemp = dynamic_cast<TH1F*> hist;
-    htemp.Fill(p4s[part_idx[0]].Vect().Mag());
+    TH1* htemp = dynamic_cast<TH1*>(hist);
+    htemp->Fill(p4s[part_idx[0]].Vect().Mag());
   }
 };
 
@@ -115,7 +169,7 @@ class mass_filler1d: public filler1d {
   virtual void operator()(const vector<TLorentzVector> &p4s) {
     assert(p4s.size()>=part_idx.size());
     TLorentzVector pair = p4s[0] + p4s[1];
-    TH1F* htemp = dynamic_cast<TH1F*> hist;
+    TH1* htemp = dynamic_cast<TH1*>(hist);
     htemp->Fill(pair.M());
   }
   // This doesn't make sense for mass, it should be uncallable if possible
