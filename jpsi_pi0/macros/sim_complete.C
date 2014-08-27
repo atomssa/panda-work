@@ -42,12 +42,12 @@ sim_complete(int type /*1:Signal 0:Background */)
   else
     {
       BeamMomentum = mom;  // for DPM/EvtGen BeamMomentum is always = mom
-    }	
-  
+    }
+
   //------------------------------------------------------------------
   TStopwatch timer;
   timer.Start();
-  gRandom->SetSeed(); 
+  gRandom->SetSeed();
 
   // Create the Simulation run manager--------------------------------
   FairRunSim *fRun = new FairRunSim();
@@ -57,20 +57,20 @@ sim_complete(int type /*1:Signal 0:Background */)
   fRun->SetBeamMom(BeamMomentum);
   fRun->SetMaterials(MediaFile.Data());
   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
-  
-  // Set the parameters 
+
+  // Set the parameters
   //-------------------------------
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
   allDigiFile += "/macro/params/";
   allDigiFile += digiFile;
- 
- 
+
+
   //-------Set the parameter output --------------------
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
-  rtdb->setFirstInput(parIo1);        
+  rtdb->setFirstInput(parIo1);
 
-  //---------------------Set Parameter output      ---------- 
+  //---------------------Set Parameter output      ----------
   Bool_t kParameterMerged=kTRUE;
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open(ParOutputfile.Data());
@@ -81,8 +81,8 @@ sim_complete(int type /*1:Signal 0:Background */)
   //-------------------------  CAVE      -----------------
   FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
-  fRun->AddModule(Cave); 
-  //-------------------------  Magnet   ----------------- 
+  fRun->AddModule(Cave);
+  //-------------------------  Magnet   -----------------
   FairModule *Magnet= new PndMagnet("MAGNET");
   //Magnet->SetGeometryFileName("FullSolenoid_V842.root");
   Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
@@ -117,9 +117,9 @@ sim_complete(int type /*1:Signal 0:Background */)
   fRun->AddModule(SciT);
   //-------------------------  DRC       -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-  Drc->SetGeometryFileName("dirc_l0_p0_updated.root"); 
+  Drc->SetGeometryFileName("dirc_l0_p0_updated.root");
   Drc->SetRunCherenkov(kFALSE);
-  fRun->AddModule(Drc); 
+  fRun->AddModule(Drc);
   //-------------------------  DISC      -----------------
   PndDsk* Dsk = new PndDsk("DSK", kTRUE);
   Dsk->SetStoreCerenkovs(kFALSE);
@@ -137,7 +137,7 @@ sim_complete(int type /*1:Signal 0:Background */)
   //-------------------------  FTS       -----------------
   FairDetector *Fts= new PndFts("FTS", kTRUE);
   Fts->SetGeometryFileName("fts.geo");
-  fRun->AddModule(Fts); 
+  fRun->AddModule(Fts);
   //-------------------------  FTOF      -----------------
   FairDetector *FTof = new PndFtof("FTOF",kTRUE);
   FTof->SetGeometryFileName("ftofwall.root");
@@ -151,7 +151,7 @@ sim_complete(int type /*1:Signal 0:Background */)
   //-------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
-	 
+
   if(UseBoxGenerator){	// Box Generator
     FairBoxGenerator* boxGen = new FairBoxGenerator(22, 5); // 13 = muon; 1 = multipl.
     boxGen->SetPRange(mom,mom); // GeV/c
@@ -164,12 +164,12 @@ sim_complete(int type /*1:Signal 0:Background */)
     PndDpmGenerator* dpmGen = new PndDpmGenerator("filt_complete.root");
     primGen->AddGenerator(dpmGen);
   }
-  if(UseEvtGen){	
+  if(UseEvtGen){
     TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
-    EvtInput+="/input/psi2s_jpsi2pi_1k.evt";	
+    EvtInput+="/input/psi2s_jpsi2pi_1k.evt";
     FairEvtGenGenerator* evtGen = new FairEvtGenGenerator(EvtInput.Data());
     primGen->AddGenerator(evtGen);
-  }	
+  }
   if(UseEvtGenDirect){
     //TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
     //EvtInput+="/macro/run/psi2s_Jpsi2pi_Jpsi_mumu.dec";
@@ -177,9 +177,9 @@ sim_complete(int type /*1:Signal 0:Background */)
     PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem", EvtInput.Data(), mom);
     EvtGen->SetStoreTree(kTRUE);
     primGen->AddGenerator(EvtGen);
-  }	
+  }
 
-  //---------------------Create and Set the Field(s)---------- 
+  //---------------------Create and Set the Field(s)----------
   PndMultiField *fField= new PndMultiField("AUTO");
   fRun->SetField(fField);
 
@@ -187,23 +187,22 @@ sim_complete(int type /*1:Signal 0:Background */)
   //-------------------------------
   PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
   fRun->AddTask(emcHitProd);
-  
-  //-------------------------  Initialize the RUN  -----------------  
+
+  //-------------------------  Initialize the RUN  -----------------
   fRun->Init();
-  //-------------------------  Run the Simulation  -----------------   
+  //-------------------------  Run the Simulation  -----------------
   fRun->Run(nEvents);
-  //-------------------------  Save the parameters ----------------- 
+  //-------------------------  Save the parameters -----------------
   rtdb->saveOutput();
-  //------------------------Print some info and exit----------------     
+  //------------------------Print some info and exit----------------
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
-  
+
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
-  
+
   //exit(0);
 
-}  
-  
+}
