@@ -37,7 +37,7 @@ plab_index = int(sys.argv[1])
 my_utils.sim_type = my_utils.sim_bg
 my_utils.dpm_pbar_lab_mom = plabs[plab_index]
 my_utils.dpm_nevt_per_file = nevts[plab_index]
-my_utils.test_run = True
+my_utils.test_run = False
 
 start=int(sys.argv[2])
 number=int(sys.argv[3])
