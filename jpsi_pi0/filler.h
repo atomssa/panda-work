@@ -23,9 +23,7 @@ class filler {
   TNamed *hist;
   vector<int> pi;
  public:
- filler(const int &npart) : pi(npart) {
-    cout << "begin filler ctor hist pointer= " << hist << " npart= " << npart << endl;
-  }
+ filler(const int &npart) : pi(npart) {  }
   ~filler() { }
   virtual void operator()(const vector<TLorentzVector>&)=0;
   // if needs to be boosted by some
@@ -35,10 +33,10 @@ class filler {
     this->hist->SetName( Form("%s_%s", prefix, hist->GetName()) );
     this->hist->Write();
   }
-  TLorentzVector&& boost_transf(const TLorentzVector &vect_in, TVector3 boost) {
+  TLorentzVector boost_transf(const TLorentzVector &vect_in, TVector3 boost) {
     TLorentzVector vect_out(vect_in);
     vect_out.Boost(boost);
-    return move(vect_out);
+    return vect_out;
   }
 };
 
@@ -48,11 +46,8 @@ class filler1d: public filler {
  filler1d(const char* h_name, const char* h_title, const int &npart,
 	  const int &nbins, const float &min, const float &max ): filler(npart)
   {
-    cout << "begin filler1d ctor hist pointer before new = " << hist << endl;
     hist = new TH1F(h_name, h_title, nbins, min, max);
-    cout << "begin filler1d ctor hist pointer after new = " << hist << endl;
     ((TH1*)hist)->SetBins(nbins, min, max);
-    cout << "oops" << endl;
   }
   ~filler1d() {delete hist; }
   // Virtual overlaod function call operators to pass the 4momenta to be filled
@@ -69,11 +64,8 @@ class filler2d: public filler {
 	  const int &nbinsx, const float &xmin, const float &xmax,
 	  const int &nbinsy, const float &ymin, const float &ymax): filler(npart)
   {
-    cout << "begin filler1d ctor hist pointer before new = " << hist << endl;
     hist = new TH2F(h_name, h_title, nbinsx, xmin, xmax, nbinsy, ymin, ymax);
-    cout << "begin filler1d ctor hist pointer after new = " << hist << endl;
     ((TH2*)hist)->SetBins(nbinsx, xmin, xmax, nbinsy, ymin, ymax);
-    cout << "oops" << endl;
   }
   ~filler2d(){delete hist; }
   // Virtual overlaod function call operators to pass the 4momenta to be filled
