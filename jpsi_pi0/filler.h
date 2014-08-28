@@ -112,7 +112,8 @@ class the_filler1d: public filler1d {
   virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
     assert(p4s.size()>=pi.size());
     TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill( boost_transf(p4s[pi[0]], boost).Vect().Theta() );
+    //htemp->Fill( boost_transf(p4s[pi[0]], boost).Vect().Theta() );
+    htemp->Fill( boost_transf(p4s[pi[0]], boost).Vect().Angle(boost) );
   }
 };
 
@@ -131,9 +132,12 @@ class phi_filler1d: public filler1d {
     htemp->Fill(p4s[pi[0]].Vect().Phi());
   }
   virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
-    assert(p4s.size()>=pi.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill( boost_transf(p4s[pi[0]], boost).Vect().Phi() );
+    //assert(p4s.size()>=pi.size());
+    //TH1* htemp = dynamic_cast<TH1*>(hist);
+    //htemp->Fill( boost_transf(p4s[pi[0]], boost).Vect().Phi() );
+    cout << "Phi with lorentz boost in the frame of boost doesn't make sense i think... " << endl;
+    cout << "   because the boost has only a direction, not a frame wrt which phi can be calculated " << endl;
+    cout << "      so all the opening angle goes to theta " << endl;
   }
 };
 
