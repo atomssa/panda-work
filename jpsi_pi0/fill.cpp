@@ -11,6 +11,8 @@
 #include "TParticle.h"
 #include "TParticlePDG.h"
 #include "TClonesArray.h"
+#include "TMath.h"
+
 #include <iostream>
 #include <string>
 #include <algorithm>
@@ -21,6 +23,8 @@
 using namespace std;
 
 static const double rtd= TMath::RadToDeg();
+static const double m_2pi = 2.0*TMath::Pi();
+static const double m_pi = TMath::Pi();
 
 bool compare_unsorted(const vector<int>&, const vector<int>&);
 bool compare_sorted(const vector<int>&, const vector<int>&);
@@ -28,9 +32,15 @@ bool compare_sorted(const vector<int>&, const vector<int>&);
 void print_event(const vector<int>&);
 void print_log(int, int, vector<int>&);
 
+bool accept_pc(const TLorentzVector &v);
+bool accept_pi0(const TLorentzVector &v);
+bool accept_elec(const TLorentzVector &v);
+
 int main(const int argc, const char **argv) {
 
+
   bool verb = false;
+
   if (argc<2) {
     std::cout << "Need one argument [file-name]" << std::endl;
     return -1;
@@ -46,6 +56,15 @@ int main(const int argc, const char **argv) {
     data_in->AddFile(root_file.c_str());
   }
 
+  const double m_prot= 0.938;
+  const double p_antip = 5.513;
+  const double E_antip = TMath::Hypot(m_prot, p_antip);
+  const double beta_cm = p_antip/(E_antip + m_prot);
+  cout << "betac_cm = " << beta_cm << endl;
+  const TVector3 boost_vector(0,0,-beta_cm);
+  boost_vector.Print();
+
+
   TClonesArray *part_array = new TClonesArray("TParticle");
   data_in->SetBranchAddress("Particles",&part_array);
 
@@ -54,10 +73,33 @@ int main(const int argc, const char **argv) {
   ref1.push_back(111);
   ref1.push_back(211);
 
-  const char *pp[] = {"pim", "pi0", "pip"};
-  std::vector<filler*> fillers;
-  fillers.push_back(new mom_filler1d(1, pp[1], 200, 0, 6));
-  fillers.push_back(new mass_filler1d(0, 2, pp[0], pp[2], 200, 0, 5));
+  const char *pp[] = {"pim", "pi0", "pip", "pipm"};
+  std::vector<filler*> fillers_lab;
+
+  // (pi0) mom and angles
+  fillers_lab.push_back(new mom_filler1d(1, pp, 200, 0, 6));
+  fillers_lab.push_back(new the_filler1d(1, pp, 200, 0, m_pi));
+  fillers_lab.push_back(new phi_filler1d(1, pp, 200, -m_pi, m_pi));
+
+  // (pi+) - (pi-) system mass, mom and angles
+  fillers_lab.push_back(new pair_mass_filler1d(0, 2, pp, 200, 0, 5));
+  fillers_lab.push_back(new pair_mom_filler1d(0, 2, pp, 200, 0, 6));
+  fillers_lab.push_back(new pair_the_filler1d(0, 2, pp, 200, 0, m_pi));
+  fillers_lab.push_back(new pair_phi_filler1d(0, 2, pp, 200, -m_pi, m_pi));
+
+  // (pi+pi-) - (pi0) system opening angles
+  //fillers_lab.push_back(new pair_azim_oa_filler1d(1, 4, pp, 200, -m_pi, m_pi));
+  //fillers_lab.push_back(new pair_polar_oa_filler1d(1, 4, pp, 200, -m_pi, m_pi));
+
+
+  std::vector<filler*> fillers_cm;
+  fillers_cm.push_back(new mom_filler1d(1, pp, 200, 0, 6));
+  fillers_cm.push_back(new the_filler1d(1, pp, 200, 0, m_pi));
+  fillers_cm.push_back(new phi_filler1d(1, pp, 200, -m_pi, m_pi));
+  fillers_cm.push_back(new pair_mom_filler1d(0, 2, pp, 200, 0, 6));
+  fillers_cm.push_back(new pair_the_filler1d(0, 2, pp, 200, 0, m_pi));
+  fillers_cm.push_back(new pair_phi_filler1d(0, 2, pp, 200, -m_pi, m_pi));
+
 
   const int Nevt = data_in->GetEntries();
 
@@ -73,11 +115,8 @@ int main(const int argc, const char **argv) {
       std::cout << "npart= " << npart << std::endl;
     }
 
-    std::vector<int> pdg_codes;
-    std::vector<int> indices(3);
-    std::vector<TParticle*> parts(3);
-
-    TLorentzVector p4pi0, p4pip, p4pim, p4pic;
+    TLorentzVector p4pi0, p4pip, p4pim, p4pipm;
+    int cpi0=0,cpip=0,cpim=0;
     for (int ipart=0; ipart < npart; ++ipart) {
       const TParticle* part = (TParticle*) part_array->At(ipart);
       if (verb) {
@@ -86,42 +125,54 @@ int main(const int argc, const char **argv) {
 	part->Print();
       }
       int pdg = part->GetPDG()->PdgCode();
-      if (pdg==-211) indices[0] = ipart;
-      if (pdg==111) indices[1] = ipart;
-      if (pdg==211) indices[2] = ipart;
-      pdg_codes.push_back(part->GetPDG()->PdgCode());
-
       // This would insure ordering
-      if ( pdg == -211 ) ((TParticle*)part_array->At(ipart))->Momentum(p4pim);
-      if ( pdg == 111  ) ((TParticle*)part_array->At(ipart))->Momentum(p4pim);
-      if ( pdg == 211  ) ((TParticle*)part_array->At(ipart))->Momentum(p4pim);
+      if ( pdg == -211 ) { ((TParticle*)part_array->At(ipart))->Momentum(p4pim); cpim++; }
+      if ( pdg == 111  ) { ((TParticle*)part_array->At(ipart))->Momentum(p4pi0); cpi0++; }
+      if ( pdg == 211  ) { ((TParticle*)part_array->At(ipart))->Momentum(p4pip); cpip++; }
     }
-    std::sort(pdg_codes.begin(),pdg_codes.end());
+    p4pipm = p4pip + p4pim;
 
-    //if (!compare_sorted(pdg_codes,ref1)) {
-    //  if (verb) print_log(ievt, npart, pdg_codes);
-    //  std::cout << "Event not good" << std::endl;
-    //}
-    //type1_count++;
+    // check event type
+    if ( cpim!=1 || cpip!=1 || cpi0!=1 ) {
+      std::cout << "Event wrong type " << cpim << " pi- " << cpip << " pi+ " << cpi0 << " pi0 found where 1 expected" << std::endl;
+      continue;
+    }
+
+    // check acceptance
+    //if (!accept_pc(p4pim)||!accept_pc(p4pip)||accept_pi0(p4pi0)) continue;
 
     vector<TLorentzVector> p4s;
-
     p4s.push_back(p4pim);
     p4s.push_back(p4pi0);
     p4s.push_back(p4pip);
+    p4s.push_back(p4pipm);
 
-    for (auto fill: fillers) (*fill)(p4s);
+    for (auto fill: fillers_lab) (*fill)(p4s);
+    for (auto fill: fillers_cm) (*fill)(p4s,boost_vector);
 
   }
 
   TFile *fout = TFile::Open("out.root","RECREATE");
   fout->cd();
-  for (auto fill: fillers) fill->Write();
+  for (auto fill: fillers_lab) fill->Write("lab");
+  for (auto fill: fillers_cm) fill->Write("cm");
   fout->Write();
   fout->Close();
 
   return 0;
 
+}
+
+bool accept_pc(const TLorentzVector &v) {
+  return true;
+}
+
+bool accept_pi0(const TLorentzVector &v) {
+  return true;
+}
+
+bool accept_elec(const TLorentzVector &v) {
+  return true;
 }
 
 

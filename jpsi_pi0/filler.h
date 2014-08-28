@@ -1,5 +1,6 @@
 #include <TH1F.h>
 #include "TLorentzVector.h"
+#include "TVector3.h"
 #include <TH2F.h>
 #include "TNamed.h"
 #include <vector>
@@ -14,29 +15,35 @@ using std::string;
 using std::vector;
 using std::cout;
 using std::endl;
+using std::move;
 
+//____________
 class filler {
  protected:
   TNamed *hist;
-  vector<int> part_idx;
+  vector<int> pi;
  public:
-
- filler(const int &npart) : part_idx(npart) {
+ filler(const int &npart) : pi(npart) {
     cout << "begin filler ctor hist pointer= " << hist << " npart= " << npart << endl;
   }
-
-  ~filler() { delete hist; }
-
+  ~filler() { }
   virtual void operator()(const vector<TLorentzVector>&)=0;
   // if needs to be boosted by some
-  virtual void operator()(const vector<TLorentzVector>&, const TLorentzVector&)=0;
-
+  virtual void operator()(const vector<TLorentzVector>&, const TVector3&)=0;
   void Write() { this->hist->Write(); }
-
+  void Write(const char* prefix) {
+    this->hist->SetName( Form("%s_%s", prefix, hist->GetName()) );
+    this->hist->Write();
+  }
+  TLorentzVector&& boost_transf(const TLorentzVector &vect_in, TVector3 boost) {
+    TLorentzVector vect_out(vect_in);
+    vect_out.Boost(boost);
+    return move(vect_out);
+  }
 };
 
+//_____________________________
 class filler1d: public filler {
-
  public:
  filler1d(const char* h_name, const char* h_title, const int &npart,
 	  const int &nbins, const float &min, const float &max ): filler(npart)
@@ -47,37 +54,15 @@ class filler1d: public filler {
     ((TH1*)hist)->SetBins(nbins, min, max);
     cout << "oops" << endl;
   }
-
-  /*
- filler1d(string h_name, string h_title, int npart, const int &nbins, const float &min, const float &max ):
-  hist(),part_idx(npart)
-  {
-    hist.SetNameTitle(h_name.c_str(),h_title.c_str());
-    hist.SetBins(nbins, min, max);
-  }
-
- filler1d(string h_name, string h_title, const vector<int> &_part_idx, const int &nbins, const float &min, const float &max ):
-  hist(),part_idx(_part_idx.size())
-    {
-      // constraints
-      assert(part_idx.size()>0);
-      // initialization of members
-      part_idx = _part_idx; // copy ctor
-      hist.SetNameTitle(h_name.c_str(),h_title.c_str());
-      hist.SetBins(nbins, min, max);
-    }
-  */
-
+  ~filler1d() {delete hist; }
   // Virtual overlaod function call operators to pass the 4momenta to be filled
   virtual void operator()(const vector<TLorentzVector>&)=0;
   // if needs to be boosted by some
-  virtual void operator()(const vector<TLorentzVector>&, const TLorentzVector&)=0;
-
+  virtual void operator()(const vector<TLorentzVector>&, const TVector3&)=0;
   TH1* getHist() {return dynamic_cast<TH1*>(hist); }
-
 };
 
-
+//_____________________________
 class filler2d: public filler {
  public:
  filler2d(const char* h_name, const char* h_title, const int &npart,
@@ -90,92 +75,145 @@ class filler2d: public filler {
     ((TH2*)hist)->SetBins(nbinsx, xmin, xmax, nbinsy, ymin, ymax);
     cout << "oops" << endl;
   }
-  /*
- filler2d(string h_name, string h_title, int npart, const int &nbins, const float &min, const float &max ):
-  hist(),part_idx(npart)
-  {
-    hist.SetNameTitle(h_name.c_str(),h_title.c_str());
-    hist.SetBins(nbins, min, max);
-  }
-
- filler2d(string h_name, string h_title, const vector<int> &_part_idx, const int &nbins, const float &min, const float &max ):
-  hist(),part_idx(_part_idx.size())
-    {
-      // constraints
-      assert(part_idx.size()>0);
-      // initialization of members
-      part_idx = _part_idx; // copy ctor
-      hist.SetNameTitle(h_name.c_str(),h_title.c_str());
-      hist.SetBins(nbins, min, max);
-    }
-  */
+  ~filler2d(){delete hist; }
   // Virtual overlaod function call operators to pass the 4momenta to be filled
   virtual void operator()(const vector<TLorentzVector>&)=0;
   // if needs to be boosted by some
-  virtual void operator()(const vector<TLorentzVector>&, const TLorentzVector&)=0;
-
+  virtual void operator()(const vector<TLorentzVector>&, const TVector3&)=0;
   TH2* getHist() {return dynamic_cast<TH2*>(hist); }
-
 };
-
-
 
 class mom_filler1d: public filler1d {
  public:
-
- //mom_filler1d(vector<string> part_name, const vector<int> &_part_idx, const int &nbins, const float &min, const float &max):
- // filler1d(Form("mom_%s",part_name[_part_idx[0]].c_str()),
- //	   Form("mom_%s",part_name[_part_idx[0]].c_str()),
- //	   _part_idx, nbins, min, max) {
- //   assert( _part_idx.size()==1 );
- //   assert( part_name.size()==_part_idx.size() );
- // }
-
- mom_filler1d(const int &_part_idx, const char *part_name, const int &nbins, const float &min, const float &max):
-  filler1d(Form("mom_%s",part_name), Form("mom_%s",part_name), 1, nbins, min, max) {
-    part_idx[0] = _part_idx;
+ mom_filler1d(const int &_i, const char* names[], const int &nbins, const float &min, const float &max):
+  filler1d(Form("mom_%s",names[_i]), Form("mom_%s",names[1]), 1, nbins, min, max) {
+    pi[0] = _i;
   }
-
   virtual void operator()(const vector<TLorentzVector> &p4s) {
-    assert(p4s.size()>=part_idx.size());
+    assert(p4s.size()>=pi.size());
     TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill(p4s[part_idx[0]].Vect().Mag());
+    htemp->Fill(p4s[pi[0]].Vect().Mag());
   }
-  virtual void operator()(const vector<TLorentzVector> &p4s, const TLorentzVector &boost) {
-    assert(p4s.size()>=part_idx.size());
+  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
+    assert(p4s.size()>=pi.size());
     TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill(p4s[part_idx[0]].Vect().Mag());
+    htemp->Fill( boost_transf(p4s[pi[0]], boost).Vect().Mag() );
   }
 };
 
-
-class mass_filler1d: public filler1d {
+//___________________________________
+class the_filler1d: public filler1d {
  public:
-
- //mass_filler1d(vector<string> part_name, const vector<int> &_part_idx, const int &nbins, const float &min, const float &max):
- // filler1d(Form("mass_%s_%s",part_name[_part_idx[0]].c_str(),part_name[_part_idx[1]].c_str()),
- //	   Form("mass_%s_%s",part_name[_part_idx[0]].c_str(),part_name[_part_idx[1]].c_str()),
- //	   _part_idx, nbins, min, max) {
- //   assert( _part_idx.size() == 2 );
- //   assert( part_name.size() == _part_idx.size() );
- // }
-
- mass_filler1d(const int &part0_idx, const int &part1_idx, const char* part1_name, const char *part2_name, const int &nbins, const float &min, const float &max):
-  filler1d(Form("mass_%s_%s",part1_name,part2_name), Form("mass_%s_%s",part2_name,part2_name),2, nbins, min, max) {
-    part_idx[0] = part0_idx;
-    part_idx[1] = part1_idx;
+ the_filler1d(const int &_i, const char* names[], const int &nbins, const float &min, const float &max):
+  filler1d(Form("the_%s",names[_i]), Form("the_%s",names[_i]), 1, nbins, min, max) {
+    pi[0] = _i;
   }
-
   virtual void operator()(const vector<TLorentzVector> &p4s) {
-    assert(p4s.size()>=part_idx.size());
-    TLorentzVector pair = p4s[0] + p4s[1];
+    assert(p4s.size()>=pi.size());
     TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill(pair.M());
+    htemp->Fill(p4s[pi[0]].Vect().Theta());
+  }
+  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
+    assert(p4s.size()>=pi.size());
+    TH1* htemp = dynamic_cast<TH1*>(hist);
+    htemp->Fill( boost_transf(p4s[pi[0]], boost).Vect().Theta() );
+  }
+};
+
+//___________________________________
+class phi_filler1d: public filler1d {
+ public:
+ phi_filler1d(const int &_i, const char* names[], const int &nbins, const float &min, const float &max):
+  filler1d(Form("phi_%s",names[_i]), Form("phi_%s",names[_i]), 1, nbins, min, max) {
+    pi[0] = _i;
+  }
+  virtual void operator()(const vector<TLorentzVector> &p4s) {
+    assert(p4s.size()>=pi.size());
+    TH1* htemp = dynamic_cast<TH1*>(hist);
+    htemp->Fill(p4s[pi[0]].Vect().Phi());
+  }
+  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
+    assert(p4s.size()>=pi.size());
+    TH1* htemp = dynamic_cast<TH1*>(hist);
+    htemp->Fill( boost_transf(p4s[pi[0]], boost).Vect().Phi() );
+  }
+};
+
+//_______________________________________
+class pair_mass_filler1d: public filler1d {
+ public:
+ pair_mass_filler1d(const int &_i0, const int &_i1, const char* names[], const int &nbins, const float &min, const float &max):
+  filler1d(Form("mass_%s_%s",names[_i0],names[_i1]), Form("mass_%s_%s",names[_i0],names[_i1]),2, nbins, min, max) {
+    pi[0] = _i0;
+    pi[1] = _i1;
+  }
+  virtual void operator()(const vector<TLorentzVector> &p4s) {
+    assert(p4s.size()>=pi.size());
+    TH1* htemp = dynamic_cast<TH1*>(hist);
+    htemp->Fill( (p4s[pi[0]]+p4s[pi[1]]).M());
   }
   // This doesn't make sense for mass, it should be uncallable if possible
-  virtual void operator()(const vector<TLorentzVector> &p4s, const TLorentzVector &boost) {
-
+  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
     cout << "Mass with lorentz boost == mass without :P " << endl;
   }
+};
 
+//_________________________________________
+class pair_the_filler1d: public filler1d {
+ public:
+ pair_the_filler1d(const int &_i0, const int &_i1, const char *names[], const int &nbins, const float &min, const float &max):
+  filler1d(Form("p_the_%s_%s",names[_i0],names[_i1]), Form("p_the_%s_%s",names[_i0],names[_i1]),2, nbins, min, max) {
+    pi[0] = _i0;
+    pi[1] = _i1;
+  }
+  virtual void operator()(const vector<TLorentzVector> &p4s) {
+    assert(p4s.size()>=pi.size());
+    TH1* htemp = dynamic_cast<TH1*>(hist);
+    htemp->Fill( (p4s[pi[0]] + p4s[pi[0]]).Vect().Theta() );
+  }
+  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
+    assert(p4s.size()>=pi.size());
+    TH1* htemp = dynamic_cast<TH1*>(hist);
+    htemp->Fill( boost_transf( ( p4s[pi[0]] + p4s[pi[1]] ), boost).Vect().Theta() );
+  }
+};
+
+//_________________________________________
+class pair_phi_filler1d: public filler1d {
+ public:
+ pair_phi_filler1d(const int &_i0, const int &_i1, const char *names[], const int &nbins, const float &min, const float &max):
+  filler1d(Form("p_phi_%s_%s",names[_i0],names[_i1]), Form("p_phi_%s_%s",names[_i0],names[_i1]),2, nbins, min, max) {
+    pi[0] = _i0;
+    pi[1] = _i1;
+  }
+  virtual void operator()(const vector<TLorentzVector> &p4s) {
+    assert(p4s.size()>=pi.size());
+    TH1* htemp = dynamic_cast<TH1*>(hist);
+    htemp->Fill( (p4s[pi[0]] + p4s[pi[0]]).Vect().Phi() );
+  }
+  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
+    assert(p4s.size()>=pi.size());
+    TH1* htemp = dynamic_cast<TH1*>(hist);
+    htemp->Fill( boost_transf( ( p4s[pi[0]] + p4s[pi[1]] ), boost).Vect().Phi() );
+  }
+};
+
+//_________________________________________
+class pair_mom_filler1d: public filler1d {
+ public:
+ pair_mom_filler1d(const int &_i0, const int &_i1, const char* names[], const int &nbins, const float &min, const float &max):
+  filler1d(Form("p_mom_%s_%s",names[_i0],names[_i1]), Form("p_mom_%s_%s",names[_i0],names[_i1]),2, nbins, min, max) {
+    pi[0] = _i0;
+    pi[1] = _i1;
+  }
+  virtual void operator()(const vector<TLorentzVector> &p4s) {
+    assert(p4s.size()>=pi.size());
+    TH1* htemp = dynamic_cast<TH1*>(hist);
+    htemp->Fill( (p4s[pi[0]] + p4s[pi[0]]).Vect().Mag() );
+  }
+  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
+    assert(p4s.size()>=pi.size());
+    TH1* htemp = dynamic_cast<TH1*>(hist);
+    htemp->Fill( boost_transf( ( p4s[pi[0]] + p4s[pi[1]] ), boost).Vect().Mag() );
+  }
 };
