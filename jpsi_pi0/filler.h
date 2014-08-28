@@ -77,9 +77,9 @@ class filler2d: public filler {
 
 class mom_filler1d: public filler1d {
  public:
- mom_filler1d(const int &_i, const char* names[], const int &nbins, const float &min, const float &max, const char* f="lab", const char* t[]=nullptr):
-  filler1d(Form("mom_%s",names[_i]),
-	   t!=nullptr?Form("%s momentum (%s frame);p_{%s}[GeV/c^2]",t[_i],f,t[_i]):Form("mom_%s",names[_i]),
+ mom_filler1d(const int &_i, const char* names[], const int &nbins, const float &min, const float &max, const char* f[], const char* t[]=nullptr):
+  filler1d(Form("%s_mom_%s",f[0], names[_i]),
+	   t!=nullptr?Form("%s momentum (%s frame);p_{%s}[GeV/c^2]",t[_i],f[1],t[_i]):Form("mom_%s",names[_i]),
 	   1, nbins, min, max) {
     pi[0] = _i;
   }
@@ -98,9 +98,9 @@ class mom_filler1d: public filler1d {
 //___________________________________
 class the_filler1d: public filler1d {
  public:
- the_filler1d(const int &_i, const char* names[], const int &nbins, const float &min, const float &max, const char* f="lab", const char* t[]=nullptr):
-  filler1d(Form("the_%s",names[_i]),
-	   t!=nullptr?Form("%s #theta (%s frame);#theta_{%s}[rad]",t[_i],f,t[_i]):Form("the_%s",names[_i]),
+ the_filler1d(const int &_i, const char* names[], const int &nbins, const float &min, const float &max, const char* f[], const char* t[]=nullptr):
+  filler1d(Form("%s_the_%s",f[0],names[_i]),
+	   t!=nullptr?Form("%s #theta (%s frame);#theta_{%s}[rad]",t[_i],f[1],t[_i]):Form("the_%s",names[_i]),
 	   1, nbins, min, max) {
     pi[0] = _i;
   }
@@ -120,9 +120,9 @@ class the_filler1d: public filler1d {
 //___________________________________
 class phi_filler1d: public filler1d {
  public:
- phi_filler1d(const int &_i, const char* names[], const int &nbins, const float &min, const float &max, const char* f="lab", const char* t[]=nullptr):
-  filler1d(Form("phi_%s",names[_i]),
-	   t!=nullptr?Form("%s #phi (%s frame);#phi_{%s}[rad]",t[_i],f,t[_i]):Form("phi_%s",names[_i]),
+ phi_filler1d(const int &_i, const char* names[], const int &nbins, const float &min, const float &max, const char* f[], const char* t[]=nullptr):
+  filler1d(Form("%s_phi_%s",f[0],names[_i]),
+	   t!=nullptr?Form("%s #phi (%s frame);#phi_{%s}[rad]",t[_i],f[1],t[_i]):Form("phi_%s",names[_i]),
 	   1, nbins, min, max) {
     pi[0] = _i;
   }
@@ -144,7 +144,7 @@ class phi_filler1d: public filler1d {
 //_______________________________________
 class pair_mass_filler1d: public filler1d {
  public:
- pair_mass_filler1d(const int &_i0, const int &_i1, const char* names[], const int &nbins, const float &min, const float &max, const char *f, const char* t[]=nullptr):
+ pair_mass_filler1d(const int &_i0, const int &_i1, const char* names[], const int &nbins, const float &min, const float &max, const char *f[], const char* t[]=nullptr):
   filler1d(Form("mass_%s_%s",names[_i0],names[_i1]),
 	   t!=nullptr?Form("%s-%s pair invariant mass;M^{inv}_{%s-%s}",t[_i0],t[_i1],t[_i0],t[_i1]):Form("mass_%s_%s",names[_i0],names[_i1]),
 	   2, nbins, min, max) {
@@ -165,9 +165,9 @@ class pair_mass_filler1d: public filler1d {
 //_________________________________________
 class pair_the_filler1d: public filler1d {
  public:
- pair_the_filler1d(const int &_i0, const int &_i1, const char *names[], const int &nbins, const float &min, const float &max, const char *f, const char* t[]=nullptr):
-  filler1d(Form("p_the_%s_%s",names[_i0],names[_i1]),
-	   t!=nullptr?Form("%s-%s pair polar angle #theta (%s frame);#theta_{%s-%s}",t[_i0],t[_i1],f,t[_i0],t[_i1]):Form("the_%s_%s",names[_i0],names[_i1]),
+ pair_the_filler1d(const int &_i0, const int &_i1, const char *names[], const int &nbins, const float &min, const float &max, const char *f[], const char* t[]=nullptr):
+  filler1d(Form("%s_p_the_%s_%s",f[0],names[_i0],names[_i1]),
+	   t!=nullptr?Form("%s-%s pair polar angle #theta (%s frame);#theta_{%s-%s}",t[_i0],t[_i1],f[1],t[_i0],t[_i1]):Form("the_%s_%s",names[_i0],names[_i1]),
 	   2, nbins, min, max) {
     pi[0] = _i0;
     pi[1] = _i1;
@@ -175,7 +175,7 @@ class pair_the_filler1d: public filler1d {
   virtual void operator()(const vector<TLorentzVector> &p4s) {
     assert(p4s.size()>=pi.size());
     TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill( (p4s[pi[0]] + p4s[pi[0]]).Vect().Theta() );
+    htemp->Fill( (p4s[pi[0]] + p4s[pi[1]]).Vect().Theta() );
   }
   virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
     assert(p4s.size()>=pi.size());
@@ -187,9 +187,9 @@ class pair_the_filler1d: public filler1d {
 //_________________________________________
 class pair_phi_filler1d: public filler1d {
  public:
- pair_phi_filler1d(const int &_i0, const int &_i1, const char *names[], const int &nbins, const float &min, const float &max, const char *f, const char* t[]=nullptr):
-  filler1d(Form("p_phi_%s_%s",names[_i0],names[_i1]),
-	   t!=nullptr?Form("%s-%s pair azimutal angle #phi (%s frame);#phi_{%s-%s}",t[_i0],t[_i1],f,t[_i0],t[_i1]):Form("the_%s_%s",names[_i0],names[_i1]),
+ pair_phi_filler1d(const int &_i0, const int &_i1, const char *names[], const int &nbins, const float &min, const float &max, const char *f[], const char* t[]=nullptr):
+  filler1d(Form("%s_p_phi_%s_%s",f[0],names[_i0],names[_i1]),
+	   t!=nullptr?Form("%s-%s pair azimutal angle #phi (%s frame);#phi_{%s-%s}",t[_i0],t[_i1],f[1],t[_i0],t[_i1]):Form("the_%s_%s",names[_i0],names[_i1]),
 	   2, nbins, min, max) {
     pi[0] = _i0;
     pi[1] = _i1;
@@ -197,7 +197,7 @@ class pair_phi_filler1d: public filler1d {
   virtual void operator()(const vector<TLorentzVector> &p4s) {
     assert(p4s.size()>=pi.size());
     TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill( (p4s[pi[0]] + p4s[pi[0]]).Vect().Phi() );
+    htemp->Fill( (p4s[pi[0]] + p4s[pi[1]]).Vect().Phi() );
   }
   virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
     assert(p4s.size()>=pi.size());
@@ -209,9 +209,9 @@ class pair_phi_filler1d: public filler1d {
 //_________________________________________
 class pair_mom_filler1d: public filler1d {
  public:
- pair_mom_filler1d(const int &_i0, const int &_i1, const char* names[], const int &nbins, const float &min, const float &max, const char *f, const char* t[]):
-  filler1d(Form("p_mom_%s_%s",names[_i0],names[_i1]),
-	   t!=nullptr?Form("%s-%s pair momentum (%s frame);p_{%s-%s}",t[_i0],t[_i1],f,t[_i0],t[_i1]):Form("p_mom_%s_%s",names[_i0],names[_i1]),
+ pair_mom_filler1d(const int &_i0, const int &_i1, const char* names[], const int &nbins, const float &min, const float &max, const char *f[], const char* t[]):
+  filler1d(Form("%s_p_mom_%s_%s",f[0],names[_i0],names[_i1]),
+	   t!=nullptr?Form("%s-%s pair momentum (%s frame);p_{%s-%s}",t[_i0],t[_i1],f[1],t[_i0],t[_i1]):Form("p_mom_%s_%s",names[_i0],names[_i1]),
 	   2, nbins, min, max) {
     pi[0] = _i0;
     pi[1] = _i1;
@@ -219,11 +219,57 @@ class pair_mom_filler1d: public filler1d {
   virtual void operator()(const vector<TLorentzVector> &p4s) {
     assert(p4s.size()>=pi.size());
     TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill( ( p4s[pi[0]] + p4s[pi[0]] ).Vect().Mag() );
+    htemp->Fill( ( p4s[pi[0]] + p4s[pi[1]] ).Vect().Mag() );
   }
   virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
     assert(p4s.size()>=pi.size());
     TH1* htemp = dynamic_cast<TH1*>(hist);
     htemp->Fill( boost_transf( ( p4s[pi[0]] + p4s[pi[1]] ), boost).Vect().Mag() );
+  }
+};
+
+//_______________________________________
+class pair_oa_filler1d: public filler1d {
+ public:
+ pair_oa_filler1d(const int &_i0, const int &_i1, const char* names[], const int &nbins, const float &min, const float &max, const char *f[], const char* t[]):
+  filler1d(Form("%s_p_oa_%s_%s",f[0],names[_i0],names[_i1]),
+	   t!=nullptr?Form("%s-%s pair opening angle (%s frame);p_{%s-%s}",t[_i0],t[_i1],f[1],t[_i0],t[_i1]):Form("p_oa_%s_%s",names[_i0],names[_i1]),
+	   2, nbins, min, max) {
+    pi[0] = _i0;
+    pi[1] = _i1;
+  }
+  virtual void operator()(const vector<TLorentzVector> &p4s) {
+    assert(p4s.size()>=pi.size());
+    TH1* htemp = dynamic_cast<TH1*>(hist);
+    htemp->Fill( p4s[pi[0]].Vect().Angle( p4s[pi[1]].Vect() )  );
+  }
+  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
+    assert(p4s.size()>=pi.size());
+    TH1* htemp = dynamic_cast<TH1*>(hist);
+    TLorentzVector bp4_0 = boost_transf(p4s[pi[0]], boost);
+    TLorentzVector bp4_1 = boost_transf(p4s[pi[1]], boost);
+    htemp->Fill( bp4_0.Vect().Angle( bp4_1.Vect() ) );
+  }
+};
+
+//_______________________________________
+class dalitz_filler2d: public filler2d {
+ public:
+ dalitz_filler2d(const int &_i0, const int &_i1, const int &_i2, const char* names[], const int &nbins, const float &min, const float &max, const char *f[], const char* t[]):
+  filler2d(Form("dalitz_%s_%s_%s",names[_i0],names[_i1],names[_i2]),
+	   t!=nullptr?Form("%s-%s-%s dalitz; M^{inv}_{%s-%s}; M^{inv}_{%s-%s}",t[_i0],t[_i1],t[_i2],t[_i0],t[_i1],t[_i1],t[_i2]):
+	   Form("dalitz_%s_%s_%s",names[_i0],names[_i1],names[_i2]),
+	   3, nbins, min, max, nbins, min, max) {
+    pi[0] = _i0;
+    pi[1] = _i1;
+    pi[2] = _i2;
+  }
+  virtual void operator()(const vector<TLorentzVector> &p4s) {
+    assert(p4s.size()>=pi.size());
+    TH1* htemp = dynamic_cast<TH1*>(hist);
+    htemp->Fill( (p4s[pi[0]]+p4s[pi[1]]).M(), (p4s[pi[1]]+p4s[pi[2]]).M() );
+  }
+  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
+    cout << "Dalitz plot with lorentz boost == dalitz plot without :P " << endl;
   }
 };

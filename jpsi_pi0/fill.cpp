@@ -63,7 +63,7 @@ int main(const int argc, const char **argv) {
   cout << "betac_cm = " << beta_cm << endl;
   const TVector3 boost_vector(0,0,-beta_cm);
   boost_vector.Print();
-
+  const double m_max = 1.1 * TMath::Sqrt(2*m_prot + 2*p_antip*m_prot);
 
   TClonesArray *part_array = new TClonesArray("TParticle");
   data_in->SetBranchAddress("Particles",&part_array);
@@ -74,31 +74,35 @@ int main(const int argc, const char **argv) {
   ref1.push_back(211);
 
   const char *pp[] = {"pim", "pi0", "pip", "pipm"};
-  const char *pp_title[] = {"#pi^{+}", "#pi^{0}", "#pi^{-}", "#pi^{+}-#pi^{-}"};
+  const char *pp_title[] = {"#pi^{+}", "#pi^{0}", "#pi^{-}", "(#pi^{+}#pi^{-})"};
   std::vector<filler*> fillers_lab;
 
   // (pi0) mom and angles
-  fillers_lab.push_back(new mom_filler1d(1, pp, 200, 0, 6, "lab", pp_title));
-  fillers_lab.push_back(new the_filler1d(1, pp, 200, 0, m_pi, "lab", pp_title));
-  fillers_lab.push_back(new phi_filler1d(1, pp, 200, -m_pi, m_pi, "lab", pp_title));
+  const char *lab_frame[] = {"lab","Lab"};
+  fillers_lab.push_back(new mom_filler1d(1, pp, 200, 0, 6, lab_frame, pp_title));
+  fillers_lab.push_back(new the_filler1d(1, pp, 200, 0, m_pi, lab_frame, pp_title));
+  fillers_lab.push_back(new phi_filler1d(1, pp, 200, -m_pi, m_pi, lab_frame, pp_title));
 
   // (pi+) - (pi-) system mass, mom and angles
   //fillers_lab.push_back(new pair_mass_filler1d(0, 2, pp, 200, 0, 5, Form("#pi^{+}-#pi^{+} pair invariant mass;M^{inv}_{#pi^{+}-#pi^{+}}")));
-  fillers_lab.push_back(new pair_mass_filler1d(0, 2, pp, 200, 0, 5, "", pp_title));
-  fillers_lab.push_back(new pair_mom_filler1d(0, 2, pp, 200, 0, 6, "lab", pp_title));
-  fillers_lab.push_back(new pair_the_filler1d(0, 2, pp, 200, 0, m_pi, "lab", pp_title));
-  fillers_lab.push_back(new pair_phi_filler1d(0, 2, pp, 200, -m_pi, m_pi, "lab", pp_title));
+  fillers_lab.push_back(new pair_mom_filler1d(0, 2, pp, 200, 0, 6, lab_frame, pp_title));
+  fillers_lab.push_back(new pair_the_filler1d(0, 2, pp, 200, 0, m_pi, lab_frame, pp_title));
+  fillers_lab.push_back(new pair_phi_filler1d(0, 2, pp, 200, -m_pi, m_pi, lab_frame, pp_title));
+  fillers_lab.push_back(new pair_oa_filler1d(0, 2, pp, 200, 0, m_pi, lab_frame, pp_title));
+  fillers_lab.push_back(new pair_oa_filler1d(1, 3, pp, 200, 0, m_pi, lab_frame, pp_title));
 
-  // (pi+pi-) - (pi0) system opening angles
-  //fillers_lab.push_back(new pair_azim_oa_filler1d(1, 4, pp, 200, -m_pi, m_pi));
-  //fillers_lab.push_back(new pair_polar_oa_filler1d(1, 4, pp, 200, -m_pi, m_pi));
-
+  // frame independent ones
+  fillers_lab.push_back(new pair_mass_filler1d(0, 2, pp, 200, 0, m_max, nullptr, pp_title));
+  fillers_lab.push_back(new dalitz_filler2d(0, 2, 1, pp, 200, 0, m_max, nullptr, pp_title));
 
   std::vector<filler*> fillers_cm;
-  fillers_cm.push_back(new mom_filler1d(1, pp, 200, 0, 6, "cm", pp_title));
-  fillers_cm.push_back(new the_filler1d(1, pp, 200, 0, m_pi, "cm", pp_title));
-  fillers_cm.push_back(new pair_mom_filler1d(0, 2, pp, 200, 0, 6, "cm", pp_title));
-  fillers_cm.push_back(new pair_the_filler1d(0, 2, pp, 200, 0, m_pi, "cm", pp_title));
+  const char *cm_frame[] = {"cm","CM"};
+  fillers_cm.push_back(new mom_filler1d(1, pp, 200, 0, 6, cm_frame, pp_title));
+  fillers_cm.push_back(new the_filler1d(1, pp, 200, 0, m_pi, cm_frame, pp_title));
+  fillers_cm.push_back(new pair_mom_filler1d(0, 2, pp, 200, 0, 6, cm_frame, pp_title));
+  fillers_cm.push_back(new pair_the_filler1d(0, 2, pp, 200, 0, m_pi, cm_frame, pp_title));
+  fillers_cm.push_back(new pair_oa_filler1d(0, 2, pp, 200, 0, m_pi, cm_frame, pp_title));
+  fillers_cm.push_back(new pair_oa_filler1d(1, 3, pp, 200, 0, m_pi, cm_frame, pp_title));
 
 
   const int Nevt = data_in->GetEntries();
@@ -154,8 +158,8 @@ int main(const int argc, const char **argv) {
 
   TFile *fout = TFile::Open("out.root","RECREATE");
   fout->cd();
-  for (auto fill: fillers_lab) fill->Write("lab");
-  for (auto fill: fillers_cm) fill->Write("cm");
+  for (auto fill: fillers_lab) fill->Write();
+  for (auto fill: fillers_cm) fill->Write();
   fout->Write();
   fout->Close();
 
