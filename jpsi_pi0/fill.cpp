@@ -95,12 +95,10 @@ int main(const int argc, const char **argv) {
 
 
   std::vector<filler*> fillers_cm;
-  fillers_cm.push_back(new mom_filler1d(1, pp, 200, 0, 6, "CM", pp_title));
-  fillers_cm.push_back(new the_filler1d(1, pp, 200, 0, m_pi, "CM", pp_title));
-  fillers_cm.push_back(new phi_filler1d(1, pp, 200, -m_pi, m_pi, "CM", pp_title));
-  fillers_cm.push_back(new pair_mom_filler1d(0, 2, pp, 200, 0, 6, "CM", pp_title));
-  fillers_cm.push_back(new pair_the_filler1d(0, 2, pp, 200, 0, m_pi, "CM", pp_title));
-  fillers_cm.push_back(new pair_phi_filler1d(0, 2, pp, 200, -m_pi, m_pi, "CM", pp_title));
+  fillers_cm.push_back(new mom_filler1d(1, pp, 200, 0, 6, "cm", pp_title));
+  fillers_cm.push_back(new the_filler1d(1, pp, 200, 0, m_pi, "cm", pp_title));
+  fillers_cm.push_back(new pair_mom_filler1d(0, 2, pp, 200, 0, 6, "cm", pp_title));
+  fillers_cm.push_back(new pair_the_filler1d(0, 2, pp, 200, 0, m_pi, "cm", pp_title));
 
 
   const int Nevt = data_in->GetEntries();
