@@ -74,18 +74,20 @@ int main(const int argc, const char **argv) {
   ref1.push_back(211);
 
   const char *pp[] = {"pim", "pi0", "pip", "pipm"};
+  const char *pp_title[] = {"#pi^{+}", "#pi^{0}", "#pi^{-}", "#pi^{+}-#pi^{-}"};
   std::vector<filler*> fillers_lab;
 
   // (pi0) mom and angles
-  fillers_lab.push_back(new mom_filler1d(1, pp, 200, 0, 6));
-  fillers_lab.push_back(new the_filler1d(1, pp, 200, 0, m_pi));
-  fillers_lab.push_back(new phi_filler1d(1, pp, 200, -m_pi, m_pi));
+  fillers_lab.push_back(new mom_filler1d(1, pp, 200, 0, 6, "lab", pp_title));
+  fillers_lab.push_back(new the_filler1d(1, pp, 200, 0, m_pi, "lab", pp_title));
+  fillers_lab.push_back(new phi_filler1d(1, pp, 200, -m_pi, m_pi, "lab", pp_title));
 
   // (pi+) - (pi-) system mass, mom and angles
-  fillers_lab.push_back(new pair_mass_filler1d(0, 2, pp, 200, 0, 5));
-  fillers_lab.push_back(new pair_mom_filler1d(0, 2, pp, 200, 0, 6));
-  fillers_lab.push_back(new pair_the_filler1d(0, 2, pp, 200, 0, m_pi));
-  fillers_lab.push_back(new pair_phi_filler1d(0, 2, pp, 200, -m_pi, m_pi));
+  //fillers_lab.push_back(new pair_mass_filler1d(0, 2, pp, 200, 0, 5, Form("#pi^{+}-#pi^{+} pair invariant mass;M^{inv}_{#pi^{+}-#pi^{+}}")));
+  fillers_lab.push_back(new pair_mass_filler1d(0, 2, pp, 200, 0, 5, "", pp_title));
+  fillers_lab.push_back(new pair_mom_filler1d(0, 2, pp, 200, 0, 6, "lab", pp_title));
+  fillers_lab.push_back(new pair_the_filler1d(0, 2, pp, 200, 0, m_pi, "lab", pp_title));
+  fillers_lab.push_back(new pair_phi_filler1d(0, 2, pp, 200, -m_pi, m_pi, "lab", pp_title));
 
   // (pi+pi-) - (pi0) system opening angles
   //fillers_lab.push_back(new pair_azim_oa_filler1d(1, 4, pp, 200, -m_pi, m_pi));
@@ -93,12 +95,12 @@ int main(const int argc, const char **argv) {
 
 
   std::vector<filler*> fillers_cm;
-  fillers_cm.push_back(new mom_filler1d(1, pp, 200, 0, 6));
-  fillers_cm.push_back(new the_filler1d(1, pp, 200, 0, m_pi));
-  fillers_cm.push_back(new phi_filler1d(1, pp, 200, -m_pi, m_pi));
-  fillers_cm.push_back(new pair_mom_filler1d(0, 2, pp, 200, 0, 6));
-  fillers_cm.push_back(new pair_the_filler1d(0, 2, pp, 200, 0, m_pi));
-  fillers_cm.push_back(new pair_phi_filler1d(0, 2, pp, 200, -m_pi, m_pi));
+  fillers_cm.push_back(new mom_filler1d(1, pp, 200, 0, 6, "CM", pp_title));
+  fillers_cm.push_back(new the_filler1d(1, pp, 200, 0, m_pi, "CM", pp_title));
+  fillers_cm.push_back(new phi_filler1d(1, pp, 200, -m_pi, m_pi, "CM", pp_title));
+  fillers_cm.push_back(new pair_mom_filler1d(0, 2, pp, 200, 0, 6, "CM", pp_title));
+  fillers_cm.push_back(new pair_the_filler1d(0, 2, pp, 200, 0, m_pi, "CM", pp_title));
+  fillers_cm.push_back(new pair_phi_filler1d(0, 2, pp, 200, -m_pi, m_pi, "CM", pp_title));
 
 
   const int Nevt = data_in->GetEntries();
