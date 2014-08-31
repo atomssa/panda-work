@@ -33,6 +33,8 @@ static const double ct_max = 1.1;
 static const double ct_min = -1.1;
 static const double th_min = -0.2;
 static const double th_max = m_pi+0.2;
+static const double mom_min = 0;
+static const double mom_max = 4;
 static const double oa_min = -0.2;
 static const double oa_max = m_pi+0.2;
 
@@ -208,6 +210,7 @@ void fill_sig_hists(TChain *data_in, TClonesArray *part_array) {
   TLorentzVector p4pbar,p4p,p4pbarp,p4pbar_cm,p4p_cm,p4pbarp_cm;
   set_init_cond(boost_to_cm,p4pbar,p4p,p4pbarp,p4pbar_cm,p4p_cm,p4pbarp_cm);
   const double p_antip = 5.513;
+
   const double t_0 = 2;
   const double t_1 = -2;
   const double m_max = 1.1 * TMath::Sqrt(2*mass_prot + 2*p_antip*mass_prot);
@@ -235,51 +238,51 @@ void fill_sig_hists(TChain *data_in, TClonesArray *part_array) {
 
   // Invariants... Frame independent variables
   std::vector<filler*> invariant_fillers;
-  invariant_fillers.push_back(new mand_u_filler1d(pbar, jpsi, pp, 200, t_1, t_0, nullptr, pp_title));
-  invariant_fillers.push_back(new mand_t_filler1d(pbar, pi0, pp, 200, t_1, t_0, nullptr, pp_title));
-  invariant_fillers.push_back(new pair_mass_filler1d(pi0, jpsi, pp, 200, 0, m_max, nullptr, pp_title)); // (pi0-jpsi)-> Sanity check = sqrt(s)
-  invariant_fillers.push_back(new pair_mass_filler1d(ep, em, pp, 200, 0, m_max, nullptr, pp_title)); // (ep-em)-> Sanity check
-  invariant_fillers.push_back(new pair_mass_filler1d(g1, g2, pp, 200, 0, m_max, nullptr, pp_title)); // (g1-g2) -> Sanity check
+  invariant_fillers.push_back( new pair_inv_var1d(pi0, jpsi, "mass", pp, 200, 0, m_max, pp_title ) );
+  invariant_fillers.push_back( new pair_inv_var1d(ep, em, "mass", pp, 200, 0, m_max, pp_title ) );
+  invariant_fillers.push_back( new pair_inv_var1d(g1, g2, "mass", pp, 200, 0, m_max, pp_title ) );
+  invariant_fillers.push_back( new pair_inv_var1d(pbar, jpsi, "u", pp, 200, 0, m_max, pp_title ) );
+  invariant_fillers.push_back( new pair_inv_var1d(pbar, pi0, "t", pp, 200, 0, m_max, pp_title ) );
 
   std::vector<filler*> lab_fillers;
   const char *lab_frame[] = {"lab","Lab"};
-  for (int ipart=1; ipart<=6; ++ipart) {   // for all single particle
-    lab_fillers.push_back(new mom_filler1d(ipart, pp, 200, 0, 6, lab_frame, pp_title));
-    lab_fillers.push_back(new energy_filler1d(ipart, pp, 200, 0, 6, lab_frame, pp_title));
-    lab_fillers.push_back(new the_filler1d(ipart, pp, 200, th_min, th_max, lab_frame, pp_title));
-    lab_fillers.push_back(new cost_filler1d(ipart, pp, 200, ct_min, ct_max, lab_frame, pp_title));
+  for (int ipart=1; ipart<= 1 /*6*/; ++ipart) {   // for all single particle
+    lab_fillers.push_back(new var1d(ipart, "mom", pp, 200, mom_min, mom_max, lab_frame, pp_title));
+    lab_fillers.push_back(new var1d(ipart, "e", pp, 200, 0, 6, lab_frame, pp_title));
+    lab_fillers.push_back(new var1d(ipart, "the", pp, 200, th_min, th_max, lab_frame, pp_title));
+    lab_fillers.push_back(new var1d(ipart, "cost", pp, 200, ct_min, ct_max, lab_frame, pp_title));
   }
-  lab_fillers.push_back(new pair_oa_filler1d(ep, em, pp, 200, oa_min, oa_max, lab_frame, pp_title)); // (e+-e-) OA
-  lab_fillers.push_back(new pair_oa_filler1d(g1, g2, pp, 200, oa_min, oa_max, lab_frame, pp_title)); // (g1-g2) OA
-  lab_fillers.push_back(new pair_oa_filler1d(pi0, jpsi, pp, 200, oa_min, oa_max, lab_frame, pp_title)); // (pi0-jpsi) OA
+  lab_fillers.push_back(new pair_var1d(ep, em, "oa", pp, 200, oa_min, oa_max, lab_frame, pp_title )); // (e+-e-) OA
+  lab_fillers.push_back(new pair_var1d(g1, g2, "oa", pp, 200, oa_min, oa_max, lab_frame, pp_title )); // (g1-g2) OA
+  lab_fillers.push_back(new pair_var1d(pi0, jpsi, "oa", pp, 200, oa_min, oa_max, lab_frame, pp_title )); // (pi0-jpsi) OA
 
   std::vector<filler*> cm_fillers;
   const char *cm_frame[] = {"cm","CM"};
-  for (int i=1; i<=6; ++i) {
-    cm_fillers.push_back(new mom_filler1d(i, pp, 200, 0, 6, cm_frame, pp_title));
-    cm_fillers.push_back(new energy_filler1d(i, pp, 200, 0, 6, cm_frame, pp_title));
-    cm_fillers.push_back(new the_filler1d(i, pp, 200, th_min, th_max, cm_frame, pp_title));
-    cm_fillers.push_back(new cost_filler1d(i, pp, 200, ct_min, ct_max, cm_frame, pp_title));
+  for (int ipart=1; ipart<=1 /*6*/; ++ipart) {
+    cm_fillers.push_back(new var1d(ipart, "mom", pp, 200, mom_min, mom_max, cm_frame, pp_title));
+    cm_fillers.push_back(new var1d(ipart, "e", pp, 200, 0, 6, cm_frame, pp_title));
+    cm_fillers.push_back(new var1d(ipart, "the", pp, 200, th_min, th_max, cm_frame, pp_title));
+    cm_fillers.push_back(new var1d(ipart, "cost", pp, 200, ct_min, ct_max, cm_frame, pp_title));
   }
-  cm_fillers.push_back(new pair_oa_filler1d(ep, em, pp, 200, oa_min, oa_max, cm_frame, pp_title)); // (e+-e-) OA
-  cm_fillers.push_back(new pair_oa_filler1d(g1, g2, pp, 200, oa_min, oa_max, cm_frame, pp_title)); // (g1-g2) OA
-  cm_fillers.push_back(new pair_oa_filler1d(pi0, jpsi, pp, 200, oa_min, oa_max, cm_frame, pp_title)); // (pi0-jpsi) OA
+  cm_fillers.push_back(new pair_var1d(ep, em, "oa", pp, 200, oa_min, oa_max, cm_frame, pp_title )); // (e+-e-) OA
+  cm_fillers.push_back(new pair_var1d(g1, g2, "oa", pp, 200, oa_min, oa_max, cm_frame, pp_title )); // (g1-g2) OA
+  cm_fillers.push_back(new pair_var1d(pi0, jpsi, "oa", pp, 200, oa_min, oa_max, cm_frame, pp_title )); // (pi0-jpsi) OA
 
   std::vector<filler*> jpsif_fillers;
   const char *jpsi_frame[] {"jpsiframe","J/#psi"};
-  jpsif_fillers.push_back(new mom_filler1d(ep, pp, 200, 0, 6, jpsi_frame, pp_title)); // (e+) mom
-  jpsif_fillers.push_back(new cost_filler1d(ep, pp, 200, ct_min, ct_max, jpsi_frame, pp_title)); // (e+) cos(theta)
-  jpsif_fillers.push_back(new mom_filler1d(em, pp, 200, 0, 6, jpsi_frame, pp_title)); // (e+) mom
-  jpsif_fillers.push_back(new cost_filler1d(em, pp, 200, ct_min, ct_max, jpsi_frame, pp_title)); // (e+) cos(theta)
-  jpsif_fillers.push_back(new pair_oa_filler1d(ep, em, pp, 200, oa_min, oa_max, jpsi_frame, pp_title)); // (e+-e-) OA
+  jpsif_fillers.push_back(new var1d(ep, "mom", pp, 200, 0, 6, jpsi_frame, pp_title)); // (e+) mom
+  jpsif_fillers.push_back(new var1d(ep, "cost", pp, 200, ct_min, ct_max, jpsi_frame, pp_title)); // (e+) cos(theta)
+  jpsif_fillers.push_back(new var1d(em, "mom", pp, 200, 0, 6, jpsi_frame, pp_title)); // (e+) mom
+  jpsif_fillers.push_back(new var1d(em, "cost", pp, 200, ct_min, ct_max, jpsi_frame, pp_title)); // (e+) cos(theta)
+  jpsif_fillers.push_back(new pair_var1d(ep, em, "oa", pp, 200, oa_min, oa_max, jpsi_frame, pp_title)); // (e+-e-) OA
 
   std::vector<filler*> pi0f_fillers;
   const char *pi0_frame[] {"pi0frame","#pi^{0}"};
-  pi0f_fillers.push_back(new mom_filler1d(g1, pp, 200, 0, 6, pi0_frame, pp_title)); // (g1) mom
-  pi0f_fillers.push_back(new cost_filler1d(g1, pp, 200, ct_min, ct_max, pi0_frame, pp_title)); // (g1) cos(theta)
-  pi0f_fillers.push_back(new mom_filler1d(g2, pp, 200, 0, 6, pi0_frame, pp_title)); // (g2) mom
-  pi0f_fillers.push_back(new cost_filler1d(g2, pp, 200, ct_min, ct_max, pi0_frame, pp_title)); // (g2) cos(theta)
-  pi0f_fillers.push_back(new pair_oa_filler1d(g1, g2, pp, 200, oa_min, oa_max, pi0_frame, pp_title)); // (g1-g2) OA
+  pi0f_fillers.push_back(new var1d(g1, "mom", pp, 200, 0, 6, pi0_frame, pp_title)); // (g1) mom
+  pi0f_fillers.push_back(new var1d(g1, "cost", pp, 200, ct_min, ct_max, pi0_frame, pp_title)); // (g1) cos(theta)
+  pi0f_fillers.push_back(new var1d(g2, "mom", pp, 200, 0, 6, pi0_frame, pp_title)); // (g2) mom
+  pi0f_fillers.push_back(new var1d(g2, "cost", pp, 200, ct_min, ct_max, pi0_frame, pp_title)); // (g2) cos(theta)
+  pi0f_fillers.push_back(new pair_var1d(g1, g2, "oa", pp, 200, oa_min, oa_max, pi0_frame, pp_title)); // (g1-g2) OA
 
   const int Nevt = data_in->GetEntries();
 
