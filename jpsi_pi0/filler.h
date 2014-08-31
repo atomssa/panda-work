@@ -24,26 +24,6 @@ using std::make_pair;
 static const double m_2pi = 2.0*TMath::Pi();
 static const double m_pi = TMath::Pi();
 
-const int nbin = 200;
-const double massS=0.0;
-const double massE=10.0;
-const double momS = 0.0;
-const double momE = 10.0;
-const double ptS = 0.0;
-const double ptE = 10.0;
-const double eS = 0.0;
-const double eE = 10.0;
-const double theS = -0.2;
-const double theE = m_pi+0.2;
-const double costS = -1.1;
-const double costE = 1.1;
-const double phiS = -m_pi;
-const double phiE = m_pi;
-const double oaS = -0.2;
-const double oaE = m_pi+0.2;
-const double mandS = -2.0;
-const double mandE = 2.0;
-
 struct axis {
 axis():nbins(200),min(0),max(10.){}
 axis(int _nbins, double _min, double _max ):nbins(_nbins), min(_min), max(_max) {}
@@ -174,17 +154,18 @@ class filler {
   }
 
   void init_vars( ) {
-    init_var("mass", "Invariant Mass", "M^{inv}", "[GeV/c^{2}]", axis(nbin,massS,massE));
-    init_var("mom", "Momentum", "p", "[GeV/c]", axis(nbin,momS,momE));
-    init_var("pt", "p_{T}", "p_{T}", "[GeV/c]", axis(nbin,ptS,ptE));
-    init_var("e", "Energy", "E", "[GeV]", axis(nbin,eS,eE));
-    init_var("the", "#theta", "#theta", "[rad]", axis(nbin,theS,theE));
-    init_var("cost", "cos(#theta)", "cos(#theta)", "", axis(nbin,costS,costE));
-    init_var("phi", "#phi", "#phi", "[rad]", axis(nbin,phiS,phiE));
-    init_var("oa", "Opening Angle", "OA", "[rad]", axis(nbin,oaS,oaE));
-    init_var("u", "Mandelstam u", "u", "[(GeV/c^{2})^{2}]", axis(nbin,mandS,mandE));
-    init_var("s", "Mandelstam s", "s", "[(GeV/c^{2})^{2}]", axis(nbin,mandS,mandE));
-    init_var("t", "Mandelstam t", "t", "[(GeV/c^{2})^{2}]", axis(nbin,mandS,mandE));
+    const int nbin = 200;
+    init_var("mass", "Invariant Mass", "M^{inv}", "[GeV/c^{2}]", axis(nbin, 0.0, 10.0));
+    init_var("mom", "Momentum", "p", "[GeV/c]", axis(nbin, 0.0, 10.0));
+    init_var("pt", "p_{T}", "p_{T}", "[GeV/c]", axis(nbin, 0.0, 10.0));
+    init_var("e", "Energy", "E", "[GeV]", axis(nbin, 0.0, 10.0 ));
+    init_var("the", "#theta", "#theta", "[rad]", axis(nbin, -0.1, m_pi+0.1 ));
+    init_var("cost", "cos(#theta)", "cos(#theta)", "", axis(nbin, -1.1, 1.1 ));
+    init_var("phi", "#phi", "#phi", "[rad]", axis(nbin, -m_pi, m_pi ));
+    init_var("oa", "Opening Angle", "OA", "[rad]", axis(nbin, -0.2, m_pi+0.2 ));
+    init_var("u", "Mandelstam u", "u", "[(GeV/c^{2})^{2}]", axis(nbin, -20.0, 20.0 ));
+    init_var("s", "Mandelstam s", "s", "[(GeV/c^{2})^{2}]", axis(nbin, -20.0, 20.0 ));
+    init_var("t", "Mandelstam t", "t", "[(GeV/c^{2})^{2}]", axis(nbin, -20.0, 20.0 ));
   }
 
   void init_pair_func_dict() {
@@ -341,37 +322,15 @@ class filler1d: public filler {
       htemp->Fill( (this->*_func_p_b[0])( p4s[ix[0]] , p4s[ix[1]], boost ) );
     }
   }
-
   virtual void operator()(const vector<TLorentzVector>&, const TVector3&, const TVector3&) {
     cout << "Calling operator() on an 1d filler with two boost vectors, doesn't make any sense, check your code!" << endl;
   }
-
   TH1* getHist() {return dynamic_cast<TH1*>(hist); }
-
 };
 
 //____________________________________
 class var1d: public filler1d {
-
-
  public:
-
- //var1d(const int &_i, const char *var, const int &nbins, const float &min, const float &max, const char* frame[], const char* names[], const char* t[]=nullptr):
- // filler1d(1) {
- //   ix[0] = _i;
- //   func_tag = var;
- //   filler_tag = Form("Filler func tag= %s", func_tag);
- //   if (func_dict.find(var) == func_dict.end()) { cout << "WARNING: Cant find function with tag " << var << endl; }
- //   if (func_boost_dict.find(var) == func_boost_dict.end()) { cout << "WARNING: Cant find function with tag " << var << endl; }
- //   _func.push_back(func_dict[var]);
- //   _func_b.push_back(func_boost_dict[var]);
- //   set_name(Form("%s_%s_%s", frame[0], var, names[_i]));
- //   set_title(Form("%s %s %s;%s_{%s}%s", t[_i], vart[var], frame[1], varst[var], t[_i], varu[var] ));
- //   set_bins(nbins, min, max);
- // }
- //var1d(const int &_i, const char *var, const axis &x, const char* frame[], const char* names[], const char* t[]=nullptr)
- //  : var1d(_i,var,x.nbins,x.min,x.max,frame,names,t) {}
-
  var1d(const int &_ix, const char *var, const axis &x, const char* frame[],
        const char* names[], const char* ptitles[]): filler1d(vector<int>{_ix},var) {
     set_funcs(0,var);
@@ -379,7 +338,6 @@ class var1d: public filler1d {
     set_name( Form("%s", _name(var, frame[0], names[_ix]) ));
     set_title( Form("%s;%s", _title(var, frame[1], ptitles[_ix]), _atitle(var, ptitles[_ix]) ));
   }
-
  var1d(const int &_ix0, const int &_ix1, const char *var, const axis &x, const char* frame[],
        const char* names[], const char* ptitles[]): filler1d(vector<int>{_ix0,_ix1},var) {
     set_pair_funcs(0,var);
@@ -387,122 +345,7 @@ class var1d: public filler1d {
     set_name( Form("%s", _name_p(var, frame[0], names[_ix0], names[_ix1]) ));
     set_title( Form("%s;%s", _title_p(var, frame[1], ptitles[_ix0], ptitles[_ix1]), _atitle_p(var, ptitles[_ix0], ptitles[_ix1]) ));
   }
-
-  /*
-    if (strcmp(framex[0],framey[0])!=0) {
-      set_name( Form("%s_%s", _name_p(varx, framex[0], names[_ix0], names[_ix1]), _name_p(vary, framey[0], names[_iy0], names[_iy1]) ));
-      set_title( Form("%s vs %s;%s;%s", _title_p(vary, framey[1], ptitle[_iy0], ptitle[_iy1]), _title_p(varx, framex[1], ptitle[_ix0], ptitle[_ix1]),
-		      _atitle_p(vary, ptitle[_iy0], ptitle[_iy1]), _atitle_p(varx, ptitle[_ix0], ptitle[_ix1]) ));
-    } else {
-      set_name( Form("%s_%s_%s", framex[0], _name_p(varx, names[_ix0], names[_ix1]), _name_p(vary, names[_iy0], names[_iy1]) ));
-      set_title( Form("%s vs %s%s;%s;%s", _title_p(vary, ptitle[_iy0], ptitle[_iy1]), _title_p(varx, ptitle[_ix0], ptitle[_ix1]), framex[1],
-		      _atitle_p(vary, ptitle[_iy0], ptitle[_iy1]), _atitle_p(varx, ptitle[_ix0], ptitle[_ix1]) ));
-    }
-  */
-
-  //var1d(const int &_i, const char *var, const char* names[], const char* frame[], const char* t[]=nullptr)
- //  : var1d(_i,var,varb[var],names,f,t) {}
 };
-
-//
-////____________________________________
-//class inv_var1d: public filler1d {
-// public:
-// inv_var1d(const int &_i, const char *var, const int &nbins, const float &min, const float &max, const char* names[], const char* t[]=nullptr):
-//  filler1d(1) {
-//    ix[0] = _i;
-//
-//    func_tag = var;
-//    filler_tag = Form("Filler func tag= %s", func_tag);
-//    if (func_dict.find(var) == func_dict.end()) { cout << "WARNING: Cant find function with tag " << var << endl; }
-//    _func.push_back(func_dict[var]);
-//
-//    set_name(Form("%s_%s", var, names[_i]));
-//    if (t==nullptr)
-//      set_title(hist->GetName());
-//    else
-//      set_title(Form("%s %s;%s_{%s}%s", t[_i], vart[var], varst[var], varu[var], t[_i]));
-//    set_bins(nbins, min, max);
-//  }
-// inv_var1d(const int &_i, const char *var, const axis &x, const char* names[], const char* t[]=nullptr):
-//  inv_var1d(_i,var,x.nbins,x.min,x.max,names,t) {}
-// //inv_var1d(const int &_i, const char *var, const char* names[], const char* t[]=nullptr):
-// // inv_var1d(_i,var,varb[var],names,t) {}
-//
-//};
-//
-////_________________________________________
-//class pair_var1d: public filler1d {
-// public:
-// pair_var1d(const int &_i0, const int &_i1, const char *var, const int &nbins, const float &min, const float &max,
-//	    const char *frame[], const char *names[], const char* t[]=nullptr): filler1d(2) {
-//    ix[0] = _i0;
-//    ix[1] = _i1;
-//
-//    func_tag = var;
-//    filler_tag = Form("Filler func tag= %s", func_tag);
-//    if (pair_func_dict.find(var) == pair_func_dict.end()) { cout << "WARNING: Cant find function with tag " << var << endl; return; }
-//    if (pair_func_boost_dict.find(var) == pair_func_boost_dict.end()) { cout << "WARNING: Cant find function with tag " << var << endl; return; }
-//    _func_p.push_back(pair_func_dict[var]);
-//    _func_p_b.push_back(pair_func_boost_dict[var]);
-//
-//    set_name(Form("%s_p%s_%s_%s", frame[0],var, names[_i0],names[_i1]));
-//    if (t==nullptr)
-//      set_title(hist->GetName());
-//    else
-//      set_title(Form("%s-%s Pair %s %s;%s_{%s-%s}%s", t[_i0],t[_i1], vart[var], frame[1], varst[var], t[_i0],t[_i1], varu[var]));
-//    set_bins(nbins, min, max);
-//  }
-// pair_var1d(const int &_i0, const int &_i1, const char *var, const axis &x, const char *names[],
-//	    const char *frame[], const char* t[]=nullptr): pair_var1d(_i0,_i1,var,x.nbins,x.min,x.max,names,frame,t) { }
-//
-//
-//};
-//
-////_________________________________________
-//class pair_inv_var1d: public filler1d {
-// public:
-// pair_inv_var1d(const int &_i0, const int &_i1, const char *var, const int &nbins, const float &min, const float &max,
-//		const char *names[], const char* t[]=nullptr): filler1d(2) {
-//    ix[0] = _i0;
-//    ix[1] = _i1;
-//
-//    func_tag = var;
-//    filler_tag = Form("Filler func tag= %s", func_tag);
-//    if (pair_func_dict.find(var) == pair_func_dict.end()) { cout << "WARNING: Cant find function with tag " << var << endl; return; }
-//    _func_p.push_back(pair_func_dict[var]);
-//
-//    set_name(Form("p%s_%s_%s", var, names[_i0],names[_i1]));
-//    if (t==nullptr)
-//      set_title(hist->GetName());
-//    else
-//      set_title(Form("%s-%s Pair %s;%s _{%s-%s}%s", t[_i0], t[_i1], vart[var], varst[var], t[_i0], t[_i1], varu[var] ));
-//    set_bins(nbins, min, max);
-//  }
-// pair_inv_var1d(const int &_i0, const int &_i1, const char *var, const axis &x, const char *names[], const char* t[]=nullptr)
-//   : pair_inv_var1d(_i0,_i1,var,x.nbins,x.min,x.max,names,t) {}
-//  //pair_inv_var1d(const int &_i0, const int &_i1, const char *var, const char *names[], const char* t[]=nullptr)
-//  // : pair_inv_var1d(_i0,_i1,var,varb[var],names,t) {}
-//};
-
-
-////_____________________________
-//class filler2d: public filler {
-// public:
-// filler2d(const char* h_name, const char* h_title, const int &npart,
-//	  const int &nbinsx, const float &xmin, const float &xmax,
-//	  const int &nbinsy, const float &ymin, const float &ymax): filler(npart)
-//  {
-//    hist = new TH2F(h_name, h_title, nbinsx, xmin, xmax, nbinsy, ymin, ymax);
-//    ((TH2*)hist)->SetBins(nbinsx, xmin, xmax, nbinsy, ymin, ymax);
-//  }
-//  ~filler2d(){delete hist; }
-//  // Virtual overlaod function call operators to pass the 4momenta to be filled
-//  virtual void operator()(const vector<TLorentzVector>&)=0;
-//  // if needs to be boosted by some
-//  virtual void operator()(const vector<TLorentzVector>&, const TVector3&)=0;
-//  TH2* getHist() {return dynamic_cast<TH2*>(hist); }
-//};
 
 //_____________________________
 class filler2d: public filler {
@@ -576,31 +419,7 @@ class filler2d: public filler {
 
 //____________________________________
 class var2d: public filler2d {
- protected:
-  //void set_funcs(const int &iaxis, const char* var) {
-  //  if (func_dict.find(var) == func_dict.end()) { cout << "WARNING: Cant find function with tag " << var << " in func_dict "<< endl; }
-  //  if (func_boost_dict.find(var) == func_boost_dict.end()) { cout << "WARNING: Cant find function with tag " << var << " in func_boost_dict" << endl; }
-  //  _func[iaxis] = func_dict[var];
-  //  _func_b[iaxis] = func_boost_dict[var];
-  //}
-  //void set_pair_funcs(const int &iaxis, const char* var) {
-  //  if (pair_func_dict.find(var) == pair_func_dict.end()) { cout << "WARNING: Cant find function with tag " << var << " in pair_func_dict"<< endl; }
-  //  if (pair_func_boost_dict.find(var) == pair_func_boost_dict.end()) { cout << "WARNING: Cant find function with tag " << var << " in pair_func_boost_dict" << endl; }
-  //  _func_p[iaxis] = pair_func_dict[var];
-  //  _func_p_b[iaxis] = pair_func_boost_dict[var];
-  //}
  public:
-
- //var2d(const int &_ix, const char *varx, const int &nbinsx, const double &xmin, const double &xmax, const char* framex[],
- //      const int &_iy, const char *vary, const int &nbinsy, const double &ymin, const double &ymax, const char* framey[],
- //      const char* names[], const char* t[]=nullptr): filler2d(ix,iy,varx,vary) {
- //   set_funcs(0,varx); // make sure x is called before y (otherwise axes will be inversed)
- //   set_funcs(1,vary); // make sure x is called before y (otherwise axes will be inversed)
- //   set_name(Form("%s_%s_%s_%s_%s_%s", framex[0], varx, names[_ix],framey[0], vary, names[_iy]));
- //   set_title(t==nullptr?hist->GetName():Form("%s %s%s vs %s %s%s", t[_iy], vart[vary], framey[2], t[_ix], vart[varx], framex[2] ));
- //   set_bins(nbinsx,xmin,xmax,nbinsy,ymin,ymax);
- // }
-
   // Example consructions
   //var2d(ep,em,"mass",mass_bins,lab_frame,jpsi,"pt",pt_bins,lab_frame,parts,part_titles)
   //var2d(jpsi,"energy",ene_bins,lab_frame,ep,em,"oa",oa_bins,lab_frame,parts,part_titles)
@@ -677,341 +496,4 @@ class var2d: public filler2d {
     }
   }
 
-};
-
-
-
-
-
-
-
-
-
-
-
-//____________________________________
-class mom_filler1d: public filler1d {
- public:
- mom_filler1d(const int &_i, const char* names[], const int &nbins, const float &min, const float &max, const char* f[], const char* t[]=nullptr):
-  filler1d(Form("%s_mom_%s",f[0], names[_i]),
-	   t!=nullptr?Form("%s momentum (%s frame);p_{%s}[GeV/c]",t[_i],f[1],t[_i]):Form("mom_%s",names[_i]),
-	   1, nbins, min, max) {
-    ix[0] = _i;
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill(p4s[ix[0]].Vect().Mag());
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill( boost_transf(p4s[ix[0]], boost).Vect().Mag() );
-  }
-};
-
-//____________________________________
-class pt_filler1d: public filler1d {
- public:
- pt_filler1d(const int &_i, const char* names[], const int &nbins, const float &min, const float &max, const char* f[], const char* t[]=nullptr):
-  filler1d(Form("%s_pt_%s",f[0], names[_i]),
-	   t!=nullptr?Form("%s transverse momentum (%s frame);p_{%s}[GeV/c]",t[_i],f[1],t[_i]):Form("mom_%s",names[_i]),
-	   1, nbins, min, max) {
-    ix[0] = _i;
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill(p4s[ix[0]].Pt());
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill( boost_transf(p4s[ix[0]], boost).Pt(boost) );
-  }
-};
-
-//___________________________________
-class energy_filler1d: public filler1d {
- public:
- energy_filler1d(const int &_i, const char* names[], const int &nbins, const float &min, const float &max, const char* f[], const char* t[]=nullptr):
-  filler1d(Form("%s_e_%s",f[0], names[_i]),
-	   t!=nullptr?Form("%s energy (%s frame);p_{%s}[GeV]",t[_i],f[1],t[_i]):Form("energy_%s",names[_i]),
-	   1, nbins, min, max) {
-    ix[0] = _i;
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill(p4s[ix[0]].E());
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill( boost_transf(p4s[ix[0]], boost).E() );
-  }
-};
-
-//___________________________________
-class the_filler1d: public filler1d {
- public:
- the_filler1d(const int &_i, const char* names[], const int &nbins, const float &min, const float &max, const char* f[], const char* t[]=nullptr):
-  filler1d(Form("%s_the_%s",f[0],names[_i]),
-	   t!=nullptr?Form("%s #theta (%s frame);#theta_{%s}[rad]",t[_i],f[1],t[_i]):Form("the_%s",names[_i]),
-	   1, nbins, min, max) {
-    ix[0] = _i;
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill(p4s[ix[0]].Vect().Theta());
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    //htemp->Fill( boost_transf(p4s[ix[0]], boost).Vect().Theta() );
-    htemp->Fill( boost_transf(p4s[ix[0]], boost).Vect().Angle(boost) );
-  }
-};
-
-//___________________________________
-class cost_filler1d: public filler1d {
- public:
- cost_filler1d(const int &_i, const char* names[], const int &nbins, const float &min, const float &max, const char* f[], const char* t[]=nullptr):
-  filler1d(Form("%s_cost_%s",f[0],names[_i]),
-	   t!=nullptr?Form("%s cos(#theta_{%s}) (%s frame);cos(#theta_{%s})",t[_i],t[_i],f[1],t[_i]):Form("cost_%s",names[_i]),
-	   1, nbins, min, max) {
-    ix[0] = _i;
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill(p4s[ix[0]].Vect().CosTheta());
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    //htemp->Fill( boost_transf(p4s[ix[0]], boost).Vect().Theta() );
-    htemp->Fill( TMath::Cos( boost_transf(p4s[ix[0]], boost).Vect().Angle(boost) ));
-  }
-};
-
-//___________________________________
-class phi_filler1d: public filler1d {
- public:
- phi_filler1d(const int &_i, const char* names[], const int &nbins, const float &min, const float &max, const char* f[], const char* t[]=nullptr):
-  filler1d(Form("%s_phi_%s",f[0],names[_i]),
-	   t!=nullptr?Form("%s #phi (%s frame);#phi_{%s}[rad]",t[_i],f[1],t[_i]):Form("phi_%s",names[_i]),
-	   1, nbins, min, max) {
-    ix[0] = _i;
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill(p4s[ix[0]].Vect().Phi());
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
-    //assert(p4s.size()>=ix.size());
-    //TH1* htemp = dynamic_cast<TH1*>(hist);
-    //htemp->Fill( boost_transf(p4s[ix[0]], boost).Vect().Phi() );
-    cout << "Phi with lorentz boost in the frame of boost doesn't make sense i think... " << endl;
-    cout << "   because the boost has only a direction, not a frame wrt which phi can be calculated " << endl;
-    cout << "      so all the opening angle goes to theta " << endl;
-  }
-};
-
-//_______________________________________
-class pair_mass_filler1d: public filler1d {
- public:
- pair_mass_filler1d(const int &_i0, const int &_i1, const char* names[], const int &nbins, const float &min, const float &max, const char *f[], const char* t[]=nullptr):
-  filler1d(Form("mass_%s_%s",names[_i0],names[_i1]),
-	   t!=nullptr?Form("%s-%s pair invariant mass;M^{inv}_{%s-%s}[GeV/c^{2}]",t[_i0],t[_i1],t[_i0],t[_i1]):Form("mass_%s_%s",names[_i0],names[_i1]),
-	   2, nbins, min, max) {
-    ix[0] = _i0;
-    ix[1] = _i1;
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill( (p4s[ix[0]]+p4s[ix[1]]).M());
-  }
-  // This doesn't make sense for mass, it should be uncallable if possible
-  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
-    cout << "Mass with lorentz boost == mass without :P " << endl;
-  }
-};
-
-//_______________________________________
-class mand_s_filler1d: public filler1d {
- public:
- mand_s_filler1d(const int &_i0, const int &_i1, const char* names[], const int &nbins, const float &min, const float &max, const char *f[], const char* t[]=nullptr):
-  filler1d(Form("s_%s_%s",names[_i0],names[_i1]),
-	   t!=nullptr?Form("Mandelstam s (p_{%s}+p_{%s})^{2};s[(GeV/c)^{2}]",t[_i1],t[_i0]):Form("s_%s_%s",names[_i1],names[_i0]),
-	   2, nbins, min, max) {
-    ix[0] = _i0;
-    ix[1] = _i1;
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill( (p4s[ix[0]]+p4s[ix[1]]).M2() );
-  }
-  // This doesn't make sense for mass, it should be uncallable if possible
-  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
-    cout << "Mandelstam variable with lorentz boost == without :P " << endl;
-  }
-};
-
-//_______________________________________
-class mand_t_filler1d: public filler1d {
- public:
- mand_t_filler1d(const int &_i0, const int &_i1, const char* names[], const int &nbins, const float &min, const float &max, const char *f[], const char* t[]=nullptr):
-  filler1d(Form("t_%s_%s",names[_i0],names[_i1]),
-	   t!=nullptr?Form("Mandelstam t (p_{%s}-p_{%s})^{2};t[(GeV/c)^{2}]",t[_i1],t[_i0]):Form("t_%s_%s",names[_i1],names[_i0]),
-	   2, nbins, min, max) {
-    ix[0] = _i0;
-    ix[1] = _i1;
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill( (p4s[ix[0]]-p4s[ix[1]]).M2() );
-  }
-  // This doesn't make sense for mass, it should be uncallable if possible
-  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
-    cout << "Mandelstam variable with lorentz boost == without :P " << endl;
-  }
-};
-
-//_______________________________________
-class mand_u_filler1d: public filler1d {
- public:
- mand_u_filler1d(const int &_i0, const int &_i1, const char* names[], const int &nbins, const float &min, const float &max, const char *f[], const char* t[]=nullptr):
-  filler1d(Form("u_%s_%s",names[_i0],names[_i1]),
-	   t!=nullptr?Form("Mandelstam u (p_{%s}-p_{%s})^{2};u[(GeV/c)^{2}]",t[_i1],t[_i0]):Form("t_%s_%s",names[_i1],names[_i0]),
-	   2, nbins, min, max) {
-    ix[0] = _i0;
-    ix[1] = _i1;
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill( (p4s[ix[0]]-p4s[ix[1]]).M2() );
-  }
-  // This doesn't make sense for mass, it should be uncallable if possible
-  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
-    cout << "Mandelstam variable with lorentz boost == without :P " << endl;
-  }
-};
-
-//_________________________________________
-class pair_the_filler1d: public filler1d {
- public:
- pair_the_filler1d(const int &_i0, const int &_i1, const char *names[], const int &nbins, const float &min, const float &max, const char *f[], const char* t[]=nullptr):
-  filler1d(Form("%s_p_the_%s_%s",f[0],names[_i0],names[_i1]),
-	   t!=nullptr?Form("%s-%s pair polar angle #theta (%s frame);#theta_{%s-%s}[rad]",t[_i0],t[_i1],f[1],t[_i0],t[_i1]):Form("the_%s_%s",names[_i0],names[_i1]),
-	   2, nbins, min, max) {
-    ix[0] = _i0;
-    ix[1] = _i1;
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill( (p4s[ix[0]] + p4s[ix[1]]).Vect().Theta() );
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill( boost_transf( ( p4s[ix[0]] + p4s[ix[1]] ), boost).Vect().Theta() );
-  }
-};
-
-//_________________________________________
-class pair_phi_filler1d: public filler1d {
- public:
- pair_phi_filler1d(const int &_i0, const int &_i1, const char *names[], const int &nbins, const float &min, const float &max, const char *f[], const char* t[]=nullptr):
-  filler1d(Form("%s_p_phi_%s_%s",f[0],names[_i0],names[_i1]),
-	   t!=nullptr?Form("%s-%s pair azimutal angle #phi (%s frame);#phi_{%s-%s}[rad]",t[_i0],t[_i1],f[1],t[_i0],t[_i1]):Form("the_%s_%s",names[_i0],names[_i1]),
-	   2, nbins, min, max) {
-    ix[0] = _i0;
-    ix[1] = _i1;
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill( (p4s[ix[0]] + p4s[ix[1]]).Vect().Phi() );
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill( boost_transf( ( p4s[ix[0]] + p4s[ix[1]] ), boost).Vect().Phi() );
-  }
-};
-
-//_________________________________________
-class pair_mom_filler1d: public filler1d {
- public:
- pair_mom_filler1d(const int &_i0, const int &_i1, const char* names[], const int &nbins, const float &min, const float &max, const char *f[], const char* t[]):
-  filler1d(Form("%s_p_mom_%s_%s",f[0],names[_i0],names[_i1]),
-	   t!=nullptr?Form("%s-%s pair momentum (%s frame);p_{%s-%s}[GeV/c]",t[_i0],t[_i1],f[1],t[_i0],t[_i1]):Form("p_mom_%s_%s",names[_i0],names[_i1]),
-	   2, nbins, min, max) {
-    ix[0] = _i0;
-    ix[1] = _i1;
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill( ( p4s[ix[0]] + p4s[ix[1]] ).Vect().Mag() );
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill( boost_transf( ( p4s[ix[0]] + p4s[ix[1]] ), boost).Vect().Mag() );
-  }
-};
-
-//_______________________________________
-class pair_oa_filler1d: public filler1d {
- public:
- pair_oa_filler1d(const int &_i0, const int &_i1, const char* names[], const int &nbins, const float &min, const float &max, const char *f[], const char* t[]):
-  filler1d(Form("%s_p_oa_%s_%s",f[0],names[_i0],names[_i1]),
-	   t!=nullptr?Form("%s-%s pair opening angle (%s frame);OA_{%s-%s}[rad]",t[_i0],t[_i1],f[1],t[_i0],t[_i1]):Form("p_oa_%s_%s",names[_i0],names[_i1]),
-	   2, nbins, min, max) {
-    ix[0] = _i0;
-    ix[1] = _i1;
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill( p4s[ix[0]].Vect().Angle( p4s[ix[1]].Vect() )  );
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    TLorentzVector bp4_0 = boost_transf(p4s[ix[0]], boost);
-    TLorentzVector bp4_1 = boost_transf(p4s[ix[1]], boost);
-    htemp->Fill( bp4_0.Vect().Angle( bp4_1.Vect() ) );
-  }
-};
-
-//_______________________________________
-class dalitz_filler2d: public filler2d {
- public:
- dalitz_filler2d(const int &_i0, const int &_i1, const int &_i2, const char* names[], const int &nbins, const float &min, const float &max, const char *f[], const char* t[]):
-  filler2d(Form("dalitz_%s_%s_%s",names[_i0],names[_i1],names[_i2]),
-	   t!=nullptr?Form("%s-%s-%s dalitz; M^{inv}_{%s-%s}[GeV/c^{2}]; M^{inv}_{%s-%s}[GeV/c^{2}]",t[_i0],t[_i1],t[_i2],t[_i0],t[_i1],t[_i1],t[_i2]):
-	   Form("dalitz_%s_%s_%s",names[_i0],names[_i1],names[_i2]),
-	   3, nbins, min, max, nbins, min, max) {
-    ix[0] = _i0;
-    ix[1] = _i1;
-    ix[2] = _i2;
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s) {
-    assert(p4s.size()>=ix.size());
-    TH1* htemp = dynamic_cast<TH1*>(hist);
-    htemp->Fill( (p4s[ix[0]]+p4s[ix[1]]).M(), (p4s[ix[1]]+p4s[ix[2]]).M() );
-  }
-  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
-    cout << "Dalitz plot with lorentz boost == dalitz plot without :P " << endl;
-  }
 };

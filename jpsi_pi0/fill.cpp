@@ -29,24 +29,25 @@ static const double rtd= TMath::RadToDeg();
 //static const double m_2pi; // = 2.0*TMath::Pi();
 //static const double m_pi; // = TMath::Pi();
 
-static const double ct_max = 1.1;
-static const double ct_min = -1.1;
-static const double th_min = -0.1;
-static const double th_max = m_pi+0.1;
-static const double mom_min = 0;
-static const double mom_max = 6;
-static const double oa_min = -0.2;
-static const double oa_max = m_pi+0.2;
-static const double t_0 = 2;
-static const double t_1 = -2;
+//static const double ct_max = 1.1;
+//static const double ct_min = -1.1;
+//static const double th_min = -0.1;
+//static const double th_max = m_pi+0.1;
+//static const double mom_min = 0;
+//static const double mom_max = 6;
+//static const double oa_min = -0.2;
+//static const double oa_max = m_pi+0.2;
+//static const double t_0 = 2;
+//static const double t_1 = -2;
 
-static axis mom_bins(200, 0.0, 6.0);
-static axis ene_bins(200, mom_min, mom_max);
-static axis t_bins(200, -2.0, 2.0);
-static axis the_bins(200, -0.1, m_pi+0.1);
-static axis phi_bins(200, -m_pi, m_pi);
-static axis cost_bins(200, -1.1, 1.1);
-static axis oa_bins(200, -0.1, m_pi+0.1);
+static int nbins = 200;
+static axis mom_bins(nbins, 0.0, 6.0);
+static axis ene_bins(nbins, 0.0, 6.0);
+static axis t_bins(nbins, -2.0, 2.0);
+static axis the_bins(nbins, -0.1, m_pi+0.1);
+static axis phi_bins(nbins, -m_pi, m_pi);
+static axis cost_bins(nbins, -1.1, 1.1);
+static axis oa_bins(nbins, -0.1, m_pi+0.1);
 
 //static const double mass_jpsi = 3.096;
 //static const double mass_pi0 = 0.135;
@@ -115,10 +116,8 @@ void fill_bg_hists(TChain *data_in, TClonesArray *part_array) {
   set_init_cond(boost_to_cm, p4pbar,p4p,p4pbarp_cm,p4pbar_cm,p4p,p4pbarp_cm);
 
   const double p_antip = 5.513;
-  const double t_0 = 1;
-  const double t_1 = -11;
   const double m_max = 1.1 * TMath::Sqrt(2*mass_prot + 2*p_antip*mass_prot);
-  const axis mass_bins(200,0,m_max);
+  const axis mass_bins(nbins,0,m_max);
 
   enum {pbar=0, pi0=1, pim=2, pip=3, pipm=4};
   const char *pp[] = {"pbar", "pi0", "pim", "pip", "pipm"};
