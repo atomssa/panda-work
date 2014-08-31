@@ -101,15 +101,24 @@ class filler {
   void set_name(const char*name) { hist->SetName(name); }
   void set_title(const char*title) { hist->SetTitle(title); }
 
+  const char* warning_msg(const char* var, const char* dict) {
+    const char *line1 = Form( "WARNING: Can not find function with tag %s in %s", var, dict);
+    if (strstr(dict,"boost")==nullptr)
+      return Form("%s\n If you call this filler without a boost expect a crash ... ", line1);
+    else
+      return Form("%s\n If you call this filler with a boost, expect a crash ... ", line1);
+  }
+
   void set_funcs(const int &iaxis, const char* var) {
-    if (func_dict.find(var) == func_dict.end()) { cout << "WARNING: Cant find function with tag " << var << " in func_dict "<< endl; }
-    if (func_boost_dict.find(var) == func_boost_dict.end()) { cout << "WARNING: Cant find function with tag " << var << " in func_boost_dict" << endl; }
+    if (func_dict.find(var) == func_dict.end()) { cout << warning_msg(var, "func_dict") << endl; }
+    if (func_boost_dict.find(var) == func_boost_dict.end()) { cout << warning_msg(var, "func_boost_dict") << endl; }
     _func[iaxis] = func_dict[var];
     _func_b[iaxis] = func_boost_dict[var];
   }
+
   void set_pair_funcs(const int &iaxis, const char* var) {
-    if (pair_func_dict.find(var) == pair_func_dict.end()) { cout << "WARNING: Cant find function with tag " << var << " in pair_func_dict"<< endl; }
-    if (pair_func_boost_dict.find(var) == pair_func_boost_dict.end()) { cout << "WARNING: Cant find function with tag " << var << " in pair_func_boost_dict" << endl; }
+    if (pair_func_dict.find(var) == pair_func_dict.end()) { cout << warning_msg(var, "pair_func_dict") << endl; }
+    if (pair_func_boost_dict.find(var) == pair_func_boost_dict.end()) { cout << warning_msg(var, "pair_func_boost_dict") << endl; }
     _func_p[iaxis] = pair_func_dict[var];
     _func_p_b[iaxis] = pair_func_boost_dict[var];
   }
