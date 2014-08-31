@@ -21,32 +21,8 @@ using std::move;
 using std::map;
 using std::make_pair;
 
-static const double m_2pi = 2.0*TMath::Pi();
-static const double m_pi = TMath::Pi();
-
-const int nbin = 200;
-const double massS=0.0;
-const double massE=10.0;
-const double momS = 0.0;
-const double momE = 10.0;
-const double ptS = 0.0;
-const double ptE = 10.0;
-const double eS = 0.0;
-const double eE = 10.0;
-const double theS = -0.2;
-const double theE = m_pi+0.2;
-const double costS = -1.1;
-const double costE = 1.1;
-const double phiS = -m_pi;
-const double phiE = m_pi;
-const double oaS = -0.2;
-const double oaE = m_pi+0.2;
-const double mandS = -2.0;
-const double mandE = 2.0;
-
-struct axis {
-axis():nbins(200),min(0),max(10.){}
-axis(int _nbins, double _min, double _max ):nbins(_nbins), min(_min), max(_max) {}
+struct binning {
+binning(int _nbins, double _min, double _max ):nbins(_nbins), min(_min), max(_max) {}
   int nbins;
   double min;
   double max;
@@ -54,44 +30,6 @@ axis(int _nbins, double _min, double _max ):nbins(_nbins), min(_min), max(_max) 
 
 //____________
 class filler {
-
- public:
-
- filler(TNamed *_hist, const vector<int> &_ix)
-   : hist(_hist), ix(_ix), _func(1), _func_b(1), _func_p(1), _func_p_b(1) {
-    init_all();
-  }
-
-  filler (TNamed *_hist, const vector<int> &_ix, const vector<int> &_iy)
-    : hist(_hist), ix(_ix), iy(_iy), _func(2), _func_b(2), _func_p(2), _func_p_b(2) {
-    init_all();
-  }
-
-  // LEGACY
-  filler (TNamed *_hist, const int &npart) : hist(_hist), ix(npart) {
-    init_all();
-  }
-
-  // LEGACY
- filler(const int &npart) : ix(npart) {
-    init_all();
-  }
-
-  ~filler() { }
-  virtual void operator()(const vector<TLorentzVector>&)=0;
-  // if needs to be boosted by some
-  virtual void operator()(const vector<TLorentzVector>&, const TVector3&)=0;
-  // if x axis and y axis need to be boosted by different vecotrs -
-  // this function should do nothing and communicate annoyingly if called on a 1d filler
-  virtual void operator()(const vector<TLorentzVector>&, const TVector3&, const TVector3&)=0;
-
-  void Write() { this->hist->Write(); }
-  void Write(const char* prefix) {
-    this->hist->SetName( Form("%s_%s", prefix, hist->GetName()) );
-    this->hist->Write();
-  }
-
-
  protected:
 
   typedef double(filler::*func)(const TLorentzVector&) const;
@@ -102,7 +40,6 @@ class filler {
   map<const char*, const char*> vart; // variable tex-form for titles
   map<const char*, const char*> varst; // variable short tex-form for axes
   map<const char*, const char*> varu; // variable units
-  map<const char*, axis> varb; // default axis for histgram
 
   map<const char*, func> func_dict;
   map<const char*, func_boost> func_boost_dict;
@@ -118,73 +55,27 @@ class filler {
   vector<pair_func> _func_p;
   vector<pair_func_boost> _func_p_b;
 
+  //vector<TVector3> dummy;
+  //vector<double> dummy_d;
+  //vector<int> dummy_i;
+
   void set_name(const char*name) { hist->SetName(name); }
   void set_title(const char*title) { hist->SetTitle(title); }
 
-  void set_funcs(const int &iaxis, const char* var) {
-    if (func_dict.find(var) == func_dict.end()) { cout << "WARNING: Cant find function with tag " << var << " in func_dict "<< endl; }
-    if (func_boost_dict.find(var) == func_boost_dict.end()) { cout << "WARNING: Cant find function with tag " << var << " in func_boost_dict" << endl; }
-    _func[iaxis] = func_dict[var];
-    _func_b[iaxis] = func_boost_dict[var];
-  }
-  void set_pair_funcs(const int &iaxis, const char* var) {
-    if (pair_func_dict.find(var) == pair_func_dict.end()) { cout << "WARNING: Cant find function with tag " << var << " in pair_func_dict"<< endl; }
-    if (pair_func_boost_dict.find(var) == pair_func_boost_dict.end()) { cout << "WARNING: Cant find function with tag " << var << " in pair_func_boost_dict" << endl; }
-    _func_p[iaxis] = pair_func_dict[var];
-    _func_p_b[iaxis] = pair_func_boost_dict[var];
-  }
+ public:
 
-  double value(func __func, const TLorentzVector &v) {
-    BOOST_ASSERT_MSG(__func != nullptr, "function pointer not set");
-    return (this->*__func)(v);
-  }
-
-  double value(func_boost __func, const TLorentzVector &v, const TVector3 &b) {
-    BOOST_ASSERT_MSG(__func != nullptr, "function pointer not set");
-    return (this->*__func)(v,b);
-  }
-
-  double value(pair_func __func, const TLorentzVector &v1, const TLorentzVector &v2) {
-    BOOST_ASSERT_MSG(__func != nullptr, "function pointer not set");
-    return (this->*__func)(v1,v2);
-  }
-
-  double value(pair_func_boost __func, const TLorentzVector &v1, const TLorentzVector &v2, const TVector3 &b) {
-    BOOST_ASSERT_MSG(__func != nullptr, "function pointer not set");
-    return (this->*__func)(v1,v2,b);
-  }
-
-  const char* _name(const char* var,const char* fname, const char* pname){return Form("%s_%s_%s",fname, var, pname);}
-  const char* _name(const char* var, const char* pname) { return Form("%s_%s", var, pname); }
-  const char* _name_p(const char* var,const char* fname, const char* pname1, const char* pname2) { return Form("%s_p%s_%s_%s",fname, var, pname1, pname2); }
-  const char* _name_p(const char* var, const char* pname1, const char* pname2) { return Form("%s_%s_%s", var, pname1, pname2); }
-  const char* _title(const char *var, const char *ftitle, const char *ptitle) { return Form("%s %s%s", ptitle, vart[var], ftitle); }
-  const char* _title(const char *var, const char *ptitle) { return Form("%s %s", ptitle, vart[var]); }
-  const char* _title_p(const char *var, const char *ftitle, const char *ptitle1, const char *ptitle2) { return Form("%s-%s %s%s", ptitle1, ptitle2, vart[var], ftitle); }
-  const char* _title_p(const char *var, const char *ptitle1, const char *ptitle2) { return Form("%s-%s %s", ptitle1, ptitle2, vart[var]); }
-  const char* _atitle(const char *var, const char *ptitle) { return Form("%s_{%s}%s", varst[var],ptitle, varu[var]); }
-  const char* _atitle_p(const char *var, const char *ptitle1, const char *ptitle2) { return Form("%s_{%s-%s}%s", varst[var],ptitle1, ptitle2, varu[var]); }
-
-  void init_var(const char* var, const char* title, const char *stitle,
-		const char*unit, const axis& bins) {
-    vart.insert(make_pair(var, title));
-    varst.insert(make_pair(var, stitle));
-    varu.insert(make_pair(var, unit));
-    varb.insert(make_pair(var, bins));
-  }
-
-  void init_vars( ) {
-    init_var("mass", "Invariant Mass", "M^{inv}", "[GeV/c^{2}]", axis(nbin,massS,massE));
-    init_var("mom", "Momentum", "p", "[GeV/c]", axis(nbin,momS,momE));
-    init_var("pt", "p_{T}", "p_{T}", "[GeV/c]", axis(nbin,ptS,ptE));
-    init_var("e", "Energy", "E", "[GeV]", axis(nbin,eS,eE));
-    init_var("the", "#theta", "#theta", "[rad]", axis(nbin,theS,theE));
-    init_var("cost", "cos(#theta)", "cos(#theta)", "", axis(nbin,costS,costE));
-    init_var("phi", "#phi", "#phi", "[rad]", axis(nbin,phiS,phiE));
-    init_var("oa", "Opening Angle", "OA", "[rad]", axis(nbin,oaS,oaE));
-    init_var("u", "Mandelstam u", "u", "[(GeV/c^{2})^{2}]", axis(nbin,mandS,mandE));
-    init_var("s", "Mandelstam s", "s", "[(GeV/c^{2})^{2}]", axis(nbin,mandS,mandE));
-    init_var("t", "Mandelstam t", "t", "[(GeV/c^{2})^{2}]", axis(nbin,mandS,mandE));
+  void init_var_titles( ) {
+    vart.insert(make_pair("mass", "Mass")); varst.insert(make_pair("mass", "M^{inv}")); varu.insert(make_pair("mass", "[GeV/c^{2}]"));
+    vart.insert(make_pair("mom", "Momentum")); varst.insert(make_pair("mom", "p")); varu.insert(make_pair("mom", "[GeV/c]"));
+    vart.insert(make_pair("pt", "p_{T}")); varst.insert(make_pair("pt", "p_{T}")); varu.insert(make_pair("pt", "[GeV/c]"));
+    vart.insert(make_pair("e", "Energy")); varst.insert(make_pair("e", "E")); varu.insert(make_pair("e", "[GeV]"));
+    vart.insert(make_pair("the", "#theta")); varst.insert(make_pair("the", "#theta")); varu.insert(make_pair("the", "[rad]"));
+    vart.insert(make_pair("cost", "cos(#theta)")); varst.insert(make_pair("cost", "cos(#theta)")); varu.insert(make_pair("cost", ""));
+    vart.insert(make_pair("phi", "#phi")); varst.insert(make_pair("phi", "#phi")); varu.insert(make_pair("phi", "[rad]"));
+    vart.insert(make_pair("oa", "Opening Angle")); varst.insert(make_pair("oa", "OA")); varu.insert(make_pair("oa", "[rad]"));
+    vart.insert(make_pair("u", "Mandelstam u")); varst.insert(make_pair("u", "u")); varu.insert(make_pair("u", "[(GeV/c^{2})^{2}]"));
+    vart.insert(make_pair("s", "Mandelstam s")); varst.insert(make_pair("s", "s")); varu.insert(make_pair("s", "[(GeV/c^{2})^{2}]"));
+    vart.insert(make_pair("t", "Mandelstam t")); varst.insert(make_pair("t", "t")); varu.insert(make_pair("t", "[(GeV/c^{2})^{2}]"));
   }
 
   void init_pair_func_dict() {
@@ -239,11 +130,38 @@ class filler {
   }
 
   void init_all() {
-    init_vars();
+    init_var_titles();
     init_func_dict();
     init_func_boost_dict();
     init_pair_func_dict();
     init_pair_func_boost_dict();
+  }
+
+  filler (TNamed *_hist, const int &npartx) : hist(_hist), ix(npartx) {
+    init_all();
+  }
+
+  filler (TNamed *_hist, const int &npartx, const int &nparty)
+    : hist(_hist), ix(npartx), iy(nparty), _func(2), _func_b(2), _func_p(2), _func_p_b(2) {
+    init_all();
+  }
+
+ filler(const int &npart) : ix(npart) {
+    init_all();
+  }
+
+  ~filler() { }
+  virtual void operator()(const vector<TLorentzVector>&)=0;
+  // if needs to be boosted by some
+  virtual void operator()(const vector<TLorentzVector>&, const TVector3&)=0;
+  // if x axis and y axis need to be boosted by different vecotrs -
+  // this function should do nothing and communicate annoyingly if called on a 1d filler
+  virtual void operator()(const vector<TLorentzVector>&, const TVector3&, const TVector3&)=0;
+
+  void Write() { this->hist->Write(); }
+  void Write(const char* prefix) {
+    this->hist->SetName( Form("%s_%s", prefix, hist->GetName()) );
+    this->hist->Write();
   }
 
   TLorentzVector boost_transf(const TLorentzVector &vect_in, const TVector3 &boost) const {
@@ -295,6 +213,10 @@ class filler {
 class filler1d: public filler {
 
  protected:
+  func _func;
+  func_boost _func_b;
+  pair_func _func_p;
+  pair_func_boost _func_p_b;
   const char* func_tag;
   const char* filler_tag;
 
@@ -305,8 +227,6 @@ class filler1d: public filler {
   }
 
  filler1d(const int &npart): filler(new TH1F(),npart){}
-
- filler1d(const vector<int> &_ix, const char *var):filler(new TH1F(),_ix),func_tag(var),filler_tag(Form("Filler func tag= %s", func_tag)) { }
 
   void set_bins(const int &nbins, const float &min, const float &max) {
     TH1* htemp = dynamic_cast<TH1*>(hist);
@@ -321,24 +241,25 @@ class filler1d: public filler {
     BOOST_ASSERT_MSG(p4s.size()>=ix.size(), filler_tag);
     TH1* htemp = dynamic_cast<TH1*>(hist);
     if (ix.size() == 1) {
-      BOOST_ASSERT_MSG(_func[0] != nullptr, filler_tag);
-      htemp->Fill( (this->*_func[0])(p4s[ix[0]]));
+      BOOST_ASSERT_MSG(_func != nullptr, filler_tag);
+      htemp->Fill( (this->*_func)(p4s[ix[0]]));
     } else if (ix.size() == 2) {
-      BOOST_ASSERT_MSG(_func_p[0] != nullptr, filler_tag);
-      htemp->Fill( (this->*_func_p[0])(p4s[ix[0]], p4s[ix[1]]));
+      BOOST_ASSERT_MSG(_func_p != nullptr, filler_tag);
+      htemp->Fill( (this->*_func_p)(p4s[ix[0]], p4s[ix[1]]));
     }
   }
 
   // if needs to be boosted by some
   virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3& boost) {
+    cout<< filler_tag << " --- filer1d::operator() _func = " << _func << " _func_b= " << _func_b << " _func_p= " << _func_p << " _func_p_b= " << _func_p_b << endl;
     BOOST_ASSERT_MSG(p4s.size()>=ix.size(), filler_tag);
     TH1* htemp = dynamic_cast<TH1*>(hist);
     if (ix.size() == 1 ) {
-      BOOST_ASSERT_MSG(_func_b[0] != nullptr, filler_tag);
-      htemp->Fill( (this->*_func_b[0])( p4s[ix[0]], boost));
+      BOOST_ASSERT_MSG(_func_b != nullptr, filler_tag);
+      htemp->Fill( (this->*_func_b)( p4s[ix[0]], boost));
     } else if (ix.size() == 2 ) {
-      BOOST_ASSERT_MSG(_func_p_b[0] != nullptr, filler_tag);
-      htemp->Fill( (this->*_func_p_b[0])( p4s[ix[0]] , p4s[ix[1]], boost ) );
+      BOOST_ASSERT_MSG(_func_p_b != nullptr, filler_tag);
+      htemp->Fill( (this->*_func_p_b)( p4s[ix[0]] , p4s[ix[1]], boost ) );
     }
   }
 
@@ -352,139 +273,94 @@ class filler1d: public filler {
 
 //____________________________________
 class var1d: public filler1d {
-
-
  public:
+ var1d(const int &_i, const char *var, const char* names[], const int &nbins, const float &min, const float &max, const char* f[], const char* t[]=nullptr):
+  filler1d(1) {
+    ix[0] = _i;
 
- //var1d(const int &_i, const char *var, const int &nbins, const float &min, const float &max, const char* frame[], const char* names[], const char* t[]=nullptr):
- // filler1d(1) {
- //   ix[0] = _i;
- //   func_tag = var;
- //   filler_tag = Form("Filler func tag= %s", func_tag);
- //   if (func_dict.find(var) == func_dict.end()) { cout << "WARNING: Cant find function with tag " << var << endl; }
- //   if (func_boost_dict.find(var) == func_boost_dict.end()) { cout << "WARNING: Cant find function with tag " << var << endl; }
- //   _func.push_back(func_dict[var]);
- //   _func_b.push_back(func_boost_dict[var]);
- //   set_name(Form("%s_%s_%s", frame[0], var, names[_i]));
- //   set_title(Form("%s %s %s;%s_{%s}%s", t[_i], vart[var], frame[1], varst[var], t[_i], varu[var] ));
- //   set_bins(nbins, min, max);
- // }
- //var1d(const int &_i, const char *var, const axis &x, const char* frame[], const char* names[], const char* t[]=nullptr)
- //  : var1d(_i,var,x.nbins,x.min,x.max,frame,names,t) {}
+    func_tag = var;
+    filler_tag = Form("Filler func tag= %s", func_tag);
+    if (func_dict.find(var) == func_dict.end()) { cout << "WARNING: Cant find function with tag " << var << endl; return; }
+    if (func_boost_dict.find(var) == func_boost_dict.end()) { cout << "WARNING: Cant find function with tag " << var << endl; return; }
+    _func = func_dict[var];
+    _func_b = func_boost_dict[var];
 
- var1d(const int &_ix, const char *var, const axis &x, const char* frame[],
-       const char* names[], const char* ptitles[]): filler1d(vector<int>{_ix},var) {
-    set_funcs(0,var);
-    set_bins(x.nbins, x.min, x.max);
-    set_name( Form("%s", _name(var, frame[0], names[_ix]) ));
-    set_title( Form("%s;%s", _title(var, frame[1], ptitles[_ix]), _atitle(var, ptitles[_ix]) ));
+    cout << filler_tag << " ---- set funcs to _func= " << _func << " _func_b= " << _func_b << endl;
+    set_name(Form("%s_%s_%s",f[0], var, names[_i]));
+    if (t==nullptr)
+      set_title(Form("%s_%s",var,names[_i]));
+    else
+      set_title(Form("%s %s (%s frame);%s_{%s}%s", t[_i], vart[var], f[1], varst[var], t[_i], varu[var] ));
+    set_bins(nbins, min, max);
   }
-
- var1d(const int &_ix0, const int &_ix1, const char *var, const axis &x, const char* frame[],
-       const char* names[], const char* ptitles[]): filler1d(vector<int>{_ix0,_ix1},var) {
-    set_pair_funcs(0,var);
-    set_bins(x.nbins, x.min, x.max);
-    set_name( Form("%s", _name_p(var, frame[0], names[_ix0], names[_ix1]) ));
-    set_title( Form("%s;%s", _title_p(var, frame[1], ptitles[_ix0], ptitles[_ix1]), _atitle_p(var, ptitles[_ix0], ptitles[_ix1]) ));
-  }
-
-  /*
-    if (strcmp(framex[0],framey[0])!=0) {
-      set_name( Form("%s_%s", _name_p(varx, framex[0], names[_ix0], names[_ix1]), _name_p(vary, framey[0], names[_iy0], names[_iy1]) ));
-      set_title( Form("%s vs %s;%s;%s", _title_p(vary, framey[1], ptitle[_iy0], ptitle[_iy1]), _title_p(varx, framex[1], ptitle[_ix0], ptitle[_ix1]),
-		      _atitle_p(vary, ptitle[_iy0], ptitle[_iy1]), _atitle_p(varx, ptitle[_ix0], ptitle[_ix1]) ));
-    } else {
-      set_name( Form("%s_%s_%s", framex[0], _name_p(varx, names[_ix0], names[_ix1]), _name_p(vary, names[_iy0], names[_iy1]) ));
-      set_title( Form("%s vs %s%s;%s;%s", _title_p(vary, ptitle[_iy0], ptitle[_iy1]), _title_p(varx, ptitle[_ix0], ptitle[_ix1]), framex[1],
-		      _atitle_p(vary, ptitle[_iy0], ptitle[_iy1]), _atitle_p(varx, ptitle[_ix0], ptitle[_ix1]) ));
-    }
-  */
-
-  //var1d(const int &_i, const char *var, const char* names[], const char* frame[], const char* t[]=nullptr)
- //  : var1d(_i,var,varb[var],names,f,t) {}
 };
 
-//
-////____________________________________
-//class inv_var1d: public filler1d {
-// public:
-// inv_var1d(const int &_i, const char *var, const int &nbins, const float &min, const float &max, const char* names[], const char* t[]=nullptr):
-//  filler1d(1) {
-//    ix[0] = _i;
-//
-//    func_tag = var;
-//    filler_tag = Form("Filler func tag= %s", func_tag);
-//    if (func_dict.find(var) == func_dict.end()) { cout << "WARNING: Cant find function with tag " << var << endl; }
-//    _func.push_back(func_dict[var]);
-//
-//    set_name(Form("%s_%s", var, names[_i]));
-//    if (t==nullptr)
-//      set_title(hist->GetName());
-//    else
-//      set_title(Form("%s %s;%s_{%s}%s", t[_i], vart[var], varst[var], varu[var], t[_i]));
-//    set_bins(nbins, min, max);
-//  }
-// inv_var1d(const int &_i, const char *var, const axis &x, const char* names[], const char* t[]=nullptr):
-//  inv_var1d(_i,var,x.nbins,x.min,x.max,names,t) {}
-// //inv_var1d(const int &_i, const char *var, const char* names[], const char* t[]=nullptr):
-// // inv_var1d(_i,var,varb[var],names,t) {}
-//
-//};
-//
-////_________________________________________
-//class pair_var1d: public filler1d {
-// public:
-// pair_var1d(const int &_i0, const int &_i1, const char *var, const int &nbins, const float &min, const float &max,
-//	    const char *frame[], const char *names[], const char* t[]=nullptr): filler1d(2) {
-//    ix[0] = _i0;
-//    ix[1] = _i1;
-//
-//    func_tag = var;
-//    filler_tag = Form("Filler func tag= %s", func_tag);
-//    if (pair_func_dict.find(var) == pair_func_dict.end()) { cout << "WARNING: Cant find function with tag " << var << endl; return; }
-//    if (pair_func_boost_dict.find(var) == pair_func_boost_dict.end()) { cout << "WARNING: Cant find function with tag " << var << endl; return; }
-//    _func_p.push_back(pair_func_dict[var]);
-//    _func_p_b.push_back(pair_func_boost_dict[var]);
-//
-//    set_name(Form("%s_p%s_%s_%s", frame[0],var, names[_i0],names[_i1]));
-//    if (t==nullptr)
-//      set_title(hist->GetName());
-//    else
-//      set_title(Form("%s-%s Pair %s %s;%s_{%s-%s}%s", t[_i0],t[_i1], vart[var], frame[1], varst[var], t[_i0],t[_i1], varu[var]));
-//    set_bins(nbins, min, max);
-//  }
-// pair_var1d(const int &_i0, const int &_i1, const char *var, const axis &x, const char *names[],
-//	    const char *frame[], const char* t[]=nullptr): pair_var1d(_i0,_i1,var,x.nbins,x.min,x.max,names,frame,t) { }
-//
-//
-//};
-//
-////_________________________________________
-//class pair_inv_var1d: public filler1d {
-// public:
-// pair_inv_var1d(const int &_i0, const int &_i1, const char *var, const int &nbins, const float &min, const float &max,
-//		const char *names[], const char* t[]=nullptr): filler1d(2) {
-//    ix[0] = _i0;
-//    ix[1] = _i1;
-//
-//    func_tag = var;
-//    filler_tag = Form("Filler func tag= %s", func_tag);
-//    if (pair_func_dict.find(var) == pair_func_dict.end()) { cout << "WARNING: Cant find function with tag " << var << endl; return; }
-//    _func_p.push_back(pair_func_dict[var]);
-//
-//    set_name(Form("p%s_%s_%s", var, names[_i0],names[_i1]));
-//    if (t==nullptr)
-//      set_title(hist->GetName());
-//    else
-//      set_title(Form("%s-%s Pair %s;%s _{%s-%s}%s", t[_i0], t[_i1], vart[var], varst[var], t[_i0], t[_i1], varu[var] ));
-//    set_bins(nbins, min, max);
-//  }
-// pair_inv_var1d(const int &_i0, const int &_i1, const char *var, const axis &x, const char *names[], const char* t[]=nullptr)
-//   : pair_inv_var1d(_i0,_i1,var,x.nbins,x.min,x.max,names,t) {}
-//  //pair_inv_var1d(const int &_i0, const int &_i1, const char *var, const char *names[], const char* t[]=nullptr)
-//  // : pair_inv_var1d(_i0,_i1,var,varb[var],names,t) {}
-//};
+//____________________________________
+class inv_var1d: public filler1d {
+ public:
+ inv_var1d(const int &_i, const char *var, const char* names[], const int &nbins, const float &min, const float &max, const char* t[]=nullptr):
+  filler1d(1) {
+    ix[0] = _i;
 
+    func_tag = var;
+    filler_tag = Form("Filler func tag= %s", func_tag);
+    if (func_dict.find(var) == func_dict.end()) { cout << "WARNING: Cant find function with tag " << var << endl; return; }
+    _func = func_dict[var];
+
+    set_name(Form("%s_%s",var, names[_i]));
+    if (t==nullptr)
+      set_title(Form("%s_%s",var, names[_i]));
+    else
+      set_title(Form("%s %s;%s_{%s}%s", t[_i], vart[var], varst[var], varu[var], t[_i]));
+    set_bins(nbins, min, max);
+  }
+};
+
+//_________________________________________
+class pair_var1d: public filler1d {
+ public:
+ pair_var1d(const int &_i0, const int &_i1, const char *var, const char *names[],
+		   const int &nbins, const float &min, const float &max, const char *f[], const char* t[]=nullptr): filler1d(2) {
+    ix[0] = _i0;
+    ix[1] = _i1;
+
+    func_tag = var;
+    filler_tag = Form("Filler func tag= %s", func_tag);
+    if (pair_func_dict.find(var) == pair_func_dict.end()) { cout << "WARNING: Cant find function with tag " << var << endl; return; }
+    if (pair_func_boost_dict.find(var) == pair_func_boost_dict.end()) { cout << "WARNING: Cant find function with tag " << var << endl; return; }
+    _func_p = pair_func_dict[var];
+    _func_p_b = pair_func_boost_dict[var];
+
+    set_name(Form("%s_p_%s_%s_%s",f[0],var, names[_i0],names[_i1]));
+    if (t==nullptr)
+      set_title(Form("%s_%s_%s",var, names[_i0],names[_i1]));
+    else
+      set_title(Form("%s-%s pair %s (%s frame);%s_{%s-%s}%s",t[_i0],t[_i1], vart[var], f[1], varst[var], t[_i0],t[_i1], varu[var]));
+    set_bins(nbins, min, max);
+  }
+};
+
+//_________________________________________
+class pair_inv_var1d: public filler1d {
+ public:
+ pair_inv_var1d(const int &_i0, const int &_i1, const char *var, const char *names[],
+		   const int &nbins, const float &min, const float &max, const char* t[]=nullptr): filler1d(2) {
+    ix[0] = _i0;
+    ix[1] = _i1;
+
+    func_tag = var;
+    filler_tag = Form("Filler func tag= %s", func_tag);
+    if (pair_func_dict.find(var) == pair_func_dict.end()) { cout << "WARNING: Cant find function with tag " << var << endl; return; }
+    _func_p = pair_func_dict[var];
+
+    set_name(Form("_%s_%s_%s", var, names[_i0],names[_i1]));
+    if (t==nullptr)
+      set_title(Form("%s_%s_%s",var, names[_i0],names[_i1]));
+    else
+      set_title(Form("%s-%s pair %s;%s _{%s-%s}%s", t[_i0], t[_i1], vart[var], varst[var], t[_i0], t[_i1], varu[var] ));
+    set_bins(nbins, min, max);
+  }
+};
 
 ////_____________________________
 //class filler2d: public filler {
@@ -508,18 +384,22 @@ class var1d: public filler1d {
 class filler2d: public filler {
 
  protected:
-  const char *func_x, *func_y;
+
+  func wtf_func_x, wtf_func_y;
+  func_boost wtf_func_b_x, wtf_func_b_y;
+  pair_func wtf_func_p_x, wtf_func_p_y;
+  pair_func_boost wtf_func_p_b_x,wtf_func_p_b_y;
+
+  const char *func_tag_x, *func_tag_y;
   const char *filler_tag;
 
  filler2d(const char* h_name, const char* h_title, const int &npart,
 	  const int &nbinsx, const float &xmin, const float &xmax,
-	  const int &nbinsy, const float &ymin, const float &ymax) :filler(npart) {
+	  const int &nbinsy, const float &ymin, const float &ymax): filler(npart) {
     hist = new TH2F(h_name, h_title, nbinsx, xmin, xmax, nbinsy, ymin, ymax);
   }
 
- filler2d(const vector<int> &_ix, const vector<int> &_iy,
-	  const char *varx, const char *vary)
-   :filler(new TH2F(),_ix,_iy),func_x(varx),func_y(vary),filler_tag(Form("Filler func tagx = %s tagy = %s", varx, vary)) {  }
+ filler2d(const int &npartx, const int &nparty): filler(new TH2F(),npartx,nparty) {  }
 
   void set_bins(const int &nbinsx, const float &xmin, const float &xmax,
 		const int &nbinsy, const float &ymin, const float &ymax) {
@@ -527,7 +407,7 @@ class filler2d: public filler {
     htemp->SetBins(nbinsx, xmin, xmax, nbinsy, ymin, ymax);
   }
 
-  void set_bins(const axis &x, const axis &y) {
+  void set_bins(const binning &x, const binning &y) {
     TH2* htemp = dynamic_cast<TH2*>(hist);
     htemp->SetBins(x.nbins, x.min, y.max, y.nbins, y.min, y.max);
   }
@@ -536,34 +416,87 @@ class filler2d: public filler {
 
  private:
 
+  double value(func __func, const TLorentzVector &v) {
+    cout << "filler2d::value(func, TLV) trying to get a ref to function " << __func << endl;
+    BOOST_ASSERT_MSG(__func != nullptr, filler_tag);
+    return (this->*__func)(v);
+  }
+
+  double value(func_boost __func, const TLorentzVector &v, const TVector3 &b) {
+    cout << "filler2d::value(func_boost, TLV, TV3) trying to get a ref to function " << __func << endl;
+    BOOST_ASSERT_MSG(__func != nullptr, filler_tag);
+    return (this->*__func)(v,b);
+  }
+
+  double value(pair_func __func, const TLorentzVector &v1, const TLorentzVector &v2) {
+    cout << "filler2d::value(pair_func, TLV1, TLV2) trying to get a ref to function " << __func << endl;
+    BOOST_ASSERT_MSG(__func != nullptr, filler_tag);
+    return (this->*__func)(v1,v2);
+  }
+
+  double value(pair_func_boost __func, const TLorentzVector &v1, const TLorentzVector &v2, const TVector3 &b) {
+    cout << "filler2d::value(pair_func_boost, TLV1, TLV2, b) trying to get a ref to function " << __func << endl;
+    BOOST_ASSERT_MSG(__func != nullptr, filler_tag);
+    return (this->*__func)(v1,v2,b);
+  }
+
   double get_value(const int &iaxis, const vector<int> &ii, const vector<TLorentzVector> &p4s) {
     if (ii.size() == 1) {
+      cout << "filler2d::get_value(axisidx=1, part_idx_list, part_idx) " << endl;
       return value(_func[iaxis], p4s[ii[0]]);
+      //return iaxis==0?value(wtf_func_x, p4s[ii[0]]):value(wtf_func_y, p4s[ii[0]]);
     } else if (ii.size() == 2) {
+      cout << "filler2d::get_value(axisidx=2, part_idx_list, part_idx) " << endl;
       return value(_func_p[iaxis], p4s[ii[0]], p4s[ii[1]]);
+      //return iaxis==0?value(wtf_func_p_x, p4s[ii[0]], p4s[ii[1]] ):value(wtf_func_p_y, p4s[ii[0]], p4s[ii[1]]);
     }
+    cout << "blah" << endl;
   }
 
   double get_value(const int &iaxis, const vector<int> &ii, const vector<TLorentzVector> &p4s, const TVector3 &b) {
     if (ii.size() == 1) {
+      //cout << "filler2d::get_value(axis=" << iaxis << ", part_idx_list, part_idx, boost_vect) npart=1 calling get_value with _func_b[" << iaxis << "]" << endl;
+      //cout << "_func_b[" << iaxis << "] = " << _func_b[iaxis] << endl;
+      //cout << "ftag_x= " << func_tag_x << " ftag_y=  " << func_tag_y << " _func.size()= " << _func.size()  << " _func_b.size()= " << _func_b.size()
+      // << " _func_p.size()= " << _func_p.size()  << " _func_p_b.size()= " << _func_p_b.size() << endl;
+      cout << "filler2d::get_value: "
+	//<<"dummy_d.size()= " << dummy_d.size() << " dummy.size()= " << dummy.size() << " dummy_i.size()= " << dummy_i.size()
+	   << " ix.size()= " << ix.size() << " iy.size()= " << iy.size()
+	//<< " ftag_x= " << func_tag_x << " ftag_y=  " << func_tag_y
+      	   << " _func.size()= " << _func.size()  << " _func_b.size()= " << _func_b.size()
+      	   << " _func_p.size()= " << _func_p.size()  << " _func_p_b.size()= " << _func_p_b.size() << endl;
+      cout << "filler2d::get_value(private) with func wtf_func_b_x= " << wtf_func_b_x << " wtf_Func_b_y= " << wtf_func_b_y << endl;
+      //return 0.0;
       return value(_func_b[iaxis], p4s[ii[0]], b);
+      //return iaxis==0?value(wtf_func_b_x, p4s[ii[0]], b):value(wtf_func_b_y, p4s[ii[0]], b);
     } else if (ii.size() == 2) {
+      cout << "filler2d::get_value(axis=" << iaxis << ", part_idx_list, part_idx, boost_vect) npart=2 calling get_value with _func_b[" << iaxis << "]" << endl;
       return value(_func_p_b[iaxis], p4s[ii[0]], p4s[ii[1]], b);
+      //return iaxis==0?value(wtf_func_p_b_x, p4s[ii[0]], p4s[ii[1]], b):value(wtf_func_p_b_y, p4s[ii[0]], p4s[ii[1]], b);
     }
   }
 
  public:
+  // Virtual overlaod function call operators to pass the 4momenta to be filled
   virtual void operator()(const vector<TLorentzVector> &p4s) {
     BOOST_ASSERT_MSG(p4s.size()>=ix.size() , filler_tag);
     TH2* htemp = dynamic_cast<TH2*>(hist);
     htemp->Fill(get_value(0,ix,p4s),get_value(1,iy,p4s));
   }
 
+  // if needs to be boosted by some
   virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3& b) {
+    cout << filler_tag << "  operator() (public) with func "
+    	 << "wtf_func_x= " << wtf_func_x << " wtf_func_y= " << wtf_func_y
+	 << "wtf_func_p_x= " << wtf_func_p_x << " wtf_func_p_y= " << wtf_func_p_y
+	 << "wtf_func_b_x= " << wtf_func_b_x << " wtf_Func_b_y= " << wtf_func_b_y
+	 << "wtf_func_p_b_x= " << wtf_func_p_b_x << " wtf_func_p_b_y= " << wtf_func_p_b_y
+    	 << endl;
     BOOST_ASSERT_MSG(p4s.size()>=ix.size(), filler_tag);
     TH2* htemp = dynamic_cast<TH2*>(hist);
     htemp->Fill(get_value(0,ix,p4s,b), get_value(1,iy,p4s,b));
   }
+
   virtual void operator()(const vector<TLorentzVector>&p4s, const TVector3&b1, const TVector3&b2) {
     BOOST_ASSERT_MSG(p4s.size()>=ix.size(), filler_tag);
     TH2* htemp = dynamic_cast<TH2*>(hist);
@@ -576,108 +509,79 @@ class filler2d: public filler {
 
 //____________________________________
 class var2d: public filler2d {
- protected:
-  //void set_funcs(const int &iaxis, const char* var) {
-  //  if (func_dict.find(var) == func_dict.end()) { cout << "WARNING: Cant find function with tag " << var << " in func_dict "<< endl; }
-  //  if (func_boost_dict.find(var) == func_boost_dict.end()) { cout << "WARNING: Cant find function with tag " << var << " in func_boost_dict" << endl; }
-  //  _func[iaxis] = func_dict[var];
-  //  _func_b[iaxis] = func_boost_dict[var];
-  //}
-  //void set_pair_funcs(const int &iaxis, const char* var) {
-  //  if (pair_func_dict.find(var) == pair_func_dict.end()) { cout << "WARNING: Cant find function with tag " << var << " in pair_func_dict"<< endl; }
-  //  if (pair_func_boost_dict.find(var) == pair_func_boost_dict.end()) { cout << "WARNING: Cant find function with tag " << var << " in pair_func_boost_dict" << endl; }
-  //  _func_p[iaxis] = pair_func_dict[var];
-  //  _func_p_b[iaxis] = pair_func_boost_dict[var];
-  //}
+   protected:
+  void set_funcs(const int &iaxis, const char* var) {
+    if (func_dict.find(var) == func_dict.end()) { cout << "WARNING: Cant find function with tag " << var << endl; return; }
+    if (func_boost_dict.find(var) == func_boost_dict.end()) { cout << "WARNING: Cant find function with tag " << var << endl; return; }
+    //_func.push_back(func_dict[var]);
+    _func[iaxis] = func_dict[var];
+    _func_b[iaxis] = func_boost_dict[var];
+
+    if (iaxis==0) {
+      wtf_func_x = func_dict[var];
+      wtf_func_b_x = func_boost_dict[var];
+    } else {
+      wtf_func_y = func_dict[var];
+      wtf_func_b_y = func_boost_dict[var];
+    }
+    //dummy.push_back(TVector3());
+    //dummy_d.push_back(0.0);
+
+    cout << "var2d::set_funcs     "
+      //<< "dummy_d.size()= " << dummy_d.size() << " dummy.size()= " << dummy.size() << " dummy_i.size()= " << dummy_i.size()
+  	 << " ix.size()= " << ix.size() << " iy.size()= " << iy.size()
+      //<< " ftag_x= " << func_tag_x << " ftag_y=  " << func_tag_y
+  	 << " _func.size()= " << _func.size()  << " _func_b.size()= " << _func_b.size()
+  	 << " _func_p.size()= " << _func_p.size()  << " _func_p_b.size()= " << _func_p_b.size() << endl;
+  }
+  void register_vars(const char* varx, const char* vary) {
+    cout <<"registering vars" << endl;
+    func_tag_x = varx;
+    func_tag_y = vary;
+    set_funcs(0,varx); // make sure x is called before y (otherwise axes will be inversed)
+    set_funcs(1,vary); // make sure x is called before y (otherwise axes will be inversed)
+  }
+
  public:
 
- //var2d(const int &_ix, const char *varx, const int &nbinsx, const double &xmin, const double &xmax, const char* framex[],
- //      const int &_iy, const char *vary, const int &nbinsy, const double &ymin, const double &ymax, const char* framey[],
- //      const char* names[], const char* t[]=nullptr): filler2d(ix,iy,varx,vary) {
- //   set_funcs(0,varx); // make sure x is called before y (otherwise axes will be inversed)
- //   set_funcs(1,vary); // make sure x is called before y (otherwise axes will be inversed)
- //   set_name(Form("%s_%s_%s_%s_%s_%s", framex[0], varx, names[_ix],framey[0], vary, names[_iy]));
- //   set_title(t==nullptr?hist->GetName():Form("%s %s%s vs %s %s%s", t[_iy], vart[vary], framey[2], t[_ix], vart[varx], framex[2] ));
- //   set_bins(nbinsx,xmin,xmax,nbinsy,ymin,ymax);
- // }
-
-  // Example consructions
-  //var2d(ep,em,"mass",mass_bins,lab_frame,jpsi,"pt",pt_bins,lab_frame,parts,part_titles)
-  //var2d(jpsi,"energy",ene_bins,lab_frame,ep,em,"oa",oa_bins,lab_frame,parts,part_titles)
-  //var2d(gamma1,"mom",mom_bins,jpsi_frame,)
-  // Constructor chaining is allowed only in c++11
-
-  // Single-Single
- var2d(const int &_ix, const char *varx, const axis &x, const char* framex[],
-       const int &_iy, const char *vary, const axis &y, const char* framey[],
-       const char* names[], const char* ptitle[]): filler2d(vector<int>{_ix},vector<int>{_iy},varx,vary) {
-    set_bins(x.nbins,x.min,x.max,y.nbins,y.min,y.max);
-    set_funcs(0,varx); // make sure x is called before y (otherwise axes will be inversed)
-    set_funcs(1,vary); // make sure x is called before y (otherwise axes will be inversed)
-    if (strcmp(framex[0],framey[0])!=0) {
-      set_name( Form("%s_%s", _name(varx, framex[0], names[_ix]), _name(vary, framey[0], names[_iy] ) ));
-      set_title( Form("%s vs %s;%s;%s", _title(vary, framey[1], ptitle[_iy]), _title(varx, framex[1], ptitle[_ix] ), _atitle(varx, ptitle[_ix]), _atitle(vary, ptitle[_iy]) ));
+ var2d(const int &_ix, const char *varx, const int &nbinsx, const double &xmin, const double &xmax, const char* framex[],
+       const int &_iy, const char *vary, const int &nbinsy, const double &ymin, const double &ymax, const char* framey[],
+       const char* names[], const char* t[]=nullptr): filler2d(1,1) {
+    filler_tag = Form("Filler func tagx = %s tagy = %s", varx, vary);
+    ix[0] = _ix;
+    iy[0] = _iy;
+    register_vars(varx, vary);
+    set_name(Form("%s_%s_%s_%s_%s_%s",framex[0], varx, names[_ix],framey[0], vary, names[_iy]));
+    if (t==nullptr) {
+      set_title(hist->GetName());
     } else {
-      set_name( Form("%s_%s_%s", framex[0], _name(varx, names[_ix]), _name(vary, names[_iy] ) ));
-      set_title( Form("%s vs %s%s;%s;%s", _title(vary, ptitle[_iy]), _title(varx, ptitle[_ix]), framex[1], _title(varx, ptitle[_ix]), _title(vary, ptitle[_iy]) ));
+      set_title(Form("%s %s%s vs %s %s%s", t[_iy], vart[vary], framey[2], t[_ix], vart[varx], framex[2] ));
     }
+    set_bins(nbinsx,xmin,xmax,nbinsy,ymin,ymax);
   }
 
-  // Pair-Pair
- var2d(const int &_ix0, const int &_ix1, const char *varx, const axis &x, const char* framex[],
-       const int &_iy0, const int &_iy1, const char *vary, const axis &y, const char* framey[],
-       const char* names[], const char* ptitle[]): filler2d(vector<int>{_ix0,_ix1},vector<int>{_iy0,_iy1},varx,vary) {
-    set_bins(x.nbins,x.min,x.max,y.nbins,y.min,y.max);
-    set_pair_funcs(0,varx); // make sure x is called before y (otherwise axes will be inversed)
-    set_pair_funcs(1,vary); // make sure x is called before y (otherwise axes will be inversed)
-    if (strcmp(framex[0],framey[0])!=0) {
-      set_name( Form("%s_%s", _name_p(varx, framex[0], names[_ix0], names[_ix1]), _name_p(vary, framey[0], names[_iy0], names[_iy1]) ));
-      set_title( Form("%s vs %s;%s;%s", _title_p(vary, framey[1], ptitle[_iy0], ptitle[_iy1]), _title_p(varx, framex[1], ptitle[_ix0], ptitle[_ix1]),
-		      _atitle_p(varx, ptitle[_ix0], ptitle[_ix1]), _atitle_p(vary, ptitle[_iy0], ptitle[_iy1]) ));
-    } else {
-      set_name( Form("%s_%s_%s", framex[0], _name_p(varx, names[_ix0], names[_ix1]), _name_p(vary, names[_iy0], names[_iy1]) ));
-      set_title( Form("%s vs %s%s;%s;%s", _title_p(vary, ptitle[_iy0], ptitle[_iy1]), _title_p(varx, ptitle[_ix0], ptitle[_ix1]), framex[1],
-		      _atitle_p(varx, ptitle[_ix0], ptitle[_ix1]), _atitle_p(vary, ptitle[_iy0], ptitle[_iy1]) ));
-    }
-  }
+ var2d(const int &_ix, const char *varx, const binning &x, const char* framex[],
+       const int &_iy, const char *vary, const binning &y, const char* framey[],
+       const char* names[], const char* t[]=nullptr): filler2d(1,1){
 
-  // Singe-Pair
- var2d(const int &_ix, const char *varx, const axis &x, const char* framex[],
-       const int &_iy0, const int &_iy1, const char *vary, const axis &y, const char* framey[],
-       const char* names[], const char* ptitle[]): filler2d(vector<int>{_ix},vector<int>{_iy0,_iy1},varx,vary) {
-    set_bins(x.nbins,x.min,x.max,y.nbins,y.min,y.max);
-    set_funcs(0,varx); // make sure x is called before y (otherwise axes will be inversed)
-    set_funcs(1,vary); // make sure x is called before y (otherwise axes will be inversed)
-    if (strcmp(framex[0],framey[0])!=0) {
-      set_name( Form("%s_%s", _name(varx, framex[0], names[_ix]), _name_p(vary, framey[0], names[_iy0], names[_iy1]) ));
-      set_title( Form("%s vs %s;%s;%s", _title_p(vary, framey[1], ptitle[_iy0], ptitle[_iy1]), _title(varx, framex[1], ptitle[_ix]),
-		      _atitle(varx, ptitle[_ix]), _atitle_p(vary, ptitle[_iy0], ptitle[_iy1]) ));
+    //var2d(_ix,varx,x.nbins,x.min,x.max,framex,_iy,vary,y.nbins,y.min,y.max,framey,names,t); -- why didn't this work?
+    filler_tag = Form("Filler func tagx = %s tagy = %s", varx, vary);
+    ix[0] = _ix;
+    iy[0] = _iy;
+    register_vars(varx, vary);
+    set_name(Form("%s_%s_%s_%s_%s_%s",framex[0], varx, names[_ix],framey[0], vary, names[_iy]));
+    if (t==nullptr) {
+      set_title(hist->GetName());
     } else {
-      set_name( Form("%s_%s_%s", framex[0], _name(varx, names[_ix]), _name_p(vary, names[_iy0], names[_iy1]) ));
-      set_title( Form("%s vs %s%s;%s;%s", _title_p(vary, ptitle[_iy0], ptitle[_iy1]), _title(varx, ptitle[_ix]), framex[1],
-		      _atitle(varx, ptitle[_ix]), _atitle_p(vary, ptitle[_iy0], ptitle[_iy1]) ));
+      set_title(Form("%s %s%s vs %s %s%s", t[_iy], vart[vary], framey[2], t[_ix], vart[varx], framex[2] ));
     }
-  }
-
-  // Pair-Single
- var2d(const int &_ix0, const int &_ix1, const char *varx, const axis &x, const char* framex[],
-       const int &_iy, const char *vary, const axis &y, const char* framey[],
-       const char* names[], const char* ptitle[]): filler2d(vector<int>{_ix0,_ix1},vector<int>{_iy},varx,vary) {
-    set_bins(x.nbins,x.min,x.max,y.nbins,y.min,y.max);
-    set_funcs(0,varx); // make sure x is called before y (otherwise axes will be inversed)
-    set_funcs(1,vary); // make sure x is called before y (otherwise axes will be inversed)
-    if (strcmp(framex[0],framey[0])!=0) {
-      set_name( Form("%s_%s", _name_p(varx, framex[0], names[_ix0], names[_ix1]), _name(vary, framey[0], names[_iy]) ));
-      set_title( Form("%s vs %s;%s;%s", _title(vary, framey[1], ptitle[_iy]), _title_p(varx, framex[1], ptitle[_ix0], ptitle[_ix1]),
-		      _atitle_p(varx, ptitle[_ix0], ptitle[_ix1]), _atitle(vary, ptitle[_iy]) ));
-    } else {
-      set_name( Form("%s_%s_%s", framex[0], _name_p(varx, names[_ix0], names[_ix1]), _name(vary, names[_iy]) ));
-      set_title( Form("%s vs %s%s;%s;%s", _title(vary, ptitle[_iy]), _title_p(varx, ptitle[_ix0], ptitle[_ix1]), framex[1],
-		      _atitle_p(varx, ptitle[_ix0], ptitle[_ix1]), _atitle(vary, ptitle[_iy]) ));
-    }
+    set_bins(x, y);
   }
 
 };
+
+
+
 
 
 
@@ -876,6 +780,8 @@ class mand_t_filler1d: public filler1d {
     assert(p4s.size()>=ix.size());
     TH1* htemp = dynamic_cast<TH1*>(hist);
     htemp->Fill( (p4s[ix[0]]-p4s[ix[1]]).M2() );
+    cout << "org t = " << (p4s[ix[0]]-p4s[ix[1]]).M2() << endl;
+    cout << "======================================" << endl;
   }
   // This doesn't make sense for mass, it should be uncallable if possible
   virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {
@@ -897,6 +803,7 @@ class mand_u_filler1d: public filler1d {
     assert(p4s.size()>=ix.size());
     TH1* htemp = dynamic_cast<TH1*>(hist);
     htemp->Fill( (p4s[ix[0]]-p4s[ix[1]]).M2() );
+    cout << "org u = " << (p4s[ix[0]]-p4s[ix[1]]).M2() << endl;
   }
   // This doesn't make sense for mass, it should be uncallable if possible
   virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3 &boost) {

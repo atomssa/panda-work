@@ -26,17 +26,27 @@ using namespace std;
 static const bool verb = false;
 
 static const double rtd= TMath::RadToDeg();
-static const double m_2pi = 2.0*TMath::Pi();
-static const double m_pi = TMath::Pi();
+//static const double m_2pi; // = 2.0*TMath::Pi();
+//static const double m_pi; // = TMath::Pi();
 
 static const double ct_max = 1.1;
 static const double ct_min = -1.1;
-static const double th_min = -0.2;
-static const double th_max = m_pi+0.2;
+static const double th_min = -0.1;
+static const double th_max = m_pi+0.1;
 static const double mom_min = 0;
-static const double mom_max = 4;
+static const double mom_max = 6;
 static const double oa_min = -0.2;
 static const double oa_max = m_pi+0.2;
+static const double t_0 = 2;
+static const double t_1 = -2;
+
+static axis mom_bins(200, 0.0, 6.0);
+static axis ene_bins(200, mom_min, mom_max);
+static axis t_bins(200, -2.0, 2.0);
+static axis the_bins(200, -0.1, m_pi+0.1);
+static axis phi_bins(200, -m_pi, m_pi);
+static axis cost_bins(200, -1.1, 1.1);
+static axis oa_bins(200, -0.1, m_pi+0.1);
 
 //static const double mass_jpsi = 3.096;
 //static const double mass_pi0 = 0.135;
@@ -108,46 +118,50 @@ void fill_bg_hists(TChain *data_in, TClonesArray *part_array) {
   const double t_0 = 1;
   const double t_1 = -11;
   const double m_max = 1.1 * TMath::Sqrt(2*mass_prot + 2*p_antip*mass_prot);
+  const axis mass_bins(200,0,m_max);
 
   enum {pbar=0, pi0=1, pim=2, pip=3, pipm=4};
   const char *pp[] = {"pbar", "pi0", "pim", "pip", "pipm"};
   const char *pp_title[] = {"#bar{p}", "#pi^{0}", "#pi^{+}", "#pi^{-}", "(#pi^{+}#pi^{-})"};
   std::vector<filler*> fillers_lab;
 
+  const char *lab_frame[] = {"lab"," (Lab frame)"};
   // (pi0) mom and angles
-  const char *lab_frame[] = {"lab","Lab"};
-  fillers_lab.push_back(new mom_filler1d(pi0, pp, 200, 0, 6, lab_frame, pp_title));
-  fillers_lab.push_back(new the_filler1d(pi0, pp, 200, 0, m_pi, lab_frame, pp_title));
-  fillers_lab.push_back(new phi_filler1d(pi0, pp, 200, -m_pi, m_pi, lab_frame, pp_title));
+  // (pi+) - (pi-) system mass, mom and angles
+  fillers_lab.push_back(new var1d(pi0, "mom", mom_bins, lab_frame, pp, pp_title));
+  fillers_lab.push_back(new var1d(pi0, "the", the_bins, lab_frame, pp, pp_title));
+  fillers_lab.push_back(new var1d(pi0, "cost", cost_bins, lab_frame, pp, pp_title));
+  fillers_lab.push_back(new var1d(pi0, "phi", phi_bins, lab_frame, pp, pp_title));
 
   // (pi+) - (pi-) system mass, mom and angles
-  //fillers_lab.push_back(new pair_mass_filler1d(0, 2, pp, 200, 0, 5, Form("#pi^{+}-#pi^{+} pair invariant mass;M^{inv}_{#pi^{+}-#pi^{+}}")));
-  fillers_lab.push_back(new pair_mom_filler1d(pim, pip, pp, 200, 0, 6, lab_frame, pp_title));
-  fillers_lab.push_back(new pair_the_filler1d(pim, pip, pp, 200, 0, m_pi, lab_frame, pp_title));
-  fillers_lab.push_back(new pair_phi_filler1d(pim, pip, pp, 200, -m_pi, m_pi, lab_frame, pp_title));
-  fillers_lab.push_back(new pair_oa_filler1d(pim, pip, pp, 200, 0, m_pi, lab_frame, pp_title));
-  fillers_lab.push_back(new pair_oa_filler1d(pi0, pipm, pp, 200, 0, m_pi, lab_frame, pp_title));
+  fillers_lab.push_back(new var1d(pim, pip, "mom", mom_bins, lab_frame, pp, pp_title));
+  fillers_lab.push_back(new var1d(pim, pip, "the", the_bins, lab_frame, pp, pp_title));
+  fillers_lab.push_back(new var1d(pim, pip, "phi", phi_bins, lab_frame, pp, pp_title));
+  fillers_lab.push_back(new var1d(pim, pip, "oa", oa_bins, lab_frame, pp, pp_title));
+  fillers_lab.push_back(new var1d(pi0, pipm, "oa", oa_bins, lab_frame, pp, pp_title));
 
-  // frame independent ones
-  fillers_lab.push_back(new pair_mass_filler1d(pim, pip, pp, 200, 0, m_max, nullptr, pp_title));
-  fillers_lab.push_back(new dalitz_filler2d(pi0, pip, pim, pp, 200, 0, m_max, nullptr, pp_title));
-
-  fillers_lab.push_back(new mand_u_filler1d(pbar, pipm, pp, 200, t_1, t_0, nullptr, pp_title));
-  fillers_lab.push_back(new mand_t_filler1d(pbar, pi0, pp, 200, t_1, t_0, nullptr, pp_title));
+  std::vector<filler*> fillers_inv;
+  const char *invariant[] = {"inv", ""};
+  fillers_inv.push_back(new var1d(pim, pip, "mass", mass_bins, invariant, pp, pp_title));
+  fillers_inv.push_back(new var1d(pbar, pipm, "u", axis(200,-11,1), invariant, pp, pp_title));
+  fillers_inv.push_back(new var1d(pbar, pi0, "t", axis(200,-11,1), invariant, pp, pp_title));
+  // "Dalitz" plot
+  fillers_inv.push_back(new var2d(pi0, pip, "mass", mass_bins, invariant, pip, pim, "mass", mass_bins, invariant, pp, pp_title) );
 
   std::vector<filler*> fillers_cm;
-  const char *cm_frame[] = {"cm","CM"};
-  fillers_cm.push_back(new mom_filler1d(pi0, pp, 200, 0, 6, cm_frame, pp_title));
-  fillers_cm.push_back(new the_filler1d(pi0, pp, 200, 0, m_pi, cm_frame, pp_title));
-  fillers_cm.push_back(new pair_mom_filler1d(pim, pip, pp, 200, 0, 6, cm_frame, pp_title));
-  fillers_cm.push_back(new pair_the_filler1d(pim, pip, pp, 200, 0, m_pi, cm_frame, pp_title));
-  fillers_cm.push_back(new pair_oa_filler1d(pim, pip, pp, 200, 0, m_pi, cm_frame, pp_title));
-  fillers_cm.push_back(new pair_oa_filler1d(pi0, pipm, pp, 200, 0, m_pi, cm_frame, pp_title));
+  const char *cm_frame[] = {"cm"," (CM frame)"};
+  fillers_cm.push_back(new var1d(pi0, "mom", mom_bins, cm_frame, pp, pp_title));
+  fillers_cm.push_back(new var1d(pi0, "the", the_bins, cm_frame, pp, pp_title));
+  fillers_cm.push_back(new var1d(pim, pip, "mom", mom_bins, cm_frame, pp, pp_title));
+  fillers_cm.push_back(new var1d(pim, pip, "the", the_bins, cm_frame, pp, pp_title));
+  fillers_cm.push_back(new var1d(pim, pip, "oa", oa_bins, cm_frame, pp, pp_title));
+  fillers_cm.push_back(new var1d(pi0, pipm, "oa", oa_bins, cm_frame, pp, pp_title));
 
   const int Nevt = data_in->GetEntries();
 
   for (int ievt=0; ievt<Nevt; ievt++) {
 
+    if (ievt>100000) break;
     if (ievt%10000==0)
       std::cout << "event " << ievt << "/" << Nevt << std::endl;
     data_in->GetEntry(ievt);
@@ -191,6 +205,7 @@ void fill_bg_hists(TChain *data_in, TClonesArray *part_array) {
     p4s.push_back(p4pipm);
 
     for (auto fill: fillers_lab) (*fill)(p4s);
+    for (auto fill: fillers_inv) (*fill)(p4s);
     for (auto fill: fillers_cm) (*fill)(p4s,boost_to_cm);
 
   }
@@ -199,6 +214,7 @@ void fill_bg_hists(TChain *data_in, TClonesArray *part_array) {
   fout->cd();
   for (auto fill: fillers_lab) fill->Write();
   for (auto fill: fillers_cm) fill->Write();
+  for (auto fill: fillers_inv) fill->Write();
   fout->Write();
   fout->Close();
 
@@ -211,9 +227,9 @@ void fill_sig_hists(TChain *data_in, TClonesArray *part_array) {
   set_init_cond(boost_to_cm,p4pbar,p4p,p4pbarp,p4pbar_cm,p4p_cm,p4pbarp_cm);
   const double p_antip = 5.513;
 
-  const double t_0 = 2;
-  const double t_1 = -2;
   const double m_max = 1.1 * TMath::Sqrt(2*mass_prot + 2*p_antip*mass_prot);
+  const axis mass_bins(200,0,m_max);
+
   std::vector<int> ref;
   ref.push_back(-11);
   ref.push_back(11);
@@ -236,59 +252,62 @@ void fill_sig_hists(TChain *data_in, TClonesArray *part_array) {
   filler_vects.push_back(cm_fillers);
   */
 
-  // Invariants... Frame independent variables
-  std::vector<filler*> invariant_fillers;
-  invariant_fillers.push_back( new pair_inv_var1d(pi0, jpsi, "mass", pp, 200, 0, m_max, pp_title ) );
-  invariant_fillers.push_back( new pair_inv_var1d(ep, em, "mass", pp, 200, 0, m_max, pp_title ) );
-  invariant_fillers.push_back( new pair_inv_var1d(g1, g2, "mass", pp, 200, 0, m_max, pp_title ) );
-  invariant_fillers.push_back( new pair_inv_var1d(pbar, jpsi, "u", pp, 200, 0, m_max, pp_title ) );
-  invariant_fillers.push_back( new pair_inv_var1d(pbar, pi0, "t", pp, 200, 0, m_max, pp_title ) );
+  std::vector<filler*> fillers_inv;
+  const char *invariant[] = {"inv", ""};
+  fillers_inv.push_back( new var1d(pi0, jpsi, "mass", mass_bins, invariant, pp, pp_title ) );
+  fillers_inv.push_back( new var1d(ep, em, "mass", mass_bins, invariant, pp, pp_title ) );
+  fillers_inv.push_back( new var1d(g1, g2, "mass", mass_bins, invariant, pp, pp_title ) );
+  fillers_inv.push_back( new var1d(pbar, jpsi, "u", t_bins, invariant, pp, pp_title ) );
+  fillers_inv.push_back( new var1d(pbar, pi0, "t", t_bins, invariant, pp, pp_title ) );
 
   std::vector<filler*> lab_fillers;
-  const char *lab_frame[] = {"lab","Lab"};
+  const char *lab_frame[] = {"lab"," (Lab frame)"};
   for (int ipart=1; ipart<= 1 /*6*/; ++ipart) {   // for all single particle
-    lab_fillers.push_back(new var1d(ipart, "mom", pp, 200, mom_min, mom_max, lab_frame, pp_title));
-    lab_fillers.push_back(new var1d(ipart, "e", pp, 200, 0, 6, lab_frame, pp_title));
-    lab_fillers.push_back(new var1d(ipart, "the", pp, 200, th_min, th_max, lab_frame, pp_title));
-    lab_fillers.push_back(new var1d(ipart, "cost", pp, 200, ct_min, ct_max, lab_frame, pp_title));
+    lab_fillers.push_back(new var1d(ipart, "mom", mom_bins, lab_frame, pp, pp_title));
+    lab_fillers.push_back(new var1d(ipart, "e", ene_bins, lab_frame, pp, pp_title));
+    lab_fillers.push_back(new var1d(ipart, "the", the_bins, lab_frame, pp, pp_title));
+    lab_fillers.push_back(new var1d(ipart, "cost", cost_bins, lab_frame, pp, pp_title));
   }
-  lab_fillers.push_back(new pair_var1d(ep, em, "oa", pp, 200, oa_min, oa_max, lab_frame, pp_title )); // (e+-e-) OA
-  lab_fillers.push_back(new pair_var1d(g1, g2, "oa", pp, 200, oa_min, oa_max, lab_frame, pp_title )); // (g1-g2) OA
-  lab_fillers.push_back(new pair_var1d(pi0, jpsi, "oa", pp, 200, oa_min, oa_max, lab_frame, pp_title )); // (pi0-jpsi) OA
+  lab_fillers.push_back(new var1d(ep, em, "oa", oa_bins, lab_frame, pp, pp_title )); // (e+-e-) OA
+  lab_fillers.push_back(new var1d(g1, g2, "oa", oa_bins, lab_frame, pp, pp_title )); // (g1-g2) OA
+  lab_fillers.push_back(new var1d(pi0, jpsi, "oa", oa_bins, lab_frame, pp, pp_title )); // (pi0-jpsi) OA
 
   std::vector<filler*> cm_fillers;
-  const char *cm_frame[] = {"cm","CM"};
+  const char *cm_frame[] = {"cm"," (CM frame)"};
   for (int ipart=1; ipart<=1 /*6*/; ++ipart) {
-    cm_fillers.push_back(new var1d(ipart, "mom", pp, 200, mom_min, mom_max, cm_frame, pp_title));
-    cm_fillers.push_back(new var1d(ipart, "e", pp, 200, 0, 6, cm_frame, pp_title));
-    cm_fillers.push_back(new var1d(ipart, "the", pp, 200, th_min, th_max, cm_frame, pp_title));
-    cm_fillers.push_back(new var1d(ipart, "cost", pp, 200, ct_min, ct_max, cm_frame, pp_title));
+    cm_fillers.push_back(new var1d(ipart, "mom", mom_bins, cm_frame, pp, pp_title));
+    cm_fillers.push_back(new var1d(ipart, "e", ene_bins, cm_frame, pp, pp_title));
+    cm_fillers.push_back(new var1d(ipart, "the", the_bins, cm_frame, pp, pp_title));
+    cm_fillers.push_back(new var1d(ipart, "cost", cost_bins, cm_frame, pp, pp_title));
   }
-  cm_fillers.push_back(new pair_var1d(ep, em, "oa", pp, 200, oa_min, oa_max, cm_frame, pp_title )); // (e+-e-) OA
-  cm_fillers.push_back(new pair_var1d(g1, g2, "oa", pp, 200, oa_min, oa_max, cm_frame, pp_title )); // (g1-g2) OA
-  cm_fillers.push_back(new pair_var1d(pi0, jpsi, "oa", pp, 200, oa_min, oa_max, cm_frame, pp_title )); // (pi0-jpsi) OA
+  cm_fillers.push_back(new var1d(ep, em, "oa", oa_bins, cm_frame, pp, pp_title )); // (e+-e-) OA
+  cm_fillers.push_back(new var1d(g1, g2, "oa", oa_bins, cm_frame, pp, pp_title )); // (g1-g2) OA
+  cm_fillers.push_back(new var1d(pi0, jpsi, "oa", oa_bins, cm_frame, pp, pp_title )); // (pi0-jpsi) OA
 
   std::vector<filler*> jpsif_fillers;
-  const char *jpsi_frame[] {"jpsiframe","J/#psi"};
-  jpsif_fillers.push_back(new var1d(ep, "mom", pp, 200, 0, 6, jpsi_frame, pp_title)); // (e+) mom
-  jpsif_fillers.push_back(new var1d(ep, "cost", pp, 200, ct_min, ct_max, jpsi_frame, pp_title)); // (e+) cos(theta)
-  jpsif_fillers.push_back(new var1d(em, "mom", pp, 200, 0, 6, jpsi_frame, pp_title)); // (e+) mom
-  jpsif_fillers.push_back(new var1d(em, "cost", pp, 200, ct_min, ct_max, jpsi_frame, pp_title)); // (e+) cos(theta)
-  jpsif_fillers.push_back(new pair_var1d(ep, em, "oa", pp, 200, oa_min, oa_max, jpsi_frame, pp_title)); // (e+-e-) OA
+  const char *jpsi_frame[] {"jpsiframe"," (J/#psi frame)"};
+  jpsif_fillers.push_back(new var1d(ep, "mom", mom_bins, jpsi_frame, pp, pp_title)); // (e+) mom
+  jpsif_fillers.push_back(new var1d(ep, "cost", cost_bins, jpsi_frame, pp, pp_title)); // (e+) cos(theta)
+  jpsif_fillers.push_back(new var1d(em, "mom", mom_bins, jpsi_frame, pp, pp_title)); // (e+) mom
+  jpsif_fillers.push_back(new var1d(em, "cost", cost_bins, jpsi_frame, pp, pp_title)); // (e+) cos(theta)
+  jpsif_fillers.push_back(new var1d(ep, em, "oa", cost_bins, jpsi_frame, pp, pp_title)); // (e+-e-) OA
 
   std::vector<filler*> pi0f_fillers;
-  const char *pi0_frame[] {"pi0frame","#pi^{0}"};
-  pi0f_fillers.push_back(new var1d(g1, "mom", pp, 200, 0, 6, pi0_frame, pp_title)); // (g1) mom
-  pi0f_fillers.push_back(new var1d(g1, "cost", pp, 200, ct_min, ct_max, pi0_frame, pp_title)); // (g1) cos(theta)
-  pi0f_fillers.push_back(new var1d(g2, "mom", pp, 200, 0, 6, pi0_frame, pp_title)); // (g2) mom
-  pi0f_fillers.push_back(new var1d(g2, "cost", pp, 200, ct_min, ct_max, pi0_frame, pp_title)); // (g2) cos(theta)
-  pi0f_fillers.push_back(new pair_var1d(g1, g2, "oa", pp, 200, oa_min, oa_max, pi0_frame, pp_title)); // (g1-g2) OA
+  const char *pi0_frame[] {"pi0frame"," (#pi^{0} frame)"};
+  pi0f_fillers.push_back(new var1d(g1, "mom", mom_bins, pi0_frame, pp, pp_title)); // (g1) mom
+  pi0f_fillers.push_back(new var1d(g1, "cost", cost_bins, pi0_frame, pp, pp_title)); // (g1) cos(theta)
+  pi0f_fillers.push_back(new var1d(g2, "mom", mom_bins, pi0_frame, pp, pp_title)); // (g2) mom
+  pi0f_fillers.push_back(new var1d(g2, "cost", cost_bins, pi0_frame, pp, pp_title)); // (g2) cos(theta)
+  pi0f_fillers.push_back(new var1d(g1, g2, "oa", oa_bins, pi0_frame, pp, pp_title)); // (g1-g2) OA
+
+  std::vector<filler*> var2d_fillers;
+  var2d_fillers.push_back(new var2d(g1, "mom", mom_bins, lab_frame, g2, "mom", mom_bins, lab_frame, pp, pp_title) );
 
   const int Nevt = data_in->GetEntries();
 
   for (int ievt=0; ievt<Nevt; ievt++) {
 
-    //if (ievt>20000) break;
+    //if (ievt>10) break;
     if (ievt%10000==0)
       std::cout << "event " << ievt << "/" << Nevt << std::endl;
     data_in->GetEntry(ievt);
@@ -336,20 +355,24 @@ void fill_sig_hists(TChain *data_in, TClonesArray *part_array) {
     p4s.push_back(p4pi0);
     p4s.push_back(p4jpsi);
 
-    for (auto fill: invariant_fillers) (*fill)(p4s);
+    for (auto fill: fillers_inv) (*fill)(p4s);
     for (auto fill: lab_fillers) (*fill)(p4s);
     for (auto fill: cm_fillers) (*fill)(p4s,boost_to_cm);
     for (auto fill: jpsif_fillers) (*fill)(p4s,-p4jpsi.BoostVector());
     for (auto fill: pi0f_fillers) (*fill)(p4s,-p4pi0.BoostVector());
+    for (auto fill: var2d_fillers) (*fill)(p4s);
   }
 
   TFile *fout = TFile::Open("out_sig.root","RECREATE");
   fout->cd();
-  for (auto fill: invariant_fillers) fill->Write();
+
+  for (auto fill: fillers_inv) fill->Write();
   for (auto fill: lab_fillers) fill->Write();
   for (auto fill: cm_fillers) fill->Write();
   for (auto fill: jpsif_fillers) fill->Write();
   for (auto fill: pi0f_fillers) fill->Write();
+  for (auto fill: var2d_fillers) fill->Write();
+
   fout->Write();
   fout->Close();
 
