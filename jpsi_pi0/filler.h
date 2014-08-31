@@ -341,18 +341,18 @@ class filler1d: public filler {
 class var1d: public filler1d {
  public:
  var1d(const int &_ix, const char *var, const axis &x, const char* frame[],
-       const char* names[], const char* ptitles[]): filler1d(vector<int>{_ix},var) {
+       const char* names[][2]): filler1d(vector<int>{_ix},var) {
     set_funcs(0,var);
     set_bins(x.nbins, x.min, x.max);
-    set_name( Form("%s", _name(var, frame[0], names[_ix]) ));
-    set_title( Form("%s;%s", _title(var, frame[1], ptitles[_ix]), _atitle(var, ptitles[_ix]) ));
+    set_name( Form("%s", _name(var, frame[0], names[_ix][0]) ));
+    set_title( Form("%s;%s", _title(var, frame[1], names[_ix][1]), _atitle(var, names[_ix][1]) ));
   }
  var1d(const int &_ix0, const int &_ix1, const char *var, const axis &x, const char* frame[],
-       const char* names[], const char* ptitles[]): filler1d(vector<int>{_ix0,_ix1},var) {
+       const char* names[][2]): filler1d(vector<int>{_ix0,_ix1},var) {
     set_pair_funcs(0,var);
     set_bins(x.nbins, x.min, x.max);
-    set_name( Form("%s", _name_p(var, frame[0], names[_ix0], names[_ix1]) ));
-    set_title( Form("%s;%s", _title_p(var, frame[1], ptitles[_ix0], ptitles[_ix1]), _atitle_p(var, ptitles[_ix0], ptitles[_ix1]) ));
+    set_name( Form("%s", _name_p(var, frame[0], names[_ix0][0], names[_ix1][0]) ));
+    set_title( Form("%s;%s", _title_p(var, frame[1], names[_ix0][1], names[_ix1][1]), _atitle_p(var, names[_ix0][1], names[_ix1][1]) ));
   }
 };
 
@@ -440,74 +440,75 @@ class var2d: public filler2d {
   //var2d(jpsi,"energy",ene_bins,lab_frame,ep,em,"oa",oa_bins,lab_frame,parts,part_titles)
   //var2d(gamma1,"mom",mom_bins,jpsi_frame,)
   // Constructor chaining is allowed only in c++11
-
   // Single-Single
  var2d(const int &_ix, const char *varx, const axis &x, const char* framex[],
        const int &_iy, const char *vary, const axis &y, const char* framey[],
-       const char* names[], const char* ptitle[]): filler2d(vector<int>{_ix},vector<int>{_iy},varx,vary) {
+       const char* names[][2]): filler2d(vector<int>{_ix},vector<int>{_iy},varx,vary) {
     set_bins(x.nbins,x.min,x.max,y.nbins,y.min,y.max);
     set_funcs(0,varx); // make sure x is called before y (otherwise axes will be inversed)
     set_funcs(1,vary); // make sure x is called before y (otherwise axes will be inversed)
     if (strcmp(framex[0],framey[0])!=0) {
-      set_name( Form("%s_%s", _name(varx, framex[0], names[_ix]), _name(vary, framey[0], names[_iy] ) ));
-      set_title( Form("%s vs %s;%s;%s", _title(vary, framey[1], ptitle[_iy]), _title(varx, framex[1], ptitle[_ix] ), _atitle(varx, ptitle[_ix]), _atitle(vary, ptitle[_iy]) ));
+      set_name( Form("%s_%s", _name(varx, framex[0], names[_ix][0]), _name(vary, framey[0], names[_iy][0] ) ));
+      set_title( Form("%s vs %s;%s;%s", _title(vary, framey[1], names[_iy][1]), _title(varx, framex[1], names[_ix][1] ),
+		      _atitle(varx, names[_ix][1]), _atitle(vary, names[_iy][1]) ));
     } else {
-      set_name( Form("%s_%s_%s", framex[0], _name(varx, names[_ix]), _name(vary, names[_iy] ) ));
-      set_title( Form("%s vs %s%s;%s;%s", _title(vary, ptitle[_iy]), _title(varx, ptitle[_ix]), framex[1], _title(varx, ptitle[_ix]), _title(vary, ptitle[_iy]) ));
+      set_name( Form("%s_%s_%s", framex[0], _name(varx, names[_ix][0]), _name(vary, names[_iy][0] ) ));
+      set_title( Form("%s vs %s%s;%s;%s", _title(vary, names[_iy][1]), _title(varx, names[_ix][1]),
+		      framex[1], _title(varx, names[_ix][1]), _title(vary, names[_iy][1]) ));
     }
   }
 
   // Pair-Pair
  var2d(const int &_ix0, const int &_ix1, const char *varx, const axis &x, const char* framex[],
        const int &_iy0, const int &_iy1, const char *vary, const axis &y, const char* framey[],
-       const char* names[], const char* ptitle[]): filler2d(vector<int>{_ix0,_ix1},vector<int>{_iy0,_iy1},varx,vary) {
+       const char* names[][2]): filler2d(vector<int>{_ix0,_ix1},vector<int>{_iy0,_iy1},varx,vary) {
     set_bins(x.nbins,x.min,x.max,y.nbins,y.min,y.max);
     set_pair_funcs(0,varx); // make sure x is called before y (otherwise axes will be inversed)
     set_pair_funcs(1,vary); // make sure x is called before y (otherwise axes will be inversed)
     if (strcmp(framex[0],framey[0])!=0) {
-      set_name( Form("%s_%s", _name_p(varx, framex[0], names[_ix0], names[_ix1]), _name_p(vary, framey[0], names[_iy0], names[_iy1]) ));
-      set_title( Form("%s vs %s;%s;%s", _title_p(vary, framey[1], ptitle[_iy0], ptitle[_iy1]), _title_p(varx, framex[1], ptitle[_ix0], ptitle[_ix1]),
-		      _atitle_p(varx, ptitle[_ix0], ptitle[_ix1]), _atitle_p(vary, ptitle[_iy0], ptitle[_iy1]) ));
+      set_name( Form("%s_%s", _name_p(varx, framex[0], names[_ix0][0], names[_ix1][0]), _name_p(vary, framey[0], names[_iy0][0], names[_iy1][0]) ));
+      set_title( Form("%s vs %s;%s;%s", _title_p(vary, framey[1], names[_iy0][1], names[_iy1][1]), _title_p(varx, framex[1], names[_ix0][1], names[_ix1][1]),
+		      _atitle_p(varx, names[_ix0][1], names[_ix1][1]), _atitle_p(vary, names[_iy0][1], names[_iy1][1]) ));
     } else {
-      set_name( Form("%s_%s_%s", framex[0], _name_p(varx, names[_ix0], names[_ix1]), _name_p(vary, names[_iy0], names[_iy1]) ));
-      set_title( Form("%s vs %s%s;%s;%s", _title_p(vary, ptitle[_iy0], ptitle[_iy1]), _title_p(varx, ptitle[_ix0], ptitle[_ix1]), framex[1],
-		      _atitle_p(varx, ptitle[_ix0], ptitle[_ix1]), _atitle_p(vary, ptitle[_iy0], ptitle[_iy1]) ));
+      set_name( Form("%s_%s_%s", framex[0], _name_p(varx, names[_ix0][0], names[_ix1][0]), _name_p(vary, names[_iy0][0], names[_iy1][0]) ));
+      set_title( Form("%s vs %s%s;%s;%s", _title_p(vary, names[_iy0][1], names[_iy1][1]), _title_p(varx, names[_ix0][1], names[_ix1][1]), framex[1],
+		      _atitle_p(varx, names[_ix0][1], names[_ix1][1]), _atitle_p(vary, names[_iy0][1], names[_iy1][1]) ));
     }
   }
 
   // Singe-Pair
  var2d(const int &_ix, const char *varx, const axis &x, const char* framex[],
        const int &_iy0, const int &_iy1, const char *vary, const axis &y, const char* framey[],
-       const char* names[], const char* ptitle[]): filler2d(vector<int>{_ix},vector<int>{_iy0,_iy1},varx,vary) {
+       const char* names[][2]): filler2d(vector<int>{_ix},vector<int>{_iy0,_iy1},varx,vary) {
     set_bins(x.nbins,x.min,x.max,y.nbins,y.min,y.max);
     set_funcs(0,varx); // make sure x is called before y (otherwise axes will be inversed)
     set_funcs(1,vary); // make sure x is called before y (otherwise axes will be inversed)
     if (strcmp(framex[0],framey[0])!=0) {
-      set_name( Form("%s_%s", _name(varx, framex[0], names[_ix]), _name_p(vary, framey[0], names[_iy0], names[_iy1]) ));
-      set_title( Form("%s vs %s;%s;%s", _title_p(vary, framey[1], ptitle[_iy0], ptitle[_iy1]), _title(varx, framex[1], ptitle[_ix]),
-		      _atitle(varx, ptitle[_ix]), _atitle_p(vary, ptitle[_iy0], ptitle[_iy1]) ));
+      set_name( Form("%s_%s", _name(varx, framex[0], names[_ix][0]), _name_p(vary, framey[0], names[_iy0][0], names[_iy1][0]) ));
+      set_title( Form("%s vs %s;%s;%s", _title_p(vary, framey[1], names[_iy0][1], names[_iy1][1]), _title(varx, framex[1], names[_ix][1]),
+		      _atitle(varx, names[_ix][1]), _atitle_p(vary, names[_iy0][1], names[_iy1][1]) ));
     } else {
-      set_name( Form("%s_%s_%s", framex[0], _name(varx, names[_ix]), _name_p(vary, names[_iy0], names[_iy1]) ));
-      set_title( Form("%s vs %s%s;%s;%s", _title_p(vary, ptitle[_iy0], ptitle[_iy1]), _title(varx, ptitle[_ix]), framex[1],
-		      _atitle(varx, ptitle[_ix]), _atitle_p(vary, ptitle[_iy0], ptitle[_iy1]) ));
+      set_name( Form("%s_%s_%s", framex[0], _name(varx, names[_ix][0]), _name_p(vary, names[_iy0][0], names[_iy1][0]) ));
+      set_title( Form("%s vs %s%s;%s;%s", _title_p(vary, names[_iy0][1], names[_iy1][1]), _title(varx, names[_ix][1]), framex[1],
+		      _atitle(varx, names[_ix][1]), _atitle_p(vary, names[_iy0][1], names[_iy1][1]) ));
     }
   }
 
   // Pair-Single
  var2d(const int &_ix0, const int &_ix1, const char *varx, const axis &x, const char* framex[],
-       const int &_iy, const char *vary, const axis &y, const char* framey[],
-       const char* names[], const char* ptitle[]): filler2d(vector<int>{_ix0,_ix1},vector<int>{_iy},varx,vary) {
+       const int &_iy, const char *vary, const axis &y, const char* framey[], const char* names[][0])
+   : filler2d(vector<int>{_ix0,_ix1},vector<int>{_iy},varx,vary) {
     set_bins(x.nbins,x.min,x.max,y.nbins,y.min,y.max);
     set_funcs(0,varx); // make sure x is called before y (otherwise axes will be inversed)
     set_funcs(1,vary); // make sure x is called before y (otherwise axes will be inversed)
     if (strcmp(framex[0],framey[0])!=0) {
-      set_name( Form("%s_%s", _name_p(varx, framex[0], names[_ix0], names[_ix1]), _name(vary, framey[0], names[_iy]) ));
-      set_title( Form("%s vs %s;%s;%s", _title(vary, framey[1], ptitle[_iy]), _title_p(varx, framex[1], ptitle[_ix0], ptitle[_ix1]),
-		      _atitle_p(varx, ptitle[_ix0], ptitle[_ix1]), _atitle(vary, ptitle[_iy]) ));
+      set_name( Form("%s_%s", _name_p(varx, framex[0], names[_ix0][0], names[_ix1][0]), _name(vary, framey[0], names[_iy][0]) ));
+      set_title( Form("%s vs %s;%s;%s", _title(vary, framey[1], names[_iy][1]), _title_p(varx, framex[1], names[_ix0][1], names[_ix1][1]),
+		      _atitle_p(varx, names[_ix0][1], names[_ix1][1]), _atitle(vary, names[_iy][1]) ));
     } else {
-      set_name( Form("%s_%s_%s", framex[0], _name_p(varx, names[_ix0], names[_ix1]), _name(vary, names[_iy]) ));
-      set_title( Form("%s vs %s%s;%s;%s", _title(vary, ptitle[_iy]), _title_p(varx, ptitle[_ix0], ptitle[_ix1]), framex[1],
-		      _atitle_p(varx, ptitle[_ix0], ptitle[_ix1]), _atitle(vary, ptitle[_iy]) ));
+      set_name( Form("%s_%s_%s", framex[0], _name_p(varx, names[_ix0][0], names[_ix1][0]), _name(vary, names[_iy][0]) ));
+      set_title( Form("%s vs %s%s;%s;%s", _title(vary, names[_iy][1]), _title_p(varx, names[_ix0][1], names[_ix1][1]), framex[1],
+		      _atitle_p(varx, names[_ix0][1], names[_ix1][1]), _atitle(vary, names[_iy][1]) ));
     }
   }
 
