@@ -384,6 +384,9 @@ class filler2d: public filler {
       return value(_func[iaxis], p4s[ii[0]]);
     } else if (ii.size() == 2) {
       return value(_func_p[iaxis], p4s[ii[0]], p4s[ii[1]]);
+    } else {
+      cout << "filler2d::get_value - called with too many particle indices. will fill 1.0 " << endl;
+      return 1.0;
     }
   }
 
@@ -392,6 +395,9 @@ class filler2d: public filler {
       return value(_func_b[iaxis], p4s[ii[0]], b);
     } else if (ii.size() == 2) {
       return value(_func_p_b[iaxis], p4s[ii[0]], p4s[ii[1]], b);
+    } else {
+      cout << "filler2d::get_value - called with too many particle indices. will fill 1.0 " << endl;
+      return 1.0;
     }
   }
 
