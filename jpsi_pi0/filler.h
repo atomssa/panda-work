@@ -165,13 +165,18 @@ class filler {
   void init_vars( ) {
     const int nbin = 200;
     init_var("mass", "Invariant Mass", "M^{inv}", "[GeV/c^{2}]", axis(nbin, 0.0, 10.0));
+    init_var("mass_sq", "Invariant Mass Squared", "(M^{inv})^{2}", "[(GeV/c^{2})^2]", axis(nbin, 0.0, 10.0));
     init_var("mom", "Momentum", "p", "[GeV/c]", axis(nbin, 0.0, 10.0));
+    init_var("mom_fwd", "Fwd going momentum", "p", "[GeV/c]", axis(nbin, 0.0, 10.0));
+    init_var("mom_bwd", "Bwd going momentum", "p", "[GeV/c]", axis(nbin, 0.0, 10.0));
     init_var("pt", "p_{T}", "p_{T}", "[GeV/c]", axis(nbin, 0.0, 10.0));
     init_var("e", "Energy", "E", "[GeV]", axis(nbin, 0.0, 10.0 ));
-    init_var("the", "#theta", "#theta", "[rad]", axis(nbin, -0.1, m_pi+0.1 ));
+    init_var("the", "#theta", "#theta", "[#circ]", axis(nbin, -0.1, m_pi+0.1 ));
+    init_var("the_fwd", "Fwd going #theta", "#theta^{fwd}", "[#circ]", axis(nbin, 0.0, 10.0));
+    init_var("the_bwd", "Bwd going #theta", "#theta^{bwd}", "[#circ]", axis(nbin, 0.0, 10.0));
     init_var("cost", "cos(#theta)", "cos(#theta)", "", axis(nbin, -1.1, 1.1 ));
-    init_var("phi", "#phi", "#phi", "[rad]", axis(nbin, -m_pi, m_pi ));
-    init_var("oa", "Opening Angle", "OA", "[rad]", axis(nbin, -0.2, m_pi+0.2 ));
+    init_var("phi", "#phi", "#phi", "[#circ]", axis(nbin, -m_pi, m_pi ));
+    init_var("oa", "Opening Angle", "OA", "[#circ]", axis(nbin, -0.2, m_pi+0.2 ));
     init_var("u", "Mandelstam u", "u", "[(GeV/c^{2})^{2}]", axis(nbin, -20.0, 20.0 ));
     init_var("s", "Mandelstam s", "s", "[(GeV/c^{2})^{2}]", axis(nbin, -20.0, 20.0 ));
     init_var("t", "Mandelstam t", "t", "[(GeV/c^{2})^{2}]", axis(nbin, -20.0, 20.0 ));
@@ -190,9 +195,14 @@ class filler {
 
     // These have a boosted counterpart xxx_p -> xxx_p_b
     pair_func_dict.insert(make_pair("mom", &filler::mom_p));
+    pair_func_dict.insert(make_pair("mom_fwd", &filler::mom_p_fwd));
+    pair_func_dict.insert(make_pair("mom_bwd", &filler::mom_p_bwd));
     pair_func_dict.insert(make_pair("pt", &filler::pt_p));
     pair_func_dict.insert(make_pair("e", &filler::ene_p));
     pair_func_dict.insert(make_pair("the", &filler::the_p));
+    pair_func_dict.insert(make_pair("the_fwd", &filler::the_p_fwd));
+    pair_func_dict.insert(make_pair("the_bwd", &filler::the_p_bwd));
+
     pair_func_dict.insert(make_pair("cost", &filler::cost_p));
 
     // This makes sense only for pairs and has boosted counterpart
@@ -201,12 +211,14 @@ class filler {
 
   void init_pair_func_boost_dict() {
     pair_func_boost_dict.insert(make_pair("mom", &filler::mom_p_b));
+    pair_func_boost_dict.insert(make_pair("mom_fwd", &filler::mom_p_fwd_b));
+    pair_func_boost_dict.insert(make_pair("mom_bwd", &filler::mom_p_bwd_b));
     pair_func_boost_dict.insert(make_pair("pt", &filler::pt_p_b));
     pair_func_boost_dict.insert(make_pair("e", &filler::ene_p_b));
     pair_func_boost_dict.insert(make_pair("the", &filler::the_p_b));
-
+    pair_func_boost_dict.insert(make_pair("the_fwd", &filler::the_p_fwd_b));
+    pair_func_boost_dict.insert(make_pair("the_bwd", &filler::the_p_bwd_b));
     pair_func_boost_dict.insert(make_pair("cost", &filler::cost_p_b));
-
     pair_func_boost_dict.insert(make_pair("oa", &filler::oa_p_b));
   }
 
@@ -252,6 +264,10 @@ class filler {
   double mom_b(const TLorentzVector &v, const TVector3 &b) const { return mom( boost_transf(v,b) ); }
   double mom_p(const TLorentzVector &v1, const TLorentzVector &v2) const { return mom(v1+v2); }
   double mom_p_b(const TLorentzVector &v1, const TLorentzVector &v2, const TVector3&b) const { return mom_b(v1+v2,b); }
+  double mom_p_fwd(const TLorentzVector &v1, const TLorentzVector &v2) const { return v1.Vect().Theta()<v2.Vect().Theta()?mom(v1):mom(v2); }
+  double mom_p_bwd(const TLorentzVector &v1, const TLorentzVector &v2) const { return v1.Vect().Theta()>v2.Vect().Theta()?mom(v1):mom(v2); }
+  double mom_p_fwd_b(const TLorentzVector &v1, const TLorentzVector &v2, const TVector3 &b) const { return v1.Vect().Theta()<v2.Vect().Theta()?mom_b(v1,b):mom_b(v2,b);}
+  double mom_p_bwd_b(const TLorentzVector &v1, const TLorentzVector &v2, const TVector3 &b) const { return v1.Vect().Theta()>v2.Vect().Theta()?mom_b(v1,b):mom_b(v2,b);}
 
   double pt(const TLorentzVector &v) const { return v.Vect().Pt(); }
   double pt_b(const TLorentzVector &v, const TVector3 &boost) const { return pt( boost_transf(v,boost) ); }
@@ -263,12 +279,16 @@ class filler {
   double ene_p(const TLorentzVector &v1, const TLorentzVector &v2) const { return ene(v1+v2); }
   double ene_p_b(const TLorentzVector &v1, const TLorentzVector &v2, const TVector3&b) const { return ene_b(v1+v2,b); }
 
-  double the(const TLorentzVector &v) const { return v.Vect().Theta(); }
-  double the_b(const TLorentzVector &v, const TVector3 &boost) const { return boost_transf(v,boost).Angle(boost); }
+  double the(const TLorentzVector &v) const { return rtd*(v.Vect().Theta()); }
+  double the_b(const TLorentzVector &v, const TVector3 &boost) const { return rtd*(boost_transf(v,boost).Angle(boost)); }
   double the_p(const TLorentzVector &v1, const TLorentzVector &v2) const { return the(v1+v2); }
   double the_p_b(const TLorentzVector &v1, const TLorentzVector &v2, const TVector3&b) const { return the_b(v1+v2,b); }
+  double the_p_fwd(const TLorentzVector &v1, const TLorentzVector &v2) const { return v1.Vect().Theta()<v2.Vect().Theta()?the(v1):the(v2); }
+  double the_p_bwd(const TLorentzVector &v1, const TLorentzVector &v2) const { return v1.Vect().Theta()>v2.Vect().Theta()?the(v1):the(v2);}
+  double the_p_fwd_b(const TLorentzVector &v1, const TLorentzVector &v2, const TVector3 &b) const { return v1.Vect().Theta()<v2.Vect().Theta()?the_b(v1,b):the_b(v2,b);}
+  double the_p_bwd_b(const TLorentzVector &v1, const TLorentzVector &v2, const TVector3 &b) const { return v1.Vect().Theta()>v2.Vect().Theta()?the_b(v1,b):the_b(v2,b);}
 
-  double phi(const TLorentzVector &v) const { return v.Vect().Phi(); }
+  double phi(const TLorentzVector &v) const { return rtd*(v.Vect().Phi()); }
   double phi_p(const TLorentzVector &v1, const TLorentzVector &v2) const { return phi(v1+v2); }
 
   double cost(const TLorentzVector &v) const { return v.Vect().CosTheta(); }
