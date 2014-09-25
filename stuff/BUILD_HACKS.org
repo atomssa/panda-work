@@ -11,7 +11,7 @@ The following things were done to get a working compile
 ** One still needs to remove rdynamic flag from pluto compilation
 *** even with gcc from homebrew, rdynamic is not available on mac
 *** add the following to install_pluto.sh:
-      mysed  '-rdynamic' '' Makefile
+    mysed  '-rdynamic' '' Makefile
 ** For root one has to modify the rootconfig.sh file located in tools/rootconfig.sh
 *** Namely --with-cc=gcc --with-cxx=g++ --with-ld=g++ has to be added
 
@@ -56,3 +56,12 @@ https://gcc.gnu.org/wiki/Visibility
 ** Could be a specificity of OSX that hides inlines by default unless explicity told not to
 ** Temporary solution is to remove inline modifier from function definitions
 ** __attribute((visibility(hidden)))__ doesn't seem to work with inline
+
+
+* undefined symbols for architecture x86_64 error
+** Solution couldn't be found, so offending modules were commeted in CMakeLists.txt
+** It is caused probably by the library module being compiled to target 32 bits and the client module targeting 64 bit
+
+
+* TMath was using a deprecated function fininte(double) in OSX-9
+** Only solution was to "patch" TMath.h at L503-504 by adding a special case for macosx with no additional condtion on arm that uses std::isfininte()
