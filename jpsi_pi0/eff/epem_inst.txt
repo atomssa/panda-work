@@ -1,0 +1,14 @@
+Bonjour Ermias,
+
+voila le histo.
+TH2F *heffelec = new TH2F(aline,aline,20,0,5,20,0,180);
+
+Dis le moi si tu veux autre chose, comme par example plus de bins. Tu peux
+l'acceder par
+heffelec = (TH2D)hfile1->Get("heffelec");
+suivi par
+Double_t GetBinContent(Int_t binx, Int_t biny) ou Double_t Interpolate(Double_t x, Double_t y)
+ou jouer avec Smooth(Int_t ntimes = 1, Option_t* option = "")
+
+Amicalement,
+Ronald
