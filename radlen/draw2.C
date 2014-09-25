@@ -1,18 +1,18 @@
 #include <vector>
 
 draw2() {
-  
+
   gStyle->SetOptStat(0);
   //gStyle->SetTitleOffset("x",0.01);
   //gStyle->SetTitleOffset("y",0.01);
-  gStyle->SetLabelSize(0.2,"xyz");  
+  gStyle->SetLabelSize(0.2,"xyz");
   //gStyle->SetLabelSize(0.08,"y");
 
   int ndet = 20;
   int start_det = 0;
   int stop_det = 6;
   bool logy = false;
-  
+
   std::vector<TH1D*> vh_cumul_upto_gem;
   std::vector<TProfile*> vect_tprof_upto_gem;
   TFile* fin_upto_gem = TFile::Open("radlen_20k_upto_gem.root");
@@ -25,11 +25,11 @@ draw2() {
   }
   std::vector<TH1D*> vh_cumul_upto_gem;
   //  for (int idet=start_det; idet<vect_tprof.size(); ++idet) {
-  for (int idet=start_det; idet<stop_det; ++idet) {    
+  for (int idet=start_det; idet<stop_det; ++idet) {
     cout << "idet = " << idet;
     vh_cumul_upto_gem.push_back(vect_tprof_upto_gem[idet]->ProjectionX(Form("RadLenProf_CumulUpToDet%d",idet)));
     cout << " vh_cumul[" << idet-start_det-1 << "]= " << vh_cumul_upto_gem[idet-start_det-1];
-    cout << " vh_cumul[" << idet-start_det << "]= " << vh_cumul_upto_gem[idet-start_det] << endl;    
+    cout << " vh_cumul[" << idet-start_det << "]= " << vh_cumul_upto_gem[idet-start_det] << endl;
     if (idet>start_det)
       vh_cumul_upto_gem[idet-start_det]->Add(vh_cumul_upto_gem[idet-start_det-1]);
   }
@@ -47,11 +47,11 @@ draw2() {
   }
   std::vector<TH1D*> vh_cumul_upto_emc;
   //  for (int idet=start_det; idet<vect_tprof.size(); ++idet) {
-  for (int idet=start_det; idet<stop_det; ++idet) {    
+  for (int idet=start_det; idet<stop_det; ++idet) {
     cout << "idet = " << idet;
     vh_cumul_upto_emc.push_back(vect_tprof_upto_emc[idet]->ProjectionX(Form("RadLenProf_CumulUpToDet%d",idet)));
     cout << " vh_cumul[" << idet-start_det-1 << "]= " << vh_cumul_upto_emc[idet-start_det-1];
-    cout << " vh_cumul[" << idet-start_det << "]= " << vh_cumul_upto_emc[idet-start_det] << endl;    
+    cout << " vh_cumul[" << idet-start_det << "]= " << vh_cumul_upto_emc[idet-start_det] << endl;
     if (idet>start_det)
       vh_cumul_upto_emc[idet-start_det]->Add(vh_cumul_upto_emc[idet-start_det-1]);
   }
@@ -61,8 +61,8 @@ draw2() {
 
   TH1D *h_gem_upto_gem = vect_tprof_upto_gem[6]->ProjectionX("RadLenProf_GEM_upto_gem");
   h_gem_upto_gem->SetLineColor(4);
-  h_gem_upto_gem->SetLineWidth(3);  
-  h_gem_upto_gem->SetTitle("Rad. Len. Profile of GEM;#theta[deg];X/X_{0}");    
+  h_gem_upto_gem->SetLineWidth(3);
+  h_gem_upto_gem->SetTitle("Rad. Len. Profile of GEM;#theta[deg];X/X_{0}");
   tc->cd(1);
   //if (logy)
   gPad->SetLogy();
@@ -79,13 +79,13 @@ draw2() {
   pt1->AddText("Pipe");
   pt1->AddText("STT");
   pt1->AddText("MVD");
-  pt1->AddText("GEM");  
+  pt1->AddText("GEM");
   pt1->Draw();
-  
+
   TH1D *h_gem_upto_emc = vect_tprof_upto_emc[6]->ProjectionX("RadLenProf_GEM_upto_emc");
   h_gem_upto_emc->SetLineColor(4);
-  h_gem_upto_emc->SetLineWidth(3);  
-  h_gem_upto_emc->SetTitle("Rad. Len. Profile of GEM;#theta[deg];X/X_{0}");    
+  h_gem_upto_emc->SetLineWidth(3);
+  h_gem_upto_emc->SetTitle("Rad. Len. Profile of GEM;#theta[deg];X/X_{0}");
   tc->cd(2);
   //if (logy)
   gPad->SetLogy();
@@ -100,25 +100,25 @@ draw2() {
   pt2->AddText("Pipe");
   pt2->AddText("STT");
   pt2->AddText("MVD");
-  pt2->AddText("GEM");  
+  pt2->AddText("GEM");
   pt2->AddText("#color[3]{EMC}");
   pt2->Draw();
 
   TH1D *h_emc_upto_emc = vect_tprof_upto_emc[7]->ProjectionX("RadLenProf_EMC_upto_emc");
   h_emc_upto_emc->SetLineColor(2);
-  h_emc_upto_emc->SetLineWidth(3);  
-  h_emc_upto_emc->SetTitle("Rad. Len. Profile of EMC;#theta[deg];X/X_{0}");    
+  h_emc_upto_emc->SetLineWidth(3);
+  h_emc_upto_emc->SetTitle("Rad. Len. Profile of EMC;#theta[deg];X/X_{0}");
   tc->cd(3);
   if (logy) gPad->SetLogy();
   h_emc_upto_emc->DrawCopy("hist");
   pt2->Draw();
-  
+
   TH1D *h_gem_emc_upto_emc = h_gem_upto_emc->Clone("RadLenProf_GEM_EMC_upto_emc");
   h_gem_emc_upto_emc->Add(h_emc_upto_emc);
   tc->cd(4);
   if (logy) gPad->SetLogy();
   h_gem_emc_upto_emc->SetLineColor(1);
-  h_gem_emc_upto_emc->SetLineWidth(6);    
+  h_gem_emc_upto_emc->SetLineWidth(6);
   h_gem_emc_upto_emc->SetTitle("Rad. Len. Profile of EMC and GEM;#theta[deg];X/X_{0}");
   TLegend *tl = new TLegend(0.35,0.67,0.65,0.87);
 
@@ -127,11 +127,11 @@ draw2() {
   h_emc_upto_emc->DrawCopy("hist same");
   tl->AddEntry(h_emc_upto_emc,"EMC","pl");
   h_gem_upto_emc->DrawCopy("hist same");
-  tl->AddEntry(h_gem_upto_emc,"GEM","pl");  
+  tl->AddEntry(h_gem_upto_emc,"GEM","pl");
   //h_gem_emc_upto_emc->DrawCopy("hist same");
   tl->AddEntry(h_gem_emc_upto_emc,"EMC+GEM","pl");
   tl->Draw();
   pt2->Draw();
-  
-  
+
+
 }

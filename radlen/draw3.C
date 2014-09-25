@@ -1,18 +1,18 @@
 #include <vector>
 
 draw3() {
-  
+
   gStyle->SetOptStat(0);
   //gStyle->SetTitleOffset("x",0.01);
   //gStyle->SetTitleOffset("y",0.01);
-  gStyle->SetLabelSize(0.2,"xyz");  
+  gStyle->SetLabelSize(0.2,"xyz");
   //gStyle->SetLabelSize(0.08,"y");
 
   int ndet = 20;
   int start_det = 0;
   int stop_det = 6;
   bool logy = false;
-  
+
   std::vector<TH1D*> vh_cumul_upto_emc_end_with_mvd;
   std::vector<TProfile*> vect_tprof_upto_emc_end_with_mvd;
   TFile* fin_upto_emc_end_with_mvd = TFile::Open("radlen_20k_upto_emc_end_with_mvd.root");
@@ -25,11 +25,11 @@ draw3() {
   }
   std::vector<TH1D*> vh_cumul_upto_emc_end_with_mvd;
   //  for (int idet=start_det; idet<vect_tprof.size(); ++idet) {
-  for (int idet=start_det; idet<stop_det; ++idet) {    
+  for (int idet=start_det; idet<stop_det; ++idet) {
     cout << "idet = " << idet;
     vh_cumul_upto_emc_end_with_mvd.push_back(vect_tprof_upto_emc_end_with_mvd[idet]->ProjectionX(Form("RadLenProf_CumulUpToDet%d",idet)));
     cout << " vh_cumul[" << idet-start_det-1 << "]= " << vh_cumul_upto_emc_end_with_mvd[idet-start_det-1];
-    cout << " vh_cumul[" << idet-start_det << "]= " << vh_cumul_upto_emc_end_with_mvd[idet-start_det] << endl;    
+    cout << " vh_cumul[" << idet-start_det << "]= " << vh_cumul_upto_emc_end_with_mvd[idet-start_det] << endl;
     if (idet>start_det)
       vh_cumul_upto_emc_end_with_mvd[idet-start_det]->Add(vh_cumul_upto_emc_end_with_mvd[idet-start_det-1]);
   }
@@ -48,7 +48,7 @@ draw3() {
   pt1->AddText("#color[3]{EMC}");
   pt1->AddText("#color[42]{MVD}");
 
-  
+
 
   std::vector<TH1D*> vh_cumul_upto_emc_no_mvd;
   std::vector<TProfile*> vect_tprof_upto_emc_no_mvd;
@@ -62,11 +62,11 @@ draw3() {
   }
   std::vector<TH1D*> vh_cumul_upto_emc_no_mvd;
   //  for (int idet=start_det; idet<vect_tprof.size(); ++idet) {
-  for (int idet=start_det; idet<stop_det; ++idet) {    
+  for (int idet=start_det; idet<stop_det; ++idet) {
     cout << "idet = " << idet;
     vh_cumul_upto_emc_no_mvd.push_back(vect_tprof_upto_emc_no_mvd[idet]->ProjectionX(Form("RadLenProf_CumulUpToDet%d",idet)));
     cout << " vh_cumul[" << idet-start_det-1 << "]= " << vh_cumul_upto_emc_no_mvd[idet-start_det-1];
-    cout << " vh_cumul[" << idet-start_det << "]= " << vh_cumul_upto_emc_no_mvd[idet-start_det] << endl;    
+    cout << " vh_cumul[" << idet-start_det << "]= " << vh_cumul_upto_emc_no_mvd[idet-start_det] << endl;
     if (idet>start_det)
       vh_cumul_upto_emc_no_mvd[idet-start_det]->Add(vh_cumul_upto_emc_no_mvd[idet-start_det-1]);
   }
@@ -80,20 +80,20 @@ draw3() {
   pt2->AddText("Dipole");
   pt2->AddText("Pipe");
   pt2->AddText("STT");
-  pt2->AddText("GEM");  
+  pt2->AddText("GEM");
   pt2->AddText("#color[3]{EMC}");
-  
 
-  
 
-  
+
+
+
   TCanvas *tc = new TCanvas("tc","tc",1400,1000);
   tc->Divide(2,2);
 
   TH1D *h_gem_upto_emc_end_with_mvd = vect_tprof_upto_emc_end_with_mvd[5]->ProjectionX("RadLenProf_GEM_upto_emc_end_with_mvd");
   h_gem_upto_emc_end_with_mvd->SetLineColor(4);
-  h_gem_upto_emc_end_with_mvd->SetLineWidth(3);  
-  h_gem_upto_emc_end_with_mvd->SetTitle("Rad. Len. Profile of GEM;#theta[deg];X/X_{0}");    
+  h_gem_upto_emc_end_with_mvd->SetLineWidth(3);
+  h_gem_upto_emc_end_with_mvd->SetTitle("Rad. Len. Profile of GEM;#theta[deg];X/X_{0}");
   tc->cd(1);
   //if (logy)
   gPad->SetLogy();
@@ -102,8 +102,8 @@ draw3() {
   pt1->Draw();
   TH1D *h_emc_upto_emc_end_with_mvd = vect_tprof_upto_emc_end_with_mvd[6]->ProjectionX("RadLenProf_EMC_upto_emc_end_with_mvd");
   h_emc_upto_emc_end_with_mvd->SetLineColor(2);
-  h_emc_upto_emc_end_with_mvd->SetLineWidth(3);  
-  h_emc_upto_emc_end_with_mvd->SetTitle("Rad. Len. Profile of EMC;#theta[deg];X/X_{0}");    
+  h_emc_upto_emc_end_with_mvd->SetLineWidth(3);
+  h_emc_upto_emc_end_with_mvd->SetTitle("Rad. Len. Profile of EMC;#theta[deg];X/X_{0}");
   tc->cd(2);
   //if (logy)
   gPad->SetLogy();
@@ -115,8 +115,8 @@ draw3() {
 
   TH1D *h_gem_upto_emc_no_mvd = vect_tprof_upto_emc_no_mvd[5]->ProjectionX("RadLenProf_GEM_upto_emc_no_mvd");
   h_gem_upto_emc_no_mvd->SetLineColor(4);
-  h_gem_upto_emc_no_mvd->SetLineWidth(3);  
-  h_gem_upto_emc_no_mvd->SetTitle("Rad. Len. Profile of GEM;#theta[deg];X/X_{0}");    
+  h_gem_upto_emc_no_mvd->SetLineWidth(3);
+  h_gem_upto_emc_no_mvd->SetTitle("Rad. Len. Profile of GEM;#theta[deg];X/X_{0}");
   tc->cd(3);
   //if (logy)
   gPad->SetLogy();
@@ -126,20 +126,20 @@ draw3() {
 
   TH1D *h_emc_upto_emc_no_mvd = vect_tprof_upto_emc_no_mvd[6]->ProjectionX("RadLenProf_EMC_upto_emc_no_mvd");
   h_emc_upto_emc_no_mvd->SetLineColor(2);
-  h_emc_upto_emc_no_mvd->SetLineWidth(3);  
-  h_emc_upto_emc_no_mvd->SetTitle("Rad. Len. Profile of EMC;#theta[deg];X/X_{0}");    
+  h_emc_upto_emc_no_mvd->SetLineWidth(3);
+  h_emc_upto_emc_no_mvd->SetTitle("Rad. Len. Profile of EMC;#theta[deg];X/X_{0}");
   tc->cd(4);
   if (logy) gPad->SetLogy();
   h_emc_upto_emc_no_mvd->DrawCopy("hist");
   pt2->Draw();
 
-  
+
 //TH1D *h_gem_emc_upto_emc_no_mvd = h_gem_upto_emc_no_mvd->Clone("RadLenProf_GEM_EMC_upto_emc_no_mvd");
 //h_gem_emc_upto_emc_no_mvd->Add(h_emc_upto_emc_no_mvd);
 //tc->cd(4);
 //if (logy) gPad->SetLogy();
 //h_gem_emc_upto_emc_no_mvd->SetLineColor(1);
-//h_gem_emc_upto_emc_no_mvd->SetLineWidth(6);    
+//h_gem_emc_upto_emc_no_mvd->SetLineWidth(6);
 //h_gem_emc_upto_emc_no_mvd->SetTitle("Rad. Len. Profile of EMC and GEM;#theta[deg];X/X_{0}");
 //TLegend *tl = new TLegend(0.35,0.67,0.65,0.87);
 //
@@ -148,11 +148,11 @@ draw3() {
 //h_emc_upto_emc_no_mvd->DrawCopy("hist same");
 //tl->AddEntry(h_emc_upto_emc_no_mvd,"EMC","pl");
 //h_gem_upto_emc_no_mvd->DrawCopy("hist same");
-//tl->AddEntry(h_gem_upto_emc_no_mvd,"GEM","pl");  
+//tl->AddEntry(h_gem_upto_emc_no_mvd,"GEM","pl");
 ////h_gem_emc_upto_emc_no_mvd->DrawCopy("hist same");
 //tl->AddEntry(h_gem_emc_upto_emc_no_mvd,"EMC+GEM","pl");
 //tl->Draw();
 //pt2->Draw();
 //
-  
+
 }
