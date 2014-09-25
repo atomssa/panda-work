@@ -49,6 +49,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "PndEvtGenStandAlone.h"
+
 using namespace std;
 
 using std::endl;
@@ -96,13 +98,12 @@ PndEvtGenStandAlone::PndEvtGenStandAlone(TString particle,TString decfile,Double
   EvtRandomEngine* myRandomEngine=0;
 
   // Make sure that the seed is always set if default value (-1) is used, JGM, August 2011
-  if (Seed<0) 
+  if (Seed<0)
     {
       Seed = gRandom->GetSeed();
       cout << "<I> Rnd Seed changed to " << Seed << endl;
-    } 
+    }
   myRandomEngine=new EvtRootRandomEngine(Seed);
-
   // Set up the default external generator list: Photos, Pythia and/or Tauola ONLY if available
 #if EVTGEN_EXTERNAL
   EvtExternalGenList genList;
@@ -127,7 +128,7 @@ PndEvtGenStandAlone::PndEvtGenStandAlone(TString particle,TString decfile,Double
       cerr <<"\033[5m\033[31m -E  ******  FATAL ERROR: <particle> is '" << particle.Data() << "'; MUST give pbar momentum or cms energy!\033[0m"<<endl;
       exit(0);
     }
- 
+
   double val=-3.0969;
   fMomentum = 0.0;
   fEnergy = 0.0;
@@ -143,9 +144,9 @@ PndEvtGenStandAlone::PndEvtGenStandAlone(TString particle,TString decfile,Double
     }
     val=-EvtPDL::getMass(PART);
   }
-  
+
   // val is the momentum of the pbar beam
-  if (val>0){  
+  if (val>0){
     fMomentum = val;
     if ( particle.Contains("pbarpSystem") ) fEnergy = mp+sqrt(fMomentum*fMomentum+mp*mp);
     if ( particle.Contains("pbardSystem") ) fEnergy = md+sqrt(fMomentum*fMomentum+mp*mp);
@@ -156,7 +157,7 @@ PndEvtGenStandAlone::PndEvtGenStandAlone(TString particle,TString decfile,Double
       fEnergy = val*val/(2*mp);
       fMomentum = sqrt(fEnergy*fEnergy-val*val);
     }
-  
+
   cout <<"\n############# Generating with following conditions:\n\n";
   cout <<"incident 4-mom : ("<<fEnergy<<", 0, 0, "<<fMomentum<<"), m = "<<sqrt(fEnergy*fEnergy-fMomentum*fMomentum)<<endl;
   cout <<"\n######################\n\n"<<endl;
@@ -171,8 +172,8 @@ PndEvtGenStandAlone::~PndEvtGenStandAlone() {
 void PndEvtGenStandAlone::init_root_tree() {
 
   iEvt = 0;
-  //   Root initialization 
-  fFile = new TFile("Signal-nano.root","RECREATE","ROOT_Tree"); 
+  //   Root initialization
+  fFile = new TFile("Signal-nano.root","RECREATE","ROOT_Tree");
 
   fNpart=0;
   cout << "init_root_tree() : TParticle class: " << TClass::GetClass("TParticle") << endl;
@@ -224,15 +225,28 @@ void PndEvtGenStandAlone::Finalize() {
 
 // -----  Save tree to output file --------------
 void PndEvtGenStandAlone::close_root_file() {
+
+  cout << "PndEvtGenStandAlone::colose_root_file closing root file " << endl;
+
+  // Monumental cludge to save ttrees in the selector
+  cout << "PndEvtGenStandAlone::gDirectory before ls" << endl;
+  gDirectory->ls();
+  fTreeUnfilt = (TTree*)gDirectory->Get("data0");
+  fTreeUnfilt->Write();
+
+  cout << "PndEvtGenStandAlone::gDirectory after ls" << endl;
   fFile->cd();
+
+  gDirectory->ls();
   fTree->Write();
-  fFile->Write();  
+  fFile->Write();
   fFile->Close();
+
 }
 
 // -----   Public method ReadEvent   --------------------------------------
 Bool_t PndEvtGenStandAlone::generate_event(TClonesArray*evt) {
-  
+
   if (iEvt%1000==0) cout << "PndEvtGenStandAlone::generate_event generating event " << iEvt << endl;
 
   // Loop to create nEvents, starting from an Upsilon(4S)
@@ -240,21 +254,21 @@ Bool_t PndEvtGenStandAlone::generate_event(TClonesArray*evt) {
   EvtParticle *parent;
   EvtVector4R pInit(fEnergy,  0.0000, -0.0000,  fMomentum);
   parent=EvtParticleFactory::particleFactory(PART,pInit);
-  parent->setDiagonalSpinDensity();  
+  parent->setDiagonalSpinDensity();
 
   fGenerator->generateDecay(parent);
 
-  cout << "PndEvtGenStandAlone --- accepted decay " << endl;
+  // cout << "accepted " << endl;
   fEvtStdHep.init();
   parent->makeStdHep(fEvtStdHep);
 
   if (verb_flag()) print_detail(parent);
-    
+
   // Write the output
   fNpart = fEvtStdHep.getNPart();
 
   fEvt->Clear();
-  
+
   int tca_idx = 0;
   for(Int_t iPart=0; iPart<fNpart; iPart++){
 
@@ -280,12 +294,12 @@ Bool_t PndEvtGenStandAlone::generate_event(TClonesArray*evt) {
   }
 
   if (!compare()) print_detail(parent);
-  
+
   if (verb_flag()) cout <<"==== compare end ==="<<endl;
 
   fTree->Fill();
 
-  parent->deleteTree();  
+  parent->deleteTree();
 
   return kTRUE;
 
@@ -339,4 +353,3 @@ void PndEvtGenStandAlone::print_detail(EvtParticle *parent) {
 
 // ------------------------------------------------------------------------
 ClassImp(PndEvtGenStandAlone)
-

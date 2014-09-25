@@ -14,8 +14,16 @@
 #include "EvtGenBase/EvtDecayProb.hh"
 #include "EvtGenBase/EvtStdHep.hh"
 
+#include "TMath.h"
+
 class EvtParticle;
 class EvtStdHep;
+
+class TTree;
+class TParticle;
+class TFile;
+class TClonesArray;
+class TLorentzVector;
 
 class EvtPpbarJpsiPi0:public EvtDecayProb{
 
@@ -29,11 +37,20 @@ public:
   void decay(EvtParticle *p);
 
 private:
-  
+
+  void set_p4_v4(EvtStdHep&, const int&, TLorentzVector&, TLorentzVector&);
+  inline double _pow(double base, double exp) { return TMath::Power(base,exp); }
+
   double _qsit;
   double _s;
+
+  EvtStdHep fEvtStdHep;  //! The decay tree
+  TFile* fFile;
+  TTree* fTree;
+  TClonesArray* fEvt;
+  int fNpart;
+
 
 };
 
 #endif
-
