@@ -23,6 +23,7 @@ using std::make_pair;
 
 static const double m_2pi = 2.0*TMath::Pi();
 static const double m_pi = TMath::Pi();
+static const double rtd= TMath::RadToDeg();
 
 struct axis {
 axis():nbins(200),min(0),max(10.){}
@@ -64,6 +65,17 @@ class filler {
   // if x axis and y axis need to be boosted by different vecotrs -
   // this function should do nothing and communicate annoyingly if called on a 1d filler
   virtual void operator()(const vector<TLorentzVector>&, const TVector3&, const TVector3&)=0;
+
+
+  // with weight
+  virtual void operator()(const vector<TLorentzVector>&, const double &)=0;
+  // if needs to be boosted by some
+  virtual void operator()(const vector<TLorentzVector>&, const TVector3&, const double &)=0;
+  // if x axis and y axis need to be boosted by different vecotrs -
+  // this function should do nothing and communicate annoyingly if called on a 1d filler
+  virtual void operator()(const vector<TLorentzVector>&, const TVector3&, const TVector3&, const double &)=0;
+
+
 
   void Write() { this->hist->Write(); }
   void Write(const char* prefix) {
@@ -145,8 +157,8 @@ class filler {
 
   const char* _name(const char* var,const char* fname, const char* pname){return Form("%s_%s_%s",fname, var, pname);}
   const char* _name(const char* var, const char* pname) { return Form("%s_%s", var, pname); }
-  const char* _name_p(const char* var,const char* fname, const char* pname1, const char* pname2) { return Form("%s_p%s_%s_%s",fname, var, pname1, pname2); }
-  const char* _name_p(const char* var, const char* pname1, const char* pname2) { return Form("%s_%s_%s", var, pname1, pname2); }
+  const char* _name_p(const char* var,const char* fname, const char* pname1, const char* pname2) { return Form("%s_p_%s_%s_%s",fname, var, pname1, pname2); }
+  const char* _name_p(const char* var, const char* pname1, const char* pname2) { return Form("p_%s_%s_%s", var, pname1, pname2); }
   const char* _title(const char *var, const char *ftitle, const char *ptitle) { return Form("%s %s%s", ptitle, vart[var], ftitle); }
   const char* _title(const char *var, const char *ptitle) { return Form("%s %s", ptitle, vart[var]); }
   const char* _title_p(const char *var, const char *ftitle, const char *ptitle1, const char *ptitle2) { return Form("%s-%s %s%s", ptitle1, ptitle2, vart[var], ftitle); }
@@ -228,7 +240,6 @@ class filler {
     func_dict.insert(make_pair("e", &filler::ene));
     func_dict.insert(make_pair("the", &filler::the));
     func_dict.insert(make_pair("cost", &filler::cost));
-
     func_dict.insert(make_pair("phi", &filler::phi));
   }
 
@@ -296,8 +307,8 @@ class filler {
   double cost_p(const TLorentzVector &v1, const TLorentzVector &v2) const { return cost(v1+v2); }
   double cost_p_b(const TLorentzVector &v1, const TLorentzVector &v2, const TVector3&b) const { return cost_b(v1+v2,b); }
 
-  double oa_p(const TLorentzVector &v1, const TLorentzVector &v2) const { return v1.Vect().Angle(v2.Vect());  }
-  double oa_p_b(const TLorentzVector &v1, const TLorentzVector &v2, const TVector3&b) const { return boost_transf(v1,b).Vect().Angle( boost_transf(v2,b).Vect()); }
+  double oa_p(const TLorentzVector &v1, const TLorentzVector &v2) const { return rtd*(v1.Vect().Angle(v2.Vect()));  }
+  double oa_p_b(const TLorentzVector &v1, const TLorentzVector &v2, const TVector3&b) const { return rtd*(boost_transf(v1,b).Vect().Angle( boost_transf(v2,b).Vect())); }
 
 };
 
@@ -354,6 +365,42 @@ class filler1d: public filler {
   virtual void operator()(const vector<TLorentzVector>&, const TVector3&, const TVector3&) {
     cout << "Calling operator() on an 1d filler with two boost vectors, doesn't make any sense, check your code!" << endl;
   }
+
+
+
+  // Virtual overlaod function call operators to pass the 4momenta to be filled
+  virtual void operator()(const vector<TLorentzVector> &p4s, const double &w) {
+    BOOST_ASSERT_MSG(p4s.size()>=ix.size(), filler_tag);
+    TH1* htemp = dynamic_cast<TH1*>(hist);
+    if (ix.size() == 1) {
+      BOOST_ASSERT_MSG(_func[0] != nullptr, filler_tag);
+      htemp->Fill( (this->*_func[0])(p4s[ix[0]]), w);
+    } else if (ix.size() == 2) {
+      BOOST_ASSERT_MSG(_func_p[0] != nullptr, filler_tag);
+      htemp->Fill( (this->*_func_p[0])(p4s[ix[0]], p4s[ix[1]]), w);
+    }
+  }
+
+  // if needs to be boosted by some
+  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3& boost, const double &w) {
+    BOOST_ASSERT_MSG(p4s.size()>=ix.size(), filler_tag);
+    TH1* htemp = dynamic_cast<TH1*>(hist);
+    if (ix.size() == 1 ) {
+      BOOST_ASSERT_MSG(_func_b[0] != nullptr, filler_tag);
+      htemp->Fill( (this->*_func_b[0])( p4s[ix[0]], boost), w);
+    } else if (ix.size() == 2 ) {
+      BOOST_ASSERT_MSG(_func_p_b[0] != nullptr, filler_tag);
+      htemp->Fill( (this->*_func_p_b[0])( p4s[ix[0]] , p4s[ix[1]], boost ), w );
+    }
+  }
+
+  virtual void operator()(const vector<TLorentzVector>&, const TVector3&, const TVector3&, const double &w) {
+    cout << "Calling operator() on an 1d filler with two boost vectors, doesn't make any sense, check your code!" << endl;
+  }
+
+
+
+
   TH1* getHist() {return dynamic_cast<TH1*>(hist); }
 };
 
@@ -448,6 +495,25 @@ class filler2d: public filler {
     htemp->Fill(get_value(0,ix,p4s,b1), get_value(1,iy,p4s,b2));
   }
 
+
+  virtual void operator()(const vector<TLorentzVector> &p4s, const double &w) {
+    BOOST_ASSERT_MSG(p4s.size()>=ix.size() , filler_tag);
+    TH2* htemp = dynamic_cast<TH2*>(hist);
+    htemp->Fill(get_value(0,ix,p4s),get_value(1,iy,p4s), w);
+  }
+  virtual void operator()(const vector<TLorentzVector> &p4s, const TVector3& b, const double &w) {
+    BOOST_ASSERT_MSG(p4s.size()>=ix.size(), filler_tag);
+    TH2* htemp = dynamic_cast<TH2*>(hist);
+    htemp->Fill(get_value(0,ix,p4s,b), get_value(1,iy,p4s,b), w);
+  }
+  virtual void operator()(const vector<TLorentzVector>&p4s, const TVector3&b1, const TVector3&b2, const double &w) {
+    BOOST_ASSERT_MSG(p4s.size()>=ix.size(), filler_tag);
+    TH2* htemp = dynamic_cast<TH2*>(hist);
+    htemp->Fill(get_value(0,ix,p4s,b1), get_value(1,iy,p4s,b2), w);
+  }
+
+
+
   TH2* getHist() {return dynamic_cast<TH2*>(hist); }
 
 };
@@ -502,7 +568,7 @@ class var2d: public filler2d {
        const char* names[][2]): filler2d(vector<int>{_ix},vector<int>{_iy0,_iy1},varx,vary) {
     set_bins(x.nbins,x.min,x.max,y.nbins,y.min,y.max);
     set_funcs(0,varx); // make sure x is called before y (otherwise axes will be inversed)
-    set_funcs(1,vary); // make sure x is called before y (otherwise axes will be inversed)
+    set_pair_funcs(1,vary); // make sure x is called before y (otherwise axes will be inversed)
     if (strcmp(framex[0],framey[0])!=0) {
       set_name( Form("%s_%s", _name(varx, framex[0], names[_ix][0]), _name_p(vary, framey[0], names[_iy0][0], names[_iy1][0]) ));
       set_title( Form("%s vs %s;%s;%s", _title_p(vary, framey[1], names[_iy0][1], names[_iy1][1]), _title(varx, framex[1], names[_ix][1]),
@@ -516,10 +582,10 @@ class var2d: public filler2d {
 
   // Pair-Single
  var2d(const int &_ix0, const int &_ix1, const char *varx, const axis &x, const char* framex[],
-       const int &_iy, const char *vary, const axis &y, const char* framey[], const char* names[][0])
+       const int &_iy, const char *vary, const axis &y, const char* framey[], const char* names[][2])
    : filler2d(vector<int>{_ix0,_ix1},vector<int>{_iy},varx,vary) {
     set_bins(x.nbins,x.min,x.max,y.nbins,y.min,y.max);
-    set_funcs(0,varx); // make sure x is called before y (otherwise axes will be inversed)
+    set_pair_funcs(0,varx); // make sure x is called before y (otherwise axes will be inversed)
     set_funcs(1,vary); // make sure x is called before y (otherwise axes will be inversed)
     if (strcmp(framex[0],framey[0])!=0) {
       set_name( Form("%s_%s", _name_p(varx, framex[0], names[_ix0][0], names[_ix1][0]), _name(vary, framey[0], names[_iy][0]) ));
