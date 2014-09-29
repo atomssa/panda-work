@@ -48,14 +48,9 @@ def run_dpm():
     if not os.path.exists(out_file):
         with open(log_file,'w') as log, open(dpm_in(in_file),"r") as inpipe:
             execute("DPMGen", log, inpipe)
-        if not my_utils.delete_unfiltered_dpm:
-            my_utils.move_file(my_utils.dpm_default_out, out_file)
     else:
         my_utils.dbg_msg("%s exists. will skip this step (evt)" % out_file)
-    if (my_utils.delete_unfiltered_dpm):
-        if os.path.exists(out_file):
-            os.remove(out_file)
-
+    return out_file
 
 def root_in(in_file,dpm_file):
     src_file = "%s/dpm_filter.C" % my_utils.macro_dir()
@@ -74,6 +69,11 @@ def filter_dpm():
         my_utils.move_file(my_utils.filter_default_out,out_file)
     else:
         my_utils.dbg_msg("%s exists. will skip this step (filt)" % out_file)
+    if not my_utils.delete_unfiltered_dpm:
+        my_utils.move_file(my_utils.dpm_default_out, out_file)
+    else:
+        if os.path.exists(my_utils.dpm_default_out):
+            os.remove(my_utils.dpm_default_out)
     return out_file
 
 def generate():
@@ -85,7 +85,7 @@ def generate():
     (dummy,log_file,dummy) = my_utils.file_names("timer")
 
     if my_utils.sim_type == my_utils.sim_bg:
-        run_dpm()
+        dpm_out = run_dpm()
         filt_out = filter_dpm()
     else:
         (out_file,log_file,in_file) = my_utils.file_names("filt")

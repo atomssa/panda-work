@@ -7,6 +7,9 @@
 # root macro compile helpers
 *__.cxx
 *___cxx.d
+*_.cxx
+*__cxx.d
+
 
 # Compiled Object files
 *.slo

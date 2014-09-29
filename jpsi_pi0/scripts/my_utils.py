@@ -15,7 +15,7 @@ batch_dir = None
 proc_tag_sig = "pbar_p_jpsi_pi0"
 proc_tag_bg = "pbar_p_pip_pim_pi0"
 
-dpm_nevt_per_file = 2000000
+dpm_nevt_per_file = 20000000
 dpm_pbar_lab_mom = 5.513
 dpm_proc_selection = 0
 dpm_part_status_mod = "0 0"

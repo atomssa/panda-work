@@ -31,8 +31,8 @@ import evtgen
 #    my_utils.dbg_msg( "run_gen_series: doing uniq id %d" % my_utils.uniq_id)
 #    evtgen.generate()
 
-plabs = [8.0, 14.0]
-nevts = [10000000, 50000000]
+plabs = [5.513, 8.0, 14.0]
+nevts = [2000000, 10000000, 50000000]
 plab_index = int(sys.argv[1])
 my_utils.sim_type = my_utils.sim_bg
 my_utils.dpm_pbar_lab_mom = plabs[plab_index]
