@@ -2,7 +2,7 @@
 
 draw(string fname="radlen_20k_upto_emc.root") {
 
-  bool save =false;
+  bool save = false;
   gStyle->SetOptStat(0);
   //gStyle->SetTitleOffset("x",0.01);
   //gStyle->SetTitleOffset("y",0.01);
@@ -108,7 +108,6 @@ draw(string fname="radlen_20k_upto_emc.root") {
   h_emc->DrawCopy("hist");
   if (save) tc_emc->Print("emc.eps");
 
-
   TCanvas *tc_gem_emc = new TCanvas("tc_gem_emc","tc_gem_emc",1400,1000);
   TH1D *h_gem_emc = h_gem->Clone("RadLenProf_GEM_EMC");
   h_gem_emc->Add(h_emc);
@@ -147,9 +146,6 @@ draw(string fname="radlen_20k_upto_emc.root") {
   tl->Draw();
   if (save) tc_stt_mvd->Print("stt_mvd.eps");
 
-
-  return 0;
-
   TCanvas *tc_stt_mvd_pipe = new TCanvas("tc_stt_mvd_pipe","tc_stt_mvd_pipe",1400,1000);
   TH1D *h_stt_mvd_pipe = h_stt->Clone("RadLenProf_STT_MVD_PIPE");
   h_stt_mvd_pipe->Add(h_mvd);
@@ -172,7 +168,6 @@ draw(string fname="radlen_20k_upto_emc.root") {
   tl->AddEntry(h_stt_mvd_pipe,"MVD+STT+PIPE","pl");
   tl->Draw();
   if (save) tc_stt_mvd_pipe->Print("stt_mvd_pipe.eps");
-
 
   TCanvas *tc_stt_mvd_gem_pipe = new TCanvas("tc_stt_mvd_gem_pipe","tc_stt_mvd_gem_pipe",1400,1000);
   TH1D *h_stt_mvd_gem_pipe = h_stt->Clone("RadLenProf_STT_MVD_GEM_PIPE");
@@ -199,7 +194,5 @@ draw(string fname="radlen_20k_upto_emc.root") {
   tl->AddEntry(h_stt_mvd_gem_pipe,"MVD+STT+GEM+PIPE","pl");
   tl->Draw();
   if (save) tc_stt_mvd_gem_pipe->Print("stt_mvd_gem_pipe.eps");
-
-
 
 }
