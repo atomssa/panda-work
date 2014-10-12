@@ -379,6 +379,7 @@ void fill_sig_hists(TChain *data_in, TClonesArray *part_array) {
     cm_fillers.push_back(new var1d(ipart, "the", the_bins, cm_frame, names));
     cm_fillers.push_back(new var1d(ipart, "cost", cost_bins, cm_frame, names));
   }
+  cm_fillers.push_back(new var2d(pbar, pi0, "t", t_bins, invariant, pi0, "the", the_bins, cm_frame, names));
   cm_fillers.push_back(new var1d(ep, em, "oa", oa_bins, cm_frame, names)); // (e+-e-) OA
   cm_fillers.push_back(new var1d(g1, g2, "oa", axis(200,0,180), cm_frame, names)); // (g1-g2) OA
   cm_fillers.push_back(new var1d(pi0, jpsi, "oa", oa_bins, cm_frame, names)); // (pi0-jpsi) OA
