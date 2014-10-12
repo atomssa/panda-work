@@ -25,7 +25,6 @@ void t(){
   set_style(ta->GetYaxis());
 
 
-
   TCanvas *tc0 = new TCanvas("tc0","tc0",1100,500);
   tc0->Divide(2,1);
   tc0->cd(1);
@@ -42,5 +41,13 @@ void t(){
   tt->DrawLatex(0.19,0.6,"After MC rejection");
 
   tc0->Print("figs/t_vs_the_pi0.pdf");
+
+  TCanvas *tc1 = new TCanvas("tc1","tc1",1400,1000);
+  tc1->cd();
+  ta->Draw();
+  tt->DrawLatex(0.19,0.7,"s=12.25 GeV^{2}");
+  tt->DrawLatex(0.19,0.6,"Forward Hemesphere in CM");
+  //tt->DrawLatex(0.19,0.5,"After MC rejection");
+
 
 }
