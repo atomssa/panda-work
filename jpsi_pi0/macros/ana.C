@@ -22,10 +22,10 @@ int SelectTruePid(PndAnalysis *ana, RhoCandList &l)
 }
 
 
-void tut_ana(int nevts=0)
+void ana(int nevts=0)
 {
   // *** some variables
-  int i=0,j=0, k=0, l=0;
+  //int i=0,j=0, k=0, l=0;
   gStyle->SetOptFit(1011);
 
   // *** the output file for FairRunAna
@@ -62,15 +62,15 @@ void tut_ana(int nevts=0)
 
   // *** create some histograms
   TH1F *hjpsim_all = new TH1F("hjpsim_all","J/#psi mass (all)",200,0,4.5);
-  TH1F *hpi0m_all  = new TH1F("hpi0m_all","#pi^{0} mass (all)",200,0,5);
+  TH1F *hpi0m_all  = new TH1F("hpi0m_all","#pi^{0} mass (all)",200,0,0.2);
   TH1F *hjpsipi0m_all  = new TH1F("hjpsipi0m_all","J/#psi-#pi^{0} mass (all)",200,0,5);
 
   TH1F *hjpsim_ftm = new TH1F("hjpsim_ftm","J/#psi mass (full truth match)",200,0,4.5);
-  TH1F *hpi0m_ftm  = new TH1F("hpi0m_ftm","#pi^{0} mass (full truth match)",200,0,5);
+  TH1F *hpi0m_ftm  = new TH1F("hpi0m_ftm","#pi^{0} mass (full truth match)",200,0,0.2);
   TH1F *hjpsipi0m_ftm  = new TH1F("hjpsipi0m_ftm","J/#psi-#pi^{0} mass (full truth match)",200,0,5);
 
   TH1F *hjpsim_nm = new TH1F("hjpsim_nm","J/#psi mass (no truth match)",200,0,4.5);
-  TH1F *hpi0m_nm  = new TH1F("hpi0m_nm","#pi^{0} mass (no truth match)",200,0,5);
+  TH1F *hpi0m_nm  = new TH1F("hpi0m_nm","#pi^{0} mass (no truth match)",200,0,0.2);
   TH1F *hjpsipi0m_nm  = new TH1F("hjpsipi0m_nm","J/#psi-#pi^{0} mass (no truth match)",200,0,5);
 
   TH1F *hjpsim_diff = new TH1F("hjpsim_diff","J/#psi mass diff to truth",100,-2,2);
@@ -104,6 +104,7 @@ void tut_ana(int nevts=0)
   // ***
   // the event loop
   // ***
+  int i= 0;
   while (theAnalysis->GetEvent() && i++<nevts) {
 
     if ((i%100)==0) cout<<"evt " << i << endl;
@@ -115,14 +116,17 @@ void tut_ana(int nevts=0)
     theAnalysis->FillList(g2, "Neutral");
 
     // *** combinatorics for J/psi -> mu+ mu-
-    jpsi.Combine(muplus, muminus);
+    jpsi.Combine(ep, em);
+    pi0.Combine(g1,g2);
+    tot.Combine(pi0, jpsi);
 
     // ***
     // *** do the TRUTH MATCH for jpsi
     // ***
     jpsi.SetType(443);
+    pi0.SetType(111);
 
-    for (j=0;j<jpsi.GetLength();++j) {
+    for (int j=0;j<jpsi.GetLength();++j) {
       hjpsim_all->Fill( jpsi[j]->M() );
       if (theAnalysis->McTruthMatch(jpsi[j])) {
 	hjpsim_ftm->Fill( jpsi[j]->M() );
@@ -131,6 +135,28 @@ void tut_ana(int nevts=0)
 	hjpsim_nm->Fill( jpsi[j]->M() );
       }
     }
+
+    for (int j=0; j<pi0.GetLength(); ++j) {
+      hpi0m_all->Fill( pi0[j]->M() );
+      if ( theAnalysis->McTruthMatch(pi0[j]) ) {
+	hpi0m_ftm->Fill( pi0[j]->M() );
+	hpi0m_diff->Fill( pi0[j]->GetMcTruth()->M() - pi0[j]->M() );
+      } else {
+	hpi0m_nm->Fill( pi0[j]->M() );
+      }
+    }
+
+    //for (int j=0; j<tot.GetLength(); ++j) {
+    //  hpi0jpsim_all->Fill( tot[j]->M() );
+    //  //if ( theAnalysis->McTruthMatch(pi0[j]) ) {
+    //  //	hpi0jpsim_ftm->Fill( pi0[j]->M() );
+    //  //	hpi0jpsim_diff->Fill( pi0[j]->GetMcTruth()->M() - pi0[j]->M() );
+    //  //} else {
+    //  //	hpi0jpsim_nm->Fill( pi0[j]->M() );
+    //  //}
+    //}
+
+
 
 
   }
