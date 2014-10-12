@@ -1,0 +1,167 @@
+\documentclass{beamer}
+%\usepackage{beamerthemeshadow}
+\usetheme{Madrid}
+
+%\usepackage[utf8]{inputenc}
+%\usepackage{xspace}
+%\usepackage[T1]{fontenc}
+
+
+\usepackage{appendixnumberbeamer}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{textpos}
+
+\begin{document}
+
+\newcommand{\pnd}{\=PANDA }
+\newcommand{\streama}{{\color{blue} Stream A~}}
+\newcommand{\streamb}{{\color{red} Stream B~}}
+\newcommand{\dm}{\mathrm{d}m}
+\newcommand{\dpt}{\mathrm{d}p_T}
+\newcommand{\pt}{p_T}
+\newcommand{\tab}{\hspace{0.25cm}}
+
+\newcommand{\pip}{{\normalsize$\pi^+$~}}
+\newcommand{\pim}{{\normalsize$\pi^-$~}}
+\newcommand{\pipm}{{\normalsize$\pi^{+}\pi^{-}$~}}
+\newcommand{\epm}{{\normalsize$e^+e^-$}}
+\newcommand{\piz}{{\normalsize$\pi^0$~}}
+\newcommand{\jpsi}{{\normalsize$J/\psi$~}}
+\newcommand{\jpsipbarp}{{\normalsize$J/\psi\rightarrow p\bar{p}$~}}
+
+\newcommand{\pipT}{{\LARGE$\pi^+$~}}
+\newcommand{\pimT}{{\LARGE$\pi^-$~}}
+\newcommand{\pipmT}{{\LARGE$\pi^{+}\pi^{-}$~}}
+\newcommand{\epmT}{{\LARGE$e^+e^-$}}
+\newcommand{\pizT}{{\LARGE$\pi^0$~}}
+\newcommand{\jpsiT}{{\LARGE$J/\psi$~}}
+\newcommand{\jpsipbarpT}{{\LARGE$J/\psi\rightarrow p\bar{p}$~}}
+
+
+\newcommand{\pintda}{$\pi$-N~TDA~}
+\newcommand{\pintdas}{$\pi$-N~TDAs~}
+\newcommand{\piantda}{$\pi$-$\bar{N}$~TDA~}
+\newcommand{\piantdas}{$\pi$-$\bar{N}$~TDAs~}
+
+\newcommand{\pizjpsi}{{\normalsize$\pi^0J/\psi$~}}
+\newcommand{\pizpipm}{{\normalsize$\pi^0$\pipm}}
+\newcommand{\pizjpsiT}{{\LARGE$\pi^0J/\psi$~}}
+\newcommand{\pizpipmT}{{\LARGE$\pi^0$\pipmT}}
+
+\newcommand{\sigrxn}{{\normalsize$\bar{p}p\rightarrow\pi^0J/\psi\rightarrow\pi^0e^+e^-$~}}
+\newcommand{\sigrxnepem}{{\normalsize$\bar{p}p\rightarrow\pi^0\gamma^*\rightarrow\pi^0e^+e^-$~}}
+\newcommand{\bgrxn}{{\normalsize$\bar{p}p\rightarrow\pi^0\pi^{+}\pi^{-}$~}}
+\newcommand{\sigrxnT}{{\LARGE$\bar{p}p\rightarrow\pi^0J/\psi\rightarrow\pi^0e^+e^-$~}}
+\newcommand{\sigrxnepemT}{{\LARGE$\bar{p}p\rightarrow\pi^0\gamma^*\rightarrow\pi^0e^+e^-$~}}
+\newcommand{\bgrxnT}{{\LARGE$\bar{p}p\rightarrow\pi^0\pi^{+}\pi^{-}$~}}
+
+
+\newcommand{\bgcut}{$-0.5<t[$GeV$^2]<0.6$, $2.96<M_{inv}[$GeV/c$^2] < 3.22$~}
+\newcommand{\tcut}{$-0.5<t[$GeV$^2]<0.6$~}
+\newcommand{\ucut}{$-0.5<u[$GeV$^2]<0.6$~}
+
+%\renewcommand{\inserttotalframenumber}{17}
+
+\title[\pnd Group Meeting, TDA]{Full MC simulation of \sigrxn and \bgrxn}
+
+\author[Ermias ATOMSSA]{\pnd Group Meeting\\ \vskip 0.5cm Ermias ATOMSSA}
+
+\date[October 2, 2014]{October 2, 2014}
+
+\institute[IPNO]{Institut de Physique Nucl\'eaire d'Orsay}
+
+\frame{\titlepage}
+\appendix
+
+\frame{
+  \frametitle{Update on TDA simulations}
+  \begin{block}{}
+    \begin{itemize}
+      \scriptsize
+    \item Follow up on fast MC shown at Collab. Meeting
+    \item Not much verbal explanation (sorry)
+    \item Full MC (geant$\rightarrow$digi$\rightarrow$reco$\rightarrow$pid) on \sigrxn and \bgrxn
+    \item In most slides below left side = \bgrxn, and right side = \sigrxn (few exceptions towards end)
+    \item The statistics was chosen to correspond to
+      \begin{itemize}
+        \scriptsize
+      \item Signal: Order of mag. of \jpsi expected affter full PID (10K events)
+      \item Bg: Order of mag. of mis-identified $\pi^+\pi^-$ events after full EID (30K events)
+      \end{itemize}
+    \end{itemize}
+  \end{block}
+}
+\frame{
+  \frametitle{}
+  \begin{figure}
+    \includegraphics[width=\columnwidth]{fig_p1.pdf}
+  \end{figure}
+}
+
+\frame{
+  \frametitle{}
+  \begin{figure}
+    \includegraphics[width=\columnwidth]{fig_p2.pdf}
+  \end{figure}
+}
+
+\frame{
+  \frametitle{}
+  \begin{figure}
+    \includegraphics[width=\columnwidth]{fig_p3.pdf}
+  \end{figure}
+}
+
+\frame{
+  \frametitle{}
+  \begin{figure}
+    \includegraphics[width=\columnwidth]{fig_p4.pdf}
+  \end{figure}
+}
+
+\frame{
+  \frametitle{}
+  \begin{figure}
+    \includegraphics[width=\columnwidth]{fig_p5.pdf}
+  \end{figure}
+}
+
+\frame{
+  \frametitle{}
+  \begin{figure}
+    \includegraphics[width=\columnwidth]{fig_p6.pdf}
+  \end{figure}
+}
+
+\frame{
+  \frametitle{}
+  \begin{figure}
+    \includegraphics[width=\columnwidth]{fig_p7.pdf}
+  \end{figure}
+}
+
+\frame{
+  \frametitle{}
+  \begin{figure}
+    \includegraphics[width=\columnwidth]{fig_p8.pdf}
+  \end{figure}
+}
+
+\frame{
+  \frametitle{}
+  \begin{figure}
+    \includegraphics[width=\columnwidth]{fig_p9.pdf}
+  \end{figure}
+}
+
+\frame{
+  \frametitle{}
+  \begin{figure}
+    \includegraphics[width=\columnwidth]{fig_p10.pdf}
+  \end{figure}
+}
+
+
+
+\end{document}

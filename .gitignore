@@ -33,6 +33,11 @@
 *.out
 *.app
 
+#latex
+*.aux
+*.nav
+*.snm
+*.toc
 
 # apple BS
 .DS_Store
