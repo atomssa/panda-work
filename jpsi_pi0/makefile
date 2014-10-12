@@ -1,2 +1,6 @@
+INCDIR   = $(shell root-config --incdir)
+LIBS     = $(shell root-config --libs)
+CXXFLAGS = -std=c++0x -Wall
+
 gen: fill.cpp
-	clang++  -std=c++11 -stdlib=libc++ -Wall -L/Users/tujuba/panda/svn/ext-apr13/lib/root -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lMinuit -lPhysics -lMathCore -lThread -lpthread -lm -ldl -lEG -I/Users/tujuba/panda/svn/ext-apr13/include/root fill.cpp -o fill
+	g++ fill.cpp -o fill $(CXXFLAGS) -I$(INCDIR) $(LIBS) -lEG
