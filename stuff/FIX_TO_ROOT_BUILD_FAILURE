@@ -1,0 +1,53 @@
+Root fails sometimes with a link failure for ftgl 3d stuff
+with error:
+
+     include/TTF.h:51:4: error: 'FT_Glyph' does not name a type
+
+Only solution is to exclude ftgl from build
+To change root build behaviour, modify: tools/rootconfig.sh
+
+For ex. to use g++ instead of clang add the following arguments to configure:
+                    --with-cc=$CC \
+                    --with-cxx=$CXX \
+                    --with-ld=$CXX \
+
+for FTGL remove the option: --enable-builtin-ftgl
+
+
+
+
+
+
+Proposed solution in (doesn't work)
+
+https://github.com/root-mirror/root/commit/446a11828dcf577efd15d9057703c5bd099dd148
+
+patches the moudle make files:
+- tools/root/graf3d/ftgl/Module.mk
+and
+- tools/root/graf3d/gl/Module.mk
+
+with the diffs:
+
+tujuba@rasalula:~/panda/svn/ext-apr13(1)$ diff tools/root/graf3d/ftgl/Module.mk tools/root/graf3d/ftgl/Module.mk.org
+25c25
+< ALLHDRS     +=
+---
+> ALLHDRS     += $(patsubst $(MODDIRI)/%.h,include/%.h,$(FTGLH))
+30d29
+< FTGLINC      := -I$(MODDIRI)
+63c62
+< $(FTGLO):     CXXFLAGS += $(FREETYPEINC) $(FTGLINC) $(OPENGLINCDIR:%=-I%)
+---
+> $(FTGLO):     CXXFLAGS += $(FREETYPEINC) $(OPENGLINCDIR:%=-I%)
+
+and
+
+tujuba@rasalula:~/panda/svn/ext-apr13(0)$ diff tools/root/graf3d/gl/Module.mk tools/root/graf3d/gl/Module.mk.org
+67,68d66
+< FTGLINC		:= -I$(MODDIRI)/../../ftgl/inc
+<
+122c120
+< $(GLO): CXXFLAGS += $(GLEWINCDIR:%=-I%) $(GLEWCPPFLAGS) $(FTGLINC)
+---
+> $(GLO): CXXFLAGS += $(GLEWINCDIR:%=-I%) $(GLEWCPPFLAGS)
