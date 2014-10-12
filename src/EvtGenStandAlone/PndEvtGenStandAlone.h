@@ -82,7 +82,6 @@ class PndEvtGenStandAlone : public FairTask
 
   TFile* fFile;
   TTree* fTree;
-  TTree *fTreeUnfilt;
   TClonesArray* fEvt;
   Int_t fNpart;
 

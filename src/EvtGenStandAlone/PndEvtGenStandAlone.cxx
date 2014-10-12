@@ -49,8 +49,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "PndEvtGenStandAlone.h"
-
 using namespace std;
 
 using std::endl;
@@ -104,6 +102,7 @@ PndEvtGenStandAlone::PndEvtGenStandAlone(TString particle,TString decfile,Double
       cout << "<I> Rnd Seed changed to " << Seed << endl;
     }
   myRandomEngine=new EvtRootRandomEngine(Seed);
+
   // Set up the default external generator list: Photos, Pythia and/or Tauola ONLY if available
 #if EVTGEN_EXTERNAL
   EvtExternalGenList genList;
@@ -225,23 +224,10 @@ void PndEvtGenStandAlone::Finalize() {
 
 // -----  Save tree to output file --------------
 void PndEvtGenStandAlone::close_root_file() {
-
-  cout << "PndEvtGenStandAlone::colose_root_file closing root file " << endl;
-
-  // Monumental cludge to save ttrees in the selector
-  cout << "PndEvtGenStandAlone::gDirectory before ls" << endl;
-  gDirectory->ls();
-  fTreeUnfilt = (TTree*)gDirectory->Get("data0");
-  fTreeUnfilt->Write();
-
-  cout << "PndEvtGenStandAlone::gDirectory after ls" << endl;
   fFile->cd();
-
-  gDirectory->ls();
   fTree->Write();
   fFile->Write();
   fFile->Close();
-
 }
 
 // -----   Public method ReadEvent   --------------------------------------
@@ -258,7 +244,7 @@ Bool_t PndEvtGenStandAlone::generate_event(TClonesArray*evt) {
 
   fGenerator->generateDecay(parent);
 
-  // cout << "accepted " << endl;
+  cout << "PndEvtGenStandAlone --- accepted decay " << endl;
   fEvtStdHep.init();
   parent->makeStdHep(fEvtStdHep);
 

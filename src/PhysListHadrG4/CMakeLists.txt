@@ -3,15 +3,15 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0 FATAL_ERROR)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
-# Create a library called "histfillertask" 
+# Create a library called "histfillertask"
 set(INCLUDE_DIRECTORIES
-${ROOT_INCLUDE_DIR} 
-${BASE_INCLUDE_DIRECTORIES} 
+${ROOT_INCLUDE_DIR}
+${BASE_INCLUDE_DIRECTORIES}
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/emc/EmcData
 ${CMAKE_SOURCE_DIR}/emc/EmcReco
 ${CMAKE_SOURCE_DIR}/emc/EmcTools
-${CMAKE_SOURCE_DIR}/macro/PhysListHadrG4
+${CMAKE_SOURCE_DIR}/src/PhysListHadrG4
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -19,7 +19,7 @@ include_directories( ${INCLUDE_DIRECTORIES})
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
 )
- 
+
 link_directories( ${LINK_DIRECTORIES})
 
 set(histfillertask_SRCS
@@ -31,7 +31,7 @@ HistFillerTask.h
 )
 
 set(histfillertask_LINKDEF HistFillerLinkDef.h)
-set(histfillertask_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/HistFiller_Dict.cxx) 
+set(histfillertask_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/HistFiller_Dict.cxx)
 
 ROOT_GENERATE_DICTIONARY("${histfillertask_HEADERS}" "${histfillertask_LINKDEF}" "${histfillertask_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
 

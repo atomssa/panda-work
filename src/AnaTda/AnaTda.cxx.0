@@ -1,0 +1,328 @@
+// The header file
+#include "AnaTda.h"
+
+// C++ headers
+#include <vector>
+#include <string>
+#include <iostream>
+
+// FAIR headers
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
+#include "FairRadLenPoint.h"
+
+#include "PndAnalysis.h"
+#include "RhoCandList.h"
+#include "RhoMassParticleSelector.h"
+#include "RhoCandidate.h"
+
+// ROOT headers
+#include "TClonesArray.h"
+#include "TVector3.h"
+#include "TLorentzVector.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TMath.h"
+#include "TProfile.h"
+#include "TProfile2D.h"
+
+// other headers
+//#include "PndEmcBump.h"
+//#include "PndEmcCluster.h"
+//#include "PndEmcBump.h"
+//#include "PndEmcRecoHit.h"
+//#include "PndEmcMapper.h"
+#include "PndMCTrack.h"
+
+using std::cout;
+using std::endl;
+using std::vector;
+
+AnaTda::AnaTda() :
+  FairTask("Radiation Length Profiler"),nevt(0) {
+}
+
+AnaTda::~AnaTda() { }
+
+void AnaTda::def_hists() {
+
+  // *** create some histograms
+  hjpsim_all = new TH1F("hjpsim_all","J/#psi mass (all)",200,0,4.5);
+  hpi0m_all  = new TH1F("hpi0m_all","#pi^{0} mass (all)",200,0,0.2);
+  hjpsipi0m_all  = new TH1F("hjpsipi0m_all","J/#psi-#pi^{0} mass (all)",200,0,5);
+
+  hjpsim_ftm = new TH1F("hjpsim_ftm","J/#psi mass (full truth match)",200,0,4.5);
+  hpi0m_ftm  = new TH1F("hpi0m_ftm","#pi^{0} mass (full truth match)",200,0,0.2);
+  hjpsipi0m_ftm  = new TH1F("hjpsipi0m_ftm","J/#psi-#pi^{0} mass (full truth match)",200,0,5);
+
+  //hjpsim_true = new TH1F("hjpsim_true","J/#psi mass (full truth match, separate RhoCandList)",200,0,4.5);
+  //hpi0m_true  = new TH1F("hpi0m_true","#pi^{0} mass (full truth match, separate RhoCandList)",200,0,0.2);
+  //hjpsipi0m_true  = new TH1F("hjpsipi0m_true","J/#psi-#pi^{0} mass (full truth match, separate RhoCandList)",200,0,5);
+
+  hjpsim_nearest = new TH1F("hjpsim_nearest","J/#psi mass (nearest to jpsi mass)",200,0,4.5);
+  hpi0m_nearest  = new TH1F("hpi0m_nearest","#pi^{0} mass (nearest to p0 pdg mass)",200,0,0.2);
+  hjpsipi0m_nearest  = new TH1F("hjpsipi0m_nearest","J/#psi-#pi^{0} mass (nearest to pi0 pdg mass)",200,0,5);
+
+  //hjpsim_sel = new TH1F("hjpsim_sel","J/#psi mass (full truth match, after sel)",200,0,4.5);
+  //hpi0m_sel  = new TH1F("hpi0m_sel","#pi^{0} mass (full truth match, after sel)",200,0,0.2);
+  //hjpsipi0m_sel  = new TH1F("hjpsipi0m_sel","J/#psi-#pi^{0} mass (full truth match, after sel)",200,0,5);
+
+  hjpsim_nm = new TH1F("hjpsim_nm","J/#psi mass (no truth match)",200,0,4.5);
+  hpi0m_nm  = new TH1F("hpi0m_nm","#pi^{0} mass (no truth match)",200,0,0.2);
+  hjpsipi0m_nm  = new TH1F("hjpsipi0m_nm","J/#psi-#pi^{0} mass (no truth match)",200,0,5);
+
+  hjpsim_diff = new TH1F("hjpsim_diff","J/#psi mass diff to truth",100,-2,2);
+  hpi0m_diff  = new TH1F("hpi0m_diff","#pi^{0} mass diff to truth",100,-2,2);
+  hjpsipi0m_diff  = new TH1F("hjpsipi0m_diff","J/#psi-#pi^{0} mass diff to truth",100,-2,2);
+
+  h_m_epem = new TH1F("h_m_epem", "h_m_epem", 100, 0, 5.);
+  h_m_epem_tr = new TH1F("h_m_epem_tr", "h_m_epem_tr", 100, 0, 5.);
+  h_m_pippim = new TH1F("h_m_pippim", "h_m_pippim", 100, 0, 5.);
+  h_m_pippim_tr = new TH1F("h_m_pippim_tr", "h_m_pippim_tr", 100, 0, 5.);
+  h_m_gg = new TH1F("h_m_gg", "h_m_gg", 100, 0, 0.2);
+  h_m_gg_tr = new TH1F("h_m_gg_tr", "h_m_gg_tr", 100, 0, 0.2);
+
+}
+
+InitStatus AnaTda::Init()
+{
+
+  FairRootManager* ioman = FairRootManager::Instance();
+  if ( ! ioman ){
+    cout << "-E- AnaTda::Init: " << "RootManager not instantiated!" << endl;
+    return kFATAL;
+  }
+
+  //track_array = dynamic_cast<TClonesArray *> (ioman->GetObject("MCTrack"));
+  //if ( ! track_array ) {
+  //  cout << "-W- AnaTda::Init: " << "No PndMCTrack array!" << endl;
+  //  return kERROR;
+  //}
+  def_hists();
+
+  fAnalysis = new PndAnalysis();
+
+  // *** Mass selector for the jpsi cands
+  m0_jpsi = TDatabasePDG::Instance()->GetParticle("J/psi")->Mass();   // Get nominal PDG mass of the J/psi
+  m0_pi0 = TDatabasePDG::Instance()->GetParticle("pi0")->Mass();   // Get nominal PDG mass of the J/psi
+  cout << "AnaTda::Init() m0_jpsi= " << m0_jpsi << " m0_pi0= " << m0_pi0 << endl;
+  jpsiMassSel = new RhoMassParticleSelector("jpsi",m0_jpsi,1.0);
+  pi0MassSel = new RhoMassParticleSelector("pi0",m0_pi0,0.06);
+
+  // *** the lorentz vector of the initial jpsi-pi0 system
+  ini = TLorentzVector(0, 0, 6.231552, 7.240065);
+
+  return kSUCCESS;
+
+}
+
+int AnaTda::SelectTruePid(PndAnalysis *ana, RhoCandList &l)
+{
+  int removed = 0;
+  for (int ii=l.GetLength()-1;ii>=0;--ii)
+    {
+      if ( !(ana->McTruthMatch(l[ii])) )
+	{
+	  l.Remove(l[ii]);
+	  removed++;
+	}
+    }
+  return removed;
+}
+
+void AnaTda::Exec(Option_t* opt)
+{
+  if (++nevt%100==0)
+    cout << "===== AnaTda::Exec -- Event " << nevt << " ====="<< endl;
+
+  fAnalysis->GetEvent();
+
+  // *** RhoCandLists for the analysis
+  // These should be local vars. No reason otherwise
+  //RhoCandList muplus, muminus, piplus, piminus, jpsi, psi2s;
+  RhoCandList pip, pim, ep, em, g1, g2;
+  RhoCandList pip_tr, pim_tr, ep_tr, em_tr, g1_tr, g2_tr;
+  RhoCandList epem, pippim, gg;
+  RhoCandList epem_tr, pippim_tr, gg_tr;
+
+  RhoCandList jpsi, jpsi_true, pi0, pi0_true, pi0_nearest, tot, tot_true, tot_nearest;
+
+  // *** Select with no PID info ('All'); type and mass are set
+  fAnalysis->FillList(ep, "ElectronAllPlus");
+  fAnalysis->FillList(em, "ElectronAllMinus");
+  fAnalysis->FillList(g1, "Neutral");
+  fAnalysis->FillList(g2, "Neutral");
+  fAnalysis->FillList(pip, "PionAllPlus");
+  fAnalysis->FillList(pim, "PionAllMinus");
+
+  // *** combinatorics for J/psi -> mu+ mu-
+  jpsi.Combine(ep, em);
+  pi0.Combine(g1,g2);
+  tot.Combine(pi0, jpsi);
+
+  jpsi_true.Cleanup();
+  pi0_true.Cleanup();
+  tot_true.Cleanup();
+  pi0_nearest.Cleanup();
+
+  // ***
+  // *** do the TRUTH MATCH for jpsi
+  // ***
+  jpsi.SetType(443);
+  pi0.SetType(111);
+
+  ep_tr.Cleanup();
+  em_tr.Cleanup();
+  pip_tr.Cleanup();
+  pim_tr.Cleanup();
+  g1_tr.Cleanup();
+  g2_tr.Cleanup();
+
+  epem.Cleanup();
+  epem_tr.Cleanup();
+  pippim.Cleanup();
+  pippim_tr.Cleanup();
+  gg.Cleanup();
+  gg_tr.Cleanup();
+
+  ep.SetType(-11);
+  em.SetType(11);
+  pip.SetType(211);
+  pim.SetType(-211);
+  g1.SetType(22);
+  g2.SetType(22);
+  for (int i=0; i<ep.GetLength(); ++i) if (fAnalysis->McTruthMatch(ep[i])) ep_tr.Append(ep[i]);
+  for (int i=0; i<em.GetLength(); ++i) if (fAnalysis->McTruthMatch(em[i])) em_tr.Append(em[i]);
+  for (int i=0; i<pip.GetLength(); ++i) if (fAnalysis->McTruthMatch(pip[i])) pip_tr.Append(pip[i]);
+  for (int i=0; i<pim.GetLength(); ++i) if (fAnalysis->McTruthMatch(pim[i])) pim_tr.Append(pim[i]);
+  for (int i=0; i<g1.GetLength(); ++i) if (fAnalysis->McTruthMatch(g1[i])) g1_tr.Append(g1[i]);
+  for (int i=0; i<g2.GetLength(); ++i) if (fAnalysis->McTruthMatch(g2[i])) g2_tr.Append(g2[i]);
+  epem.Combine(ep, em);
+  epem_tr.Combine(ep_tr, em_tr);
+  pippim.Combine(pip, pim);
+  pippim_tr.Combine(pip_tr, pim_tr);
+  gg.Combine(g1, g2);
+  gg_tr.Combine(g1_tr, g2_tr);
+
+  //cout << "nepem = " << epem.GetLength()
+  //<< "nepem_tr = " << epem_tr.GetLength()
+  //<< "npippim = " << pippim.GetLength()
+  //<< "npippim_tr = " << pippim_tr.GetLength()
+  //<< "ngg = " << gg.GetLength()
+  //<< "ngg_tr = " << gg_tr.GetLength() << endl;
+
+  for (int j=0; j<epem.GetLength(); ++j) h_m_epem->Fill(epem[j]->M());
+  for (int j=0; j<epem_tr.GetLength(); ++j) h_m_epem_tr->Fill(epem_tr[j]->M());
+  for (int j=0; j<pippim.GetLength(); ++j) h_m_pippim->Fill(pippim[j]->M());
+  for (int j=0; j<pippim_tr.GetLength(); ++j) h_m_pippim_tr->Fill(pippim_tr[j]->M());
+  for (int j=0; j<gg.GetLength(); ++j) h_m_gg->Fill(gg[j]->M());
+  for (int j=0; j<gg_tr.GetLength(); ++j) h_m_gg_tr->Fill(gg_tr[j]->M());
+
+  for (int j=0;j<jpsi.GetLength();++j) {
+    hjpsim_all->Fill( jpsi[j]->M() );
+    if (fAnalysis->McTruthMatch(jpsi[j])) {
+  	hjpsim_ftm->Fill( jpsi[j]->M() );
+  	hjpsim_diff->Fill( jpsi[j]->GetMcTruth()->M() - jpsi[j]->M() );
+  	jpsi_true.Append(jpsi[j]);
+    } else {
+  	hjpsim_nm->Fill( jpsi[j]->M() );
+    }
+  }
+
+  //for (int j=0; j<jpsi_true.GetLength(); ++j) {
+  //  hjpsim_true->Fill( jpsi_true[j]->M() );
+  //}
+  double dm_min = 1e10;
+  int min_j = -1;
+  for (int j=0; j<pi0.GetLength(); ++j) {
+    const double dm = fabs(pi0[j]->M() - m0_pi0);
+    if ( dm < dm_min ) {
+  	dm_min = dm;
+  	min_j = j;
+    }
+  }
+  if (min_j>=0) {
+    pi0_nearest.Append(pi0[min_j]);
+    hpi0m_nearest->Fill(pi0_nearest[0]->M());
+  }
+
+  for (int j=0; j<pi0.GetLength(); ++j) {
+    hpi0m_all->Fill( pi0[j]->M() );
+    if ( fAnalysis->McTruthMatch(pi0[j]) ) {
+  	hpi0m_ftm->Fill( pi0[j]->M() );
+  	hpi0m_diff->Fill( pi0[j]->GetMcTruth()->M() - pi0[j]->M() );
+  	pi0_true.Append(pi0[j]);
+    } else {
+  	hpi0m_nm->Fill( pi0[j]->M() );
+    }
+  }
+
+  //for (int j=0; j<pi0_true.GetLength(); ++j) {
+  //  hpi0m_true->Fill( pi0_true[j]->M() );
+  //}
+  //pi0_true.Select(pi0MassSel);
+  //for (int j=0; j<pi0_true.GetLength(); ++j) {
+  //  hpi0m_sel->Fill( pi0_true[j]->M() );
+  //}
+
+  tot_true.Combine(pi0_true, jpsi_true);
+  tot_nearest.Combine(pi0_nearest, jpsi_true);
+
+  for (int j=0; j<tot.GetLength(); ++j) {
+    hjpsipi0m_all->Fill( tot[j]->M() );
+  }
+
+  for (int j=0; j<tot_true.GetLength(); ++j) {
+    hjpsipi0m_true->Fill( tot_true[j]->M() );
+  }
+
+  for (int j=0; j<tot_nearest.GetLength(); ++j) {
+    hjpsipi0m_nearest->Fill( tot_nearest[j]->M() );
+ }
+
+}
+
+void AnaTda::Finish()
+{
+
+  hjpsim_all->Write();
+  hpi0m_all->Write();
+  hjpsipi0m_all->Write();
+
+  hjpsim_ftm->Write();
+  hpi0m_ftm->Write();
+  hjpsipi0m_ftm->Write();
+
+  //hjpsim_true->Write();
+  //hpi0m_true->Write();
+  //hjpsipi0m_true->Write();
+
+  hjpsim_nearest->Write();
+  hpi0m_nearest->Write();
+  hjpsipi0m_nearest->Write();
+
+  //hjpsim_sel->Write();
+  //hpi0m_sel->Write();
+  //hjpsipi0m_sel->Write();
+
+  hjpsim_nm->Write();
+  hpi0m_nm->Write();
+  hjpsipi0m_nm->Write();
+
+  hjpsim_diff->Write();
+  hpi0m_diff->Write();
+  hjpsipi0m_diff->Write();
+
+  h_m_epem->Write();
+  h_m_epem_tr->Write();
+  h_m_pippim->Write();
+  h_m_pippim_tr->Write();
+  h_m_gg->Write();
+  h_m_gg_tr->Write();
+
+}
+
+ClassImp(AnaTda)
