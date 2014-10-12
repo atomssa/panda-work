@@ -17,4 +17,3 @@ in the  if [ "$platform" = "macosx" ]    block that patches the makefiles
         -DG4VIS_BUILD_OPENGLX_DRIVER=1  -DG4VIS_USE_OPENGL=1  -DG4VIS_USE_OPENGLX=1 -DGEANT4_USE_OPENGL_X11=ON \
         -DGEANT4_BUILD_VERBOSE_CODE=OFF  $install_data  ../
 ===========================================
-

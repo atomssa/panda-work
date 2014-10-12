@@ -65,3 +65,48 @@ https://gcc.gnu.org/wiki/Visibility
 
 * TMath was using a deprecated function fininte(double) in OSX-9
 ** Only solution was to "patch" TMath.h at L503-504 by adding a special case for macosx with no additional condtion on arm that uses std::isfininte()
+
+* Link time error with new versions of root (-stdlib=libc++ unrecognized option with gfortran):
+  Linking Fortran shared library ../../../lib/libEvtGen.so
+  gfortran: error: unrecognized command line option '-stdlib=libc++'
+  make[2]: *** [lib/libEvtGen.0.0.0.so] Error 1
+  make[1]: *** [pgenerators/EvtGen/EvtGen/CMakeFiles/EvtGen.dir/all] Error 2
+  make[1]: *** Waiting for unfinished jobs....
+  Linking CXX shared library ../lib/libFairDB.so
+  [ 35%] Built target FairDB
+  make: *** [all] Error 2
+** Cause : root-config --glibs adds the option which is then used as input for fortran linking which doesn't like the option
+** Solution: suppress auxilliary lib in the output from root-config using --noauxlibs in cmake/modlues/FindROOT.cake
+   Execute_Process(COMMAND ${ROOT_CONFIG_EXECUTABLE} --noauxlibs --glibs
+
+* Stupid constructor change errors TVector3 pos = (0,0,0); used implicit conversion no longer available with recent versions of root
+** Solution: Just replace (0,0,0) with TVector3(0,0,0)
+*** Culprits: gem/PndGemTrackFinderOnHits.cxx(L455) and gem/PndGemTrackFinderOnHitsTB.cxx(L374)
+*** Culprits: global/PndMvdTrackFinderOnHits.cxx(L418) smells like copy paste error
+* MasterToLocalShortId((0.,0.,0.), barId) assumes implicit conversion of (0,0,0) to TVector3 no longer allowed
+** Solution: MasterToLocalShortId(TVector3(0.,0.,0.), barId)
+*** Culprits: drc/PndDrc.cxx(L978) and drc/PndDrcDigiTask.cxx(L194)
+* Float_t dec  = d_cms.Vect().Angle(c->P()); This is a bug. c->P() is magnitude of 3vector (double) used to be converted implicitely to TVector3
+* Definitely not what was intended. Probably c->P3() which returns a TVector3 was what was meant. Maybe not problematic since it's just QA code
+** Solution: Replace c->P() by c->P3()
+*** culprits: PndRhoTupleQA.cxx(L619,L665)
+* emc/PndEmcClusterMoments.cxx -> Many many problems at many levels, too tiring to correct
+** Solution: Just copy over the file from trunk which has been fixed and replace the old one scrut14 version
+
+* Google Test Framework verion 1.6 doesn't compile on Mavericks (some problem with missing tr1/tuple header)
+** (1.7 works but 1.7 is available only as .zip file download. So need to modify the unpacking line in scripts/install_gtest.sh to use unzip instead of untar)
+
+* ml-gsoapclient link problem (missing gcc library) on builtin gcc (aka clang).
+** There is a check on clang to remove -lgcc, but this ignores the fact that gcc in osx10.9+ means clang
+** Therofre add condition $platform = $macosx in the conditional to remove -lgcc
+    if [ "$platform" = "$macosx" ];
+    then
+      mysed '-lgcc' '' src/Makefile
+    fi
+*** For some strange reason, the condition "$platform" = "$macosx" was not being satisfied. Remove the condtion if toroulbe
+
+* Notes on built-in GCC (dummy-link to clang nowadays) vs GCC.4.9 from homebrew
+** The main reason GCC.4.9 was even originally needed was absense of gfortran from OSX's built-in GCC
+** When built with GCC.4.9, one often comes across error to the effect that some-symbol-missing-for-arch-x86_64
+** These errors do not occur when linked to library is compiled with built-in gcc
+*** Two packages against which this error occured when compiling pandaroot were HepMC and root, in both cases solved by recompiling using builtin gcc
