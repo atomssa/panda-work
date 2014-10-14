@@ -26,8 +26,7 @@ using namespace std;
 
 static const bool verb = false;
 
-//static const double m_2pi; // = 2.0*TMath::Pi();
-//static const double m_pi; // = TMath::Pi();
+static const double rtd= TMath::RadToDeg();
 
 static int nbins = 200;
 static axis mom_bins(nbins, 0.0, 6.1);
