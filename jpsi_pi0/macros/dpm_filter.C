@@ -33,7 +33,7 @@ bool compare_unsorted(const vector<int> &evt, const vector<int> &ref) {
 	break;
       }
     }
-    
+
     if (!found) return false;
 
   }
@@ -59,7 +59,7 @@ void print_event(const vector<int> &evt) {
 
 void print_log(int ievt, int npart, vector<int> &pdg_codes){
   std::cout << "Event(Type3Pi) " << ievt << " Tca.entries= " << npart << std::endl;
-  print_event(pdg_codes);	
+  print_event(pdg_codes);
   cout << endl;
 }
 
@@ -67,7 +67,7 @@ void print_log(int ievt, int npart, vector<int> &pdg_codes){
 void dpm_filter(string file_name_in) {
 
   bool verb = false;
-  
+
   // input
   TFile *file_in = TFile::Open(file_name_in.c_str());
   TTree *data_in = (TTree*) file_in->Get("data");
@@ -88,7 +88,7 @@ void dpm_filter(string file_name_in) {
   ref1.push_back(111);
   ref1.push_back(211);
   int type1_count = 0;
-  
+
   std::vector<int> ref2;
   ref2.push_back(-11);
   ref2.push_back(11);
@@ -99,18 +99,18 @@ void dpm_filter(string file_name_in) {
   ref3.push_back(443);
   ref3.push_back(111);
   int type3_count = 0;
-  
+
   for (int ievt=0; ievt<Nevt; ievt++) {
 
     if (ievt%10000==0)
       std::cout << "event " << ievt << "/" << Nevt << std::endl;
-	
+
     data_in->GetEntry(ievt);
 
     // veto events with more than three particles in final state
     int npart = part_array->GetEntriesFast();
     if (npart>3) continue;
-    
+
     std::vector<int> pdg_codes;
     for (int ipart=0; ipart < npart; ++ipart) {
       const TParticle* part = (TParticle*) part_array->At(ipart);
@@ -119,7 +119,7 @@ void dpm_filter(string file_name_in) {
     }
 
     std::sort(pdg_codes.begin(),pdg_codes.end());
-    
+
     if (compare_sorted(pdg_codes,ref1)) {
       if (verb) print_log(ievt, npart, pdg_codes);
       data_out_pipmpi0->Fill();
@@ -140,7 +140,7 @@ void dpm_filter(string file_name_in) {
 
 
 
-    
+
   }
 
   file_out->cd();
@@ -153,6 +153,6 @@ void dpm_filter(string file_name_in) {
   cout << "Total Event Count = " << Nevt << endl;
   cout << "type1(2Pi) count = " << type1_count << endl;
   cout << "type2(JpsiPi0) count = " << type2_count << endl;
-  cout << "type2(JpsiPi0Undecayed) count = " << type3_count << endl;  
-  
+  cout << "type2(JpsiPi0Undecayed) count = " << type3_count << endl;
+
 }

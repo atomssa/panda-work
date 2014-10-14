@@ -1,8 +1,11 @@
-void ana(int type = 0, int brem = 0, int fid=0, int nevts=0)
+void ana(int type = 0, int fid=0)
 {
 
-  gSystem->Load("/vol0/panda/svn/pandaroot-scrut14/build/lib/libanatda");
+  int nevts = 0;
+  int brem = 1;
+
   //gSystem->Load("libanatda");
+  gSystem->Load("libanatda");
 
   // *** the files coming from the simulation
   TString inPidFile;
@@ -36,9 +39,9 @@ void ana(int type = 0, int brem = 0, int fid=0, int nevts=0)
   fRun->AddTask(atda);
 
   if (type==0)
-    fRun->SetOutputFile(Form("ana_%s_%s_%d.root", (type==0?"bg":"jpsi"), (brem==0?"raw":"brem"), fid) );
+    fRun->SetOutputFile(Form("hists/ana_%s_%s_%d.root", (type==0?"bg":"jpsi"), (brem==0?"raw":"brem"), fid) );
   else
-    fRun->SetOutputFile(Form("ana_%s_%s.root", (type==0?"bg":"jpsi"), (brem==0?"raw":"brem")) );
+    fRun->SetOutputFile(Form("hists/ana_%s_%s.root", (type==0?"bg":"jpsi"), (brem==0?"raw":"brem")) );
   fRun->Init();
 
   fRun->Run(0,nevts);
