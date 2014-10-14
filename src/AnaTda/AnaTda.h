@@ -15,9 +15,11 @@ class TH2F;
 class TH1F;
 class TFile;
 class TLorentzVector;
+class TVector3;
 
 class PndAnalysis;
 class RhoCandList;
+class RhoCandidate;
 class RhoMassParticleSelector;
 
 class AnaTda : public FairTask
@@ -48,14 +50,18 @@ protected:
   bool fBremCorr;
 
   int SelectTruePid(PndAnalysis *, RhoCandList &);
-
+  void calc_kin(RhoCandidate*, RhoCandidate *, double &, double &, double &);
   void def_hists();
+  void initial_state();
+  void set_selectors();
 
   double m0_jpsi;
   double m0_pi0;
   RhoMassParticleSelector *jpsiMassSel;
   RhoMassParticleSelector *pi0MassSel;
   TLorentzVector ini;
+  TVector3 boost_to_cm;
+  double sqrt_s;
 
   // *** create some histograms
   TH1F *hjpsim_all;
@@ -88,6 +94,7 @@ protected:
 
   TH1F *h_m_epem;
   TH1F *h_m_epem_tr;
+  TH1F *h_m_epem_mcut;
   TH1F *h_m_pippim;
   TH1F *h_m_pippim_tr;
   TH1F *h_m_gg;
@@ -100,9 +107,29 @@ protected:
   TH1F *h_4c_chi2_epempi0;
   TH1F *h_4c_prob_epempi0;
   TH1F *h_4c_m_epem;
+  TH2F *h_4c_prob_vs_m_epem;
   TH1F *h_4c_chi2_pippimpi0;
   TH1F *h_4c_prob_pippimpi0;
   TH1F *h_4c_m_pippim;
+  TH2F *h_4c_prob_vs_m_pippim;
+
+  TH1F *h_4c_chi2_btb_epempi0;
+  TH1F *h_4c_prob_btb_epempi0;
+  TH1F *h_4c_m_btb_epem;
+  TH2F *h_4c_prob_vs_m_btb_epem;
+  TH1F *h_4c_chi2_btb_pippimpi0;
+  TH1F *h_4c_prob_btb_pippimpi0;
+  TH1F *h_4c_m_btb_pippim;
+  TH2F *h_4c_prob_vs_m_btb_pippim;
+
+  TH1F *h_4c_chi2_cts_epempi0;
+  TH1F *h_4c_prob_cts_epempi0;
+  TH1F *h_4c_m_cts_epem;
+  TH2F *h_4c_prob_vs_m_cts_epem;
+  TH1F *h_4c_chi2_cts_pippimpi0;
+  TH1F *h_4c_prob_cts_pippimpi0;
+  TH1F *h_4c_m_cts_pippim;
+  TH2F *h_4c_prob_vs_m_cts_pippim;
 
   TH1F* h_num_g;
   TH1F* h_num_epm;
@@ -117,7 +144,15 @@ protected:
   TH2F* h_mom_the_epm_tr;
   TH2F* h_mom_the_pipm_tr;
 
-
+  TH1F *h_oa_gg_epair;
+  TH1F *h_mass_gg_epair;
+  TH2F *h_oa_gg_epair_vs_mass_gg;
+  TH2F *h_mass_gg_epair_vs_mass_gg;
+  TH2F *h_oa_vs_mass_gg_epair;
+  TH2F *h_oa_vs_mass_gg_epair_btb; // most back-to-back
+  TH2F *h_oa_vs_mass_gg_epair_cts; // closest-to-s
+  TH1F *h_m_gg_btb; // most back-to-back
+  TH1F *h_m_gg_cts; // closest-to-s
 
   ClassDef(AnaTda,1);
 
