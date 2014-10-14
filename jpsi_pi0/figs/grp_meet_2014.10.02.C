@@ -1,6 +1,3 @@
-void set_style(TAxis *axis) {
-}
-
 void set_style(TH1* h, int col=4) {
   h->GetXaxis()->SetTitleSize(0.05);
   h->GetXaxis()->SetLabelSize(0.05);
