@@ -1,0 +1,194 @@
+\documentclass{beamer}
+%\usepackage{beamerthemeshadow}
+\usetheme{Madrid}
+
+%\usepackage[utf8]{inputenc}
+%\usepackage{xspace}
+%\usepackage[T1]{fontenc}
+
+
+\usepackage{appendixnumberbeamer}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{textpos}
+
+\begin{document}
+
+\newcommand{\pnd}{\=PANDA }
+\newcommand{\streama}{{\color{blue} Stream A~}}
+\newcommand{\streamb}{{\color{red} Stream B~}}
+\newcommand{\dm}{\mathrm{d}m}
+\newcommand{\dpt}{\mathrm{d}p_T}
+\newcommand{\pt}{p_T}
+\newcommand{\tab}{\hspace{0.25cm}}
+
+\newcommand{\pip}{{\normalsize$\pi^+$~}}
+\newcommand{\pim}{{\normalsize$\pi^-$~}}
+\newcommand{\pipm}{{\normalsize$\pi^{+}\pi^{-}$~}}
+\newcommand{\epm}{{\normalsize$e^+e^-$}}
+\newcommand{\piz}{{\normalsize$\pi^0$~}}
+\newcommand{\jpsi}{{\normalsize$J/\psi$~}}
+\newcommand{\jpsipbarp}{{\normalsize$J/\psi\rightarrow p\bar{p}$~}}
+
+\newcommand{\pipT}{{\LARGE$\pi^+$~}}
+\newcommand{\pimT}{{\LARGE$\pi^-$~}}
+\newcommand{\pipmT}{{\LARGE$\pi^{+}\pi^{-}$~}}
+\newcommand{\epmT}{{\LARGE$e^+e^-$}}
+\newcommand{\pizT}{{\LARGE$\pi^0$~}}
+\newcommand{\jpsiT}{{\LARGE$J/\psi$~}}
+\newcommand{\jpsipbarpT}{{\LARGE$J/\psi\rightarrow p\bar{p}$~}}
+
+
+\newcommand{\pintda}{$\pi$-N~TDA~}
+\newcommand{\pintdas}{$\pi$-N~TDAs~}
+\newcommand{\piantda}{$\pi$-$\bar{N}$~TDA~}
+\newcommand{\piantdas}{$\pi$-$\bar{N}$~TDAs~}
+
+\newcommand{\pizjpsi}{{\normalsize$\pi^0J/\psi$~}}
+\newcommand{\pizpipm}{{\normalsize$\pi^0$\pipm}}
+\newcommand{\pizjpsiT}{{\LARGE$\pi^0J/\psi$~}}
+\newcommand{\pizpipmT}{{\LARGE$\pi^0$\pipmT}}
+
+\newcommand{\sigrxn}{{\normalsize$\bar{p}p\rightarrow\pi^0J/\psi\rightarrow\pi^0e^+e^-$~}}
+\newcommand{\sigrxnepem}{{\normalsize$\bar{p}p\rightarrow\pi^0\gamma^*\rightarrow\pi^0e^+e^-$~}}
+\newcommand{\bgrxn}{{\normalsize$\bar{p}p\rightarrow\pi^0\pi^{+}\pi^{-}$~}}
+\newcommand{\sigrxnT}{{\LARGE$\bar{p}p\rightarrow\pi^0J/\psi\rightarrow\pi^0e^+e^-$~}}
+\newcommand{\sigrxnepemT}{{\LARGE$\bar{p}p\rightarrow\pi^0\gamma^*\rightarrow\pi^0e^+e^-$~}}
+\newcommand{\bgrxnT}{{\LARGE$\bar{p}p\rightarrow\pi^0\pi^{+}\pi^{-}$~}}
+
+
+\newcommand{\bgcut}{$-0.5<t[$GeV$^2]<0.6$, $2.96<M_{inv}[$GeV/c$^2] < 3.22$~}
+\newcommand{\tcut}{$-0.5<t[$GeV$^2]<0.6$~}
+\newcommand{\ucut}{$-0.5<u[$GeV$^2]<0.6$~}
+
+%\renewcommand{\inserttotalframenumber}{17}
+
+\title[\pnd Group Meeting, TDA]{Full MC simulation of \sigrxn and \bgrxn}
+
+\author[Ermias ATOMSSA]{\pnd Group Meeting\\ \vskip 0.5cm Ermias ATOMSSA}
+
+\date[October 13, 2014]{October 13, 2014}
+
+\institute[IPNO]{Institut de Physique Nucl\'eaire d'Orsay}
+
+\frame{\titlepage}
+
+\frame{
+  \frametitle{Suggestion from last week}
+  %\begin{block}{}
+    \begin{itemize}
+      \scriptsize
+    \item $\pi^0$ selection: Instead of nearest to $m^{PDG}_{\pi^0}$, choose most back to back
+    \item Check for improvements in kinematic fits in doing so
+    \item Any difference in opening angle distribution between signal and background
+    \item Procedure:
+      \begin{itemize}
+        \scriptsize
+      \item Select a charged pair ($e^{+}e^{-}$ or $\pi^{+}\pi^{-}$) in the event within $J/\psi$ mass window (2.96-3.22~GeV/c)
+      \item For each $\gamma-\gamma$ pair that can be formed, look at
+        \begin{itemize}
+          \tiny
+        \item opening angle between the $\gamma-\gamma$ pair and the charged track pair in the CM frame
+        \item Total invariant mass ($M^{inv}_{(\gamma-\gamma)-(e^{+}e^{-})}$ or $M^{inv}_{(\gamma-\gamma)-(\pi^{+}\pi^{-})}$)
+        \end{itemize}
+      \item Select either the most back to back pair or the pair with $M_{inv}$ closest to $\sqrt{s}=3.5~GeV/c^2$
+      \item Its not possible to apply both conditions at the same
+        time, though it might be possible to do some type of distance
+        calculation or devise a cut in the $OA-M_{inv}$ plane
+      \item After selecting the best $\pi^0$ check if there is any change in the kinmeatical fit results
+      \end{itemize}
+    \end{itemize}
+ %\end{block}
+}
+
+
+\frame{
+  \frametitle{}
+  \begin{figure}
+    \includegraphics[width=\columnwidth]{fig_p1.pdf}
+  \end{figure}
+}
+
+\frame{
+  \frametitle{}
+  \begin{figure}
+    \includegraphics[width=\columnwidth]{fig_p2.pdf}
+  \end{figure}
+}
+
+\frame{
+  \frametitle{}
+  \begin{figure}
+    \includegraphics[width=\columnwidth]{fig_p3.pdf}
+  \end{figure}
+}
+
+\frame{
+  \frametitle{}
+  \begin{figure}
+    \includegraphics[width=\columnwidth]{fig_p4.pdf}
+  \end{figure}
+}
+
+\frame{
+  \frametitle{}
+  \begin{figure}
+    \includegraphics[width=\columnwidth]{fig_p5.pdf}
+  \end{figure}
+}
+
+\frame{
+  \frametitle{}
+  \begin{figure}
+    \includegraphics[width=\columnwidth]{fig_p6.pdf}
+  \end{figure}
+}
+
+\frame{
+  \frametitle{}
+  \begin{figure}
+    \includegraphics[width=\columnwidth]{fig_p7.pdf}
+  \end{figure}
+}
+
+\frame{
+  \frametitle{Conclusion}
+  \begin{block}{}
+    \begin{itemize}
+      \scriptsize
+    \item After the mass cut it is very difficult to distinguish between the $e^{+}e^{-}\pi^0$ and $\pi^{+}\pi^{-}\pi^0$ events
+    \end{itemize}
+  \end{block}
+  \begin{block}{Things to do}
+    \begin{itemize}
+      \scriptsize
+    %\item $\pi^0$ selection: Instead of nearest to $m^{PDG}_{\pi^0}$, choose most back to back
+    \item $\pi^{\pm}$ efficiency: How will it affect kinematic distributions?
+    \item Other background sources: What other kinds of events does DPM generate
+    \item Kinematic fit: quantify the efficiency/rejection of any cut
+    \item Other buggy behaviors: No truth match for $\pi^0$s from BG
+    \end{itemize}
+  \end{block}
+}
+
+\appendix
+
+\frame{
+  \frametitle{}
+  \begin{figure}
+    \includegraphics[width=\columnwidth]{fig_p8.pdf}
+  \end{figure}
+}
+
+\frame{
+  \frametitle{}
+  \begin{figure}
+    \includegraphics[width=\columnwidth]{fig_p9.pdf}
+  \end{figure}
+}
+
+
+
+
+
+\end{document}
