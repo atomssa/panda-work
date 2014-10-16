@@ -1,10 +1,10 @@
 #ifndef AnaTda_H
 #define AnaTda_H 1
 
+#include <vector>
+
 #include "FairTask.h"
 #include "TLorentzVector.h"
-
-#include <vector>
 
 class TTree;
 class TClonesArray;
@@ -22,11 +22,8 @@ class RhoCandList;
 class RhoCandidate;
 class RhoMassParticleSelector;
 
-class AnaTda : public FairTask
-{
-
-public:
-
+class AnaTda : public FairTask {
+  public:
   // ** Default constructor
   AnaTda(const int&);
 
@@ -41,8 +38,7 @@ public:
 
   virtual void Finish();
 
-protected:
-
+  protected:
   PndAnalysis *fAnalysis;             // *** the PndAnalysis object
 
   int nevt;
@@ -149,13 +145,12 @@ protected:
   TH2F *h_oa_gg_epair_vs_mass_gg;
   TH2F *h_mass_gg_epair_vs_mass_gg;
   TH2F *h_oa_vs_mass_gg_epair;
-  TH2F *h_oa_vs_mass_gg_epair_btb; // most back-to-back
-  TH2F *h_oa_vs_mass_gg_epair_cts; // closest-to-s
-  TH1F *h_m_gg_btb; // most back-to-back
-  TH1F *h_m_gg_cts; // closest-to-s
+  TH2F *h_oa_vs_mass_gg_epair_btb;  // most back-to-back
+  TH2F *h_oa_vs_mass_gg_epair_cts;  // closest-to-s
+  TH1F *h_m_gg_btb;  // most back-to-back
+  TH1F *h_m_gg_cts;  // closest-to-s
 
-  ClassDef(AnaTda,1);
-
+  ClassDef(AnaTda, 1);
 };
 
 #endif /* AnaTda_H */

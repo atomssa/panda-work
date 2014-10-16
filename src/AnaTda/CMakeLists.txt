@@ -18,6 +18,7 @@ ${CMAKE_SOURCE_DIR}/rho/RhoSelector
 ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
 ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools/Fitter
 ${CMAKE_SOURCE_DIR}/genfit
+${CMAKE_SOURCE_DIR}/src/filler
 ${CMAKE_SOURCE_DIR}/src/AnaTda
 )
 
