@@ -13,6 +13,10 @@
 class TH1F;
 class TLorentzVector;
 
+typedef const TLorentzVector& cr_tlv;
+typedef const TVector3& cr_tv3;
+typedef const std::vector<TLorentzVector>& cr_vec_tlv;
+
 using std::vector;
 using std::cout;
 using std::endl;
@@ -157,7 +161,7 @@ void filler::init_all() {
   init_pair_func_boost_dict();
 }
 
-TLorentzVector filler::boost_transf(const TLorentzVector &vect_in, const TVector3 &boost) const {
+TLorentzVector filler::boost_transf(cr_tlv vect_in, cr_tv3 boost) const {
   TLorentzVector vect_out(vect_in);
   vect_out.Boost(boost);
   return vect_out;
@@ -177,89 +181,142 @@ void filler::set_pair_funcs(const int &iaxis, const char* var) {
   _func_p_b[iaxis] = pair_func_boost_dict[var];
 }
 
-double filler::value(func __func, const TLorentzVector &v) {
+double filler::value(func __func, cr_tlv v) {
   BOOST_ASSERT_MSG(__func != nullptr, "function pointer not set");
   return (this->*__func)(v);
 }
 
-double filler::value(func_boost __func, const TLorentzVector &v, const TVector3 &b) {
+double filler::value(func_boost __func, cr_tlv v, cr_tv3 b) {
   BOOST_ASSERT_MSG(__func != nullptr, "function pointer not set");
   return (this->*__func)(v,b);
 }
 
-double filler::value(pair_func __func, const TLorentzVector &v1, const TLorentzVector &v2) {
+double filler::value(pair_func __func, cr_tlv v1, cr_tlv v2) {
   BOOST_ASSERT_MSG(__func != nullptr, "function pointer not set");
   return (this->*__func)(v1,v2);
 }
 
-double filler::value(pair_func_boost __func, const TLorentzVector &v1, const TLorentzVector &v2, const TVector3 &b) {
+double filler::value(pair_func_boost __func, cr_tlv v1, cr_tlv v2, cr_tv3 b) {
   BOOST_ASSERT_MSG(__func != nullptr, "function pointer not set");
   return (this->*__func)(v1,v2,b);
 }
 
-double filler::mass(const TLorentzVector &v1, const TLorentzVector &v2) const { return (v1+v2).M(); }
-double filler::mass_sq(const TLorentzVector &v1, const TLorentzVector &v2) const { return (v1+v2).M2(); }
-double filler::mand_s(const TLorentzVector &v1, const TLorentzVector &v2) const { return (v1+v2).M2(); }
-double filler::mand_u(const TLorentzVector &v1, const TLorentzVector &v2) const { return (v2-v1).M2(); }
-double filler::mand_t(const TLorentzVector &v1, const TLorentzVector &v2) const { return (v2-v1).M2(); }
+double filler::mass(cr_tlv v1, cr_tlv v2) const { return (v1+v2).M(); }
+double filler::mass_sq(cr_tlv v1, cr_tlv v2) const { return (v1+v2).M2(); }
+double filler::mand_s(cr_tlv v1, cr_tlv v2) const { return (v1+v2).M2(); }
+double filler::mand_u(cr_tlv v1, cr_tlv v2) const { return (v2-v1).M2(); }
+double filler::mand_t(cr_tlv v1, cr_tlv v2) const { return (v2-v1).M2(); }
 
-double filler::mom(const TLorentzVector &v) const { return v.Vect().Mag(); }
-double filler::mom_b(const TLorentzVector &v, const TVector3 &b) const { return mom( boost_transf(v,b) ); }
-double filler::mom_p(const TLorentzVector &v1, const TLorentzVector &v2) const { return mom(v1+v2); }
-double filler::mom_p_b(const TLorentzVector &v1, const TLorentzVector &v2, const TVector3&b) const { return mom_b(v1+v2,b); }
-double filler::mom_p_fwd(const TLorentzVector &v1, const TLorentzVector &v2) const { return v1.Vect().Theta()<v2.Vect().Theta()?mom(v1):mom(v2); }
-double filler::mom_p_bwd(const TLorentzVector &v1, const TLorentzVector &v2) const { return v1.Vect().Theta()>v2.Vect().Theta()?mom(v1):mom(v2); }
-double filler::mom_p_fwd_b(const TLorentzVector &v1, const TLorentzVector &v2, const TVector3 &b) const { return v1.Vect().Theta()<v2.Vect().Theta()?mom_b(v1,b):mom_b(v2,b);}
-double filler::mom_p_bwd_b(const TLorentzVector &v1, const TLorentzVector &v2, const TVector3 &b) const { return v1.Vect().Theta()>v2.Vect().Theta()?mom_b(v1,b):mom_b(v2,b);}
+double filler::mom(cr_tlv v) const { return v.Vect().Mag(); }
+double filler::mom_b(cr_tlv v, cr_tv3 b) const { return mom( boost_transf(v,b) ); }
+double filler::mom_p(cr_tlv v1, cr_tlv v2) const { return mom(v1+v2); }
+double filler::mom_p_b(cr_tlv v1, cr_tlv v2, cr_tv3 b) const { return mom_b(v1+v2,b); }
+double filler::mom_p_fwd(cr_tlv v1, cr_tlv v2) const {
+  return v1.Vect().Theta()<v2.Vect().Theta()?mom(v1):mom(v2);
+}
+double filler::mom_p_bwd(cr_tlv v1, cr_tlv v2) const {
+  return v1.Vect().Theta()>v2.Vect().Theta()?mom(v1):mom(v2);
+}
+double filler::mom_p_fwd_b(cr_tlv v1, cr_tlv v2, cr_tv3 b) const {
+  return v1.Vect().Theta()<v2.Vect().Theta()?mom_b(v1,b):mom_b(v2,b);
+}
+double filler::mom_p_bwd_b(cr_tlv v1, cr_tlv v2, cr_tv3 b) const {
+  return v1.Vect().Theta()>v2.Vect().Theta()?mom_b(v1,b):mom_b(v2,b);
+}
 
-double filler::pt(const TLorentzVector &v) const { return v.Vect().Pt(); }
-double filler::pt_b(const TLorentzVector &v, const TVector3 &boost) const { return pt( boost_transf(v,boost) ); }
-double filler::pt_p(const TLorentzVector &v1, const TLorentzVector &v2) const { return pt(v1+v2); }
-double filler::pt_p_b(const TLorentzVector &v1, const TLorentzVector &v2, const TVector3&b) const { return pt_b(v1+v2,b); }
+double filler::pt(cr_tlv v) const { return v.Vect().Pt(); }
+double filler::pt_b(cr_tlv v, cr_tv3 boost) const { return pt( boost_transf(v,boost) ); }
+double filler::pt_p(cr_tlv v1, cr_tlv v2) const { return pt(v1+v2); }
+double filler::pt_p_b(cr_tlv v1, cr_tlv v2, cr_tv3 b) const { return pt_b(v1+v2,b); }
 
-double filler::ene(const TLorentzVector &v) const { return v.E(); }
-double filler::ene_b(const TLorentzVector &v, const TVector3 &boost) const { return ene(boost_transf(v,boost)); }
-double filler::ene_p(const TLorentzVector &v1, const TLorentzVector &v2) const { return ene(v1+v2); }
-double filler::ene_p_b(const TLorentzVector &v1, const TLorentzVector &v2, const TVector3&b) const { return ene_b(v1+v2,b); }
+double filler::ene(cr_tlv v) const { return v.E(); }
+double filler::ene_b(cr_tlv v, cr_tv3 boost) const { return ene(boost_transf(v,boost)); }
+double filler::ene_p(cr_tlv v1, cr_tlv v2) const { return ene(v1+v2); }
+double filler::ene_p_b(cr_tlv v1, cr_tlv v2, cr_tv3 b) const { return ene_b(v1+v2,b); }
 
-double filler::the(const TLorentzVector &v) const { return rtd*(v.Vect().Theta()); }
-double filler::the_b(const TLorentzVector &v, const TVector3 &boost) const { return rtd*(boost_transf(v,boost).Angle(boost)); }
-double filler::the_p(const TLorentzVector &v1, const TLorentzVector &v2) const { return the(v1+v2); }
-double filler::the_p_b(const TLorentzVector &v1, const TLorentzVector &v2, const TVector3&b) const { return the_b(v1+v2,b); }
-double filler::the_p_fwd(const TLorentzVector &v1, const TLorentzVector &v2) const { return v1.Vect().Theta()<v2.Vect().Theta()?the(v1):the(v2); }
-double filler::the_p_bwd(const TLorentzVector &v1, const TLorentzVector &v2) const { return v1.Vect().Theta()>v2.Vect().Theta()?the(v1):the(v2);}
-double filler::the_p_fwd_b(const TLorentzVector &v1, const TLorentzVector &v2, const TVector3 &b) const { return v1.Vect().Theta()<v2.Vect().Theta()?the_b(v1,b):the_b(v2,b);}
-double filler::the_p_bwd_b(const TLorentzVector &v1, const TLorentzVector &v2, const TVector3 &b) const { return v1.Vect().Theta()>v2.Vect().Theta()?the_b(v1,b):the_b(v2,b);}
+double filler::the(cr_tlv v) const { return rtd*(v.Vect().Theta()); }
+double filler::the_b(cr_tlv v, cr_tv3 boost) const {
+  return rtd*(boost_transf(v,boost).Angle(boost));
+}
+double filler::the_p(cr_tlv v1, cr_tlv v2) const { return the(v1+v2); }
+double filler::the_p_b(cr_tlv v1, cr_tlv v2, cr_tv3 b) const { return the_b(v1+v2,b); }
+double filler::the_p_fwd(cr_tlv v1, cr_tlv v2) const {
+  return v1.Vect().Theta()<v2.Vect().Theta()?the(v1):the(v2);
+}
+double filler::the_p_bwd(cr_tlv v1, cr_tlv v2) const {
+  return v1.Vect().Theta()>v2.Vect().Theta()?the(v1):the(v2);
+}
+double filler::the_p_fwd_b(cr_tlv v1, cr_tlv v2, cr_tv3 b) const {
+  return v1.Vect().Theta()<v2.Vect().Theta()?the_b(v1,b):the_b(v2,b);
+}
+double filler::the_p_bwd_b(cr_tlv v1, cr_tlv v2, cr_tv3 b) const {
+  return v1.Vect().Theta()>v2.Vect().Theta()?the_b(v1,b):the_b(v2,b);
+}
 
-double filler::phi(const TLorentzVector &v) const { return rtd*(v.Vect().Phi()); }
-double filler::phi_p(const TLorentzVector &v1, const TLorentzVector &v2) const { return phi(v1+v2); }
+double filler::phi(cr_tlv v) const { return rtd*(v.Vect().Phi()); }
+double filler::phi_p(cr_tlv v1, cr_tlv v2) const { return phi(v1+v2); }
 
-double filler::cost(const TLorentzVector &v) const { return v.Vect().CosTheta(); }
-double filler::cost_b(const TLorentzVector &v, const TVector3 &boost) const { return TMath::Cos(boost_transf(v,boost).Vect().Angle(boost)); }
-double filler::cost_p(const TLorentzVector &v1, const TLorentzVector &v2) const { return cost(v1+v2); }
-double filler::cost_p_b(const TLorentzVector &v1, const TLorentzVector &v2, const TVector3&b) const { return cost_b(v1+v2,b); }
+double filler::cost(cr_tlv v) const { return v.Vect().CosTheta(); }
+double filler::cost_b(cr_tlv v, cr_tv3 boost) const {
+  return TMath::Cos(boost_transf(v,boost).Vect().Angle(boost));
+}
+double filler::cost_p(cr_tlv v1, cr_tlv v2) const { return cost(v1+v2); }
+double filler::cost_p_b(cr_tlv v1, cr_tlv v2, cr_tv3 b) const { return cost_b(v1+v2,b); }
 
-double filler::oa_p(const TLorentzVector &v1, const TLorentzVector &v2) const { return rtd*(v1.Vect().Angle(v2.Vect()));  }
-double filler::oa_p_b(const TLorentzVector &v1, const TLorentzVector &v2, const TVector3&b) const { return rtd*(boost_transf(v1,b).Vect().Angle( boost_transf(v2,b).Vect())); }
-
-
-const char* filler::_name(const char* var,const char* fname, const char* pname){return Form("%s_%s_%s",fname, var, pname);}
-const char* filler::_name(const char* var, const char* pname) { return Form("%s_%s", var, pname); }
-const char* filler::_name_p(const char* var,const char* fname, const char* pname1, const char* pname2) { return Form("%s_p_%s_%s_%s",fname, var, pname1, pname2); }
-const char* filler::_name_p(const char* var, const char* pname1, const char* pname2) { return Form("p_%s_%s_%s", var, pname1, pname2); }
-const char* filler::_title(const char *var, const char *ftitle, const char *ptitle) { return Form("%s %s%s", ptitle, vart[var], ftitle); }
-const char* filler::_title(const char *var, const char *ptitle) { return Form("%s %s", ptitle, vart[var]); }
-const char* filler::_title_p(const char *var, const char *ftitle, const char *ptitle1, const char *ptitle2) { return Form("%s-%s %s%s", ptitle1, ptitle2, vart[var], ftitle); }
-const char* filler::_title_p(const char *var, const char *ptitle1, const char *ptitle2) { return Form("%s-%s %s", ptitle1, ptitle2, vart[var]); }
-const char* filler::_atitle(const char *var, const char *ptitle) { return Form("%s_{%s}%s", varst[var],ptitle, varu[var]); }
-const char* filler::_atitle_p(const char *var, const char *ptitle1, const char *ptitle2) { return Form("%s_{%s-%s}%s", varst[var],ptitle1, ptitle2, varu[var]); }
+double filler::oa_p(cr_tlv v1, cr_tlv v2) const {
+  return rtd*(v1.Vect().Angle(v2.Vect()));
+}
+double filler::oa_p_b(cr_tlv v1, cr_tlv v2, cr_tv3 b) const {
+  return rtd*(boost_transf(v1,b).Vect().Angle( boost_transf(v2,b).Vect()));
+}
 
 
+const char* filler::_name(const char* var,const char* fname,
+  const char* pname){
+  return Form("%s_%s_%s",fname, var, pname);
+}
 
+const char* filler::_name(const char* var, const char* pname) {
+  return Form("%s_%s", var, pname);
+}
 
+const char* filler::_name_p(const char* var,const char* fname,
+  const char* pname1, const char* pname2) {
+  return Form("%s_p_%s_%s_%s",fname, var, pname1, pname2);
+}
 
+const char* filler::_name_p(const char* var, const char* pname1,
+  const char* pname2) {
+  return Form("p_%s_%s_%s", var, pname1, pname2);
+}
 
+const char* filler::_title(const char *var, const char *ftitle,
+  const char *ptitle) {
+  return Form("%s %s%s", ptitle, vart[var], ftitle);
+}
 
+const char* filler::_title(const char *var, const char *ptitle) {
+  return Form("%s %s", ptitle, vart[var]);
+}
+
+const char* filler::_title_p(const char *var, const char *ftitle,
+  const char *ptitle1, const char *ptitle2) {
+  return Form("%s-%s %s%s", ptitle1, ptitle2, vart[var], ftitle);
+}
+
+const char* filler::_title_p(const char *var, const char *ptitle1,
+  const char *ptitle2) {
+  return Form("%s-%s %s", ptitle1, ptitle2, vart[var]);
+}
+
+const char* filler::_atitle(const char *var, const char *ptitle) {
+  return Form("%s_{%s}%s", varst[var],ptitle, varu[var]);
+}
+
+const char* filler::_atitle_p(const char *var, const char *ptitle1,
+  const char *ptitle2) {
+  return Form("%s_{%s-%s}%s", varst[var],ptitle1, ptitle2, varu[var]);
+}
 
 filler1d::filler1d(const char* h_name, const char* h_title, const int &npart,
 		   const int &nbins, const float &min, const float &max ):
@@ -281,7 +338,7 @@ void filler1d::set_bins(const int &nbins, const float &min, const float &max) {
 }
 
 //virtual
-void filler1d::operator()(const vector<TLorentzVector> &p4s) {
+void filler1d::operator()(cr_vec_tlv p4s) {
   BOOST_ASSERT_MSG(p4s.size()>=ix.size(), filler_tag);
   TH1* htemp = dynamic_cast<TH1*>(hist);
   if (ix.size() == 1) {
@@ -294,7 +351,7 @@ void filler1d::operator()(const vector<TLorentzVector> &p4s) {
 }
 
 //virtual
-void filler1d::operator()(const vector<TLorentzVector> &p4s, const TVector3& boost) {
+void filler1d::operator()(cr_vec_tlv p4s, cr_tv3 boost) {
   BOOST_ASSERT_MSG(p4s.size()>=ix.size(), filler_tag);
   TH1* htemp = dynamic_cast<TH1*>(hist);
   if (ix.size() == 1 ) {
@@ -307,14 +364,14 @@ void filler1d::operator()(const vector<TLorentzVector> &p4s, const TVector3& boo
 }
 
 //virtual
-void filler1d::operator()(const vector<TLorentzVector>&, const TVector3&, const TVector3&) {
+void filler1d::operator()(cr_vec_tlv, cr_tv3, cr_tv3) {
   cout << "Calling operator() on an 1d filler with two boost vectors, doesn't make any sense, check your code!" << endl;
 }
 
 
 
 //virtual
-void filler1d::operator()(const vector<TLorentzVector> &p4s, const double &w) {
+void filler1d::operator()(cr_vec_tlv p4s, const double &w) {
   BOOST_ASSERT_MSG(p4s.size()>=ix.size(), filler_tag);
   TH1* htemp = dynamic_cast<TH1*>(hist);
   if (ix.size() == 1) {
@@ -327,7 +384,7 @@ void filler1d::operator()(const vector<TLorentzVector> &p4s, const double &w) {
 }
 
 //virtual
-void filler1d::operator()(const vector<TLorentzVector> &p4s, const TVector3& boost, const double &w) {
+void filler1d::operator()(cr_vec_tlv p4s, cr_tv3 boost, const double &w) {
   BOOST_ASSERT_MSG(p4s.size()>=ix.size(), filler_tag);
   TH1* htemp = dynamic_cast<TH1*>(hist);
   if (ix.size() == 1 ) {
@@ -340,24 +397,10 @@ void filler1d::operator()(const vector<TLorentzVector> &p4s, const TVector3& boo
 }
 
 //virtual
-void filler1d::operator()(const vector<TLorentzVector>&, const TVector3&, const TVector3&, const double &w) {
-  cout << "Calling operator() on an 1d filler with two boost vectors, doesn't make any sense, check your code!" << endl;
+void filler1d::operator()(cr_vec_tlv, cr_tv3, cr_tv3, const double &w) {
+  cout << "Calling operator() on an 1d filler with two boost";
+  cout << " vectors, doesn't make any sense, check your code!" << endl;
 }
-
-//TH1* getHist() {return dynamic_cast<TH1*>(hist); }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 var1d::var1d(const int &_ix, const char *var, const axis &x, const char* frame[],
 	     const char* names[][2]): filler1d(vector<int>{_ix},var) {
@@ -374,12 +417,6 @@ var1d::var1d(const int &_ix0, const int &_ix1, const char *var, const axis &x, c
   set_name( Form("%s", _name_p(var, frame[0], names[_ix0][0], names[_ix1][0]) ));
   set_title( Form("%s;%s", _title_p(var, frame[1], names[_ix0][1], names[_ix1][1]), _atitle_p(var, names[_ix0][1], names[_ix1][1]) ));
 }
-
-
-
-
-
-
 
 filler2d::filler2d(const char* h_name, const char* h_title, const int &npart,
 		   const int &nbinsx, const float &xmin, const float &xmax,
@@ -404,7 +441,7 @@ void filler2d::set_bins(const axis &x, const axis &y) {
   htemp->SetBins(x.nbins, x.min, y.max, y.nbins, y.min, y.max);
 }
 
-double filler2d::get_value(const int &iaxis, const vector<int> &ii, const vector<TLorentzVector> &p4s) {
+double filler2d::get_value(const int &iaxis, const vector<int> &ii, cr_vec_tlv p4s) {
   if (ii.size() == 1) {
     return value(_func[iaxis], p4s[ii[0]]);
   } else if (ii.size() == 2) {
@@ -415,7 +452,7 @@ double filler2d::get_value(const int &iaxis, const vector<int> &ii, const vector
   }
 }
 
-double filler2d::get_value(const int &iaxis, const vector<int> &ii, const vector<TLorentzVector> &p4s, const TVector3 &b) {
+double filler2d::get_value(const int &iaxis, const vector<int> &ii, cr_vec_tlv p4s, const TVector3 &b) {
   if (ii.size() == 1) {
     return value(_func_b[iaxis], p4s[ii[0]], b);
   } else if (ii.size() == 2) {
@@ -427,56 +464,46 @@ double filler2d::get_value(const int &iaxis, const vector<int> &ii, const vector
 }
 
 //virtual
-void filler2d::operator()(const vector<TLorentzVector> &p4s) {
+void filler2d::operator()(cr_vec_tlv p4s) {
     BOOST_ASSERT_MSG(p4s.size()>=ix.size() , filler_tag);
     TH2* htemp = dynamic_cast<TH2*>(hist);
     htemp->Fill(get_value(0,ix,p4s),get_value(1,iy,p4s));
   }
 
 //virtual
-void filler2d::operator()(const vector<TLorentzVector> &p4s, const TVector3& b) {
+void filler2d::operator()(cr_vec_tlv p4s, cr_tv3 b) {
     BOOST_ASSERT_MSG(p4s.size()>=ix.size(), filler_tag);
     TH2* htemp = dynamic_cast<TH2*>(hist);
     htemp->Fill(get_value(0,ix,p4s,b), get_value(1,iy,p4s,b));
   }
 
 //virtual
-void filler2d::operator()(const vector<TLorentzVector>&p4s, const TVector3&b1, const TVector3&b2) {
+void filler2d::operator()(cr_vec_tlv p4s, cr_tv3 b1, cr_tv3 b2) {
   BOOST_ASSERT_MSG(p4s.size()>=ix.size(), filler_tag);
   TH2* htemp = dynamic_cast<TH2*>(hist);
   htemp->Fill(get_value(0,ix,p4s,b1), get_value(1,iy,p4s,b2));
 }
 
 //virtual
-void filler2d::operator()(const vector<TLorentzVector> &p4s, const double &w) {
+void filler2d::operator()(cr_vec_tlv p4s, const double &w) {
   BOOST_ASSERT_MSG(p4s.size()>=ix.size() , filler_tag);
   TH2* htemp = dynamic_cast<TH2*>(hist);
   htemp->Fill(get_value(0,ix,p4s),get_value(1,iy,p4s), w);
 }
 
 //virtual
-void filler2d::operator()(const vector<TLorentzVector> &p4s, const TVector3& b, const double &w) {
+void filler2d::operator()(cr_vec_tlv p4s, cr_tv3 b, const double &w) {
   BOOST_ASSERT_MSG(p4s.size()>=ix.size(), filler_tag);
   TH2* htemp = dynamic_cast<TH2*>(hist);
   htemp->Fill(get_value(0,ix,p4s,b), get_value(1,iy,p4s,b), w);
 }
 
 //virtual
-void filler2d::operator()(const vector<TLorentzVector>&p4s, const TVector3&b1, const TVector3&b2, const double &w) {
+void filler2d::operator()(cr_vec_tlv p4s, cr_tv3 b1, cr_tv3 b2, const double &w) {
   BOOST_ASSERT_MSG(p4s.size()>=ix.size(), filler_tag);
   TH2* htemp = dynamic_cast<TH2*>(hist);
   htemp->Fill(get_value(0,ix,p4s,b1), get_value(1,iy,p4s,b2), w);
 }
-
-
-
-
-
-
-
-
-
-
 
 // Single-Single
 var2d::var2d(const int &_ix, const char *varx, const axis &x, const char* framex[],
