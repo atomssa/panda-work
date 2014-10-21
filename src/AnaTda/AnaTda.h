@@ -52,6 +52,13 @@ class AnaTda : public FairTask {
   void initial_state();
   void set_selectors();
 
+  void def_tutorial_hists();
+  void def_manual_kin_fit_hists();
+  void def_pair_hists();
+  void def_single_hists();
+  void def_kin_fit_hists(const int& type, const int&);
+  void def_kin_fit_hists();
+
   void print_rho_cand_list(RhoCandList&, const char*);
   void cleanup_rho_cand_lists();
   void get_singles_lists();
@@ -67,7 +74,7 @@ class AnaTda : public FairTask {
   void jpsi_mass_selection();
   void pi0_kinematic_selection();
   void jpsi_truth_match();
-  void kin_fit_full_sys(RhoCandList& org, TH1F* h_chi2, TH1F* h_prob, TH2F* h_prob_m);
+  void kin_fit_full_sys(RhoCandList& org, const int&, const int&);
   void kin_fit_epem_pi0_btb();
   void kin_fit_epem_pi0_cts();
   void kin_fit_pippim_pi0_btb();
@@ -138,32 +145,10 @@ class AnaTda : public FairTask {
   TH1F *h_m_epem_pi0n;
   TH1F *h_m_pippim_pi0n;
 
-  TH1F *h_4c_chi2_epempi0;
-  TH1F *h_4c_prob_epempi0;
-  TH1F *h_4c_m_epem;
-  TH2F *h_4c_prob_vs_m_epem;
-  TH1F *h_4c_chi2_pippimpi0;
-  TH1F *h_4c_prob_pippimpi0;
-  TH1F *h_4c_m_pippim;
-  TH2F *h_4c_prob_vs_m_pippim;
-
-  TH1F *h_4c_chi2_btb_epempi0;
-  TH1F *h_4c_prob_btb_epempi0;
-  TH1F *h_4c_m_btb_epem;
-  TH2F *h_4c_prob_vs_m_btb_epem;
-  TH1F *h_4c_chi2_btb_pippimpi0;
-  TH1F *h_4c_prob_btb_pippimpi0;
-  TH1F *h_4c_m_btb_pippim;
-  TH2F *h_4c_prob_vs_m_btb_pippim;
-
-  TH1F *h_4c_chi2_cts_epempi0;
-  TH1F *h_4c_prob_cts_epempi0;
-  TH1F *h_4c_m_cts_epem;
-  TH2F *h_4c_prob_vs_m_cts_epem;
-  TH1F *h_4c_chi2_cts_pippimpi0;
-  TH1F *h_4c_prob_cts_pippimpi0;
-  TH1F *h_4c_m_cts_pippim;
-  TH2F *h_4c_prob_vs_m_cts_pippim;
+  TH1F *h_4c_chi2[3][2];
+  TH1F *h_4c_prob[3][2];
+  TH1F *h_4c_m[3][2];
+  TH2F *h_4c_prob_vs_m[3][2];
 
   TH1F* h_num_g;
   TH1F* h_num_epm;

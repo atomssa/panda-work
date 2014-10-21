@@ -53,6 +53,19 @@ void AnaTda::def_hists() {
 
   axis m(100,0,4.5);
 
+  def_tutorial_hists();
+
+  def_pair_hists();
+
+  def_single_hists();
+
+  def_kin_fit_hists();
+
+  def_manual_kin_fit_hists();
+
+}
+
+void AnaTda::def_tutorial_hists() {
   // *** create some histograms
   hjpsim_all = new TH1F("hjpsim_all", "J/#psi mass (all)", 100, 0, 4.5);
   hpi0m_all  = new TH1F("hpi0m_all", "#pi^{0} mass (all)", 100, 0, 0.2);
@@ -69,59 +82,9 @@ void AnaTda::def_hists() {
   hjpsim_diff = new TH1F("hjpsim_diff", "J/#psi mass diff to truth", 100, -2, 2);
   hpi0m_diff  = new TH1F("hpi0m_diff", "#pi^{0} mass diff to truth", 100, -2, 2);
   hjpsipi0m_diff  = new TH1F("hjpsipi0m_diff", "J/#psi-#pi^{0} mass diff to truth", 100, -2, 2);
+}
 
-  h_m_epem = new TH1F("h_m_epem", "Invariant mass of e^{+}e^{-};M_{e^{+}e^{-}}[GeV/c^{2}]", 100, 0, 4.5);
-  h_m_epem_tr = new TH1F("h_m_epem_tr", "Invariant mass of e^{+}e^{-} (Truth Match);M_{e^{+}e^{-}}[GeV/c^{2}]", 100, 0, 4.5);
-  h_m_epem_mcut = new TH1F("h_m_epem_mcut", "Invariant mass of e^{+}e^{-} in J/#psi mass cut window;M_{e^{+}e^{-}}[GeV/c^{2}]", 100, 0, 4.5);
-  h_m_pippim = new TH1F("h_m_pippim", "Invariant mass of #pi^{+}#pi^{-};M_{#pi^{+}#pi^{-}}[GeV/c^{2}]", 100, 0, 4.5);
-  h_m_pippim_tr = new TH1F("h_m_pippim_tr", "Invariant mass of #pi^{+}#pi^{-} (Truth Match);M_{#pi^{+}#pi^{-}}[GeV/c^{2}]", 100, 0, 4.5);
-  h_m_gg = new TH1F("h_m_gg", "Invariant mass of #gamma-#gamma pairs;M_{#gamma_{1}#gamma_{2}}[GeV/c^{2}]", 100, 0, 0.2);
-  h_m_gg_tr = new TH1F("h_m_gg_tr", "Invariant mass of #gamma-#gamma pairs (Truth Match);M_{#gamma_{1}#gamma_{2}}[GeV/c^{2}]", 100, 0, 0.2);
-
-  h_m_pi0n = new TH1F("h_m_pi0n", "#pi^{0} mass (nearest to p0 pdg mass)", 100, 0, 0.2);
-  h_m_epem_pi0n = new TH1F("h_m_epem_pi0n", "e^{+}e^{-}#pi^{0} mass (nearest to p0 pdg mass)", 100, 0, 4.5);
-  h_m_pippim_pi0n = new TH1F("h_m_pippim_pi0n", "#pi^{+}#pi^{-}#pi^{0} mass (nearest to p0 pdg mass)", 100, 0, 4.5);
-
-  h_num_g = new TH1F("h_num_g", "Number of #gamma per event;N_{#gamma}", 25, 0, 25);
-  h_num_epm = new TH1F("h_num_epm", "Number of electron tracks per event;N_{e^{#pm}}", 10, 0, 10);
-  h_num_pipm = new TH1F("h_num_pipm", "Number of charged pion tracks per event;N_{#pi^{#pm}}", 10, 0, 10);
-  h_e_g = new TH1F("h_e_g", "Energy of #gamma;E[GeV]", 100, 0, 2);
-  h_mom_the_epm = new TH2F("h_mom_the_epm", "#theta vs. momentum of electron tracks;p[GeV/c];#theta[rad]", 100, 0, 5, 100, 0, TMath::Pi());
-  h_mom_the_pipm = new TH2F("h_mom_the_pipm", "#theta vs. momentum of charge pion tracks;p[GeV/c];#theta[rad]", 100, 0, 5, 100, 0, TMath::Pi());
-  h_num_g_tr = new TH1F("h_num_g_tr", "Number of #gamma per event (Truth Match);N_{#gamma}", 25, 0, 25);
-  h_num_epm_tr = new TH1F("h_num_epm_tr", "Number of electron tracks per event (Truth Match);N_{e^{#pm}}", 10, 0, 10);
-  h_num_pipm_tr = new TH1F("h_num_pipm_tr", "Number of charged pion tracks per event (Truth Match);N_{#pi^{#pm}}", 10, 0, 10);
-  h_e_g_tr = new TH1F("h_e_g_tr", "Energy of #gamma (Truth Match);E[GeV]", 100, 0, 2);
-  h_mom_the_epm_tr = new TH2F("h_mom_the_epm_tr", "#theta vs. momentum of electron tracks (Truth Match);p[GeV/c];#theta[rad]", 100, 0, 5, 100, 0, TMath::Pi());
-  h_mom_the_pipm_tr = new TH2F("h_mom_the_pipm_tr", "#theta vs. momentum of charge pion tracks (Truth Match);p[GeV/c];#theta[rad]", 100, 0, 5, 100, 0, TMath::Pi());
-
-  h_4c_chi2_epempi0 = new TH1F("h_4c_chi2_epempi0", "#chi^{2} of 4C fit on e^{+}e^{-}#pi^{0} system; #chi^{2}", 100, 0, 200);
-  h_4c_prob_epempi0 = new TH1F("h_4c_prob_epempi0", "Probability of #chi^{2} of 4C fit on e^{+}e^{-}#pi^{0} system; prob", 100, -0.1, 1.1);
-  h_4c_m_epem = new TH1F("h_4c_m_epem_4c", "Invariant mass of e^{+}e^{-} After 4C Fit;M_{e^{+}e^{-}}[GeV/c^{2}]", 100, 0, 4.5);
-  h_4c_prob_vs_m_epem = new TH2F("h_4c_prob_vs_m_epem_4c", "Prob. vs. Invariant mass of e^{+}e^{-} After 4C Fit;M_{e^{+}e^{-}}[GeV/c^{2}]; prob", 100, 2.9, 3.7, 100, 0, 1);
-  h_4c_chi2_pippimpi0 = new TH1F("h_4c_chi2_pippimpi0", "#chi^{2} of 4C fit on #pi^{+}#pi^{-}#pi^{0} system; #chi^{2}", 100, 0, 200);
-  h_4c_prob_pippimpi0 = new TH1F("h_4c_prob_pippimpi0", "Probability of #chi^{2} of 4C fit on #pi^{+}#pi^{-}#pi^{0} system; prob", 100, -0.1, 1.1);
-  h_4c_m_pippim = new TH1F("h_4c_m_pippim_4c", "Invariant mass of #pi^{+}#pi^{-} After 4C Fit;M_{#pi^{+}#pi^{-}}[GeV/c^{2}]", 100, 0, 4.5);
-  h_4c_prob_vs_m_pippim = new TH2F("h_4c_prob_vs_m_pippim_4c", "Prob. vs. Invariant mass of #pi^{+}#pi^{-} After 4C Fit;M_{#pi^{+}#pi^{-}}[GeV/c^{2}]", 100, 2.9, 3.7, 100, 0, 1);
-
-  h_4c_chi2_btb_epempi0 = new TH1F("h_4c_chi2_btb_epempi0", "#chi^{2} of 4C fit on e^{+}e^{-}#pi^{0} system; #chi^{2}", 100, 0, 200);
-  h_4c_prob_btb_epempi0 = new TH1F("h_4c_prob_btb_epempi0", "Probability of #chi^{2} of 4C fit on e^{+}e^{-}#pi^{0} system; prob", 100, -0.1, 1.1);
-  h_4c_m_btb_epem = new TH1F("h_4c_m_btb_epem_4c", "Invariant mass of e^{+}e^{-} After 4C Fit;M_{e^{+}e^{-}}[GeV/c^{2}]", 100, 0, 4.5);
-  h_4c_prob_vs_m_btb_epem = new TH2F("h_4c_prob_vs_m_btb_epem_4c", "Prob. vs. Invariant mass of e^{+}e^{-} After 4C Fit;M_{e^{+}e^{-}}[GeV/c^{2}]", 100, 2.9, 3.7, 100, 0, 1);
-  h_4c_chi2_btb_pippimpi0 = new TH1F("h_4c_chi2_btb_pippimpi0", "#chi^{2} of 4C fit on #pi^{+}#pi^{-}#pi^{0} system; #chi^{2}", 100, 0, 200);
-  h_4c_prob_btb_pippimpi0 = new TH1F("h_4c_prob_btb_pippimpi0", "Probability of #chi^{2} of 4C fit on #pi^{+}#pi^{-}#pi^{0} system; prob", 100, -0.1, 1.1);
-  h_4c_m_btb_pippim = new TH1F("h_4c_m_btb_pippim_4c", "Invariant mass of #pi^{+}#pi^{-} After 4C Fit;M_{#pi^{+}#pi^{-}}[GeV/c^{2}]", 100, 0, 4.5);
-  h_4c_prob_vs_m_btb_pippim = new TH2F("h_4c_prob_vs_m_btb_pippim_4c", "Prob. vs. Invariant mass of #pi^{+}#pi^{-} After 4C Fit;M_{#pi^{+}#pi^{-}}[GeV/c^{2}]", 100, 2.9, 3.7, 100, 0, 1);
-
-  h_4c_chi2_cts_epempi0 = new TH1F("h_4c_chi2_cts_epempi0", "#chi^{2} of 4C fit on e^{+}e^{-}#pi^{0} system; #chi^{2}", 100, 0, 200);
-  h_4c_prob_cts_epempi0 = new TH1F("h_4c_prob_cts_epempi0", "Probability of #chi^{2} of 4C fit on e^{+}e^{-}#pi^{0} system; prob", 100, -0.1, 1.1);
-  h_4c_m_cts_epem = new TH1F("h_4c_m_cts_epem_4c", "Invariant mass of e^{+}e^{-} After 4C Fit;M_{e^{+}e^{-}}[GeV/c^{2}]", 100, 0, 4.5);
-  h_4c_prob_vs_m_cts_epem = new TH2F("h_4c_prob_vs_m_cts_epem_4c", "Prob. vs. Invariant mass of e^{+}e^{-} After 4C Fit;M_{e^{+}e^{-}}[GeV/c^{2}]", 100, 2.9, 3.7, 100, 0, 1);
-  h_4c_chi2_cts_pippimpi0 = new TH1F("h_4c_chi2_cts_pippimpi0", "#chi^{2} of 4C fit on #pi^{+}#pi^{-}#pi^{0} system; #chi^{2}", 100, 0, 200);
-  h_4c_prob_cts_pippimpi0 = new TH1F("h_4c_prob_cts_pippimpi0", "Probability of #chi^{2} of 4C fit on #pi^{+}#pi^{-}#pi^{0} system; prob", 100, -0.1, 1.1);
-  h_4c_m_cts_pippim = new TH1F("h_4c_m_cts_pippim_4c", "Invariant mass of #pi^{+}#pi^{-} After 4C Fit;M_{#pi^{+}#pi^{-}}[GeV/c^{2}]", 100, 0, 4.5);
-  h_4c_prob_vs_m_cts_pippim = new TH2F("h_4c_prob_vs_m_cts_pippim_4c", "Prob. vs. Invariant mass of #pi^{+}#pi^{-} After 4C Fit;M_{#pi^{+}#pi^{-}}[GeV/c^{2}]", 100, 2.9, 3.7, 100, 0, 1);
-
+void AnaTda::def_manual_kin_fit_hists() {
   const char* axis_title_oa = "OA_{(#gamma#gamma) - (e^{+}e^{-})}[rad]";
   const char* axis_title_invm = "M^{inv}_{#gamma#gamma - e^{+}e^{-}}[GeV/c^{2}]";
   const char* axis_title_invm_gg = "M^{inv}_{#gamma#gamma}[GeV/c^{2}]";
@@ -131,17 +94,103 @@ void AnaTda::def_hists() {
   const char* title1 = Form("#gamma#gamma - e^{+}e^{-} mass vs. #gamma-#gamma mass;%s;%s", axis_title_invm_gg, axis_title_invm);
   const char* title2 = Form("#gamma#gamma - e^{+}e^{-} opening angle vs. mass;%s;%s", axis_title_invm, axis_title_oa);
   const char* title3 = Form("#gamma#gamma mass;%s", axis_title_invm_gg);
+
   h_oa_gg_epair = new TH1F("h_oa_gg_epair", title_oa, 100, 0, TMath::Pi());
   h_mass_gg_epair = new TH1F("h_mass_gg_epair", title_invm, 100, 0, 5.);
   h_oa_vs_mass_gg_epair = new TH2F("h_oa_vs_mass_gg_epair", title2, 200, 2.9, 3.7, 200, -0.1, TMath::Pi()+0.3);
   h_oa_gg_epair_vs_mass_gg = new TH2F("h_oa_gg_epair_vs_mass_gg", title0, 200, 0, 0.2, 200, -0.1, TMath::Pi()+0.3);
   h_mass_gg_epair_vs_mass_gg = new TH2F("h_mass_gg_epair_vs_mass_gg", title1, 200, 0, 0.2, 200, 2.9, 3.7);
+
   // cts = closest-to-s, btb = most-back-to-back
-  h_oa_vs_mass_gg_epair_btb = new TH2F("h_oa_vs_mass_gg_epair_btb", Form("most back-to-back %s", title2), 200, 2.9, 3.7, 200, -0.1, TMath::Pi()+0.3);
-  h_oa_vs_mass_gg_epair_cts = new TH2F("h_oa_vs_mass_gg_epair_cts", Form("closest to #sqrt{s} %s", title2), 200, 2.9, 3.7, 200, -0.1, TMath::Pi()+0.3);
+  h_oa_vs_mass_gg_epair_btb = new TH2F("h_oa_vs_mass_gg_epair_btb",
+    Form("most back-to-back %s", title2), 200, 2.9, 3.7, 200, -0.1, TMath::Pi()+0.3);
+  h_oa_vs_mass_gg_epair_cts = new TH2F("h_oa_vs_mass_gg_epair_cts",
+    Form("closest to #sqrt{s} %s", title2), 200, 2.9, 3.7, 200, -0.1, TMath::Pi()+0.3);
+
   h_m_gg_btb = new TH1F("h_m_gg_btb", Form("most back-to-back %s", title3), 100, 0, 0.2);
   h_m_gg_cts = new TH1F("h_m_gg_cts", Form("closest to #sqrt{s} %s", title3), 100, 0, 0.2);
+}
 
+void AnaTda::def_pair_hists() {
+  h_m_epem = new TH1F("h_m_epem",
+    "Invariant mass of e^{+}e^{-};M_{e^{+}e^{-}}[GeV/c^{2}]", 100, 0, 4.5);
+  h_m_epem_tr = new TH1F("h_m_epem_tr",
+    "Invariant mass of e^{+}e^{-} (Truth Match);M_{e^{+}e^{-}}[GeV/c^{2}]", 100, 0, 4.5);
+  h_m_epem_mcut = new TH1F("h_m_epem_mcut",
+    "Invariant mass of e^{+}e^{-} in J/#psi mass cut window;M_{e^{+}e^{-}}[GeV/c^{2}]", 100, 0, 4.5);
+  h_m_pippim = new TH1F("h_m_pippim",
+    "Invariant mass of #pi^{+}#pi^{-};M_{#pi^{+}#pi^{-}}[GeV/c^{2}]", 100, 0, 4.5);
+  h_m_pippim_tr = new TH1F("h_m_pippim_tr",
+    "Invariant mass of #pi^{+}#pi^{-} (Truth Match);M_{#pi^{+}#pi^{-}}[GeV/c^{2}]", 100, 0, 4.5);
+  h_m_gg = new TH1F("h_m_gg",
+    "Invariant mass of #gamma-#gamma pairs;M_{#gamma_{1}#gamma_{2}}[GeV/c^{2}]", 100, 0, 0.2);
+  h_m_gg_tr = new TH1F("h_m_gg_tr",
+    "Invariant mass of #gamma-#gamma pairs (Truth Match);M_{#gamma_{1}#gamma_{2}}[GeV/c^{2}]", 100, 0, 0.2);
+  //h_dth_gg = new TH1F("h_dth_gg_pi0",
+  //  "#Delta(#theta) of #gamma-#gamma pairs ;#Delta(#theta)[rad]", 100, -TMath::Pi(), TMath::Pi());
+  //h_dth_gg_pi0 = new TH1F("h_dth_gg_pi0",
+  //  "#Delta(#theta) of #gamma-#gamma pairs from #pi^0;#theta_{#gamma_{1}}-#theta_{#gamma_{1}}[rad]", 100, -TMath::Pi(), TMath::Pi());
+  h_m_pi0n = new TH1F("h_m_pi0n", "#pi^{0} mass (nearest to p0 pdg mass)", 100, 0, 0.2);
+  h_m_epem_pi0n = new TH1F("h_m_epem_pi0n", "e^{+}e^{-}#pi^{0} mass (nearest to p0 pdg mass)", 100, 0, 4.5);
+  h_m_pippim_pi0n = new TH1F("h_m_pippim_pi0n", "#pi^{+}#pi^{-}#pi^{0} mass (nearest to p0 pdg mass)", 100, 0, 4.5);
+}
+
+void AnaTda::def_single_hists() {
+
+  h_num_g = new TH1F("h_num_g", "Number of #gamma per event;N_{#gamma}", 25, 0, 25);
+  h_e_g_tr = new TH1F("h_e_g_tr", "Energy of #gamma (Truth Match);E[GeV]", 100, 0, 2);
+  h_e_g = new TH1F("h_e_g", "Energy of #gamma;E[GeV]", 100, 0, 2);
+  h_num_g_tr = new TH1F("h_num_g_tr", "Number of #gamma per event (Truth Match);N_{#gamma}", 25, 0, 25);
+  //h_e_g_pi0 = new TH1F("h_e_g_pi0", "Energy of #gamma from #pi^0;E[GeV]", 100, 0, 2);
+
+  h_num_epm = new TH1F("h_num_epm",
+    "Number of electron tracks per event;N_{e^{#pm}}", 10, 0, 10);
+  h_mom_the_epm = new TH2F("h_mom_the_epm",
+    "#theta vs. momentum of electron tracks;p[GeV/c];#theta[rad]", 100, 0, 5, 100, 0, TMath::Pi());
+  h_num_epm_tr = new TH1F("h_num_epm_tr",
+    "Number of electron tracks per event (Truth Match);N_{e^{#pm}}", 10, 0, 10);
+  h_mom_the_epm_tr = new TH2F("h_mom_the_epm_tr",
+    "#theta vs. momentum of electron tracks (Truth Match);p[GeV/c];#theta[rad]", 100, 0, 5, 100, 0, TMath::Pi());
+
+  h_num_pipm = new TH1F("h_num_pipm", "Number of charged pion tracks per event;N_{#pi^{#pm}}", 10, 0, 10);
+  h_mom_the_pipm = new TH2F("h_mom_the_pipm",
+    "#theta vs. momentum of charge pion tracks;p[GeV/c];#theta[rad]", 100, 0, 5, 100, 0, TMath::Pi());
+  h_num_pipm_tr = new TH1F("h_num_pipm_tr",
+    "Number of charged pion tracks per event (Truth Match);N_{#pi^{#pm}}", 10, 0, 10);
+  h_mom_the_pipm_tr = new TH2F("h_mom_the_pipm_tr",
+    "#theta vs. momentum of charge pion tracks (Truth Match);p[GeV/c];#theta[rad]", 100, 0, 5, 100, 0, TMath::Pi());
+}
+
+void AnaTda::def_kin_fit_hists(const int& type, const int& hyp) {
+  const char *n[] = {"","_btb","_cts"};
+  const char *nhyp[] = {"epem", "pippim"};
+  const char *thyp[] = {"e^{+}e^{-}", "#pi^{+}#pi^{-}"};
+
+  h_4c_chi2[type][hyp] = new TH1F(
+    Form("h_4c_chi2%s_%spi0", n[type], nhyp[hyp]),
+    Form("#chi^{2} of 4C fit on %s#pi^{0} system; #chi^{2}", thyp[hyp]),
+    100, 0, 200);
+
+  h_4c_prob[type][hyp] = new TH1F(
+    Form("h_4c_prob%s_%spi0", n[type], nhyp[hyp]),
+    Form("Probability of #chi^{2} of 4C fit on %s#pi^{0} system; prob", thyp[hyp]),
+    100, -0.1, 1.1);
+
+  h_4c_m[type][hyp] = new TH1F(
+    Form("h_4c_m%s_%s_4c", n[type], nhyp[hyp]),
+    Form("Invariant mass of %s After 4C Fit;M_{%s}[GeV/c^{2}]", thyp[hyp], thyp[hyp]),
+    100, 0, 4.5);
+
+  h_4c_prob_vs_m[type][hyp] = new TH2F(
+    Form("h_4c_prob_vs_m%s_%s_4c", n[type], nhyp[hyp]),
+    Form("Prob. vs. Invariant mass of %s After 4C Fit;M_{%s}[GeV/c^{2}]; prob", thyp[hyp], thyp[hyp]),
+    100, 2.9, 3.7, 100, 0, 1);
+}
+
+void AnaTda::def_kin_fit_hists() {
+  for (int it = 0; it < 3; ++it)
+    for (int ih = 0; ih < 2; ++ih)
+      def_kin_fit_hists(it, ih);
 }
 
 void AnaTda::initial_state(){
@@ -443,16 +492,17 @@ void AnaTda::jpsi_truth_match() {
   }
 }
 
-void AnaTda::kin_fit_full_sys(RhoCandList& org, TH1F* h_chi2, TH1F* h_prob, TH2F* h_prob_m) {
+//void AnaTda::kin_fit_full_sys(RhoCandList& org, TH1F* h_chi2, TH1F* h_prob, TH2F* h_prob_m) {
+void AnaTda::kin_fit_full_sys(RhoCandList& org, const int& it, const int& ih) {
   if (org.GetLength() == 1) {
     PndKinFitter fitter(org[0]);
     fitter.Add4MomConstraint(ini);
     fitter.Fit();
     const double chi2 = fitter.GetChi2();
     const double prob = fitter.GetProb();
-    h_chi2->Fill(chi2);
-    h_prob->Fill(prob);
-    h_prob_m->Fill(org[0]->M(), prob);
+    h_4c_chi2[it][ih]->Fill(chi2);
+    h_4c_prob[it][ih]->Fill(prob);
+    h_4c_prob_vs_m[it][ih]->Fill(org[0]->M(), prob);
   } else {
     if (org.GetLength() != 0) {
       cout << "Not possible btb" << endl;
@@ -462,22 +512,22 @@ void AnaTda::kin_fit_full_sys(RhoCandList& org, TH1F* h_chi2, TH1F* h_prob, TH2F
 
 void AnaTda::kin_fit_epem_pi0_btb() {
   epem_mcut_pi0_btb.Combine(epem_mcut, pi0_btb);
-  kin_fit_full_sys(epem_mcut_pi0_btb, h_4c_chi2_btb_epempi0, h_4c_prob_btb_epempi0, h_4c_prob_vs_m_btb_epem);
+  kin_fit_full_sys(epem_mcut_pi0_btb, 1, 0);
 }
 
 void AnaTda::kin_fit_epem_pi0_cts() {
   epem_mcut_pi0_cts.Combine(epem_mcut, pi0_cts);
-  kin_fit_full_sys(epem_mcut_pi0_cts, h_4c_chi2_cts_epempi0, h_4c_prob_cts_epempi0, h_4c_prob_vs_m_cts_epem);
+  kin_fit_full_sys(epem_mcut_pi0_cts, 2, 0);
 }
 
 void AnaTda::kin_fit_pippim_pi0_btb() {
   pippim_mcut_pi0_btb.Combine(pippim_mcut, pi0_btb);
-  kin_fit_full_sys(pippim_mcut_pi0_btb, h_4c_chi2_btb_pippimpi0, h_4c_prob_btb_pippimpi0, h_4c_prob_vs_m_btb_pippim);
+  kin_fit_full_sys(pippim_mcut_pi0_btb, 1, 1);
 }
 
 void AnaTda::kin_fit_pippim_pi0_cts() {
   pippim_mcut_pi0_cts.Combine(pippim_mcut, pi0_cts);
-  kin_fit_full_sys(pippim_mcut_pi0_cts, h_4c_chi2_cts_pippimpi0, h_4c_prob_cts_pippimpi0, h_4c_prob_vs_m_cts_pippim);
+  kin_fit_full_sys(pippim_mcut_pi0_cts, 2, 1);
 }
 
 void AnaTda::kin_fit_epem_pi0_nearest() {
@@ -489,11 +539,11 @@ void AnaTda::kin_fit_epem_pi0_nearest() {
     fitter.Fit();  //  do fit
     double chi2_4c = fitter.GetChi2();  //  get chi2 of fit
     double prob_4c = fitter.GetProb();  //  access probability of fit
-    h_4c_chi2_epempi0->Fill(chi2_4c);
-    h_4c_prob_epempi0->Fill(prob_4c);
+    h_4c_chi2[0][0]->Fill(chi2_4c);
+    h_4c_prob[0][0]->Fill(prob_4c);
     if ( prob_4c > 0.01 ) {
       RhoCandidate *epem_fit = epem_pi0nearest[j]->Daughter(0)->GetFit();
-      h_4c_m_epem->Fill(epem_fit->M());
+      h_4c_m[0][0]->Fill(epem_fit->M());
     }
   }
 }
@@ -507,11 +557,11 @@ void AnaTda::kin_fit_pippim_pi0_nearest() {
     fitter.Fit();  // do fit
     double chi2_4c = fitter.GetChi2();  // get chi2 of fit
     double prob_4c = fitter.GetProb();  // access probability of fit
-    h_4c_chi2_pippimpi0->Fill(chi2_4c);
-    h_4c_prob_pippimpi0->Fill(prob_4c);
+    h_4c_chi2[0][1]->Fill(chi2_4c);
+    h_4c_prob[0][1]->Fill(prob_4c);
     if ( prob_4c > 0.01 ) {
       RhoCandidate *pippim_fit = pippim_pi0nearest[j]->Daughter(0)->GetFit();
-      h_4c_m_pippim->Fill(pippim_fit->M());
+      h_4c_m[0][1]->Fill(pippim_fit->M());
     }
   }
 }
@@ -601,32 +651,14 @@ void AnaTda::Finish() {
   h_m_epem_pi0n->Write();
   h_m_pippim_pi0n->Write();
 
-  h_4c_chi2_epempi0->Write();
-  h_4c_prob_epempi0->Write();
-  h_4c_m_epem->Write();
-  h_4c_prob_vs_m_epem->Write();
-  h_4c_chi2_pippimpi0->Write();
-  h_4c_prob_pippimpi0->Write();
-  h_4c_m_pippim->Write();
-  h_4c_prob_vs_m_pippim->Write();
-
-  h_4c_chi2_btb_epempi0->Write();
-  h_4c_prob_btb_epempi0->Write();
-  h_4c_m_btb_epem->Write();
-  h_4c_prob_vs_m_btb_epem->Write();
-  h_4c_chi2_btb_pippimpi0->Write();
-  h_4c_prob_btb_pippimpi0->Write();
-  h_4c_m_btb_pippim->Write();
-  h_4c_prob_vs_m_btb_pippim->Write();
-
-  h_4c_chi2_cts_epempi0->Write();
-  h_4c_prob_cts_epempi0->Write();
-  h_4c_m_cts_epem->Write();
-  h_4c_prob_vs_m_cts_epem->Write();
-  h_4c_chi2_cts_pippimpi0->Write();
-  h_4c_prob_cts_pippimpi0->Write();
-  h_4c_m_cts_pippim->Write();
-  h_4c_prob_vs_m_cts_pippim->Write();
+  for (int it = 0; it < 3; ++it) {
+    for (int ih = 0; ih < 2; ++ih) {
+      h_4c_chi2[it][ih]->Write();
+      h_4c_prob[it][ih]->Write();
+      h_4c_m[it][ih]->Write();
+      h_4c_prob_vs_m[it][ih]->Write();
+    }
+  }
 
   h_num_g->Write();
   h_num_epm->Write();
