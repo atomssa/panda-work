@@ -187,21 +187,71 @@ int AnaTda::SelectTruePid(PndAnalysis *ana, RhoCandList &l) {
   return removed;
 }
 
-void AnaTda::Exec(Option_t* opt) {
-  if (++nevt%100 == 0)
-    cout << "===== AnaTda::Exec -- Event " << nevt << " ====="<< endl;
+void AnaTda::print_rho_cand_list(RhoCandList& l, const char* name) {
+  cout << "========================== " << name << " ========================== " << endl;
+  for (int i = 0; i < l.GetLength(); ++i) {
+    cout << "i= " << i << " ";
+    l[i]->PrintOn(cout);
+    cout << endl;
+  }
+}
 
-  fAnalysis->GetEvent();
+void AnaTda::cleanup_rho_cand_lists() {
 
+  ep.Cleanup();
+  em.Cleanup();
+  pip.Cleanup();
+  pim.Cleanup();
+  g1.Cleanup();
+  g2.Cleanup();
+
+  pip_tr.Cleanup();
+  pim_tr.Cleanup();
+  ep_tr.Cleanup();
+  em_tr.Cleanup();
+  g1_tr.Cleanup();
+  g2_tr.Cleanup();
+
+  epem.Cleanup();
+  pippim.Cleanup();
+  gg.Cleanup();
+  epem_tr.Cleanup();
+  pippim_tr.Cleanup();
+  gg_tr.Cleanup();
+
+  pi0.Cleanup();
+
+  pi0_true.Cleanup();
+  pi0nearest.Cleanup();
+  pi0_btb.Cleanup();
+  pi0_cts.Cleanup();
+
+  epem_mcut.Cleanup();
+
+  pippim_mcut.Cleanup();
+  jpsi.Cleanup();
+  jpsi_true.Cleanup();
+  epem_mcut_pi0_btb.Cleanup();
+  epem_mcut_pi0_cts.Cleanup();
+  pippim_mcut_pi0_btb.Cleanup();
+  pippim_mcut_pi0_cts.Cleanup();
+  epem_pi0nearest.Cleanup();
+  pippim_pi0nearest.Cleanup();
+
+}
+
+
+void AnaTda::get_singles_lists() {
   // *** Select with no PID info ('All'); type and mass are set
-  RhoCandList pip, pim, ep, em, g1, g2;
   fAnalysis->FillList(ep, (fBremCorr?"BremElectronAllPlus":"ElectronAllPlus"));
   fAnalysis->FillList(em, (fBremCorr?"BremElectronAllMinus":"ElectronAllMinus"));
   fAnalysis->FillList(g1, "Neutral");
   fAnalysis->FillList(g2, "Neutral");
   fAnalysis->FillList(pip, (fBremCorr?"BremPionAllPlus":"PionAllPlus"));
   fAnalysis->FillList(pim, (fBremCorr?"BremPionAllMinus":"PionAllMinus"));
+}
 
+void AnaTda::fill_single_dists() {
   // Single distributions
   h_num_g->Fill(g1.GetLength());
   h_num_epm->Fill(ep.GetLength()+em.GetLength());
@@ -216,28 +266,24 @@ void AnaTda::Exec(Option_t* opt) {
     h_mom_the_pipm->Fill(pip[i]->P3().Mag(), pip[i]->P3().Theta() );
   for (int i = 0; i < pim.GetLength(); ++i)
     h_mom_the_pipm->Fill(pim[i]->P3().Mag(), pim[i]->P3().Theta() );
+}
 
-  // candidate lists for subset that has truth match
-  RhoCandList pip_tr, pim_tr, ep_tr, em_tr, g1_tr, g2_tr;
-  ep.SetType(-11);
-  em.SetType(11);
-  pip.SetType(211);
-  pim.SetType(-211);
-  g1.SetType(22);
-  g2.SetType(22);
-  for (int i = 0; i < ep.GetLength(); ++i)
-    if (fAnalysis->McTruthMatch(ep[i])) ep_tr.Append(ep[i]);
-  for (int i = 0; i < em.GetLength(); ++i)
-    if (fAnalysis->McTruthMatch(em[i])) em_tr.Append(em[i]);
-  for (int i = 0; i < pip.GetLength(); ++i)
-    if (fAnalysis->McTruthMatch(pip[i])) pip_tr.Append(pip[i]);
-  for (int i = 0; i < pim.GetLength(); ++i)
-    if (fAnalysis->McTruthMatch(pim[i])) pim_tr.Append(pim[i]);
-  for (int i = 0; i < g1.GetLength(); ++i)
-    if (fAnalysis->McTruthMatch(g1[i])) g1_tr.Append(g1[i]);
-  for (int i = 0; i < g2.GetLength(); ++i)
-    if (fAnalysis->McTruthMatch(g2[i])) g2_tr.Append(g2[i]);
+void AnaTda::truth_match(RhoCandList& org, RhoCandList& dest, const int &pdg) {
+  org.SetType(pdg);
+  for (int i = 0; i < org.GetLength(); ++i)
+    if (fAnalysis->McTruthMatch(org[i])) dest.Append(org[i]);
+}
 
+void AnaTda::truth_match_singles() {
+  truth_match(ep, ep_tr, -11);
+  truth_match(em, em_tr, 11);
+  truth_match(pip, pip_tr, 211);
+  truth_match(pim, pim_tr, -211);
+  truth_match(g1, g1_tr, 22);
+  truth_match(g2, g2_tr, 22);
+}
+
+void AnaTda::fill_single_dists_tr() {
   // Single distributions (After truth match)
   h_num_g_tr->Fill(g1_tr.GetLength());
   h_num_epm_tr->Fill(ep_tr.GetLength()+em_tr.GetLength());
@@ -252,10 +298,10 @@ void AnaTda::Exec(Option_t* opt) {
     h_mom_the_pipm_tr->Fill(pip_tr[i]->P3().Mag(), pip_tr[i]->P3().Theta() );
   for (int i = 0; i < pim_tr.GetLength(); ++i)
     h_mom_the_pipm_tr->Fill(pim_tr[i]->P3().Mag(), pim_tr[i]->P3().Theta() );
+}
 
+void AnaTda::make_pair_lists() {
   // candidate lists for pairwise truth match (full hierarchy)
-  RhoCandList epem, pippim, gg;
-  RhoCandList epem_tr, pippim_tr, gg_tr;
   epem.Combine(ep, em);
   epem.SetType(443);
   epem_tr.Combine(ep_tr, em_tr);
@@ -263,25 +309,24 @@ void AnaTda::Exec(Option_t* opt) {
   pippim_tr.Combine(pip_tr, pim_tr);
   gg.Combine(g1, g2);
   gg_tr.Combine(g1_tr, g2_tr);
+}
 
-  for (int j = 0; j < epem.GetLength(); ++j)
-    h_m_epem->Fill(epem[j]->M());
-  for (int j = 0; j < epem_tr.GetLength(); ++j)
-    h_m_epem_tr->Fill(epem_tr[j]->M());
-  for (int j = 0; j < pippim.GetLength(); ++j)
-    h_m_pippim->Fill(pippim[j]->M());
-  for (int j = 0; j < pippim_tr.GetLength(); ++j)
-    h_m_pippim_tr->Fill(pippim_tr[j]->M());
-  for (int j = 0; j < gg.GetLength(); ++j)
-    h_m_gg->Fill(gg[j]->M());
-  for (int j = 0; j < gg_tr.GetLength(); ++j)
-    h_m_gg_tr->Fill(gg_tr[j]->M());
+void AnaTda::fill_pair_mass(RhoCandList& org, TH1F* dest) {
+  for (int j = 0; j < org.GetLength(); ++j) dest->Fill(org[j]->M());
+}
 
-  RhoCandList pi0;
+void AnaTda::fill_pair_dists() {
+  fill_pair_mass(epem, h_m_epem);
+  fill_pair_mass(epem_tr, h_m_epem_tr);
+  fill_pair_mass(pippim, h_m_pippim);
+  fill_pair_mass(pippim_tr, h_m_pippim_tr);
+  fill_pair_mass(gg, h_m_gg);
+  fill_pair_mass(gg_tr, h_m_gg_tr);
+}
+
+void AnaTda::fill_pi0s() {
   pi0.Combine(g1, g2);
   pi0.SetType(111);
-
-  RhoCandList pi0_true;
   for (int j = 0; j < pi0.GetLength(); ++j) {
     hpi0m_all->Fill(pi0[j]->M() );
     if ( fAnalysis->McTruthMatch(pi0[j]) ) {
@@ -292,8 +337,9 @@ void AnaTda::Exec(Option_t* opt) {
        hpi0m_nm->Fill(pi0[j]->M() );
     }
   }
+}
 
-  RhoCandList pi0nearest;
+void AnaTda::pdgm_nearest_pi0s() {
   double dm_min = 1e10;
   int min_j = -1;
   for (int j = 0; j < pi0.GetLength(); ++j) {
@@ -307,12 +353,13 @@ void AnaTda::Exec(Option_t* opt) {
     pi0nearest.Append(pi0[min_j]);
     h_m_pi0n->Fill(pi0nearest[0]->M());
   }
+}
 
+void AnaTda::jpsi_mass_selection() {
   // Identify a charged pair in the jpsi mass window
   // Technically one can also do epem.Select(jpsiMassSel),
   // but that has the potential to keep more than one pair
   // With the below, only one pair is kept
-  RhoCandList epem_mcut, pippim_mcut;
   int i_jpsi_mass = -1;
   for (int j = 0; j < epem.GetLength(); ++j) {
     const double m = epem[j]->M();
@@ -324,14 +371,15 @@ void AnaTda::Exec(Option_t* opt) {
       break;
     }
   }
+}
 
+void AnaTda::pi0_kinematic_selection() {
   // pi0 selection based on kinematics (opposite to lepton/pion
   // pair in CM, blieveable invariant mass - close to sqrt(s))
   // start with the list of all gg pairs and plot cm-OA wrt
   // lepton pair, and inv-mass of full system
-  RhoCandList pi0_btb, pi0_cts;
 
-  if (i_jpsi_mass != -1) {
+  if (epem_mcut.GetLength() > 0) {
     // cts = closest-to-s, btb = most-back-to-back
     int i_btb = -1, i_cts = -1;
     double diff_2pi_min = 1e9, diff_s_min = 1e9;
@@ -377,13 +425,12 @@ void AnaTda::Exec(Option_t* opt) {
       cout << "gg.GetLength = " << gg.GetLength() << endl;
     }
   }
+}
 
+void AnaTda::jpsi_truth_match() {
   // following is relevant only for signal
-  RhoCandList jpsi;
   jpsi.Combine(ep, em);
   jpsi.SetType(443);
-
-  RhoCandList jpsi_true;
   for (int j = 0; j < jpsi.GetLength(); ++j) {
     hjpsim_all->Fill(jpsi[j]->M());
     if (fAnalysis->McTruthMatch(jpsi[j])) {
@@ -394,83 +441,46 @@ void AnaTda::Exec(Option_t* opt) {
      hjpsim_nm->Fill(jpsi[j]->M());
     }
   }
+}
 
+void AnaTda::kin_fit_full_sys(RhoCandList& org, TH1F* h_chi2, TH1F* h_prob, TH2F* h_prob_m) {
+  if (org.GetLength() == 1) {
+    PndKinFitter fitter(org[0]);
+    fitter.Add4MomConstraint(ini);
+    fitter.Fit();
+    const double chi2 = fitter.GetChi2();
+    const double prob = fitter.GetProb();
+    h_chi2->Fill(chi2);
+    h_prob->Fill(prob);
+    h_prob_m->Fill(org[0]->M(), prob);
+  } else {
+    if (org.GetLength() != 0) {
+      cout << "Not possible btb" << endl;
+    }
+  }
+}
 
-  RhoCandList epem_mcut_pi0_btb;
+void AnaTda::kin_fit_epem_pi0_btb() {
   epem_mcut_pi0_btb.Combine(epem_mcut, pi0_btb);
-  if (epem_mcut_pi0_btb.GetLength() == 1) {
-    PndKinFitter fitter(epem_mcut_pi0_btb[0]);
-    fitter.Add4MomConstraint(ini);
-    fitter.Fit();
-    // cout << "reco P4 = ";
-    // epem_mcut_pi0_btb[0]->P4().Print();
-    // cout << "init P4 = ";
-    // ini.Print();
-    double chi2_4c_btb = fitter.GetChi2();
-    double prob_4c_btb = fitter.GetProb();
-    // cout << "prob = " << prob_4c_btb << endl;
-    // cout << "=======================" << endl;
-    h_4c_chi2_btb_epempi0->Fill(chi2_4c_btb);
-    h_4c_prob_btb_epempi0->Fill(prob_4c_btb);
-    h_4c_prob_vs_m_btb_epem->Fill(epem_mcut_pi0_btb[0]->M(), prob_4c_btb);
-  } else {
-    if (epem_mcut_pi0_btb.GetLength() != 0) {
-      cout << "Not possible btb" << endl;
-    }
-  }
+  kin_fit_full_sys(epem_mcut_pi0_btb, h_4c_chi2_btb_epempi0, h_4c_prob_btb_epempi0, h_4c_prob_vs_m_btb_epem);
+}
 
-  RhoCandList epem_mcut_pi0_cts;
+void AnaTda::kin_fit_epem_pi0_cts() {
   epem_mcut_pi0_cts.Combine(epem_mcut, pi0_cts);
-  if (epem_mcut_pi0_cts.GetLength() == 1) {
-    PndKinFitter fitter(epem_mcut_pi0_cts[0]);
-    fitter.Add4MomConstraint(ini);
-    fitter.Fit();
-    double chi2_4c_cts = fitter.GetChi2();
-    double prob_4c_cts = fitter.GetProb();
-    h_4c_chi2_cts_epempi0->Fill(chi2_4c_cts);
-    h_4c_prob_cts_epempi0->Fill(prob_4c_cts);
-    h_4c_prob_vs_m_cts_epem->Fill(epem_mcut_pi0_cts[0]->M(), prob_4c_cts);
-  } else {
-    if (epem_mcut_pi0_cts.GetLength() != 0) {
-      cout << "Not possible cts" << endl;
-    }
-  }
+  kin_fit_full_sys(epem_mcut_pi0_cts, h_4c_chi2_cts_epempi0, h_4c_prob_cts_epempi0, h_4c_prob_vs_m_cts_epem);
+}
 
-  RhoCandList pippim_mcut_pi0_btb;
+void AnaTda::kin_fit_pippim_pi0_btb() {
   pippim_mcut_pi0_btb.Combine(pippim_mcut, pi0_btb);
-  if (pippim_mcut_pi0_btb.GetLength() == 1) {
-    PndKinFitter fitter(pippim_mcut_pi0_btb[0]);
-    fitter.Add4MomConstraint(ini);
-    fitter.Fit();
-    double chi2_4c_btb = fitter.GetChi2();
-    double prob_4c_btb = fitter.GetProb();
-    h_4c_chi2_btb_pippimpi0->Fill(chi2_4c_btb);
-    h_4c_prob_btb_pippimpi0->Fill(prob_4c_btb);
-    h_4c_prob_vs_m_btb_pippim->Fill(pippim_mcut_pi0_btb[0]->M(), prob_4c_btb);
-  } else {
-    if (pippim_mcut_pi0_btb.GetLength() != 0) {
-      cout << "Not possible btb" << endl;
-    }
-  }
+  kin_fit_full_sys(pippim_mcut_pi0_btb, h_4c_chi2_btb_pippimpi0, h_4c_prob_btb_pippimpi0, h_4c_prob_vs_m_btb_pippim);
+}
 
-  RhoCandList pippim_mcut_pi0_cts;
+void AnaTda::kin_fit_pippim_pi0_cts() {
   pippim_mcut_pi0_cts.Combine(pippim_mcut, pi0_cts);
-  if (pippim_mcut_pi0_cts.GetLength() == 1) {
-    PndKinFitter fitter(pippim_mcut_pi0_cts[0]);
-    fitter.Add4MomConstraint(ini);
-    fitter.Fit();
-    double chi2_4c_cts = fitter.GetChi2();
-    double prob_4c_cts = fitter.GetProb();
-    h_4c_chi2_cts_pippimpi0->Fill(chi2_4c_cts);
-    h_4c_prob_cts_pippimpi0->Fill(prob_4c_cts);
-    h_4c_prob_vs_m_cts_pippim->Fill(pippim_mcut_pi0_cts[0]->M(), prob_4c_cts);
-  } else {
-    if (pippim_mcut_pi0_cts.GetLength() != 0) {
-      cout << "Not possible cts" << endl;
-    }
-  }
+  kin_fit_full_sys(pippim_mcut_pi0_cts, h_4c_chi2_cts_pippimpi0, h_4c_prob_cts_pippimpi0, h_4c_prob_vs_m_cts_pippim);
+}
 
-  RhoCandList epem_pi0nearest;
+void AnaTda::kin_fit_epem_pi0_nearest() {
   epem_pi0nearest.Combine(epem, pi0nearest);
   for (int j = 0; j < epem_pi0nearest.GetLength(); ++j) {
     h_m_epem_pi0n->Fill(epem_pi0nearest[j]->M());
@@ -479,23 +489,19 @@ void AnaTda::Exec(Option_t* opt) {
     fitter.Fit();  //  do fit
     double chi2_4c = fitter.GetChi2();  //  get chi2 of fit
     double prob_4c = fitter.GetProb();  //  access probability of fit
-    //  cout << "ini.M()= " << ini.M() << " epem_pi0nearest[j].M()= " <<
-    //  epem_pi0nearest[j]->M() <<  "chi2 = " << chi2_4c << " prob= " <<
-    //  prob_4c << endl;
     h_4c_chi2_epempi0->Fill(chi2_4c);
     h_4c_prob_epempi0->Fill(prob_4c);
-    if ( prob_4c > 0.01 ) {  // when good enough, fill some histo
-      // get fitted epem
+    if ( prob_4c > 0.01 ) {
       RhoCandidate *epem_fit = epem_pi0nearest[j]->Daughter(0)->GetFit();
       h_4c_m_epem->Fill(epem_fit->M());
     }
   }
+}
 
-  RhoCandList pippim_pi0nearest;
+void AnaTda::kin_fit_pippim_pi0_nearest() {
   pippim_pi0nearest.Combine(pippim, pi0nearest);
   for (int j = 0; j < pippim_pi0nearest.GetLength(); ++j) {
     h_m_pippim_pi0n->Fill(pippim_pi0nearest[j]->M());
-    // instantiate the kin fitter in psi(2S)
     PndKinFitter fitter(pippim_pi0nearest[j]);
     fitter.Add4MomConstraint(ini);  // set 4 constraint
     fitter.Fit();  // do fit
@@ -504,19 +510,61 @@ void AnaTda::Exec(Option_t* opt) {
     h_4c_chi2_pippimpi0->Fill(chi2_4c);
     h_4c_prob_pippimpi0->Fill(prob_4c);
     if ( prob_4c > 0.01 ) {
-      // when good enough, fill some histo
-      // get fitted epem
       RhoCandidate *pippim_fit = pippim_pi0nearest[j]->Daughter(0)->GetFit();
       h_4c_m_pippim->Fill(pippim_fit->M());
     }
   }
 }
 
+void AnaTda::Exec(Option_t* opt) {
+  if (++nevt%100 == 0)
+    cout << "===== AnaTda::Exec -- Event " << nevt << " ====="<< endl;
+
+  cleanup_rho_cand_lists();
+
+  fAnalysis->GetEvent();
+
+  get_singles_lists();
+
+  fill_single_dists();
+
+  truth_match_singles();
+
+  fill_single_dists_tr();
+
+  make_pair_lists();
+
+  fill_pair_dists();
+
+  fill_pi0s();
+
+  pdgm_nearest_pi0s();
+
+  jpsi_mass_selection();
+
+  pi0_kinematic_selection();
+
+  jpsi_truth_match();
+
+  kin_fit_epem_pi0_btb();
+
+  kin_fit_epem_pi0_cts();
+
+  kin_fit_pippim_pi0_btb();
+
+  kin_fit_pippim_pi0_cts();
+
+  kin_fit_epem_pi0_nearest();
+
+  kin_fit_pippim_pi0_nearest();
+
+}
+
 void AnaTda::calc_kin(
-  RhoCandidate* gg, RhoCandidate *epem,
+  RhoCandidate* _gg, RhoCandidate *_epem,
   double &m, double &mgg, double &oa) {
-  TLorentzVector p4gg = gg->P4();
-  TLorentzVector p4epair = epem->P4();
+  TLorentzVector p4gg = _gg->P4();
+  TLorentzVector p4epair = _epem->P4();
   m = (p4gg+p4epair).M();
   mgg = (p4gg).M();
   p4gg.Boost(boost_to_cm);

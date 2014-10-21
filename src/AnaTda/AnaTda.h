@@ -5,6 +5,7 @@
 
 #include "FairTask.h"
 #include "TLorentzVector.h"
+#include "RhoCandList.h"
 
 class TTree;
 class TClonesArray;
@@ -50,6 +51,43 @@ class AnaTda : public FairTask {
   void def_hists();
   void initial_state();
   void set_selectors();
+
+  void print_rho_cand_list(RhoCandList&, const char*);
+  void cleanup_rho_cand_lists();
+  void get_singles_lists();
+  void fill_single_dists();
+  void truth_match(RhoCandList& org, RhoCandList& dest, const int &pdg);
+  void truth_match_singles();
+  void fill_single_dists_tr();
+  void make_pair_lists();
+  void fill_pair_mass(RhoCandList& org, TH1F* dest);
+  void fill_pair_dists();
+  void fill_pi0s();
+  void pdgm_nearest_pi0s();
+  void jpsi_mass_selection();
+  void pi0_kinematic_selection();
+  void jpsi_truth_match();
+  void kin_fit_full_sys(RhoCandList& org, TH1F* h_chi2, TH1F* h_prob, TH2F* h_prob_m);
+  void kin_fit_epem_pi0_btb();
+  void kin_fit_epem_pi0_cts();
+  void kin_fit_pippim_pi0_btb();
+  void kin_fit_pippim_pi0_cts();
+  void kin_fit_epem_pi0_nearest();
+  void kin_fit_pippim_pi0_nearest();
+
+  RhoCandList pip, pim, ep, em, g1, g2;
+  RhoCandList pip_tr, pim_tr, ep_tr, em_tr, g1_tr, g2_tr;
+  RhoCandList epem, pippim, gg;
+  RhoCandList epem_tr, pippim_tr, gg_tr;
+  RhoCandList pi0, pi0_true, pi0nearest, pi0_btb, pi0_cts;
+
+  RhoCandList epem_mcut, pippim_mcut;
+  RhoCandList jpsi, jpsi_true;
+
+  RhoCandList epem_mcut_pi0_btb, epem_mcut_pi0_cts;
+  RhoCandList pippim_mcut_pi0_btb, pippim_mcut_pi0_cts;
+  RhoCandList epem_pi0nearest;
+  RhoCandList pippim_pi0nearest;
 
   double m0_jpsi;
   double m0_pi0;
