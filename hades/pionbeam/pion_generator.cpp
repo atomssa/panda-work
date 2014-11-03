@@ -52,7 +52,7 @@ int main( int argc, const char **argv )
   cout << "argc= " << argc << " nEvents= " << atoi(argv[1]) << endl;
 
   const double pbeam = 1.3; // for the moment stick to this
-  
+
   const int nEvents=atoi(argv[1]);
   const double dph = atof(argv[2]);
   const double dth = atof(argv[3]);
@@ -60,19 +60,21 @@ int main( int argc, const char **argv )
 
   const bool digi_pitrk = (atoi(argv[5])/10 == 1);
   const bool digi_diam = (atoi(argv[5])%10 == 1);
-  
-  const bool do_ms_pitrk = (atoi(argv[6])/10 == 1);
-  const bool do_ms_diam = (atoi(argv[6])%10 == 1);
+  const double diam_seg = 2.45; // 14.7mm/6
+  //const double diam_seg = 2.0; // 14.7mm/6
+  //if (argc == 8 ) {
+  //  diam_seg = atof(argv[7]); // Argument for academic study on what finer element size on start detector would bring
+  //}
 
-  double diam_seg = 2.45; // 14.7mm/6 
-  if (argc == 8 ) {
-    diam_seg = atof(argv[7]); // Argument for academic study on what finer element size on start detector would bring
-  }
-  
-  TString outfile=Form("report.v3/ms%d%d_ds%d%d%s_xy%3.1fmm_dth%d_dph%d_p%4.2f.evt",
-		       do_ms_pitrk?1:0, do_ms_diam?1:0, digi_pitrk?1:0, digi_diam?1:0,
+  //const bool do_ms_diam = false;
+  const bool do_ms_pitrk1 = (atoi(argv[6])/10 == 1);
+  const bool do_ms_pitrk2 = (atoi(argv[6])%10 == 1);
+  cout << "do_ms_pitrk1 = " << (do_ms_pitrk1?1:0) << "  do_ms_pitrk2 = " << (do_ms_pitrk2?1:0) << endl;
+
+  TString outfile=Form("output/report.v4/ms%d%d_ds%d%d%s_xy%3.1fmm_dth%d_dph%d_p%4.2f.evt",
+		       do_ms_pitrk1?1:0, do_ms_pitrk2?1:0, digi_pitrk?1:0, digi_diam?1:0,
 		       (argc==8?Form("_seg%3.1f",diam_seg):""), xyr, (int)dth, (int)dph, pbeam);
-  
+
   cout << "Output file name: " << outfile << endl;
 
   map<Int_t,TString> elementNames;
@@ -147,26 +149,27 @@ int main( int argc, const char **argv )
   //pionbeam.setBeam           (HPhysicsConstants::pid("pi-"),pbeam,60,60,0.0,0.0); // id, totl mom [GeV], beamtube x and y size, xoff,yoff
   // http://web-docs.gsi.de/~halo/docs/hydra/classDocumentation/dev/src/HPhysicsConstants.cxx.html#f0lQqE
 
-  pionbeam.setBeam           (9, pbeam, 60, 60, 0.0, 0.0); // id, totl mom [GeV], beamtube x and y size, xoff,yoff    
+  pionbeam.setBeam           (9, pbeam, 60, 60, 0.0, 0.0); // id, totl mom [GeV], beamtube x and y size, xoff,yoff
 
   //pionbeam.setBeamProfile    (0.5,0.0);                // sigma [mm], flatradius [mm]
   //pionbeam.setBeamProfile    (0.0,0.0);                // sigma [mm], flatradius [mm]
-  pionbeam.setBeamProfile    (xyr,0.0);                // sigma [mm], flatradius [mm]  
+  pionbeam.setBeamProfile    (xyr,0.0);                // sigma [mm], flatradius [mm]
 
   //pionbeam.setBeamResolution (0.01,0.05,0.06);          // dpx [rad],dpy [rad] ,dpz [relative]  [+-]
   //pionbeam.setBeamResolution (0.01,0.05,0.0);          // dpx [rad],dpy [rad] ,dpz [relative]  [+-]
-  //pionbeam.setBeamResolution (0.0,0.0,0.0);          // dpx [rad],dpy [rad] ,dpz [relative]  [+-]  
+  //pionbeam.setBeamResolution (0.0,0.0,0.0);          // dpx [rad],dpy [rad] ,dpz [relative]  [+-]
   pionbeam.setBeamResolution (dth/1000.,dph/1000.,0.0);          // dpx [rad],dpy [rad] ,dpz [relative]  [+-]
 
-  if(!pionbeam.initBeamLine  ("pibeam_set6_mod.data",32)) return 1;               // transform input file and target element number
-  
+  if(!pionbeam.initBeamLine  ("par_files/pibeam_set6_mod_new_new.data",32)) return 1;               // transform input file and target element number
+
   // Args for adding detector: thicknes[cm], rad len[cm], segmentation[mm], distance relative to HADES [mm], acceptance flag, acceptance size x, y [mm]
   // Detectors should be added in decreasing order of distance from hades target for the MS simulation to work properly
-  pionbeam.addDetector("det1",    do_ms_pitrk?0.03:0.0, 9.36, digi_pitrk, 0.78,     -17092.6, 2, 50., 50.);
-  pionbeam.addDetector("det2",    do_ms_pitrk?0.03:0.0, 9.36, digi_pitrk, 0.78,     -5400.0,  2, 50., 50.);
+  pionbeam.addDetector("det1",    do_ms_pitrk1?0.03:0.0, 9.36, digi_pitrk, 0.78,     -17092.6, 2, 50., 50.);
+  pionbeam.addDetector("det2",    do_ms_pitrk2?0.03:0.0, 9.36, digi_pitrk, 0.78,     -5400.0,  2, 50., 50.);
   pionbeam.addDetector("plane",   0.0,                  1.0,  false,      0.0,      -1300.0,  1, 60., 60.);
-  pionbeam.addDetector("diamond", do_ms_diam?0.03:0.0,  18.8, digi_diam,  diam_seg, -400.0,   2, 7.1, 7.1);
-  //pionbeam.addDetector("diamond", do_ms_diam?0.03:0.0,  18.8, digi_diam,  3.0,      -400.0,   2, 7.1, 7.1);  
+  //pionbeam.addDetector("diamond", do_ms_diam?0.03:0.0,  18.8, digi_diam,  diam_seg, -400.0,   2, 7.1, 7.1);
+  //pionbeam.addDetector("diamond", do_ms_diam?0.03:0.0,  18.8, digi_diam,  3.0,      -400.0,   2, 7.1, 7.1);
+  pionbeam.addDetector("diamond", 0.0,                  1.0, digi_diam,  diam_seg, -400.0,   2, 7.1, 7.1); // no MS in
   pionbeam.addDetector("hades",   0.0,                  1.0,  false,      0.0,      0.0,      1, 60., 60);
   vector<int> det_idx;
   det_idx.push_back(0); // pion tracker 1
