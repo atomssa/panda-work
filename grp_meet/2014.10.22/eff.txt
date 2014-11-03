@@ -1,0 +1,24 @@
+signal
+
+-- without mass cut
+root [0] .x figs.C(2)
+eff(E> 0.025) = 90.11
+eff(E> 0.05) = 87.67
+eff(E> 0.075) = 85.89
+eff(E> 0.1) = 84.32
+eff(E> 0.005) = 82.97
+eff(E> 0.01) = 76.83
+eff(E> 0.015) = 71.37
+eff(E> 0.02) = 66.39
+
+-- with mass cut
+eff(E> 0.025) = 75.24
+eff(E> 0.05) = 74.84
+eff(E> 0.075) = 74.1
+eff(E> 0.1) = 73.27
+eff(E> 0.005) = 72.4
+eff(E> 0.01) = 68.49
+eff(E> 0.015) = 64.51
+eff(E> 0.02) = 60.77
+
+background

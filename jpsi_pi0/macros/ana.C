@@ -1,7 +1,7 @@
-void ana(int type = 0, int fid=0)
-{
+void ana(int type = 0, int fid=0) {
 
-  int nevts = 0;
+  int nevts = 100;
+  bool test_run = true;
   int brem = 1;
 
   //gSystem->Load("libanatda");
@@ -39,9 +39,9 @@ void ana(int type = 0, int fid=0)
   fRun->AddTask(atda);
 
   if (type==0)
-    fRun->SetOutputFile(Form("hists/ana_%s_%s_%d.root", (type==0?"bg":"jpsi"), (brem==0?"raw":"brem"), fid) );
+    fRun->SetOutputFile(Form("%s/ana_%s_%s_%d.root", (test_run?"test":"hists"), (type==0?"bg":"jpsi"), (brem==0?"raw":"brem"), fid) );
   else
-    fRun->SetOutputFile(Form("hists/ana_%s_%s.root", (type==0?"bg":"jpsi"), (brem==0?"raw":"brem")) );
+    fRun->SetOutputFile(Form("%s/ana_%s_%s.root", (test_run?"test":"hists"), (type==0?"bg":"jpsi"), (brem==0?"raw":"brem")) );
   fRun->Init();
 
   fRun->Run(0,nevts);
