@@ -31,7 +31,7 @@ int main( int argc, const char **argv )
   ////int nEvents=100000;
   //int nEvents=100000;
   //
-  //// Simulation setup 
+  //// Simulation setup
   //double dth = 0.0; // 10.0;
   //double dph = 0.0; // 50;
   //double xyr = 0.5; // 0.5;
@@ -174,7 +174,7 @@ int main( int argc, const char **argv )
   det_idx.push_back(3); // diamond start
   det_idx.push_back(4); // HADES
   pionbeam.setRecoParams(det_idx);
-  
+
   vector<HBeamElement>& elements  = pionbeam.getElements();
   //vector<HBeamElement>& detectors = pionbeam.getDetectors();
 
@@ -200,13 +200,13 @@ int main( int argc, const char **argv )
   TFile *fout = TFile::Open(histfile,"RECREATE");
   fout->mkdir("xy");
   fout->mkdir("xth");
-  fout->mkdir("yph");  
+  fout->mkdir("yph");
   fout->mkdir("mom");
-  fout->mkdir("mom_x");    
+  fout->mkdir("mom_x");
   fout->mkdir("mom_y");
   fout->mkdir("mom_z");
   fout->mkdir("acceptance");
-  fout->mkdir("dir");    
+  fout->mkdir("dir");
 
   vector<HBeamParticle>& vhistory = pionbeam.newParticle();
   const unsigned int ndet = vhistory.size();
@@ -214,10 +214,10 @@ int main( int argc, const char **argv )
   const unsigned int nmspt = vms_history.size();
   vector<HBeamParticle>& vsolution = pionbeam.get_solution();
   const unsigned int nrec = vsolution.size();
-  
+
   for (unsigned int kk=0; kk<vhistory.size(); ++kk) cout << "history["<< kk << "].fName= " << vhistory[kk].fName << endl;
   for (unsigned int kk=0; kk<vms_history.size(); ++kk) cout << "vms_history["<< kk << "].fName= " << vms_history[kk].fName << endl;
-  for (unsigned int kk=0; kk<vsolution.size(); ++kk) cout << "vsolution["<< kk << "].fName= " << vsolution[kk].fName << endl;	    
+  for (unsigned int kk=0; kk<vsolution.size(); ++kk) cout << "vsolution["<< kk << "].fName= " << vsolution[kk].fName << endl;
 
   TTree *tt = new TTree("t","t");
   int _ndet=ndet;    tt->Branch("ndet",&_ndet,"ndet/I");
@@ -227,16 +227,16 @@ int main( int argc, const char **argv )
   float _x[ndet];    tt->Branch("x[ndet]",&_x,"x[ndet]/F");
   float _y[ndet];    tt->Branch("y[ndet]",&_y,"y[ndet]/F");
   float _th[ndet];   tt->Branch("th[ndet]",&_th,"th[ndet]/F");
-  float _ph[ndet];   tt->Branch("ph[ndet]",&_ph,"ph[ndet]/F");  
-  
+  float _ph[ndet];   tt->Branch("ph[ndet]",&_ph,"ph[ndet]/F");
+
   int _nrec=nrec;     tt->Branch("nrec",&_nrec,"nrec/I");
   float _pr[nrec];    tt->Branch("pr[nrec]",&_pr,"pr[nrec]/F");
   float _xr[nrec];    tt->Branch("xr[nrec]",&_xr,"xr[nrec]/F");
   float _yr[nrec];    tt->Branch("yr[nrec]",&_yr,"yr[nrec]/F");
   float _thr[nrec];   tt->Branch("thr[nrec]",&_thr,"thr[nrec]/F");
-  float _phr[nrec];   tt->Branch("phr[nrec]",&_phr,"phr[nrec]/F");  
+  float _phr[nrec];   tt->Branch("phr[nrec]",&_phr,"phr[nrec]/F");
   int _rstat[nrec];   tt->Branch("rstat[nrec]",&_rstat,"rstat[nrec]/F");
-  
+
   // msi == multiple scattering initial state
   int _nmspt = nmspt;  tt->Branch("nmspt",&_nmspt,"nmspt/I");
 
@@ -248,7 +248,7 @@ int main( int argc, const char **argv )
 
   TH2F* h_xy[ndet], *h_xyAcc[ndet];
   TH2F* h_xth[ndet], *h_xthAcc[ndet];
-  TH2F* h_yph[ndet], *h_yphAcc[ndet];    
+  TH2F* h_yph[ndet], *h_yphAcc[ndet];
   TH1F* h_mom[ndet], *h_momAcc[ndet];
   TH1F* h_mom_x[ndet], *h_momAcc_x[ndet];
   TH1F* h_mom_y[ndet], *h_momAcc_y[ndet];
@@ -257,22 +257,22 @@ int main( int argc, const char **argv )
   int indexOut = 0;
   int indexDet[2] = {0};
   double r_pos = 100.0;
-  double r_ang = 20;  
+  double r_ang = 20;
   for (UInt_t idet=0; idet< ndet; ++idet) {
     const char *det_name = vhistory[idet].fName.Data();
     if (strcmp(det_name, "plane")) indexOut = idet;
     if (strcmp(det_name, "det1")) indexDet[0] = idet;
     if (strcmp(det_name, "det2")) indexDet[1] = idet;
     cout << Form("hxy_%s",det_name) << " " << Form("hxyAcc_%s",det_name) << endl;
-    
+
     h_xy[idet] = new TH2F( Form("hxy_%s",det_name), Form("x vs. y [%s]; x[mm]; y[mm]; counts",det_name), 2000, -r_pos, r_pos, 2000, -r_pos, r_pos );
     h_xyAcc[idet] = new TH2F( Form("hxyAcc_%s",det_name), Form("x vs. y, accepted [%s]; x[mm]; y[mm]",det_name), 2000, -r_pos, r_pos, 2000, -r_pos, r_pos );
 
     h_xth[idet] = new TH2F( Form("hxth_%s",det_name), Form("#theta vs. x [%s]; x[mm]; #theta[mrad]; counts",det_name), 2000, -r_pos, r_pos, 2000, -r_ang, r_ang );
     h_xthAcc[idet] = new TH2F( Form("hxthAcc_%s",det_name), Form("#theta vs. x, accepted [%s]; x[mm]; #theta[mrad]; counts",det_name), 2000, -r_pos, r_pos, 2000, -r_ang, r_ang );
-    
+
     h_yph[idet] = new TH2F( Form("hyph_%s",det_name), Form("#phi vs. x [%s]; y[mm]; #phi[mrad]; counts",det_name), 2000, -r_pos, r_pos, 2000, -r_ang, r_ang );
-    h_yphAcc[idet] = new TH2F( Form("hyphAcc_%s",det_name), Form("#phi vs. y, accepted [%s]; y[mm]; #phi[mrad]; counts",det_name), 2000, -r_pos, r_pos, 2000, -r_ang, r_ang );    
+    h_yphAcc[idet] = new TH2F( Form("hyphAcc_%s",det_name), Form("#phi vs. y, accepted [%s]; y[mm]; #phi[mrad]; counts",det_name), 2000, -r_pos, r_pos, 2000, -r_ang, r_ang );
 
     h_mom[idet] = new TH1F( Form("hmom_%s",det_name), Form("momentum [%s]; p [GeV/c]; counts",det_name), 500, -0.10, 0.10 );
     h_momAcc[idet] = new TH1F( Form("hmomAcc_%s",det_name), Form("momentum, accepted [%s]; p [GeV/c]; counts",det_name), 500, -0.10, 0.10 );
@@ -281,28 +281,28 @@ int main( int argc, const char **argv )
     h_mom_y[idet] = new TH1F( Form("hmom_y_%s",det_name), Form("p_{y} [%s]; p_{y} [GeV/c]; counts",det_name), 500, -0.10, 0.10 );
     h_momAcc_y[idet] = new TH1F( Form("hmomAcc_y_%s",det_name), Form("p_{y}, accepted [%s]; p_{y} [GeV/c]; counts",det_name), 500, -0.10, 0.10 );
     h_mom_z[idet] = new TH1F( Form("hmom_z_%s",det_name), Form("p_{z} [%s]; p_{z} [GeV/c]; counts",det_name), 500, -0.10, 0.10 );
-    h_momAcc_z[idet] = new TH1F( Form("hmomAcc_z_%s",det_name), Form("p_{z}, accepted [%s]; p_{z} [GeV/c]; counts",det_name), 500, -0.10, 0.10 );      
+    h_momAcc_z[idet] = new TH1F( Form("hmomAcc_z_%s",det_name), Form("p_{z}, accepted [%s]; p_{z} [GeV/c]; counts",det_name), 500, -0.10, 0.10 );
   }
 
   const int nelt = elements.size();
   TH1F* hAccElmnt = new TH1F("hAcceptanceElement", "hAcceptanceElement", nelt, 0, nelt );
-  TH1F* hAccCumul = new TH1F("hAcceptanceAccumulated", "hAcceptanceAccumulated", nelt, 0, nelt );    
+  TH1F* hAccCumul = new TH1F("hAcceptanceAccumulated", "hAcceptanceAccumulated", nelt, 0, nelt );
   TH2F* hxElement = new TH2F("hxElement","X Enveloppe vs. Element position;; x pos [mm]", nelt, 0, nelt, 200, -r_pos, r_pos);
   TH2F* hyElement = new TH2F("hyElement","Y Enveloppe vs. Element position;; y pos [mm]", nelt, 0, nelt, 200, -r_pos, r_pos);
   TH2F* hxElementTotalAcc = new TH2F("hxElementTotalAcc","hxElementTotalAcc;; x pos [mm]", nelt, 0, nelt, 200, -r_pos, r_pos);
-  TH2F* hyElementTotalAcc = new TH2F("hyElementTotalAcc","hyElementTotalAcc;; y pos [mm]", nelt, 0, nelt, 200, -r_pos, r_pos);    
+  TH2F* hyElementTotalAcc = new TH2F("hyElementTotalAcc","hyElementTotalAcc;; y pos [mm]", nelt, 0, nelt, 200, -r_pos, r_pos);
   TH1F* hxDir = new TH1F("hxDir","hxDir; x dir [mrad]", 100, -100, 100);
   TH1F* hyDir = new TH1F("hyDir","hyDir; y dir [mrad]", 100, -100, 100);
-    
+
   for (int ielt=0; ielt<nelt; ++ielt) {
     hAccElmnt->GetXaxis()->SetBinLabel(1+ielt, elementNames[ielt].Data());
     hAccCumul->GetXaxis()->SetBinLabel(1+ielt, elementNames[ielt].Data());
     hxElement->GetXaxis()->SetBinLabel(1+ielt, elementNames[ielt].Data());
     hyElement->GetXaxis()->SetBinLabel(1+ielt, elementNames[ielt].Data());
     hxElementTotalAcc->GetXaxis()->SetBinLabel(1+ielt, elementNames[ielt].Data());
-    hyElementTotalAcc->GetXaxis()->SetBinLabel(1+ielt, elementNames[ielt].Data());            
+    hyElementTotalAcc->GetXaxis()->SetBinLabel(1+ielt, elementNames[ielt].Data());
   }
-    
+
   hAccElmnt->GetXaxis()->LabelsOption("v");
   hAccCumul->GetXaxis()->LabelsOption("v");
   hxElement->GetXaxis()->LabelsOption("v");
@@ -342,7 +342,7 @@ int main( int argc, const char **argv )
 
 	  _acc = 0;
 	  vector<TLorentzVector> vPion;
-            
+
 	  //-----------------------------------------------------------
 	  // create particles
 	  Bool_t reDo = kTRUE;
@@ -354,10 +354,10 @@ int main( int argc, const char **argv )
 	    vector<HBeamParticle>& vhistory = pionbeam.newParticle();
 	    vector<HBeamParticle>& vms_history = pionbeam.get_ms_history();
 	    vector<HBeamParticle>& vsolution = pionbeam.get_solution();
-	    
+
 	    //for (unsigned int kk=0; kk<vhistory.size(); ++kk) cout << "history["<< kk << "].fName= " << vhistory[kk].fName << endl;
 	    //for (unsigned int kk=0; kk<vms_history.size(); ++kk) cout << "vms_history["<< kk << "].fName= " << vms_history[kk].fName << endl;
-	    //for (unsigned int kk=0; kk<vsolution.size(); ++kk) cout << "vsolution["<< kk << "].fName= " << vsolution[kk].fName << endl;	    
+	    //for (unsigned int kk=0; kk<vsolution.size(); ++kk) cout << "vsolution["<< kk << "].fName= " << vsolution[kk].fName << endl;
 	    //history[0].fName= beam
 	    //history[1].fName= det1
 	    //history[2].fName= det2
@@ -368,7 +368,7 @@ int main( int argc, const char **argv )
 	    //vsolution[0].fName= SOLUTION_BEAM_INITIAL
 	    //vsolution[1].fName= SOLUTION_DIAM
 	    //vsolution[2].fName= SOLUTION_HADES
-	    
+
 	    if(vhistory[vhistory.size()-1].fAccepted){
 	      reDo = kFALSE;
 	    }
@@ -387,7 +387,7 @@ int main( int argc, const char **argv )
 
 	    //cout << " the_mrad = " << TMath::ATan2(vPion[0].Px(),vPion[0].Pz())*1000 << " Theta()*1000= " << vPion[0].Theta()*1000 << endl;
 	    //if (TMath::ATan2(vPion[0].Px(),vPion[0].Pz())!=vPion[0].Phi()) cout << "DISASTER!!!" << endl;
-	    
+
 	    hxDir->Fill(TMath::ATan2(vPion[0].Px(),vPion[0].Pz())*1000);
 	    hyDir->Fill(TMath::ATan2(vPion[0].Py(),vPion[0].Pz())*1000);
 	    for(UInt_t i=0; i< vhistory.size();i++){
@@ -435,15 +435,15 @@ int main( int argc, const char **argv )
 	      _phr[j] = rec_phi_mrad;
 	      _rstat[j] = vsolution[j].fStatus;
 	    }
-	    
+
 	    //// compare initial momentum and solved momentum at hades target
 	    //TLorentzVector _b;
 	    //_b.SetXYZM(vhistory[0].fP.X(),vhistory[0].fP.Y(),vhistory[0].fP.Z(), 139.56995*0.001);
 	    //TLorentzVector _bs;
-	    //_bs.SetXYZM(vsolution[1].fP.X(),vsolution[1].fP.Y(),vsolution[1].fP.Z(), 139.56995*0.001);	    
+	    //_bs.SetXYZM(vsolution[1].fP.X(),vsolution[1].fP.Y(),vsolution[1].fP.Z(), 139.56995*0.001);
 	    //cout << "Hades Target:  del= " << _b.P()  << " th= " << endl;
 	    //cout << "Hades T. Sol:  del= " << _bs.P() << " th= " << endl;
-	    
+
 	    Accepted = kTRUE;
 	    for(UInt_t i = 0 ; i < elements.size(); i++){
 	      hxElement->Fill(i,elements[i].fout[0]);
@@ -513,7 +513,7 @@ int main( int argc, const char **argv )
 	      const double phi_mrad = TMath::ATan2(vPion[i].Py(),vPion[i].Pz())*1000;
 	      h_xyAcc[i]->Fill(vhistory[i].fPos.X(),vhistory[i].fPos.Y());
 	      h_xthAcc[i]->Fill(vhistory[i].fPos.X(), the_mrad);
-	      h_yphAcc[i]->Fill(vhistory[i].fPos.Y(), phi_mrad);	      
+	      h_yphAcc[i]->Fill(vhistory[i].fPos.Y(), phi_mrad);
 	      h_momAcc[i]->Fill(vPion   [i].P());
 	      h_momAcc_x[i]->Fill(vPion   [i].Px());
 	      h_momAcc_y[i]->Fill(vPion   [i].Py());
@@ -540,21 +540,21 @@ int main( int argc, const char **argv )
 
   //pionbeam.printBeamLine(kFALSE);   // print acceptance statistic for detecors and elements
   //pionbeam.printDetectors();
-    
+
   for (UInt_t idet=0; idet< ndet; ++idet) {
     fout->cd("xy");
     h_xy[idet]->Write();
     h_xyAcc[idet]->Write();
     fout->cd("xth");
     h_xth[idet]->Write();
-    h_xthAcc[idet]->Write();    
+    h_xthAcc[idet]->Write();
     fout->cd("yph");
-    h_yph[idet]->Write();    
+    h_yph[idet]->Write();
     h_yphAcc[idet]->Write();
     fout->cd("mom");
     h_mom[idet]->Write();
     h_momAcc[idet]->Write();
-    fout->cd("mom_x");      
+    fout->cd("mom_x");
     h_mom_x[idet]->Write();
     h_momAcc_x[idet]->Write();
     fout->cd("mom_y");
@@ -578,9 +578,9 @@ int main( int argc, const char **argv )
 
   fout->cd();
   tt->Write();
-  
+
   fout->Close();
-    
+
   cout<<"Total Acceptance : "<< (ctTotalTry > 0 ?  (ctEvents/(Double_t)ctTotalTry)*100 : 100)<<" %"<<endl;
 
   return 0;

@@ -37,13 +37,12 @@ using std::endl;
 using std::vector;
 
 ThreePions::ThreePions() :
-  FairTask("Radiation Length Profiler"),nevt(0) { 
+  FairTask("Radiation Length Profiler"),nevt(0) {
 }
 
 ThreePions::~ThreePions() { }
 
-InitStatus ThreePions::Init() 
-{		
+InitStatus ThreePions::Init() {
 
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ){
@@ -56,7 +55,7 @@ InitStatus ThreePions::Init()
     cout << "-W- ThreePions::Init: " << "No PndMCTrack array!" << endl;
     return kERROR;
   }
-      
+
   return kSUCCESS;
 
 }
@@ -68,7 +67,8 @@ void ThreePions::Exec(Option_t* opt)
 }
 
 void ThreePions::Finish()
-{	
+{
+
 }
 
 ClassImp(ThreePions)
