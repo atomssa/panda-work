@@ -95,7 +95,7 @@ void AnaTda::def_hists() {
   def_tutorial_hists();
   def_pair_hists();
   def_single_hists();
-  //def_kin_fit_hists();
+  def_full_sys_hists();
   for (int it=4; it<nhist; ++it) def_manual_kin_fit_hists(it);
 }
 
@@ -163,19 +163,21 @@ void AnaTda::Exec(Option_t* opt) {
   jpsi_truth_match();
   jpsi_analysis_cut();
 
-  all_ana.Combine(pi0_ana,jpsi_ana);
-  all_pm_ana.Combine(pi0_pm_ana,jpsi_pm_ana);
+  pi0jpsi_ana.Combine(pi0_ana,jpsi_ana);
+  pi0jpsi_pm_ana.Combine(pi0_pm_ana,jpsi_pm_ana);
 
   //cout << "pi0_pm_ana.Length= " << pi0_pm_ana.GetLength()
   //     << "jpsi_pm_ana.Length= " << jpsi_pm_ana.GetLength()
-  //     << "all_pm_ana.Length= " << all_pm_ana.GetLength() << endl;
+  //     << "pi0jpsi_pm_ana.Length= " << pi0jpsi_pm_ana.GetLength() << endl;
 
   //cout << "pi0_ana.Length= " << pi0_ana.GetLength()
   //     << "jpsi_ana.Length= " << jpsi_ana.GetLength()
-  //     << "all_ana.Length= " << all_ana.GetLength() << endl;
+  //     << "pi0jpsi_ana.Length= " << pi0jpsi_ana.GetLength() << endl;
 
   pi0_kinematic_selection(pi0_ana,jpsi_ana,ana);
   pi0_kinematic_selection(pi0_pm_ana,jpsi_pm_ana,pm_ana);
+
+  pi0jpsi_true_kinematics(pi0_true,jpsi_true);
 
   //pdgm_nearest_pi0s();
   //pi0_kinematic_selection();
@@ -684,53 +686,55 @@ void AnaTda::Finish() {
   for (int it=0; it<nhist; ++it) h_mom_epm[it]->Write();
   for (int it=0; it<nhist; ++it) h_mom_the_epm[it]->Write();
 
+  write_full_sys_hists();
+
 }
 
-
-
+void AnaTda::def_full_sys_hists() {
+  const char *dth = "#theta_{#gamma#gamma}+#theta_{e^{+}e^{-}}";
+  const char *mtot = "M^{inv}_{#gamma#gamma - e^{+}e^{-}}";
+  const char *mgg = "M^{inv}_{#gamma#gamma}";
+  const char *mepem = "M^{inv}_{e^{+}e^{-}}";
+  //enum {all=0, tr=1, pm=2, pm_mc=3, ana=4, pm_ana=5};
+  const char *n[nhist] = {"all_rec", "true_rec", "truepi0jpsi_rec", "truepi0jpsi_mc", "ana", "pm_ana"};
+  const char *t[nhist] = {"all (Reco)", "truth match (Reco)", "from true J/#psi-#pi^{0} (Reco)",
+       "from true J/#psi-#pi^{0} (MC)", "after analysis cuts", "from true J/#psi-#pi^{0} after ana. cut"};
+  for (int it=2; it<nhist; ++it) {
+    h_dth_vs_mass_gg_epair[it] = new
+      TH2F(Form("h_dth_vs_mass_gg_epair_%s",n[it]),
+	   Form("%s vs. %s (%s);%s[GeV/c^{2}];#Delta#theta[rad]",dth,mtot,t[it], mtot),
+	   200, 2.9, 3.7, 200, TMath::Pi()/2., 3*TMath::Pi()/2.);
+    h_dth_gg_epair_vs_mass_gg[it] = new
+      TH2F(Form("h_dth_gg_epair_vs_mass_gg_%s",n[it]),
+	   Form("%svs. %s (%s);%s[GeV/c^{2}];#Delta#theta[rad]",dth, mgg,t[it], mgg),
+	   200, 0, 0.2, 200, TMath::Pi()/2., 3*TMath::Pi()/2.);
+    h_mass_gg_epair_vs_mass_gg[it] = new
+      TH2F(Form("h_mass_gg_epair_vs_mass_gg_%s",n[it]),
+	   Form("%s vs. %s (%s);%s[GeV/c^{2}];#Delta#theta[rad]",dth,mgg,t[it],mgg),
+	   200, 0, 0.2, 200, 2.9, 3.7);
+  }
+}
 
 void AnaTda::def_manual_kin_fit_hists(const int &type ) {
   const char *dth = "#theta_{#gamma#gamma}+#theta_{e^{+}e^{-}}";
   const char *mtot = "M^{inv}_{#gamma#gamma - e^{+}e^{-}}";
   const char *mgg = "M^{inv}_{#gamma#gamma}";
   const char *mepem = "M^{inv}_{e^{+}e^{-}}";
-  const char *n[nhist] = {"all_rec", "true_rec", "truepi0jpsi_rec", "true_mc", "ana", "pm_ana"};
+  //enum {all=0, tr=1, pm=2, pm_mc=3, ana=4, pm_ana=5};
+  const char *n[nhist] = {"all_rec", "true_rec", "truepi0jpsi_rec", "truepi0jpsi_mc", "ana", "pm_ana"};
   const char *t[nhist] = {"all (Reco)", "truth match (Reco)", "from true J/#psi-#pi^{0} (Reco)",
        "from true J/#psi-#pi^{0} (MC)", "after analysis cuts", "from true J/#psi-#pi^{0} after ana. cut"};
-
-  //h_dth_gg_epair[type] = new TH1F(Form("h_dth_gg_epair_%s",n[type]),
-  //  Form("%s (%s);#Delta#theta[rad]",dth,t[type]),
-  //  100, 0, TMath::Pi());
-
-  //h_mass_gg_epair[type] = new TH1F(Form("h_mass_gg_epair_%s",n[type]),
-  //  Form("%s (%s);#Delta#theta[rad]",dth,t[type]),
-  //  100, 0, 5.);
-
-  h_dth_vs_mass_gg_epair[type] = new
-    TH2F(Form("h_dth_vs_mass_gg_epair_%s",n[type]),
-	 Form("%s vs. %s (%s);%s[GeV/c^{2}];#Delta#theta[rad]",dth,mtot,t[type], mtot),
-	 200, 2.9, 3.7, 200, -TMath::Pi()/2., TMath::Pi()/2.);
-
-  h_dth_gg_epair_vs_mass_gg[type] = new
-    TH2F(Form("h_dth_gg_epair_vs_mass_gg_%s",n[type]),
-	 Form("%svs. %s (%s);%s[GeV/c^{2}];#Delta#theta[rad]",dth, mgg,t[type], mgg),
-	 200, 0, 0.2, 200, -TMath::Pi()/2., TMath::Pi()/2.);
-
-  h_mass_gg_epair_vs_mass_gg[type] = new
-    TH2F(Form("h_mass_gg_epair_vs_mass_gg_%s",n[type]),
-	 Form("%s vs. %s (%s);%s[GeV/c^{2}];#Delta#theta[rad]",dth,mgg,t[type],mgg),
-	 200, 0, 0.2, 200, 2.9, 3.7);
 
   // cts = closest-to-s, btb = most-back-to-back
   h_dth_vs_mass_gg_epair_btb[type] = new
     TH2F(Form("h_dth_vs_mass_gg_epair_btb_%s",n[type]),
 	 Form("most back-to-back %s vs. %s (%s);%s[GeV/c^{2}];#Delta#theta", dth, mtot, t[type], mtot),
-	 200, 2.9, 3.7, 200, -TMath::Pi()/2., TMath::Pi()/2.);
+	 200, 2.9, 3.7, 200, TMath::Pi()/2., 3*TMath::Pi()/2.);
 
   h_dth_vs_mass_gg_epair_cts[type] = new
     TH2F(Form("h_dth_vs_mass_gg_epair_cts_%s",n[type]),
 	 Form("closest to #sqrt{s} %s vs. %s (%s);%s[GeV/c^{2}];#Delta#theta", dth, mtot, t[type], mtot),
-	 200, 2.9, 3.7, 200, -TMath::Pi()/2., TMath::Pi()/2.);
+	 200, 2.9, 3.7, 200, TMath::Pi()/2., 3*TMath::Pi()/2.);
 
   h_m_gg_btb[type] = new
     TH1F(Form("h_m_gg_btb_%s",n[type]),
@@ -764,6 +768,24 @@ void AnaTda::calc_kin(
   p4gg.Boost(boost_to_cm);
   p4epair.Boost(boost_to_cm);
   dth = fabs(p4gg.Vect().Theta() + p4epair.Vect().Theta());
+}
+
+void AnaTda::pi0jpsi_true_kinematics(RhoCandList& org_gg, RhoCandList& org_epem) {
+
+  double m, mgg, dth;
+
+  if (org_epem.GetLength()!=1 or org_gg.GetLength()!=1) return;
+  calc_kin(org_gg[0], org_epem[0], m, mgg, dth);
+
+  h_dth_gg_epair_vs_mass_gg[pm]->Fill(mgg, dth);
+  h_mass_gg_epair_vs_mass_gg[pm]->Fill(mgg, m);
+  h_dth_vs_mass_gg_epair[pm]->Fill(m, dth);
+
+  calc_kin(org_gg[0]->GetMcTruth(), org_epem[0]->GetMcTruth(), m, mgg, dth);
+  h_dth_gg_epair_vs_mass_gg[pm_mc]->Fill(mgg, dth);
+  h_mass_gg_epair_vs_mass_gg[pm_mc]->Fill(mgg, m);
+  h_dth_vs_mass_gg_epair[pm_mc]->Fill(m, dth);
+
 }
 
 void AnaTda::pi0_kinematic_selection(RhoCandList& org_gg, RhoCandList& org_epem, const int& type) {
@@ -800,30 +822,33 @@ void AnaTda::pi0_kinematic_selection(RhoCandList& org_gg, RhoCandList& org_epem,
   }
 
   // now that we have closest pair in OA and M to what we want, fill
-  if (i_btb_e >= 0 and i_btb_g >= 0 ) {
-    calc_kin(org_gg[i_btb_g], org_epem[i_btb_e], m, mgg, dth);
+  if (i_btb_e >= 0 and j_btb_g >= 0 ) {
+    calc_kin(org_gg[j_btb_g], org_epem[i_btb_e], m, mgg, dth);
     h_dth_vs_mass_gg_epair_btb[type]->Fill(m, dth);
-    h_m_gg_btb[type]->Fill(org_gg[i_btb_g]->M());
-    h_m_epem_btb[type]->Fill(org_gg[i_btb_g]->M());
+    h_m_gg_btb[type]->Fill(org_gg[j_btb_g]->M());
+    h_m_epem_btb[type]->Fill(org_gg[j_btb_g]->M());
     //pi0_btb.Append(gg[i_btb]);
   }
 
-  if (i_cts_e >= 0 and i_cts_g >= 0) {
-    calc_kin(gg[i_cts_g], org_epem[i_cts_e], m, mgg, dth);
+  if (i_cts_e >= 0 and j_cts_g >= 0) {
+    calc_kin(gg[j_cts_g], org_epem[i_cts_e], m, mgg, dth);
     h_dth_vs_mass_gg_epair_cts[type]->Fill(m, dth);
-    h_m_gg_cts[type]->Fill(gg[i_cts_g]->M());
-    h_m_epem_cts[type]->Fill(gg[i_cts_g]->M());
+    h_m_gg_cts[type]->Fill(gg[j_cts_g]->M());
+    h_m_epem_cts[type]->Fill(gg[j_cts_g]->M());
       //pi0_cts.Append(gg[i_cts]);
   }
 
 }
 
+void AnaTda::write_full_sys_hists() {
+  for (int it=2; it<nhist; ++it) {
+    h_dth_vs_mass_gg_epair[it]->Write();
+    h_dth_gg_epair_vs_mass_gg[it]->Write();
+    h_mass_gg_epair_vs_mass_gg[it]->Write();
+  }
+}
+
 void AnaTda::write_manual_kin_fit_hists(const int& type){
-  //h_dth_gg_epair[type]->Write();
-  //h_mass_gg_epair[type]->Write();
-  h_dth_vs_mass_gg_epair[type]->Write();
-  h_dth_gg_epair_vs_mass_gg[type]->Write();
-  h_mass_gg_epair_vs_mass_gg[type]->Write();
   h_dth_vs_mass_gg_epair_btb[type]->Write();      // btb = most-back-to-back
   h_dth_vs_mass_gg_epair_cts[type]->Write();      // cts = closest-to-s
   h_m_gg_btb[type]->Write();     // btb = most-back-to-back

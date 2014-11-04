@@ -63,6 +63,7 @@ class AnaTda : public FairTask {
   void def_manual_kin_fit_hists(const int&);
   void def_pair_hists();
   void def_single_hists();
+  void def_full_sys_hists();
   void def_kin_fit_hists(const int& type, const int&);
   void def_kin_fit_hists();
   void def_gamma_from_pi0_hists();
@@ -70,6 +71,7 @@ class AnaTda : public FairTask {
   void write_tut_hists();
   void write_manual_kin_fit_hists(const int&);
   void write_kin_fit_hists();
+  void write_full_sys_hists();
 
   double oa(RhoCandidate*, RhoCandidate*);
   double mass(RhoCandidate*, RhoCandidate*);
@@ -132,6 +134,7 @@ class AnaTda : public FairTask {
   void kin_fit_pippim_pi0_nearest();
 
   void pi0_kinematic_selection(RhoCandList&, RhoCandList&, const int&);
+  void pi0jpsi_true_kinematics(RhoCandList&, RhoCandList&);
   void pdgm_nearest_pi0s();
 
 
