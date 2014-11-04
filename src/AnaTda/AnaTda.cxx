@@ -705,42 +705,51 @@ void AnaTda::def_manual_kin_fit_hists(const int &type ) {
   //  Form("%s (%s);#Delta#theta[rad]",dth,t[type]),
   //  100, 0, 5.);
 
-  h_dth_vs_mass_gg_epair[type] = new TH2F(Form("h_dth_vs_mass_gg_epair_%s",n[type]),
-    Form("%s vs. %s (%s);%s[GeV/c^{2}];#Delta#theta[rad]",dth,mtot,t[type], mtot),
-    200, 2.9, 3.7, 200, 0, TMath::Pi());
+  h_dth_vs_mass_gg_epair[type] = new
+    TH2F(Form("h_dth_vs_mass_gg_epair_%s",n[type]),
+	 Form("%s vs. %s (%s);%s[GeV/c^{2}];#Delta#theta[rad]",dth,mtot,t[type], mtot),
+	 200, 2.9, 3.7, 200, 0, TMath::Pi());
 
-  h_dth_gg_epair_vs_mass_gg[type] = new TH2F(Form("h_dth_gg_epair_vs_mass_gg_%s",n[type]),
-    Form("%svs. %s (%s);%s[GeV/c^{2}];#Delta#theta[rad]",dth, mgg,t[type], mgg),
-    200, 0, 0.2, 200, 0, TMath::Pi());
+  h_dth_gg_epair_vs_mass_gg[type] = new
+    TH2F(Form("h_dth_gg_epair_vs_mass_gg_%s",n[type]),
+	 Form("%svs. %s (%s);%s[GeV/c^{2}];#Delta#theta[rad]",dth, mgg,t[type], mgg),
+	 200, 0, 0.2, 200, 0, TMath::Pi());
 
-  h_mass_gg_epair_vs_mass_gg[type] = new TH2F(Form("h_mass_gg_epair_vs_mass_gg_%s",n[type]),
-    Form("%s vs. %s (%s);%s[GeV/c^{2}];#Delta#theta[rad]",dth,mgg,t[type],mgg),
-    200, 0, 0.2, 200, 2.9, 3.7);
+  h_mass_gg_epair_vs_mass_gg[type] = new
+    TH2F(Form("h_mass_gg_epair_vs_mass_gg_%s",n[type]),
+	 Form("%s vs. %s (%s);%s[GeV/c^{2}];#Delta#theta[rad]",dth,mgg,t[type],mgg),
+	 200, 0, 0.2, 200, 2.9, 3.7);
 
   // cts = closest-to-s, btb = most-back-to-back
-  h_dth_vs_mass_gg_epair_btb[type] = new TH2F(Form("h_dth_vs_mass_gg_epair_btb_%s",n[type]),
-    Form("most back-to-back %s vs. %s (%s);%s[GeV/c^{2}];#Delta#theta", dth, mtot, t[type], mtot),
-    200, 2.9, 3.7, 200, 0, TMath::Pi());
+  h_dth_vs_mass_gg_epair_btb[type] = new
+    TH2F(Form("h_dth_vs_mass_gg_epair_btb_%s",n[type]),
+	 Form("most back-to-back %s vs. %s (%s);%s[GeV/c^{2}];#Delta#theta", dth, mtot, t[type], mtot),
+	 200, 2.9, 3.7, 200, 0, TMath::Pi());
 
-  h_dth_vs_mass_gg_epair_cts[type] = new TH2F(Form("h_dth_vs_mass_gg_epair_cts_%s",n[type]),
-    Form("closest to #sqrt{s} %s vs. %s (%s);%s[GeV/c^{2}];#Delta#theta", dth, mtot, t[type], mtot),
-    200, 2.9, 3.7, 200, 0, TMath::Pi());
+  h_dth_vs_mass_gg_epair_cts[type] = new
+    TH2F(Form("h_dth_vs_mass_gg_epair_cts_%s",n[type]),
+	 Form("closest to #sqrt{s} %s vs. %s (%s);%s[GeV/c^{2}];#Delta#theta", dth, mtot, t[type], mtot),
+	 200, 2.9, 3.7, 200, 0, TMath::Pi());
 
-  h_m_gg_btb[type] = new TH1F(Form("h_m_gg_btb_%s",n[type]),
-    Form("most back-to-back %s (%s);%s[GeV/c^{2}]", mgg, t[type], mgg),
-    100, 0, 0.2);
+  h_m_gg_btb[type] = new
+    TH1F(Form("h_m_gg_btb_%s",n[type]),
+	 Form("most back-to-back %s (%s);%s[GeV/c^{2}]", mgg, t[type], mgg),
+	 100, 0, 0.2);
 
-  h_m_gg_cts[type] = new TH1F(Form("h_m_gg_cts_%s",n[type]),
-    Form("closest to #sqrt{s} %s (%s); %s[GeV/c^{2}]", mgg, t[type], mgg),
-    100, 0, 0.2);
+  h_m_gg_cts[type] = new
+    TH1F(Form("h_m_gg_cts_%s",n[type]),
+	 Form("closest to #sqrt{s} %s (%s); %s[GeV/c^{2}]", mgg, t[type], mgg),
+	 100, 0, 0.2);
 
-  h_m_epem_btb[type] = new TH1F(Form("h_m_epem_btb_%s",n[type]),
-    Form("most back-to-back %s (%s);%s[GeV/c^{2}]", mepem, t[type], mepem),
-    100, 0, 0.2);
+  h_m_epem_btb[type] = new
+    TH1F(Form("h_m_epem_btb_%s",n[type]),
+	 Form("most back-to-back %s (%s);%s[GeV/c^{2}]", mepem, t[type], mepem),
+	 100, 0, 0.2);
 
-  h_m_epem_cts[type] = new TH1F(Form("h_m_epem_cts_%s",n[type]),
-    Form("closest to #sqrt{s} %s (%s); %s[GeV/c^{2}]", mepem, t[type], mepem),
-    100, 0, 0.2);
+  h_m_epem_cts[type] = new
+    TH1F(Form("h_m_epem_cts_%s",n[type]),
+	 Form("closest to #sqrt{s} %s (%s); %s[GeV/c^{2}]", mepem, t[type], mepem),
+	 100, 0, 0.2);
 
 }
 
