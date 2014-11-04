@@ -693,7 +693,7 @@ void AnaTda::def_manual_kin_fit_hists(const int &type ) {
   const char *mtot = "M^{inv}_{#gamma#gamma - e^{+}e^{-}}";
   const char *mgg = "M^{inv}_{#gamma#gamma}";
   const char *mepem = "M^{inv}_{e^{+}e^{-}}";
-  const char *n[nhist] = {"all_rec", "true_rec", "true_rec", "true_mc", "ana", "pm_ana"};
+  const char *n[nhist] = {"all_rec", "true_rec", "truepi0jpsi_rec", "true_mc", "ana", "pm_ana"};
   const char *t[nhist] = {"all (Reco)", "truth match (Reco)", "from true J/#psi-#pi^{0} (Reco)",
        "from true J/#psi-#pi^{0} (MC)", "after analysis cuts", "from true J/#psi-#pi^{0} after ana. cut"};
 
@@ -708,12 +708,12 @@ void AnaTda::def_manual_kin_fit_hists(const int &type ) {
   h_dth_vs_mass_gg_epair[type] = new
     TH2F(Form("h_dth_vs_mass_gg_epair_%s",n[type]),
 	 Form("%s vs. %s (%s);%s[GeV/c^{2}];#Delta#theta[rad]",dth,mtot,t[type], mtot),
-	 200, 2.9, 3.7, 200, 0, TMath::Pi());
+	 200, 2.9, 3.7, 200, -TMath::Pi()/2., TMath::Pi()/2.);
 
   h_dth_gg_epair_vs_mass_gg[type] = new
     TH2F(Form("h_dth_gg_epair_vs_mass_gg_%s",n[type]),
 	 Form("%svs. %s (%s);%s[GeV/c^{2}];#Delta#theta[rad]",dth, mgg,t[type], mgg),
-	 200, 0, 0.2, 200, 0, TMath::Pi());
+	 200, 0, 0.2, 200, -TMath::Pi()/2., TMath::Pi()/2.);
 
   h_mass_gg_epair_vs_mass_gg[type] = new
     TH2F(Form("h_mass_gg_epair_vs_mass_gg_%s",n[type]),
@@ -724,12 +724,12 @@ void AnaTda::def_manual_kin_fit_hists(const int &type ) {
   h_dth_vs_mass_gg_epair_btb[type] = new
     TH2F(Form("h_dth_vs_mass_gg_epair_btb_%s",n[type]),
 	 Form("most back-to-back %s vs. %s (%s);%s[GeV/c^{2}];#Delta#theta", dth, mtot, t[type], mtot),
-	 200, 2.9, 3.7, 200, 0, TMath::Pi());
+	 200, 2.9, 3.7, 200, -TMath::Pi()/2., TMath::Pi()/2.);
 
   h_dth_vs_mass_gg_epair_cts[type] = new
     TH2F(Form("h_dth_vs_mass_gg_epair_cts_%s",n[type]),
 	 Form("closest to #sqrt{s} %s vs. %s (%s);%s[GeV/c^{2}];#Delta#theta", dth, mtot, t[type], mtot),
-	 200, 2.9, 3.7, 200, 0, TMath::Pi());
+	 200, 2.9, 3.7, 200, -TMath::Pi()/2., TMath::Pi()/2.);
 
   h_m_gg_btb[type] = new
     TH1F(Form("h_m_gg_btb_%s",n[type]),
@@ -762,8 +762,7 @@ void AnaTda::calc_kin(
   mgg = (p4gg).M();
   p4gg.Boost(boost_to_cm);
   p4epair.Boost(boost_to_cm);
-  const double val = fabs(p4gg.Vect().Theta() + p4epair.Vect().Theta());
-  dth = val < TMath::Pi()? val : 2* TMath::Pi() - val;
+  dth = fabs(p4gg.Vect().Theta() + p4epair.Vect().Theta());
 }
 
 void AnaTda::pi0_kinematic_selection(RhoCandList& org_gg, RhoCandList& org_epem, const int& type) {
