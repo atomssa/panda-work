@@ -100,6 +100,8 @@ class AnaTda : public FairTask {
   void fill_pair_oa(RhoCandList& org, TH1F* dest);
   void fill_pair_dists();
 
+  void truth_match_residuals();
+
   void primary_match(const int&, RhoCandidate*, RhoCandidate*, RhoCandidate*, RhoCandidate*);
   void primary_match(const int&, RhoCandidate*, RhoCandidate*);
   bool primary_match_pair(const int&, RhoCandidate*, double&);
@@ -171,6 +173,8 @@ class AnaTda : public FairTask {
   double sqrt_s;
 
   // *** create some histograms
+  TH2F *h_resid_phth[4];
+
   TH1F *hjpsim_all;
   TH1F *hpi0m_all;
   TH1F *hjpsipi0m_all;

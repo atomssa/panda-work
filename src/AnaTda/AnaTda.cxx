@@ -132,11 +132,13 @@ void AnaTda::Exec(Option_t* opt) {
 
   get_singles_lists();
 
-  print_mc_list();
+  //print_mc_list();
 
   fill_single_dists();
   truth_match_singles();
   fill_single_dists_tr();
+
+  truth_match_residuals();
 
   make_pair_lists();
   fill_pair_dists();
@@ -193,6 +195,14 @@ void AnaTda::def_pair_hists() {
 }
 
 void AnaTda::def_gamma_from_pi0_hists() {
+  double m_ph[4] = {0.1,0.3,1.0,2.1*TMath::Pi()};
+  double m_th[4] = {0.04,0.1,0.4,2.1*TMath::Pi()};
+  for (int i=0; i<4; ++i)
+    h_resid_phth[i] = new
+      TH2F(Form("h_resid_phth%d", i),
+	 "Residual of neutral cands. from true photons;d#phi[rad];d#theta[rad]",
+	 200, -m_ph[i], m_ph[i], 200, -m_th[i], m_th[i]);
+
   const char *n[nhist] = {"all_rec", "true_rec", "truepi0_rec", "truepi0_mc", "ana", "pm_ana"};
   const char *t[nhist] = {"all (Reco)", "truth match (Reco)", "from true #pi^{0} (Reco)",
      "from true #pi^{0} (MC)", "after analysis cuts", "from true #pi^{0} after ana. cut"};
@@ -422,6 +432,32 @@ void AnaTda::fill_single_dists_tr() {
     h_mom_the_pipm_tr->Fill(pip_tr[i]->P3().Mag(), pip_tr[i]->P3().Theta() );
   for (int i = 0; i < pim_tr.GetLength(); ++i)
     h_mom_the_pipm_tr->Fill(pim_tr[i]->P3().Mag(), pim_tr[i]->P3().Theta() );
+}
+
+void AnaTda::truth_match_residuals() {
+  // Find the two "primary" photons that decayed from the pi0s
+  for (int j=0;j<mcList.GetLength();++j) {
+    const int pid = mcList[j]->PdgCode();
+    RhoCandidate *mc_p = mcList[j]->TheMother();
+    const int p_pid = mc_p?mc_p->PdgCode():-1;
+    RhoCandidate *mc_gp = mc_p->TheMother();
+    if (pid == 111 && p_pid == -1 ) {
+      // we got primary pion
+      if (mcList[j]->NDaughters()!=2) {
+	cout << "Pion with more than two daughters (prolly dalitz): " << mcList[j]->NDaughters() << endl;
+	break;
+      }
+      // Histogram the phi and theta residuals of all reconstructed neutrals
+      for (int idaughter=0; idaughter<2; ++idaughter) {
+	RhoCandidate *g = mcList[j]->Daughter(idaughter);
+	for (int igrec = 0; igrec<g1.GetLength(); ++igrec) {
+	  const double dph = g->P3().Phi() - g1[igrec]->P3().Phi();
+	  const double dth = g->P3().Theta() - g1[igrec]->P3().Theta();
+	  for (int i=0; i<4; ++i) h_resid_phth[i]->Fill(dph, dth);
+	}
+      }
+    }
+  }
 }
 
 void AnaTda::make_pair_lists() {
@@ -656,6 +692,9 @@ void AnaTda::fill_jpsi_analysis_hists(RhoCandList& org, const int& type) {
 }
 
 void AnaTda::Finish() {
+
+  for (int i =0; i < 4; ++i)
+    h_resid_phth[i]->Write();
 
   h_m_pippim->Write();
   h_m_pippim_tr->Write();
