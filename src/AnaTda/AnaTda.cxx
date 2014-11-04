@@ -53,14 +53,14 @@ AnaTda::AnaTda(const int &brem)
   pi0oacut[0] = pi0oacut[1] = pi0oacut[2] = pi0oacut[3] = 0.2; //
   pi0oacut[4] = pi0oacut[5] = pi0oacut[6] = pi0oacut[7] = 0.2;
 
-  pi0mcut_min[0] = 0.005;
-  pi0mcut_min[1] = 0.01;
-  pi0mcut_min[2] = 0.015;
-  pi0mcut_min[3] = 0.02;
-  pi0mcut_min[4] = 0.025;
-  pi0mcut_min[5] = 0.05;
-  pi0mcut_min[6] = 0.075;
-  pi0mcut_min[7] = 0.1;
+  pi0ecut_min[0] = 0.005;
+  pi0ecut_min[1] = 0.01;
+  pi0ecut_min[2] = 0.015;
+  pi0ecut_min[3] = 0.02;
+  pi0ecut_min[4] = 0.025;
+  pi0ecut_min[5] = 0.05;
+  pi0ecut_min[6] = 0.075;
+  pi0ecut_min[7] = 0.1;
 
   pi0ecut_max[0] = 1e6;
   pi0ecut_max[1] = 1e6;
@@ -290,8 +290,8 @@ void AnaTda::cleanup_rho_cand_lists() {
   jpsi_ana.Cleanup();
   jpsi_pm_ana.Cleanup();
 
-  all_ana.Cleanup();
-  all_pm_ana.Cleanup();
+  pi0jpsi_ana.Cleanup();
+  pi0jpsi_pm_ana.Cleanup();
 
   pi0nearest.Cleanup();
   pi0_btb.Cleanup();
@@ -327,10 +327,11 @@ void AnaTda::print_mc_list() {
     RhoCandidate *mcmother = mcList[j]->TheMother();
     int muid = -1;
     if (mcmother) muid = mcmother->GetTrackNumber();
+    //if (muid!=-1) break;
     cout << "Track "<< mcList[j]->GetTrackNumber()<<" (PDG:"<<mcList[j]->PdgCode() <<") has mother "<<muid;
     if (mcList[j]->NDaughters()>0) cout <<" and daughter(s) ";
     for (int k=0;k<mcList[j]->NDaughters();++k) cout <<mcList[j]->Daughter(k)->GetTrackNumber()<<"  ";
-      cout<<endl;
+    cout<<endl;
   }
   cout <<endl;
 }
@@ -461,22 +462,6 @@ double AnaTda::mass(RhoCandidate* c1, RhoCandidate* c2) {
   return (c1->P4() + c2->P4()).M();
 }
 
-void AnaTda::primary_match(const int& pdgm, RhoCandidate* r, RhoCandidate* m, RhoCandidate *d1, RhoCandidate *d2) {
-  for (int j=0;j<mcList.GetLength();++j) {
-    RhoCandidate *mcmother = mcList[j]->TheMother();
-    if (!mcmother) {
-      *r = *mcList[j];  // deep copy required here!
-    } else if ( r and mcmother->GetTrackNumber() == r->GetTrackNumber() ) {
-      if ( mcList[j]->PdgCode() == pdgm ) {
-        *m = *mcList[j];
-        *d1 = *mcList[j]->Daughter(0);
-        *d2 = *mcList[j]->Daughter(1);
-        break;
-      }
-    }
-  }
-}
-
 void AnaTda::primary_match(const int& pdgm, RhoCandidate* r, RhoCandidate* m) {
   for (int j=0;j<mcList.GetLength();++j) {
     RhoCandidate *mcmother = mcList[j]->TheMother();
@@ -499,6 +484,22 @@ bool AnaTda::primary_match_single(const int& pdgm, RhoCandidate* c, double &dist
   if (_root.GetTrackNumber() != 0 or _m.GetTrackNumber() == -1 ) return false;
   dist = c->Energy()-_m.Energy();
   return c->GetMcTruth()->GetTrackNumber() == _m.GetTrackNumber();
+}
+
+void AnaTda::primary_match(const int& pdgm, RhoCandidate* r, RhoCandidate* m, RhoCandidate *d1, RhoCandidate *d2) {
+  for (int j=0;j<mcList.GetLength();++j) {
+    RhoCandidate *mcmother = mcList[j]->TheMother();
+    if (!mcmother) {
+      *r = *mcList[j];  // deep copy required here!
+    } else if ( r and mcmother->GetTrackNumber() == r->GetTrackNumber() ) {
+      if ( mcList[j]->PdgCode() == pdgm ) {
+        *m = *mcList[j];
+        *d1 = *mcList[j]->Daughter(0);
+        *d2 = *mcList[j]->Daughter(1);
+        break;
+      }
+    }
+  }
 }
 
 bool AnaTda::primary_match_pair(const int& pdgm, RhoCandidate* c, double &dist) {
@@ -773,7 +774,7 @@ void AnaTda::pi0_kinematic_selection(RhoCandList& org_gg, RhoCandList& org_epem,
 
   // cts = closest-to-s, btb = most-back-to-back
   int i_btb_e = -1, i_cts_e = -1;
-  int i_btb_g = -1, i_cts_g = -1;
+  int j_btb_g = -1, j_cts_g = -1;
   double diff_2pi_min = 1e9, diff_s_min = 1e9;
   double m, mgg, dth;
 
@@ -784,12 +785,12 @@ void AnaTda::pi0_kinematic_selection(RhoCandList& org_gg, RhoCandList& org_epem,
       const double diff_s = fabs(sqrt_s - m);
       if (diff_2pi < diff_2pi_min) {
         i_btb_e = i;
-        i_btb_g = j;
+        j_btb_g = j;
         diff_2pi_min = diff_2pi;
       }
       if (diff_s < diff_s_min) {
         i_cts_e = i;
-        i_cts_g = j;
+        j_cts_g = j;
         diff_s_min = diff_s;
       }
       h_dth_gg_epair_vs_mass_gg[type]->Fill(mgg, dth);

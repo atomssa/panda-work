@@ -152,7 +152,7 @@ class AnaTda : public FairTask {
   RhoCandList epem_mcut, pippim_mcut;
   RhoCandList jpsi, jpsi_true, jpsi_ana, jpsi_pm_ana; // TODO: refactor jpsi_true -> jpsi_pm
 
-  RhoCandList all_ana, all_pm_ana;
+  RhoCandList pi0jpsi_ana, pi0jpsi_pm_ana;
 
   RhoCandList epem_mcut_pi0_btb, epem_mcut_pi0_cts;
   RhoCandList pippim_mcut_pi0_btb, pippim_mcut_pi0_cts;
@@ -214,8 +214,6 @@ class AnaTda : public FairTask {
   TH2F* h_mom_the_pipm_tr;
 
   static const int nhist = 6;
-  //TH1F *h_dth_gg_epair;
-  //TH1F *h_mass_gg_epair;
   TH2F *h_dth_gg_epair_vs_mass_gg[nhist];
   TH2F *h_mass_gg_epair_vs_mass_gg[nhist];
   TH2F *h_dth_vs_mass_gg_epair[nhist];
