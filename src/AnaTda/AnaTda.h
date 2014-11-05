@@ -141,8 +141,8 @@ class AnaTda : public FairTask {
 
 
   RhoCandList mcList;
-  RhoCandList pip, pim, ep, em, g1, g2;
-  RhoCandList pip_tr, pim_tr, ep_tr, em_tr, g1_tr, g2_tr;
+  RhoCandList pip, pim, ep, em, g;
+  RhoCandList pip_tr, pim_tr, ep_tr, em_tr, g_tr;
   RhoCandList epem, pippim, gg;
   RhoCandList epem_tr, pippim_tr, gg_tr;
 

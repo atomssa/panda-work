@@ -146,21 +146,13 @@ void AnaTda::Exec(Option_t* opt) {
   pi0_truth_match();
   pi0_analysis_cut(); // this preps pi0_ana
 
-  //for (int i=0; i<g1.GetLength(); ++i) {
-  //  cout << "g1.GetTrackNumber= " << g1[i]->GetTrackNumber();
-  //  if (g1[i]->GetMcTruth() != 0) {
-  //    cout << "  -> GetMcTruth.GetTrackNumber= " << g1[i]->GetMcTruth()->GetTrackNumber();
+  //for (int i=0; i<g.GetLength(); ++i) {
+  //  cout << "g.GetTrackNumber= " << g[i]->GetTrackNumber();
+  //  if (g[i]->GetMcTruth() != 0) {
+  //    cout << "  -> GetMcTruth.GetTrackNumber= " << g[i]->GetMcTruth()->GetTrackNumber();
   //  }
   //  cout << endl;
   //}
-  //for (int i=0; i<g2.GetLength(); ++i) {
-  //  cout << "g2.GetTrackNumber= " << g2[i]->GetTrackNumber();
-  //  if (g2[i]->GetMcTruth() != 0) {
-  //    cout << "  -> GetMcTruth.GetTrackNumber= " << g2[i]->GetMcTruth()->GetTrackNumber();
-  //  }
-  //  cout << endl;
-  //}
-  //return;
 
   jpsi_truth_match();
   jpsi_analysis_cut();
@@ -271,15 +263,13 @@ void AnaTda::cleanup_rho_cand_lists() {
   em.Cleanup();
   pip.Cleanup();
   pim.Cleanup();
-  g1.Cleanup();
-  g2.Cleanup();
+  g.Cleanup();
 
   pip_tr.Cleanup();
   pim_tr.Cleanup();
   ep_tr.Cleanup();
   em_tr.Cleanup();
-  g1_tr.Cleanup();
-  g2_tr.Cleanup();
+  g_tr.Cleanup();
 
   epem.Cleanup();
   pippim.Cleanup();
@@ -353,8 +343,7 @@ void AnaTda::get_singles_lists() {
   fAnalysis->FillList(mcList, "McTruth");
   fAnalysis->FillList(ep, (fBremCorr?"BremElectronAllPlus":"ElectronAllPlus"));
   fAnalysis->FillList(em, (fBremCorr?"BremElectronAllMinus":"ElectronAllMinus"));
-  fAnalysis->FillList(g1, "Neutral");
-  fAnalysis->FillList(g2, "Neutral");
+  fAnalysis->FillList(g, "Neutral");
   fAnalysis->FillList(pip, (fBremCorr?"BremPionAllPlus":"PionAllPlus"));
   fAnalysis->FillList(pim, (fBremCorr?"BremPionAllMinus":"PionAllMinus"));
 }
@@ -389,11 +378,11 @@ void AnaTda::fill_single_mom_the(RhoCandList& l1, RhoCandList& l2, TH2F* dest) {
 
 void AnaTda::fill_single_dists() {
   // Single distributions
-  h_num_g->Fill(g1.GetLength());
+  h_num_g->Fill(g.GetLength());
   h_num_epm->Fill(ep.GetLength()+em.GetLength());
   h_num_pipm->Fill(pip.GetLength()+pim.GetLength());
 
-  fill_single_e(g1, g2, h_e_g[all]);
+  fill_single_e(g, h_e_g[all]);
   fill_single_mom(ep, em, h_mom_epm[all]);
   fill_single_mom_the(ep, em, h_mom_the_epm[all]);
 
@@ -414,19 +403,18 @@ void AnaTda::truth_match_singles() {
   truth_match(em, em_tr, 11);
   truth_match(pip, pip_tr, 211);
   truth_match(pim, pim_tr, -211);
-  truth_match(g1, g1_tr, 22);
-  truth_match(g2, g2_tr, 22);
+  truth_match(g, g_tr, 22);
 }
 
 void AnaTda::fill_single_dists_tr() {
   // Single distributions (After truth match)
-  h_num_g_tr->Fill(g1_tr.GetLength());
+  h_num_g_tr->Fill(g_tr.GetLength());
   h_num_epm_tr->Fill(ep_tr.GetLength()+em_tr.GetLength());
   h_num_pipm_tr->Fill(pip_tr.GetLength()+pim_tr.GetLength());
 
-  fill_single_e(g1, g2, h_e_g[tr]);
-  fill_single_mom(ep, em, h_mom_epm[tr]);
-  fill_single_mom_the(ep, em, h_mom_the_epm[tr]);
+  fill_single_e(g_tr, h_e_g[tr]);
+  fill_single_mom(ep_tr, em_tr, h_mom_epm[tr]);
+  fill_single_mom_the(ep_tr, em_tr, h_mom_the_epm[tr]);
 
   for (int i = 0; i < pip_tr.GetLength(); ++i)
     h_mom_the_pipm_tr->Fill(pip_tr[i]->P3().Mag(), pip_tr[i]->P3().Theta() );
@@ -449,10 +437,10 @@ void AnaTda::truth_match_residuals() {
       }
       // Histogram the phi and theta residuals of all reconstructed neutrals
       for (int idaughter=0; idaughter<2; ++idaughter) {
-	RhoCandidate *g = mcList[j]->Daughter(idaughter);
-	for (int igrec = 0; igrec<g1.GetLength(); ++igrec) {
-	  const double dph = g->P3().Phi() - g1[igrec]->P3().Phi();
-	  const double dth = g->P3().Theta() - g1[igrec]->P3().Theta();
+	RhoCandidate *_g = mcList[j]->Daughter(idaughter);
+	for (int igrec = 0; igrec<g.GetLength(); ++igrec) {
+	  const double dph = _g->P3().Phi() - g[igrec]->P3().Phi();
+	  const double dth = _g->P3().Theta() - g[igrec]->P3().Theta();
 	  for (int i=0; i<4; ++i) h_resid_phth[i]->Fill(dph, dth);
 	}
       }
@@ -465,10 +453,8 @@ void AnaTda::make_pair_lists() {
   epem.Combine(ep, em);
   epem.SetType(443);
   epem_tr.Combine(ep_tr, em_tr);
-  //pippim.Combine(pip, pim);
-  //pippim_tr.Combine(pip_tr, pim_tr);
-  gg.Combine(g1, g2);
-  gg_tr.Combine(g1_tr, g2_tr);
+  gg.Combine(g, g);
+  gg_tr.Combine(g_tr, g_tr);
 }
 
 void AnaTda::fill_pair_mass(RhoCandList& org, TH1F* dest) {
@@ -1098,7 +1084,7 @@ void AnaTda::pdgm_nearest_pi0s() {
 //}
 
 //void AnaTda::pi0_truth_match() {
-//  pi0.Combine(g1, g2);
+//  pi0.Combine(g, g);
 //  pi0.SetType(111);
 //  for (int j = 0; j < pi0.GetLength(); ++j) {
 //    hpi0m_all->Fill(pi0[j]->M() );
