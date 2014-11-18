@@ -1,0 +1,108 @@
+TH1F	h_m_pippim;1			Invariant mass of #pi^{+}#pi^{-}
+TH1F	h_m_pippim_tr;1			Invariant mass of #pi^{+}#pi^{-} (Truth Match)
+
+TH1F	h_num_g;1			Number of #gamma per event
+TH1F	h_num_epm;1			Number of electron tracks per event
+TH1F	h_num_pipm;1			Number of charged pion tracks per event
+TH2F	h_mom_the_pipm;1		#theta vs. momentum of charge pion tracks
+
+TH1F	h_num_g_tr;1			Number of #gamma per event (Truth Match)
+TH1F	h_num_epm_tr;1			Number of electron tracks per event (Truth Match)
+TH1F	h_num_pipm_tr;1			Number of charged pion tracks per event (Truth Match)
+TH2F	h_mom_the_pipm_tr;1		#theta vs. momentum of charge pion tracks (Truth Match)
+
+TH1F	h_oa_gg_all_rec;1		Opening angle of #gamma-#gamma pairs all (Reco)
+TH1F	h_oa_gg_true_rec;1		Opening angle of #gamma-#gamma pairs truth match (Reco)
+TH1F	h_oa_gg_truepi0_rec;1		Opening angle of #gamma-#gamma pairs from true #pi^{0} (Reco)
+TH1F	h_oa_gg_truepi0_mc;1		Opening angle of #gamma-#gamma pairs from true #pi^{0} (MC)
+TH1F	h_oa_gg_ana;1			Opening angle of #gamma-#gamma pairs after analysis cuts
+TH1F	h_oa_gg_pm_ana;1		Opening angle of #gamma-#gamma pairs from true #pi^{0} after ana. cut
+
+TH1F	h_m_gg_all_rec;1		Mass of #gamma-#gamma pairs all (Reco)
+TH1F	h_m_gg_true_rec;1		Mass of #gamma-#gamma pairs truth match (Reco)
+TH1F	h_m_gg_truepi0_rec;1		Mass of #gamma-#gamma pairs from true #pi^{0} (Reco)
+TH1F	h_m_gg_truepi0_mc;1		Mass of #gamma-#gamma pairs from true #pi^{0} (MC)
+
+TH1F	h_m_gg_ana;1			Mass of #gamma-#gamma pairs after analysis cuts
+TH1F	h_m_gg_pm_ana;1			Mass of #gamma-#gamma pairs from true #pi^{0} after ana. cut
+TH1F	h_m_gg_ana_0;1			Mass of #gamma-#gamma pairs after analysis cuts (Ana. Cut 0)
+TH1F	h_m_gg_ana_1;1			Mass of #gamma-#gamma pairs after analysis cuts (Ana. Cut 1)
+TH1F	h_m_gg_ana_2;1			Mass of #gamma-#gamma pairs after analysis cuts (Ana. Cut 2)
+TH1F	h_m_gg_ana_3;1			Mass of #gamma-#gamma pairs after analysis cuts (Ana. Cut 3)
+TH1F	h_m_gg_ana_4;1			Mass of #gamma-#gamma pairs after analysis cuts (Ana. Cut 4)
+TH1F	h_m_gg_ana_5;1			Mass of #gamma-#gamma pairs after analysis cuts (Ana. Cut 5)
+TH1F	h_m_gg_ana_6;1			Mass of #gamma-#gamma pairs after analysis cuts (Ana. Cut 6)
+TH1F	h_m_gg_ana_7;1			Mass of #gamma-#gamma pairs after analysis cuts (Ana. Cut 7)
+TH1F	h_m_gg_ana_8;1			Mass of #gamma-#gamma pairs after analysis cuts (Ana. Cut 8)
+TH1F	h_m_gg_ana_9;1			Mass of #gamma-#gamma pairs after analysis cuts (Ana. Cut 9)
+TH1F	h_m_gg_ana_10;1			Mass of #gamma-#gamma pairs after analysis cuts (Ana. Cut 10)
+TH1F	h_m_gg_ana_11;1			Mass of #gamma-#gamma pairs after analysis cuts (Ana. Cut 11)
+TH1F	h_m_gg_ana_12;1			Mass of #gamma-#gamma pairs after analysis cuts (Ana. Cut 12)
+TH1F	h_m_gg_ana_13;1			Mass of #gamma-#gamma pairs after analysis cuts (Ana. Cut 13)
+TH1F	h_m_gg_ana_14;1			Mass of #gamma-#gamma pairs after analysis cuts (Ana. Cut 14)
+TH1F	h_m_gg_ana_15;1			Mass of #gamma-#gamma pairs after analysis cuts (Ana. Cut 15)
+
+TH1F	h_m_gg_pm_ana_0;1		Mass of #gamma-#gamma pairs from true #pi^{0} after ana. cut (Ana. Cut 0)
+TH1F	h_m_gg_pm_ana_1;1		Mass of #gamma-#gamma pairs from true #pi^{0} after ana. cut (Ana. Cut 1)
+TH1F	h_m_gg_pm_ana_2;1		Mass of #gamma-#gamma pairs from true #pi^{0} after ana. cut (Ana. Cut 2)
+TH1F	h_m_gg_pm_ana_3;1		Mass of #gamma-#gamma pairs from true #pi^{0} after ana. cut (Ana. Cut 3)
+TH1F	h_m_gg_pm_ana_4;1		Mass of #gamma-#gamma pairs from true #pi^{0} after ana. cut (Ana. Cut 4)
+TH1F	h_m_gg_pm_ana_5;1		Mass of #gamma-#gamma pairs from true #pi^{0} after ana. cut (Ana. Cut 5)
+TH1F	h_m_gg_pm_ana_6;1		Mass of #gamma-#gamma pairs from true #pi^{0} after ana. cut (Ana. Cut 6)
+TH1F	h_m_gg_pm_ana_7;1		Mass of #gamma-#gamma pairs from true #pi^{0} after ana. cut (Ana. Cut 7)
+TH1F	h_m_gg_pm_ana_8;1		Mass of #gamma-#gamma pairs from true #pi^{0} after ana. cut (Ana. Cut 8)
+TH1F	h_m_gg_pm_ana_9;1		Mass of #gamma-#gamma pairs from true #pi^{0} after ana. cut (Ana. Cut 9)
+TH1F	h_m_gg_pm_ana_10;1		Mass of #gamma-#gamma pairs from true #pi^{0} after ana. cut (Ana. Cut 10)
+TH1F	h_m_gg_pm_ana_11;1		Mass of #gamma-#gamma pairs from true #pi^{0} after ana. cut (Ana. Cut 11)
+TH1F	h_m_gg_pm_ana_12;1		Mass of #gamma-#gamma pairs from true #pi^{0} after ana. cut (Ana. Cut 12)
+TH1F	h_m_gg_pm_ana_13;1		Mass of #gamma-#gamma pairs from true #pi^{0} after ana. cut (Ana. Cut 13)
+TH1F	h_m_gg_pm_ana_14;1		Mass of #gamma-#gamma pairs from true #pi^{0} after ana. cut (Ana. Cut 14)
+TH1F	h_m_gg_pm_ana_15;1		Mass of #gamma-#gamma pairs from true #pi^{0} after ana. cut (Ana. Cut 15)
+
+TH1F	h_e_g_all_rec;1			Energy of #gamma all (Reco)
+TH1F	h_e_g_true_rec;1		Energy of #gamma truth match (Reco)
+TH1F	h_e_g_truepi0_rec;1		Energy of #gamma from true #pi^{0} (Reco)
+TH1F	h_e_g_truepi0_mc;1		Energy of #gamma from true #pi^{0} (MC)
+TH1F	h_e_g_ana;1			Energy of #gamma after analysis cuts
+TH1F	h_e_g_pm_ana;1			Energy of #gamma from true #pi^{0} after ana. cut
+
+TH1F	h_m_epem_all_rec;1		Mass of e^{+}e^{-} pairs all (Reco)
+TH1F	h_m_epem_true_rec;1		Mass of e^{+}e^{-} pairs truth match (Reco)
+TH1F	h_m_epem_truejpsi_rec;1		Mass of e^{+}e^{-} pairs from true J/#psi (Reco)
+TH1F	h_m_epem_truejpsi_mc;1		Mass of e^{+}e^{-} pairs from true J/#psi (MC)
+TH1F	h_m_epem_ana;1			Mass of e^{+}e^{-} pairs after analysis cuts
+TH1F	h_m_epem_pm_ana;1		Mass of e^{+}e^{-} pairs from true J/#psi after ana. cut
+
+TH1F	h_mom_epm_all_rec;1		Momentum of e^{+} and e^{-} all (Reco)
+TH1F	h_mom_epm_true_rec;1		Momentum of e^{+} and e^{-} truth match (Reco)
+TH1F	h_mom_epm_truejpsi_rec;1	Momentum of e^{+} and e^{-} from true J/#psi (Reco)
+TH1F	h_mom_epm_truejpsi_mc;1		Momentum of e^{+} and e^{-} from true J/#psi (MC)
+TH1F	h_mom_epm_ana;1			Momentum of e^{+} and e^{-} after analysis cuts
+TH1F	h_mom_epm_pm_ana;1		Momentum of e^{+} and e^{-} from true J/#psi after ana. cut
+
+TH2F	h_mom_the_epm_all_rec;1		#theta vs. momentum of e^{+} and e^{-} all (Reco)
+TH2F	h_mom_the_epm_true_rec;1	#theta vs. momentum of e^{+} and e^{-} truth match (Reco)
+TH2F	h_mom_the_epm_truejpsi_rec;1	#theta vs. momentum of e^{+} and e^{-} from true J/#psi (Reco)
+TH2F	h_mom_the_epm_truejpsi_mc;1	#theta vs. momentum of e^{+} and e^{-} from true J/#psi (MC)
+TH2F	h_mom_the_epm_ana;1		#theta vs. momentum of e^{+} and e^{-} after analysis cuts
+TH2F	h_mom_the_epm_pm_ana;1		#theta vs. momentum of e^{+} and e^{-} from true J/#psi after ana. cut
+
+TH2F	h_dth_vs_mass_gg_epair_ana;1	       #theta_{#gamma#gamma}+#theta_{e^{+}e^{-}} vs. M^{inv}_{#gamma#gamma - e^{+}e^{-}} (after analysis cuts)
+TH2F	h_dth_gg_epair_vs_mass_gg_ana;1	       #theta_{#gamma#gamma}+#theta_{e^{+}e^{-}}vs. M^{inv}_{#gamma#gamma} (after analysis cuts)
+TH2F	h_mass_gg_epair_vs_mass_gg_ana;1       #theta_{#gamma#gamma}+#theta_{e^{+}e^{-}} vs. M^{inv}_{#gamma#gamma} (after analysis cuts)
+TH2F	h_dth_vs_mass_gg_epair_btb_ana;1       most back-to-back #theta_{#gamma#gamma}+#theta_{e^{+}e^{-}} vs. M^{inv}_{#gamma#gamma - e^{+}e^{-}} (after analysis cuts)
+TH2F	h_dth_vs_mass_gg_epair_cts_ana;1       closest to #sqrt{s} #theta_{#gamma#gamma}+#theta_{e^{+}e^{-}} vs. M^{inv}_{#gamma#gamma - e^{+}e^{-}} (after analysis cuts)
+TH1F	h_m_gg_btb_ana;1		       most back-to-back M^{inv}_{#gamma#gamma} (after analysis cuts)
+TH1F	h_m_gg_cts_ana;1		       closest to #sqrt{s} M^{inv}_{#gamma#gamma} (after analysis cuts)
+TH1F	h_m_epem_btb_ana;1		       most back-to-back M^{inv}_{e^{+}e^{-}} (after analysis cuts)
+TH1F	h_m_epem_cts_ana;1		       closest to #sqrt{s} M^{inv}_{e^{+}e^{-}} (after analysis cuts)
+
+TH2F	h_dth_vs_mass_gg_epair_pm_ana;1	       #theta_{#gamma#gamma}+#theta_{e^{+}e^{-}} vs. M^{inv}_{#gamma#gamma - e^{+}e^{-}} (from true J/#psi-#pi^{0} after ana. cut)
+TH2F	h_dth_gg_epair_vs_mass_gg_pm_ana;1     #theta_{#gamma#gamma}+#theta_{e^{+}e^{-}}vs. M^{inv}_{#gamma#gamma} (from true J/#psi-#pi^{0} after ana. cut)
+TH2F	h_mass_gg_epair_vs_mass_gg_pm_ana;1    #theta_{#gamma#gamma}+#theta_{e^{+}e^{-}} vs. M^{inv}_{#gamma#gamma} (from true J/#psi-#pi^{0} after ana. cut)
+TH2F	h_dth_vs_mass_gg_epair_btb_pm_ana;1    most back-to-back #theta_{#gamma#gamma}+#theta_{e^{+}e^{-}} vs. M^{inv}_{#gamma#gamma - e^{+}e^{-}} (from true J/#psi-#pi^{0} after ana. cut)
+TH2F	h_dth_vs_mass_gg_epair_cts_pm_ana;1    closest to #sqrt{s} #theta_{#gamma#gamma}+#theta_{e^{+}e^{-}} vs. M^{inv}_{#gamma#gamma - e^{+}e^{-}} (from true J/#psi-#pi^{0} after ana. cut)
+TH1F	h_m_gg_btb_pm_ana;1		       most back-to-back M^{inv}_{#gamma#gamma} (from true J/#psi-#pi^{0} after ana. cut)
+TH1F	h_m_gg_cts_pm_ana;1		       closest to #sqrt{s} M^{inv}_{#gamma#gamma} (from true J/#psi-#pi^{0} after ana. cut)
+TH1F	h_m_epem_btb_pm_ana;1		       most back-to-back M^{inv}_{e^{+}e^{-}} (from true J/#psi-#pi^{0} after ana. cut)
+TH1F	h_m_epem_cts_pm_ana;1		       closest to #sqrt{s} M^{inv}_{e^{+}e^{-}} (from true J/#psi-#pi^{0} after ana. cut)
