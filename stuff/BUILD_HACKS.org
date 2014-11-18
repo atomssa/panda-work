@@ -1,10 +1,7 @@
-The following things were done to get a working compile
-
+* The following things were done to get a working compile
 * Still refuse to compile boost and cmake
 ** they are available on system (rejected on basis of being too new)
 ** For boost, may reevaluate, because of lmd issue mentioned below
-
-
 * For externals use gcc from homebrew instead of built in clang
 ** Intention was to avoid the many mac specific build failures
 ** Worked mostly smoothly.
@@ -22,7 +19,6 @@ The following things were done to get a working compile
 ** One lead was to remove ftgl (because its needed in some useless 3d graph library)
 *** tried a patch suggested in https://github.com/root-mirror/root/commit/446a11828dcf577efd15d9057703c5bd099dd148
 *** also tried to remove from rootconfig.sh --enalble-builtin-ftgl which didn't work either
-
 
 * Tried without success to use brew gcc in panda-root
 ** Main problem is with the use of -fPIE option to compile fortran that is externally linked in c++
@@ -57,11 +53,9 @@ https://gcc.gnu.org/wiki/Visibility
 ** Temporary solution is to remove inline modifier from function definitions
 ** __attribute((visibility(hidden)))__ doesn't seem to work with inline
 
-
 * undefined symbols for architecture x86_64 error
 ** Solution couldn't be found, so offending modules were commeted in CMakeLists.txt
 ** It is caused probably by the library module being compiled to target 32 bits and the client module targeting 64 bit
-
 
 * TMath was using a deprecated function fininte(double) in OSX-9
 ** Only solution was to "patch" TMath.h at L503-504 by adding a special case for macosx with no additional condtion on arm that uses std::isfininte()
@@ -110,3 +104,13 @@ https://gcc.gnu.org/wiki/Visibility
 ** When built with GCC.4.9, one often comes across error to the effect that some-symbol-missing-for-arch-x86_64
 ** These errors do not occur when linked to library is compiled with built-in gcc
 *** Two packages against which this error occured when compiling pandaroot were HepMC and root, in both cases solved by recompiling using builtin gcc
+
+* Some EMCal modules that uses _gTree somehow refuses to load. The only solution found was to exclude the module
+** These are mostly Mainz Proto test related classes, so there sould be no consquence in commenting them out
+
+
+* OCT14 pandaroot release
+** Only two "fixes" were needed
+*** EMCal Proto Tools uses some global variable that the linker can't seem to find (_gTree related stuff)
+**** Temporary solution is to remove all related modlues in EmcProtoTools from compilation (both in CMake and LinkDef files)
+***

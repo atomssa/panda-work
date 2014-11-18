@@ -46,7 +46,7 @@ TLine *set_line(double xmin, double ymin, double xmax, double ymax) {
 static TFile *f_brem[2];
 static TCanvas *tc;
 static TLegend *tl[3];
-static double em[8] = {0.025, 0.05, 0.075, 0.1, 0.005, 0.01, 0.015, 0.02};
+static double em[8] = {0.005,0.01,0.015,0.02,0.025,0.05,0.075,0.1};
 static bool bgsig = false;
 static bool savefig = true;
 

@@ -1,6 +1,6 @@
-void ana(int type = 0, int fid=0) {
+void ana(int type = 0, int fid=0, int nevts = 10000) {
 
-  int nevts = 100;
+  int verb = 0;
   bool test_run = true;
   int brem = 1;
 
@@ -35,13 +35,14 @@ void ana(int type = 0, int fid=0) {
   rtdb->setSecondInput(parIOPid);
   rtdb->setOutput(parIO);
 
-  AnaTda *atda = new AnaTda(brem);
+  AnaTda *atda = new AnaTda(brem, type  == 0);
+  atda->set_verbosity(verb);
   fRun->AddTask(atda);
 
-  if (type==0)
-    fRun->SetOutputFile(Form("%s/ana_%s_%s_%d.root", (test_run?"test":"hists"), (type==0?"bg":"jpsi"), (brem==0?"raw":"brem"), fid) );
-  else
-    fRun->SetOutputFile(Form("%s/ana_%s_%s.root", (test_run?"test":"hists"), (type==0?"bg":"jpsi"), (brem==0?"raw":"brem")) );
+  //if (type==0)
+  fRun->SetOutputFile(Form("%s/ana_%s_%s_%d.root", (test_run?"test":"hists"), (type==0?"bg":"jpsi"), (brem==0?"raw":"brem"), fid) );
+  //else
+  //fRun->SetOutputFile(Form("%s/ana_%s_%s.root", (test_run?"test":"hists"), (type==0?"bg":"jpsi"), (brem==0?"raw":"brem")) );
   fRun->Init();
 
   fRun->Run(0,nevts);

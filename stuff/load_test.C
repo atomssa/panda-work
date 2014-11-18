@@ -1,4 +1,4 @@
-load_test(int i) {
+load_test_idx(int i) {
 
   if (i==0) {  gSystem->Load("libAnalysisTools"); }
 
@@ -132,4 +132,11 @@ load_test(int i) {
 
   if (i==65) {  gSystem->Load("libtrackrep"); }
 
+}
+
+void load_test() {
+  for (int i=0; i<66; ++i ) {
+    cout << "Testing loadin of modlue " << i << endl;
+    load_test_idx(i);
+  }
 }
