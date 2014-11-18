@@ -24,9 +24,9 @@ class RhoCandidate;
 class RhoMassParticleSelector;
 
 class AnaTda : public FairTask {
-  public:
+ public:
   // ** Default constructor
-  AnaTda(const int&);
+  AnaTda(const int&, const bool&);
 
   // ** Destructor
   ~AnaTda();
@@ -39,12 +39,28 @@ class AnaTda : public FairTask {
 
   virtual void Finish();
 
+  void set_verbosity(const int &v) {verb = v;}
+
   protected:
   PndAnalysis *fAnalysis;             // *** the PndAnalysis object
 
   int nevt;
+  bool bg_mc;
+
+  int verb;
 
   bool fBremCorr;
+
+  int pdg_jpsi;
+  int pdg_pi0;
+  int pdg_pip;
+  int pdg_pim;
+  int pdg_ep;
+  int pdg_em;
+
+  int njpsi_found;
+  int ngg_found;
+
 
   std::vector<double> pi0oacut;
   std::vector<double> pi0ecut_min;
@@ -53,12 +69,19 @@ class AnaTda : public FairTask {
   double pi0mcut_max;
   double jpsi_mcut_min;
   double jpsi_mcut_max;
+  double etot_min;
+  double etot_max;
+  double dth_min;
+  double dth_max;
 
-  void calc_kin(RhoCandidate*, RhoCandidate *, double &, double &, double &);
+  void calc_kin(RhoCandidate*, RhoCandidate *, double &, double &, double &, double &, double &, double &);
+  void calc_kin_from_daughters(RhoCandidate*, RhoCandidate *, RhoCandidate*, RhoCandidate *, double &, double &, double &, double &);
   void def_hists();
   void initial_state();
   void set_selectors();
 
+  void def_eff_hists();
+  void def_resid_hists();
   void def_tutorial_hists();
   void def_manual_kin_fit_hists(const int&);
   void def_pair_hists();
@@ -72,6 +95,7 @@ class AnaTda : public FairTask {
   void write_manual_kin_fit_hists(const int&);
   void write_kin_fit_hists();
   void write_full_sys_hists();
+  void write_eff_hists();
 
   double oa(RhoCandidate*, RhoCandidate*);
   double mass(RhoCandidate*, RhoCandidate*);
@@ -102,13 +126,18 @@ class AnaTda : public FairTask {
 
   void truth_match_residuals();
 
-  void primary_match(const int&, RhoCandidate*, RhoCandidate*, RhoCandidate*, RhoCandidate*);
-  void primary_match(const int&, RhoCandidate*, RhoCandidate*);
-  bool primary_match_pair(const int&, RhoCandidate*, double&);
+
+  double dist_pi0_pair_match(RhoCandidate*);
+  double dist_jpsi_pair_match(RhoCandidate*);
+  double dist_photon_match(RhoCandidate*, RhoCandidate*); // This needs special treatment due to lack of matches in BG MC
+  double dist_chpi_match(RhoCandidate*, RhoCandidate*);
+
+  double primary_match_pair(const int&, RhoCandidate*, int&, int&, int&);
+
+  void primary_match(const int&, RhoCandidate*, RhoCandidate*); // TODO - Absorb in primary_match_single
   bool primary_match_single(const int&, RhoCandidate*, double&);
 
-  bool primary_match_pi0(RhoCandidate* c, double&);
-  void pi0_truth_match();
+  void find_primary_gg();
   void fill_gamma_from_pi0s();
   void pi0_analysis_cut(RhoCandList&, const int&);
   void pi0_analysis_cut();
@@ -116,12 +145,17 @@ class AnaTda : public FairTask {
   void fill_pi0_analysis_hists(RhoCandList&, const int&);
   void fill_pi0_analysis_hists(RhoCandList&, const int&, const int&);
 
-  void jpsi_truth_match();
-  bool primary_match_jpsi(RhoCandidate*, double&);
+  void find_primary_epem();
+  void find_primary_pippim();
   void fill_elecs_from_jpsi();
   void jpsi_analysis_cut();
   void jpsi_analysis_cut(RhoCandList&, RhoCandList&);
   void fill_jpsi_analysis_hists(RhoCandList&, const int&);
+
+  void pi0jpsi_kin_fit(RhoCandList& org_gg, RhoCandList& org_epem); // second try at kinematic fitting
+  void pi0jpsi_efficiency(RhoCandList& org_gg, RhoCandList& org_epem, const int& tt); // second try at kinematic fitting
+
+  bool passes_kin_cut(const double &, const double &);
 
   // has to be reworked
   void kin_fit_full_sys(RhoCandList& org, const int&, const int&);
@@ -135,10 +169,11 @@ class AnaTda : public FairTask {
   void kin_fit_epem_pi0_nearest();
   void kin_fit_pippim_pi0_nearest();
 
+  void pi0jpsi_kinematics(RhoCandList&, RhoCandList&, const int&);
+
   void pi0_kinematic_selection(RhoCandList&, RhoCandList&, const int&);
   void pi0jpsi_true_kinematics(RhoCandList&, RhoCandList&);
   void pdgm_nearest_pi0s();
-
 
   RhoCandList mcList;
   RhoCandList pip, pim, ep, em, g;
@@ -157,6 +192,8 @@ class AnaTda : public FairTask {
   RhoCandList epem_mcut, pippim_mcut;
   RhoCandList jpsi, jpsi_true, jpsi_ana, jpsi_pm_ana; // TODO: refactor jpsi_true -> jpsi_pm
 
+  RhoCandList jpsi_mconst;
+
   RhoCandList pi0jpsi_ana, pi0jpsi_pm_ana;
 
   RhoCandList epem_mcut_pi0_btb, epem_mcut_pi0_cts;
@@ -174,6 +211,19 @@ class AnaTda : public FairTask {
 
   // *** create some histograms
   TH2F *h_resid_phth[4];
+  TH2F *h_resid_pip_phth[4];
+  TH1F *h_resid_pip_mom[4];
+  TH2F *h_resid_pim_phth[4];
+  TH1F *h_resid_pim_mom[4];
+  TH2F *h_resid_ep_phth[4];
+  TH1F *h_resid_ep_mom[4];
+  TH2F *h_resid_em_phth[4];
+  TH1F *h_resid_em_mom[4];
+  TH2F *h_resid_pip_elec_hyp_phth[4];
+  TH1F *h_resid_pip_elec_hyp_mom[4];
+  TH2F *h_resid_pim_elec_hyp_phth[4];
+  TH1F *h_resid_pim_elec_hyp_mom[4];
+
 
   TH1F *hjpsim_all;
   TH1F *hpi0m_all;
@@ -220,10 +270,11 @@ class AnaTda : public FairTask {
   TH1F* h_num_pipm_tr;
   TH2F* h_mom_the_pipm_tr;
 
-  static const int nhist = 6;
+  static const int nhist = 7;
   TH2F *h_dth_gg_epair_vs_mass_gg[nhist];
   TH2F *h_mass_gg_epair_vs_mass_gg[nhist];
   TH2F *h_dth_vs_mass_gg_epair[nhist];
+  TH2F *h_dth_vs_dph_gg_epair[nhist];
   TH2F *h_dth_vs_mass_gg_epair_btb[nhist];  // most back-to-back
   TH2F *h_dth_vs_mass_gg_epair_cts[nhist];  // closest-to-s
   TH1F *h_m_gg_btb[nhist];  // most back-to-back
@@ -231,9 +282,12 @@ class AnaTda : public FairTask {
   TH1F *h_m_epem_btb[nhist];
   TH1F *h_m_epem_cts[nhist];
 
+  TH1F *h_m_epem_bef_mass_fit;
+  TH1F *h_m_epem_aft_mass_fit;
+
   // static const int npi0ana = 3;
   // static const int nhist = 6;
-  enum {all=0, tr=1, pm=2, pm_mc=3, ana=4, pm_ana=5};
+  enum {all=0, tr=1, pm=2, pm_mc=3, ana=4, pm_ana=5, mconst=6};
 
   TH1F *h_m_gg_pi0ana[npi0ana][nhist];
   TH1F *h_oa_gg[nhist];
@@ -243,6 +297,17 @@ class AnaTda : public FairTask {
   TH1F *h_m_epem[nhist];
   TH1F *h_mom_epm[nhist];
   TH2F *h_mom_the_epm[nhist];
+
+  enum {eff_ref=0, eff_pi0sel=1, eff_jpsisel=2, eff_kin=3, eff_excl=4, eff_const=5};
+  static const int neffhist = 6;
+  TH1F *h_eff_thpi0[neffhist];
+  TH1F *h_eff_thep[neffhist];
+
+  // Number of pairs after each analysis cut step.
+  // This will measure how effective the cuts are at
+  // reducing combinatoric multiplicity
+  TH1F *h_num_gg[neffhist];
+  TH1F *h_num_epem[neffhist];
 
   ClassDef(AnaTda, 1);
 };
