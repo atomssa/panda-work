@@ -4,8 +4,8 @@
 
 set(INCLUDE_DIRECTORIES
    ${HEPMC_INCLUDE_DIR}
-   ${ROOT_INCLUDE_DIR} 
-   ${BASE_INCLUDE_DIRECTORIES} 
+   ${ROOT_INCLUDE_DIR}
+   ${BASE_INCLUDE_DIRECTORIES}
    ${EVTGEN_INCLUDE_DIR}
    ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGenStandAlone
 )
@@ -31,7 +31,6 @@ set(SRCS
 set(LINKDEF  EvtGenStandAloneLinkDef.h)
 set(LIBRARY_NAME EvtGenSA)
 
-set(DEPENDENCIES EvtGen EvtGenExternal)
+set(DEPENDENCIES Base EvtGen EvtGenExternal)
 
 GENERATE_LIBRARY()
-

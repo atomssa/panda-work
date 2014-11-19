@@ -5,7 +5,6 @@ void gen_sig()
   // TODO - there are two places where this is filled (here and in decay description file). WHY?
   Int_t nEvents = 10;
 
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gSystem->Load("libEvtGenSA");
   gSystem->ListLibraries();
 
