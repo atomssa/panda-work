@@ -163,7 +163,11 @@ sim_complete(int type /*1:Signal 0:Background */)
     primGen->AddGenerator(boxGen);
   }
   if(UseDpm){
-    PndDpmGenerator* dpmGen = new PndDpmGenerator("filt_complete.root");
+    // Use the modified DepmGenerator module which differs from the default one by
+    // 1) Decays all pi0s to two gammas manually - this may not be ultimately very important
+    // 2) Puts proper ancestry tracking information in particles before feeding to GEANT
+    //    ie. that two gammas decayed from pi0 and pi0 doesn't need tracking in GEANT
+    PndDpmGeneratorMod* dpmGen = new PndDpmGeneratorMod("filt_complete.root");
     primGen->AddGenerator(dpmGen);
   }
   if(UseEvtGen){
