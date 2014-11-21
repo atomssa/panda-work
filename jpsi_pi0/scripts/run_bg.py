@@ -5,41 +5,19 @@ import my_utils
 import full_sim
 
 my_utils.sim_type = my_utils.sim_bg
+#my_utils.test_run = False
 
-#start=int(sys.argv[1])
-#number=int(sys.argv[2])
-#series = range(start, start+number)
-#for i in series:
-#    my_utils.uniq_id = i
-#    my_utils.dbg_msg("run_series: doing uniq id %d" % my_utils.uniq_id)
-#    full_sim.run()
+plab_values = [5.513, 8, 12]
+#nevt = [1000, 1000, 1000]
+nevt = [2000000, 20000000, 100000000]
+start=int(sys.argv[1])
+number=int(sys.argv[2])
+series = range(start, start+number)
 
-series = []
-
-arg=int(sys.argv[1])
-
-if arg == 1:
-    series.append(0)
-    series.append(3)
-    series.append(11)
-    for i in range(14, 30):
-        series.append(i)
-if arg == 2:
-    series.append(31)
-    series.append(34)
-    series.append(35)
-    series.append(38)
-    series.append(39)    
-    series.append(41)
-    series.append(44)
-    for i in range(45, 61):
-        series.append(i)
-        
-print "series: %s" % series
-
-my_utils.test_run = False
-
-for i in series:
-    my_utils.uniq_id = i
-    my_utils.dbg_msg("run_series: doing uniq id %d" % my_utils.uniq_id)
-    full_sim.run()
+for iplab in range(0, len(plab_values)):
+    for i in series:
+        my_utils.uniq_id = i
+        my_utils.pbar_lab_mom = plab_values[iplab]
+        my_utils.dpm_nevt_per_file = nevt[iplab]
+        my_utils.dbg_msg("run_series: doing uniq id %d" % my_utils.uniq_id)
+        full_sim.run()

@@ -13,13 +13,13 @@ def test_exec(log,inpipe):
         my_utils.dbg_msg("its filter")
         out = my_utils.filter_default_out
         proc = subprocess.Popen(
-            "cd blah; ls>%s;echo %s>> %s; echo %f>>%s"%(out,inpipe.readlines(), out, my_utils.dpm_pbar_lab_mom ,out),
+            "ls>%s;echo %s>> %s; echo %f>>%s"%(out,inpipe.readlines(), out, my_utils.pbar_lab_mom ,out),
             shell=True, stdout=log, stderr=log);
     else:
         my_utils.dbg_msg("its dpm")
         out = my_utils.dpm_default_out
         proc = subprocess.Popen(
-            "cd blah; ls>%s;echo %s>> %s;echo plab %f>>%s"%(out,inpipe.readlines(), out, my_utils.dpm_pbar_lab_mom, out),
+            "ls>%s;echo %s>> %s;echo plab %f>>%s"%(out,inpipe.readlines(), out, my_utils.pbar_lab_mom, out),
             shell=True, stdout=log, stderr=log);
     proc.wait()
 
@@ -36,7 +36,7 @@ def write_lines(file_handle, lines):
         file_handle.write(line + " \n")
 
 def dpm_in(in_file):
-    lines = [ str(my_utils.get_rnd_seed()), str(my_utils.dpm_pbar_lab_mom),
+    lines = [ str(my_utils.get_rnd_seed()), str(my_utils.pbar_lab_mom),
               str(my_utils.dpm_proc_selection), my_utils.dpm_part_status_mod, str(my_utils.dpm_nevt_per_file)]
     with open(in_file,"w") as inpipe:
         write_lines(inpipe,lines)

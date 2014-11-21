@@ -15,8 +15,9 @@ batch_dir = None
 proc_tag_sig = "pbar_p_jpsi_pi0"
 proc_tag_bg = "pbar_p_pip_pim_pi0"
 
+pbar_lab_mom = 5.513
+
 dpm_nevt_per_file = 20000000
-dpm_pbar_lab_mom = 5.513
 dpm_proc_selection = 0
 dpm_part_status_mod = "0 0"
 dpm_default_out = "Background-micro.root"
@@ -43,9 +44,9 @@ def get_rnd_seed():
 def file_tag():
     if uniq_id != None:
         if sim_type == sim_bg:
-            return "%s_%d" % (proc_tag_bg, uniq_id)
+            return "%s_plab%3.1f_%d" % (proc_tag_bg, pbar_lab_mom, uniq_id)
         else:
-            return "%s_%d" % (proc_tag_sig, uniq_id)
+            return "%s_plab%3.1f_%d" % (proc_tag_sig, pbar_lab_mom, uniq_id)
     else:
         dbg_msg("file_tag called with uniq_id not set yet. calling sys.exit(-1)")
         sys.exit(-1)
@@ -138,7 +139,7 @@ def move_file(src,dest):
 
 def copy_file_to_batch_dir(src):
     if uniq_id != None:
-        batch_dir = "%s/.batch/tmp_%d" % (base_dir, uniq_id)
+        batch_dir = "%s/.batch/tmp_plab%3.1f_%d/" % (base_dir, pbar_lab_mom, uniq_id)
         copy_file(src,batch_dir)
     else:
         dbg_msg("cd_to_batch_dir called with uniq_id not set yet. calling sys.exit(-1)")
@@ -146,7 +147,7 @@ def copy_file_to_batch_dir(src):
 
 def cd_to_batch_dir():
     if uniq_id != None:
-        batch_dir = "%s/.batch/tmp_%d" % (base_dir, uniq_id)
+        batch_dir = "%s/.batch/tmp_plab%3.1f_%d" % (base_dir, pbar_lab_mom, uniq_id)
         if not os.path.exists(batch_dir):
             os.makedirs(batch_dir)
         os.chdir(batch_dir)

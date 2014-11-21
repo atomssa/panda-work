@@ -12,7 +12,7 @@ def test_exec(step,log,prev_step,prev_out,args):
     checklist = []
     checklist.append("prev. step = %s\n"%prev_step)
     checklist.append("prev. file %s exsists? : %s\n"%(prev_out, os.path.exists(prev_out)))
-    checklist.append("plab= %f\n"%my_utils.dpm_pbar_lab_mom)
+    checklist.append("plab= %f\n"%my_utils.pbar_lab_mom)
     checklist.append("args= %s\n"%args)
     checklist.append("output from current step= %s\n"%out)
     checklist.append("current dir content= %s\n"%os.listdir(os.getcwd()))
