@@ -71,6 +71,7 @@ Bool_t PndDpmGeneratorMod::ReadEvent(FairPrimaryGenerator* primGen) {
    // Get number of particle in TClonesrray
   Int_t nParts = fParticles->GetEntriesFast();
 
+  Int_t pdgTypeGamma = 22;
   // Loop over particles in TClonesArray
   for (Int_t iPart=0; iPart < nParts; iPart++) {
     TParticle* part = (TParticle*) fParticles->At(iPart);
@@ -100,8 +101,8 @@ Bool_t PndDpmGeneratorMod::ReadEvent(FairPrimaryGenerator* primGen) {
       TLorentzVector pi0, g1, g2;
       pi0.SetPxPyPzE(px,py,pz,e);
       decay_pi0(pi0,g1,g2);
-      primGen->AddTrack(pdgType, g1.Vect().Px(), g1.Vect().Py(), g1.Vect().Pz(), vx, vy, vz, iPart, true);
-      primGen->AddTrack(pdgType, g2.Vect().Px(), g2.Vect().Py(), g2.Vect().Pz(), vx, vy, vz, iPart, true);
+      primGen->AddTrack(pdgTypeGamma, g1.Vect().Px(), g1.Vect().Py(), g1.Vect().Pz(), vx, vy, vz, iPart, true);
+      primGen->AddTrack(pdgTypeGamma, g2.Vect().Px(), g2.Vect().Py(), g2.Vect().Pz(), vx, vy, vz, iPart, true);
     }
   }        //  Loop over particle in event
 
