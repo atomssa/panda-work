@@ -6,10 +6,11 @@ import full_sim
 
 my_utils.sim_type = my_utils.sim_bg
 #my_utils.test_run = False
+#my_utils.delete_unfiltered_dpm = False
 
 plab_values = [5.513, 8, 12]
-#nevt = [1000, 1000, 1000]
-nevt = [2000000, 20000000, 100000000]
+#nevt = [10000, 40000, 100000]
+nevt = [2000000, 8000000, 40000000]
 start=int(sys.argv[1])
 number=int(sys.argv[2])
 series = range(start, start+number)

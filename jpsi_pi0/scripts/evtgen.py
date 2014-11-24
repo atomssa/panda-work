@@ -70,7 +70,8 @@ def filter_dpm():
     else:
         my_utils.dbg_msg("%s exists. will skip this step (filt)" % out_file)
     if not my_utils.delete_unfiltered_dpm:
-        my_utils.move_file(my_utils.dpm_default_out, out_file)
+        (evt_out_file,evt_log_file,evt_in_file) = my_utils.file_names("evt")
+        my_utils.move_file(my_utils.dpm_default_out, evt_out_file)
     else:
         if os.path.exists(my_utils.dpm_default_out):
             os.remove(my_utils.dpm_default_out)
