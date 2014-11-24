@@ -157,7 +157,7 @@ void AnaTda::Exec(Option_t* opt) {
 
   get_singles_lists();
 
-  if (verb)
+  //  if (verb)
     print_mc_list();
 
   fill_single_dists();
@@ -277,7 +277,9 @@ void AnaTda::def_resid_hists() {
 void AnaTda::def_gamma_from_pi0_hists() {
   const char *n[nhist] = {"all_rec", "true_rec", "truepi0_rec", "truepi0_mc", "ana", "pm_ana", "mconst"};
   const char *t[nhist] = {"all (Reco)", "truth match (Reco)", "from true #pi^{0} (Reco)",
-			  "from true #pi^{0} (MC)", "after analysis cuts", "from true #pi^{0} after ana. cut", "from true #pi^{0} after mass const"};
+			  "from true #pi^{0} (MC)", "after analysis cuts",
+			  "from true #pi^{0} after ana. cut", "from true #pi^{0} after mass const"};
+
   for (int it = 0; it < nhist; ++it) {
     h_oa_gg[it] = new TH1F(Form("h_oa_gg_%s", n[it]),
       Form("Opening angle of #gamma-#gamma pairs %s;OA[rad]", t[it]),
@@ -304,6 +306,7 @@ void AnaTda::def_elecs_from_jpsi_hists() {
 			  (bg_mc?"from true #pi^{+}#pi^{-} after ana. cut":"from true J/#psi after ana. cut"),
 			  (bg_mc?"from true #pi^{+}#pi^{-} after mass constraint":"from true J/#psi after mass constraint"),
   };
+
   for (int it = 0; it < nhist; ++it) {
     h_m_epem[it] = new TH1F(Form("h_m_epem_%s", n[it]),
       Form("Mass of e^{+}e^{-} pairs %s;M_{e^{+}e^{-}}[GeV/c^{2}]", t[it]),
@@ -318,7 +321,6 @@ void AnaTda::def_elecs_from_jpsi_hists() {
 }
 
 void AnaTda::def_single_hists() {
-
   h_num_g = new TH1F("h_num_g",
     "Number of #gamma per event;N_{#gamma}", 25, 0, 25);
   h_num_epm = new TH1F("h_num_epm",
@@ -410,11 +412,13 @@ void AnaTda::print_rho_cand_list(RhoCandList& l, const char* name) {
 // Print MC Truth list with mother-daughter relations
 void AnaTda::print_mc_list() {
   cout << "mcList.Length() = " << mcList.GetLength() << endl;
+  int pi0id = -1;
   for (int j=0;j<mcList.GetLength();++j) {
     RhoCandidate *mcmother = mcList[j]->TheMother();
     int muid = -1;
     if (mcmother) muid = mcmother->GetTrackNumber();
-    if (muid>0) break;
+    if (muid==-1 and mcList[j]->PdgCode()==111) pi0id=j;
+    if ( not (muid==-1 or (pi0id!=-1&&muid==pi0id)) ) continue;
     cout << "Track "<< mcList[j]->GetTrackNumber()<<" (PDG:"<<mcList[j]->PdgCode() <<") has mother "<<muid;
     if (mcList[j]->NDaughters()>0) cout <<" and daughter(s) ";
     for (int k=0;k<mcList[j]->NDaughters();++k) cout <<mcList[j]->Daughter(k)->GetTrackNumber()<<"  ";
@@ -798,7 +802,8 @@ double AnaTda::dist_pi0_pair_match(RhoCandidate *c) {
 
 inline
 double AnaTda::dist_jpsi_pair_match(RhoCandidate *c) {
-  return TMath::Hypot(c->Daughter(0)->Energy()-c->Daughter(0)->GetMcTruth()->Energy(), c->Daughter(1)->Energy()-c->Daughter(1)->GetMcTruth()->Energy());
+  return TMath::Hypot(c->Daughter(0)->Energy()-c->Daughter(0)->GetMcTruth()->Energy(),
+		      c->Daughter(1)->Energy()-c->Daughter(1)->GetMcTruth()->Energy());
 }
 
 void AnaTda::find_primary_gg() {
@@ -874,7 +879,8 @@ void AnaTda::find_primary_gg() {
     if (verb) {
       cout << "===========================================================" << endl;
       cout << "Custom Best Pair: TrackNum(pi0 " << _match->Daughter(0)->Uid() << "," << _match->Daughter(1)->Uid() << ")  M= "
-	   << _match->GetTrackNumber() << " d0= " << _match->Daughter(0)->GetTrackNumber() << " d1= " << _match->Daughter(1)->GetTrackNumber() << endl;
+	   << _match->GetTrackNumber() << " d0= " << _match->Daughter(0)->GetTrackNumber()
+	   << " d1= " << _match->Daughter(1)->GetTrackNumber() << endl;
       cout << "Custom Best Pair: TruthMatch(pi0 " << _match->Daughter(0)->Uid() << "," << _match->Daughter(1)->Uid() << ")  M= "
 	 << tp << " d0= " << td[0] << " d1= " << td[1] << " dist= " << dist_min << endl;
     }
@@ -960,7 +966,8 @@ void AnaTda::find_primary_epem() {
   jpsi.Combine(ep, em);
 
   if (verb)
-    cout << "=============== FIND PRIMARY CHARGED PAIR (nep= " << ep.GetLength() << " nem=" << em.GetLength() << " njpsi= " << jpsi.GetLength() << " ) ================" << endl;
+    cout << "=============== FIND PRIMARY CHARGED PAIR (nep= " << ep.GetLength() << " nem=" << em.GetLength()
+	 << " njpsi= " << jpsi.GetLength() << " ) ================" << endl;
 
   bool set_mc_match = false;
   int tp = -1;
@@ -1026,8 +1033,9 @@ void AnaTda::find_primary_epem() {
   if (dist_min<1e8) {
     if (verb) {
       cout << "===========================================================" << endl;
-      cout << "Custom Best Pair: TrackNum(psi " << _match->Daughter(0)->Uid() << "," << _match->Daughter(1)->Uid() << ")  M= "
-	   << _match->GetTrackNumber() << " d0= " << _match->Daughter(0)->GetTrackNumber() << " d1= " << _match->Daughter(1)->GetTrackNumber() << endl;
+      cout << "Custom Best Pair: TrackNum(psi " << _match->Daughter(0)->Uid() << "," << _match->Daughter(1)->Uid()
+	   << ")  M= " << _match->GetTrackNumber() << " d0= " << _match->Daughter(0)->GetTrackNumber()
+	   << " d1= " << _match->Daughter(1)->GetTrackNumber() << endl;
       cout << "Custom Best Pair: TruthMatch(psi " << _match->Daughter(0)->Uid() << "," << _match->Daughter(1)->Uid() << ")  M= "
 	   << tp << " d0= " << td[0] << " d1= " << td[1] << " dist= " << dist_min << endl;
     }
@@ -1221,12 +1229,11 @@ void AnaTda::def_manual_kin_fit_hists(const int &type ) {
   const char *n[nhist] = {"all_rec", "true_rec", "truepi0jpsi_rec", "truepi0jpsi_mc", "ana", "pm_ana", "mconst"};
   //const char *t[nhist] = {"all (Reco)", "truth match (Reco)", "from true J/#psi-#pi^{0} (Reco)",
   //     "from true J/#psi-#pi^{0} (MC)", "after analysis cuts", "from true J/#psi-#pi^{0} after ana. cut"};
-  const char *t[nhist] = {"all (Reco)", "truth match (Reco)", (bg_mc?"from true #pi^{+}#pi^{-}#pi^{0} (Reco)":"from true J/#psi-#pi^{0} (Reco)"),
-			  (bg_mc?"from true #pi^{+}#pi^{-}#pi^{0} (MC)":"from true J/#psi-#pi^{0} (MC)"), "after analysis cuts",
-			  (bg_mc?"from true #pi^{+}#pi^{-}#pi^{0} after ana. cut":"from true J/#psi-#pi^{0} after ana. cut"),
-			  (bg_mc?"from true #pi^{+}#pi^{-}#pi^{0} after mass constraint":"from true J/#psi-#pi^{0} after mass constraint"),
-  };
-
+  const char *t[nhist] =
+    {"all (Reco)", "truth match (Reco)", (bg_mc?"from true #pi^{+}#pi^{-}#pi^{0} (Reco)":"from true J/#psi-#pi^{0} (Reco)"),
+     (bg_mc?"from true #pi^{+}#pi^{-}#pi^{0} (MC)":"from true J/#psi-#pi^{0} (MC)"), "after analysis cuts",
+     (bg_mc?"from true #pi^{+}#pi^{-}#pi^{0} after ana. cut":"from true J/#psi-#pi^{0} after ana. cut"),
+     (bg_mc?"from true #pi^{+}#pi^{-}#pi^{0} after mass constraint":"from true J/#psi-#pi^{0} after mass constraint") };
 
   // cts = closest-to-s, btb = most-back-to-back
   h_dth_vs_mass_gg_epair_btb[type] = new
