@@ -157,7 +157,7 @@ void AnaTda::Exec(Option_t* opt) {
 
   get_singles_lists();
 
-  //  if (verb)
+  if (verb)
     print_mc_list();
 
   fill_single_dists();
