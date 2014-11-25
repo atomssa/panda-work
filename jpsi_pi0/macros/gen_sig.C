@@ -1,9 +1,15 @@
-void gen_sig()
+void gen_sig(int batch)
 {
 
-  Float_t mom = 5.513;
+  double pbar_mom[3] = {5.513, 8.0, 12.0};
+  double sqrts[3] = {12.35, 16.97, 24.43};
+
+  Float_t mom = pbar_mom[batch-1];
+  Float_t beam_sqrts = sqrts[batch-1];
+  cout << "beam sqrts = " << beam_sqrts << endl;
+
   // TODO - there are two places where this is filled (here and in decay description file). WHY?
-  Int_t nEvents = 10;
+  Int_t nEvents = 100000;
 
   gSystem->Load("libEvtGenSA");
   gSystem->ListLibraries();
@@ -14,7 +20,7 @@ void gen_sig()
     cout << "Make sure PNDDIR is set to the root PANDA work directory exiting" << endl;
     return;
   } else {
-    decfile = Form("%s/work/jpsi_pi0/macros/jpsi_pi0.dec",base.c_str());
+    decfile = Form("%s/work/jpsi_pi0/macros/jpsi_pi0_%4.2f.dec",base.c_str(),beam_sqrts);
     std::ifstream inf(decfile.c_str());
     if (!inf.good()) {
       cout << "Decay description file " << decfile << " does not exist. exiting" << endl;

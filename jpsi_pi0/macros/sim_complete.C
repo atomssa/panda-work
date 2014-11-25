@@ -5,7 +5,7 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-sim_complete(int type /*1:Signal 0:Background */)
+sim_complete(int batch /*1:Signal 0:Background */)
 {
 
   //string file_in,
@@ -13,7 +13,7 @@ sim_complete(int type /*1:Signal 0:Background */)
 
   int nEvents = 10000;
 
-  if (type == 0 ) {
+  if (batch == 0 ) {
     // Figure out the number of events from input
     // assume the input file name is filt_complete.root
     // This is true for background simulation
@@ -32,11 +32,14 @@ sim_complete(int type /*1:Signal 0:Background */)
   TString digiFile        = "all.par"; //The emc run the hit producer directly
   // choose your event generator
   Bool_t UseEvtGen	      =kFALSE;
-  Bool_t UseEvtGenDirect      = (type==1); // Signal simulation
-  Bool_t UseDpm 	      = (type==0); // Background simulation
+  Bool_t UseEvtGenDirect      = (batch>0); // Signal simulation
+  Bool_t UseDpm 	      = (batch==0); // Background simulation
   Bool_t UseBoxGenerator      =kFALSE;
 
+  double pbar_mom[3] = {5.513, 8.0, 12.0};
+  double sqrts[3] = {12.35, 16.97, 24.43};
   Double_t BeamMomentum = 0.; // beam momentum ONLY for the scaling of the dipole field.
+  Double_t BeamSqrts = 0.; // beam momentum ONLY for the scaling of the dipole field.
   if (UseBoxGenerator)
     {
       BeamMomentum   =15.0; // ** change HERE if you run Box generator
@@ -44,6 +47,9 @@ sim_complete(int type /*1:Signal 0:Background */)
   else
     {
       BeamMomentum = mom;  // for DPM/EvtGen BeamMomentum is always = mom
+      if (batch==1) {BeamMomentum = pbar_mom[0]; BeamSqrts=sqrts[0]; }
+      if (batch==2) {BeamMomentum = pbar_mom[1]; BeamSqrts=sqrts[0]; }
+      if (batch==3) {BeamMomentum = pbar_mom[3]; BeamSqrts=sqrts[0]; }
     }
 
   //------------------------------------------------------------------
@@ -156,7 +162,7 @@ sim_complete(int type /*1:Signal 0:Background */)
 
   if(UseBoxGenerator){	// Box Generator
     FairBoxGenerator* boxGen = new FairBoxGenerator(22, 5); // 13 = muon; 1 = multipl.
-    boxGen->SetPRange(mom,mom); // GeV/c
+    boxGen->SetPRange(BeamMomentum,BeamMomentum); // GeV/c
     boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
     boxGen->SetThetaRange(0., 90.); // Polar angle in lab system range [degree]
     boxGen->SetXYZ(0., 0., 0.); // cm
@@ -177,10 +183,9 @@ sim_complete(int type /*1:Signal 0:Background */)
     primGen->AddGenerator(evtGen);
   }
   if(UseEvtGenDirect){
-    //TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
-    //EvtInput+="/macro/run/psi2s_Jpsi2pi_Jpsi_mumu.dec";
-    TString EvtInput = "/vol0/panda/work/jpsi_pi0/macros/jpsi_pi0.dec";
-    PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem", EvtInput.Data(), mom);
+    TString  EvtInput = gSystem->Getenv("PNDDIR");
+    EvtInput += Form("/work/jpsi_pi0/macros/jpsi_pi0_%4.2f.dec", BeamSqrts);
+    PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem", EvtInput.Data(), BeamMomentum);
     EvtGen->SetStoreTree(kTRUE);
     primGen->AddGenerator(EvtGen);
   }
