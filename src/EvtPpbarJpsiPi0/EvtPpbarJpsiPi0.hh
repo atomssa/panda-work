@@ -13,6 +13,7 @@
 
 #include "EvtGenBase/EvtDecayProb.hh"
 #include "EvtGenBase/EvtStdHep.hh"
+#include "EvtGenBase/EvtVector3R.hh"
 
 class EvtParticle;
 class EvtStdHep;
@@ -28,10 +29,35 @@ public:
   void initProbMax();
   void decay(EvtParticle *p);
 
+  double prob(double);
 private:
 
   double _qsit;
   double _s;
+
+
+  double _Mp;
+  double _Mpi0;
+  double _Mjpsi2;
+  double pi;
+  double fpi;
+  double gpiNN;
+  double M0;
+  double fphi;
+  double fN;
+  double alpha_s;
+  double M;
+  double C;
+
+  double _xi;
+  double _max;
+
+  double _Ebeam;
+  double _Pbeam;
+
+  double prob_max;
+
+  EvtVector3R boost_to_cm;
 
 };
 
