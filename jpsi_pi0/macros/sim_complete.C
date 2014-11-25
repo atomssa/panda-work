@@ -48,8 +48,8 @@ sim_complete(int batch /*1:Signal 0:Background */)
     {
       BeamMomentum = mom;  // for DPM/EvtGen BeamMomentum is always = mom
       if (batch==1) {BeamMomentum = pbar_mom[0]; BeamSqrts=sqrts[0]; }
-      if (batch==2) {BeamMomentum = pbar_mom[1]; BeamSqrts=sqrts[0]; }
-      if (batch==3) {BeamMomentum = pbar_mom[3]; BeamSqrts=sqrts[0]; }
+      if (batch==2) {BeamMomentum = pbar_mom[1]; BeamSqrts=sqrts[1]; }
+      if (batch==3) {BeamMomentum = pbar_mom[2]; BeamSqrts=sqrts[2]; }
     }
 
   //------------------------------------------------------------------

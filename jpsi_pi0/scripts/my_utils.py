@@ -140,7 +140,7 @@ def move_file(src,dest):
 
 def copy_file_to_batch_dir(src):
     if uniq_id != None:
-        batch_dir = "%s/.batch/tmp_plab%3.1f_%d/" % (base_dir, pbar_lab_mom, uniq_id)
+        batch_dir = "%s/.batch/tmp_type%s_plab%3.1f_%d/" % (base_dir, sim_type, pbar_lab_mom, uniq_id)
         copy_file(src,batch_dir)
     else:
         dbg_msg("cd_to_batch_dir called with uniq_id not set yet. calling sys.exit(-1)")
@@ -148,7 +148,7 @@ def copy_file_to_batch_dir(src):
 
 def cd_to_batch_dir():
     if uniq_id != None:
-        batch_dir = "%s/.batch/tmp_plab%3.1f_%d" % (base_dir, pbar_lab_mom, uniq_id)
+        batch_dir = "%s/.batch/tmp_type%s_plab%3.1f_%d" % (base_dir, sim_type, pbar_lab_mom, uniq_id)
         if not os.path.exists(batch_dir):
             os.makedirs(batch_dir)
         os.chdir(batch_dir)

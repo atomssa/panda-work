@@ -5,6 +5,7 @@ import my_utils
 import full_sim
 
 my_utils.sim_type = my_utils.sim_sig
+#my_utils.test_run = True;
 
 _sim_type=int(sys.argv[1]) # 1=>(p=5.513), 2=>(p=8.0), 3=>(p=12.0)
 if _sim_type < 1 or _sim_type > 3:
