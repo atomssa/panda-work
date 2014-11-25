@@ -244,7 +244,7 @@ Bool_t PndEvtGenStandAlone::generate_event(TClonesArray*evt) {
 
   fGenerator->generateDecay(parent);
 
-  cout << "PndEvtGenStandAlone --- accepted decay " << endl;
+  //cout << "PndEvtGenStandAlone --- accepted decay " << endl;
   fEvtStdHep.init();
   parent->makeStdHep(fEvtStdHep);
 
