@@ -61,6 +61,7 @@ class filler {
   typedef double(filler::*pair_func)(const TLorentzVector&, const TLorentzVector&) const;
   typedef double(filler::*pair_func_boost)(const TLorentzVector&, const TLorentzVector&, const TVector3&) const;
 
+  const char* wtf(std::map<const char*, const char*>, const char*) const;
   std::map<const char*, const char*> vart; // variable tex-form for titles
   std::map<const char*, const char*> varst; // variable short tex-form for axes
   std::map<const char*, const char*> varu; // variable units
@@ -120,6 +121,13 @@ class filler {
   double mand_u(const TLorentzVector &v1, const TLorentzVector &v2) const;
   double mand_t(const TLorentzVector &v1, const TLorentzVector &v2) const;
 
+  double mass_b(const TLorentzVector&, const TLorentzVector&, const TVector3&) const;
+  double mass_sq_b(const TLorentzVector&, const TLorentzVector&, const TVector3&) const;
+  double mand_s_b(const TLorentzVector&, const TLorentzVector&, const TVector3&) const;
+  double mand_u_b(const TLorentzVector&, const TLorentzVector&, const TVector3&) const;
+  double mand_t_b(const TLorentzVector&, const TLorentzVector&, const TVector3&) const;
+
+
   double mom(const TLorentzVector &v) const;
   double mom_b(const TLorentzVector &v, const TVector3 &b) const;
   double mom_p(const TLorentzVector &v1, const TLorentzVector &v2) const;
@@ -149,7 +157,9 @@ class filler {
   double the_p_bwd_b(const TLorentzVector &v1, const TLorentzVector &v2, const TVector3 &b) const;
 
   double phi(const TLorentzVector &v) const;
+  double phi_b(const TLorentzVector &v, const TVector3 &b) const;
   double phi_p(const TLorentzVector &v1, const TLorentzVector &v2) const;
+  double phi_p_b(const TLorentzVector &v1, const TLorentzVector &v2, const TVector3 &b) const;
 
   double cost(const TLorentzVector &v) const;
   double cost_b(const TLorentzVector &v, const TVector3 &boost) const;

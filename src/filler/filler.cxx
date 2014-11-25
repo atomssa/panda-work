@@ -124,6 +124,15 @@ void filler::init_pair_func_dict() {
 }
 
 void filler::init_pair_func_boost_dict() {
+  // for sake of simplicity, let's define the "boosted" versions of these
+  // They will just call the same functions without boost
+  pair_func_boost_dict.insert(make_pair("mass", &filler::mass_b));
+  pair_func_boost_dict.insert(make_pair("mass_sq", &filler::mass_sq_b));
+  pair_func_boost_dict.insert(make_pair("u", &filler::mand_u_b));
+  pair_func_boost_dict.insert(make_pair("s", &filler::mand_s_b));
+  pair_func_boost_dict.insert(make_pair("t", &filler::mand_t_b));
+  pair_func_boost_dict.insert(make_pair("phi", &filler::phi_p_b));
+
   pair_func_boost_dict.insert(make_pair("mom", &filler::mom_p_b));
   pair_func_boost_dict.insert(make_pair("mom_fwd", &filler::mom_p_fwd_b));
   pair_func_boost_dict.insert(make_pair("mom_bwd", &filler::mom_p_bwd_b));
@@ -151,6 +160,7 @@ void filler::init_func_boost_dict() {
   func_boost_dict.insert(make_pair("e", &filler::ene_b));
   func_boost_dict.insert(make_pair("the", &filler::the_b));
   func_boost_dict.insert(make_pair("cost", &filler::cost_b));
+  func_boost_dict.insert(make_pair("phi", &filler::phi_b));
 }
 
 void filler::init_all() {
@@ -168,17 +178,50 @@ TLorentzVector filler::boost_transf(cr_tlv vect_in, cr_tv3 boost) const {
 }
 
 void filler::set_funcs(const int &iaxis, const char* var) {
-  if (func_dict.find(var) == func_dict.end()) { cout << warning_msg(var, "func_dict") << endl; }
-  if (func_boost_dict.find(var) == func_boost_dict.end()) { cout << warning_msg(var, "func_boost_dict") << endl; }
-  _func[iaxis] = func_dict[var];
-  _func_b[iaxis] = func_boost_dict[var];
+  std::map<const char*, func>::const_iterator iter;
+  for (iter=func_dict.begin(); iter!=func_dict.end(); ++iter)
+    if ( strcmp((*iter).first, var) == 0 ) break;
+  if (iter != func_dict.end())
+    _func[iaxis] = (*iter).second;
+  else
+    cout << warning_msg(var, "func_dict") << endl;
+  std::map<const char*, func_boost>::const_iterator iter_boost;
+  for (iter_boost=func_boost_dict.begin(); iter_boost!=func_boost_dict.end(); ++iter_boost)
+    if ( strcmp((*iter_boost).first, var) == 0 ) break;
+  if (iter_boost != func_boost_dict.end())
+    _func_b[iaxis] = (*iter_boost).second;
+  else
+    cout << warning_msg(var, "func_boost_dict") << endl;
+  // Don't know why this doesn't work anymore
+  //if (func_dict.find(var) == func_dict.end()) { cout << warning_msg(var, "func_dict") << endl; }
+  //if (func_boost_dict.find(var) == func_boost_dict.end()) { cout << warning_msg(var, "func_boost_dict") << endl; }
+  //_func[iaxis] = func_dict[var];
+  //_func_b[iaxis] = func_boost_dict[var];
 }
 
 void filler::set_pair_funcs(const int &iaxis, const char* var) {
-  if (pair_func_dict.find(var) == pair_func_dict.end()) { cout << warning_msg(var, "pair_func_dict") << endl; }
-  if (pair_func_boost_dict.find(var) == pair_func_boost_dict.end()) { cout << warning_msg(var, "pair_func_boost_dict") << endl; }
-  _func_p[iaxis] = pair_func_dict[var];
-  _func_p_b[iaxis] = pair_func_boost_dict[var];
+
+  std::map<const char*, pair_func>::const_iterator iter;
+  for (iter=pair_func_dict.begin(); iter!=pair_func_dict.end(); ++iter)
+    if ( strcmp((*iter).first, var) == 0) break;
+  if (iter != pair_func_dict.end())
+    _func_p[iaxis] = (*iter).second;
+  else
+    cout << warning_msg(var, "pair_func_dict") << endl;
+
+  std::map<const char*, pair_func_boost>::const_iterator iter_boost;
+  for (iter_boost=pair_func_boost_dict.begin(); iter_boost!=pair_func_boost_dict.end(); ++iter_boost)
+    if ( strcmp((*iter_boost).first, var) == 0) break;
+  if (iter_boost != pair_func_boost_dict.end())
+    _func_p_b[iaxis] = (*iter_boost).second;
+  else
+    cout << warning_msg(var, "pair_func_boost_dict") << endl;
+
+  // Don't know why this doesn't work
+  //if (pair_func_dict.find(var) == pair_func_dict.end()) { cout << warning_msg(var, "pair_func_dict") << endl; }
+  //if (pair_func_boost_dict.find(var) == pair_func_boost_dict.end()) { cout << warning_msg(var, "pair_func_boost_dict") << endl; }
+  //_func_p[iaxis] = pair_func_dict[var];
+  //_func_p_b[iaxis] = pair_func_boost_dict[var];
 }
 
 double filler::value(func __func, cr_tlv v) {
@@ -206,6 +249,12 @@ double filler::mass_sq(cr_tlv v1, cr_tlv v2) const { return (v1+v2).M2(); }
 double filler::mand_s(cr_tlv v1, cr_tlv v2) const { return (v1+v2).M2(); }
 double filler::mand_u(cr_tlv v1, cr_tlv v2) const { return (v2-v1).M2(); }
 double filler::mand_t(cr_tlv v1, cr_tlv v2) const { return (v2-v1).M2(); }
+
+double filler::mass_b(cr_tlv v1, cr_tlv v2, cr_tv3 b) const { return (v1+v2).M(); }
+double filler::mass_sq_b(cr_tlv v1, cr_tlv v2, cr_tv3 b) const { return (v1+v2).M2(); }
+double filler::mand_s_b(cr_tlv v1, cr_tlv v2, cr_tv3 b) const { return (v1+v2).M2(); }
+double filler::mand_u_b(cr_tlv v1, cr_tlv v2, cr_tv3 b) const { return (v2-v1).M2(); }
+double filler::mand_t_b(cr_tlv v1, cr_tlv v2, cr_tv3 b) const { return (v2-v1).M2(); }
 
 double filler::mom(cr_tlv v) const { return v.Vect().Mag(); }
 double filler::mom_b(cr_tlv v, cr_tv3 b) const { return mom( boost_transf(v,b) ); }
@@ -254,7 +303,9 @@ double filler::the_p_bwd_b(cr_tlv v1, cr_tlv v2, cr_tv3 b) const {
 }
 
 double filler::phi(cr_tlv v) const { return rtd*(v.Vect().Phi()); }
+double filler::phi_b(cr_tlv v, cr_tv3 b) const { return rtd*(v.Vect().Phi()); }
 double filler::phi_p(cr_tlv v1, cr_tlv v2) const { return phi(v1+v2); }
+double filler::phi_p_b(cr_tlv v1, cr_tlv v2, cr_tv3 b) const { return phi(v1+v2); }
 
 double filler::cost(cr_tlv v) const { return v.Vect().CosTheta(); }
 double filler::cost_b(cr_tlv v, cr_tv3 boost) const {
@@ -268,6 +319,13 @@ double filler::oa_p(cr_tlv v1, cr_tlv v2) const {
 }
 double filler::oa_p_b(cr_tlv v1, cr_tlv v2, cr_tv3 b) const {
   return rtd*(boost_transf(v1,b).Vect().Angle( boost_transf(v2,b).Vect()));
+}
+
+const char* filler::wtf(std::map<const char*, const char*>wtfmap, const char*var) const {
+  std::map<const char*, const char*>::const_iterator iter;
+  for (iter=wtfmap.begin(); iter!=wtfmap.end(); ++iter)
+    if ( strcmp((*iter).first, var) == 0) return (*iter).second;
+  return "??";
 }
 
 const char* filler::_name(const char* var,const char* fname,
@@ -291,30 +349,30 @@ const char* filler::_name_p(const char* var, const char* pname1,
 
 const char* filler::_title(const char *var, const char *ftitle,
   const char *ptitle) {
-  return Form("%s %s%s", ptitle, vart[var], ftitle);
+  return Form("%s %s%s", ptitle, wtf(vart,var), ftitle);
 }
 
 const char* filler::_title(const char *var, const char *ptitle) {
-  return Form("%s %s", ptitle, vart[var]);
+  return Form("%s %s", ptitle, wtf(vart,var));
 }
 
 const char* filler::_title_p(const char *var, const char *ftitle,
   const char *ptitle1, const char *ptitle2) {
-  return Form("%s-%s %s%s", ptitle1, ptitle2, vart[var], ftitle);
+  return Form("%s-%s %s%s", ptitle1, ptitle2, wtf(vart,var), ftitle);
 }
 
 const char* filler::_title_p(const char *var, const char *ptitle1,
   const char *ptitle2) {
-  return Form("%s-%s %s", ptitle1, ptitle2, vart[var]);
+  return Form("%s-%s %s", ptitle1, ptitle2, wtf(vart,var));
 }
 
 const char* filler::_atitle(const char *var, const char *ptitle) {
-  return Form("%s_{%s}%s", varst[var],ptitle, varu[var]);
+  return Form("%s_{%s}%s", wtf(varst,var),ptitle, wtf(varu,var));
 }
 
 const char* filler::_atitle_p(const char *var, const char *ptitle1,
   const char *ptitle2) {
-  return Form("%s_{%s-%s}%s", varst[var],ptitle1, ptitle2, varu[var]);
+  return Form("%s_{%s-%s}%s", wtf(varst,var),ptitle1, ptitle2, wtf(varu,var));
 }
 
 filler1d::filler1d(const char* h_name, const char* h_title, const int &npart,

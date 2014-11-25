@@ -341,7 +341,7 @@ void fill_sig_hists(TChain *data_in, TClonesArray *part_array) {
   for (int ipart=g1; ipart<= jpsi; ++ipart) {   // for all single particle
     lab_fillers.push_back(new var1d(ipart, "mom", mom_bins, lab_frame, names));
     lab_fillers.push_back(new var1d(ipart, "e", ene_bins, lab_frame, names));
-    lab_fillers.push_back(new var1d(ipart, "the", ipart==pi0?axis(200,0,60):the_bins, lab_frame, names));
+    lab_fillers.push_back(new var1d(ipart, "the", the_bins, lab_frame, names));
     lab_fillers.push_back(new var1d(ipart, "cost", cost_bins, lab_frame, names));
   }
 
@@ -358,7 +358,6 @@ void fill_sig_hists(TChain *data_in, TClonesArray *part_array) {
   lab_fillers.push_back(new var2d(pi0, "the", the_bins, lab_frame, g1, g2, "oa", axis(200,0,60), lab_frame, names));
   lab_fillers.push_back(new var2d(ep, "mom", mom_bins, lab_frame, ep, "the", the_bins, lab_frame, names));
   lab_fillers.push_back(new var2d(em, "mom", mom_bins, lab_frame, em, "the", the_bins, lab_frame, names));
-
 
   lab_fillers.push_back(new var2d(pi0, "the", the_bins, lab_frame, pi0, "mom", mom_bins, lab_frame, names));
 
@@ -378,12 +377,14 @@ void fill_sig_hists(TChain *data_in, TClonesArray *part_array) {
     cm_fillers.push_back(new var1d(ipart, "the", the_bins, cm_frame, names));
     cm_fillers.push_back(new var1d(ipart, "cost", cost_bins, cm_frame, names));
   }
-  cm_fillers.push_back(new var2d(pbar, pi0, "t", t_bins, invariant, pi0, "the", the_bins, cm_frame, names));
   cm_fillers.push_back(new var1d(ep, em, "oa", oa_bins, cm_frame, names)); // (e+-e-) OA
   cm_fillers.push_back(new var1d(g1, g2, "oa", axis(200,0,180), cm_frame, names)); // (g1-g2) OA
   cm_fillers.push_back(new var1d(pi0, jpsi, "oa", oa_bins, cm_frame, names)); // (pi0-jpsi) OA
 
-  // -> cm_fillers.push_back(new var2d(pbar, pi0, "t", t_bins, invariant, pi0, "the", the_bins, cm_frame, names));
+  cm_fillers.push_back(new var2d(pbar, pi0, "t", t_bins, invariant, pi0, "the", the_bins, cm_frame, names));
+  cm_fillers.push_back(new var2d(pbar, jpsi, "u", t_bins, invariant, pi0, "the", the_bins, cm_frame, names));
+  cm_fillers.push_back(new var2d(pbar, pi0, "t", t_bins, invariant, pi0, "cost", cost_bins, cm_frame, names));
+  cm_fillers.push_back(new var2d(pbar, jpsi, "u", t_bins, invariant, pi0, "cost", cost_bins, cm_frame, names));
 
   std::vector<filler*> jpsif_fillers;
   const char *jpsi_frame[] {"jpsif"," (J/#psi frame)"};
