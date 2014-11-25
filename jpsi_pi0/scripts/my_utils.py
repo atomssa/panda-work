@@ -15,6 +15,7 @@ batch_dir = None
 proc_tag_sig = "pbar_p_jpsi_pi0"
 proc_tag_bg = "pbar_p_pip_pim_pi0"
 
+plab_values = [5.513, 8, 12]
 pbar_lab_mom = 5.513
 
 dpm_nevt_per_file = 20000000
@@ -25,7 +26,7 @@ filter_default_out = "Background-nano.root"
 
 sim_bg = 0
 sim_sig = 1
-sim_type = sim_bg # 1:Signal 0:Background
+sim_type = sim_bg # 1+:Signal 0:Background
 
 delete_unfiltered_dpm = True
 
