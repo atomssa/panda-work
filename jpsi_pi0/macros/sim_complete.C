@@ -37,9 +37,7 @@ sim_complete(int batch /*1:Signal 0:Background */)
   Bool_t UseBoxGenerator      =kFALSE;
 
   double pbar_mom[3] = {5.513, 8.0, 12.0};
-  double sqrts[3] = {12.35, 16.97, 24.43};
   Double_t BeamMomentum = 0.; // beam momentum ONLY for the scaling of the dipole field.
-  Double_t BeamSqrts = 0.; // beam momentum ONLY for the scaling of the dipole field.
   if (UseBoxGenerator)
     {
       BeamMomentum   =15.0; // ** change HERE if you run Box generator
@@ -47,9 +45,9 @@ sim_complete(int batch /*1:Signal 0:Background */)
   else
     {
       BeamMomentum = mom;  // for DPM/EvtGen BeamMomentum is always = mom
-      if (batch==1) {BeamMomentum = pbar_mom[0]; BeamSqrts=sqrts[0]; }
-      if (batch==2) {BeamMomentum = pbar_mom[1]; BeamSqrts=sqrts[1]; }
-      if (batch==3) {BeamMomentum = pbar_mom[2]; BeamSqrts=sqrts[2]; }
+      if (batch==1) BeamMomentum = pbar_mom[0];
+      if (batch==2) BeamMomentum = pbar_mom[1];
+      if (batch==3) BeamMomentum = pbar_mom[2];
     }
 
   //------------------------------------------------------------------
@@ -184,7 +182,7 @@ sim_complete(int batch /*1:Signal 0:Background */)
   }
   if(UseEvtGenDirect){
     TString  EvtInput = gSystem->Getenv("PNDDIR");
-    EvtInput += Form("/work/jpsi_pi0/macros/jpsi_pi0_%4.2f.dec", BeamSqrts);
+    EvtInput += Form("/work/jpsi_pi0/macros/jpsi_pi0_%4.1f.dec", BeamMomentum);
     PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem", EvtInput.Data(), BeamMomentum);
     EvtGen->SetStoreTree(kTRUE);
     primGen->AddGenerator(EvtGen);

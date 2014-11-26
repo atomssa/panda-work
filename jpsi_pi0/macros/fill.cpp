@@ -28,10 +28,12 @@ static const bool verb = false;
 
 static const double rtd= TMath::RadToDeg();
 
+static double p_antip = 5.513;
+
 static int nbins = 200;
 static axis mom_bins(nbins, 0.0, 6.1);
 static axis ene_bins(nbins, 0.0, 6.0);
-static axis t_bins(nbins, -2.0, 2.0);
+static axis t_bins(nbins, -10.0, 10.0);
 static axis the_bins(nbins, -1, 181);
 static axis phi_bins(nbins, -181, 181);
 static axis cost_bins(nbins, -1.1, 1.1);
@@ -43,7 +45,7 @@ static const double mass_prot= 0.938;
 
 static const string eff_tag[2] = {"_noeff", "_eff"};
 static const string filt_tag[2] = {"_nofilt", ""};
-static int type = 0;
+static int itype = 0;
 static int ieff = 0;
 static int ifilt = 1;
 
@@ -79,25 +81,26 @@ int main(const int argc, const char **argv) {
   gRandom->SetSeed();
 
   if (argc<4) {
-    std::cout << "Need three arguments [type(0->Bg,1->Sig), eff(0->yes,1->no), filt(0->yes, 1->no)]" << std::endl;
+    std::cout << "Need three arguments [itype(0->Bg,1->Sig), eff(0->yes,1->no), filt(0->yes, 1->no)]" << std::endl;
     return -1;
   }
 
-  type = atoi(argv[1]);
-  if (type>1) { cout << "type " << type << " out of range, filling BG (default)" << endl; type = 1;}
+  itype = atoi(argv[1]);
+  //if (itype>1) { cout << "itype " << itype << " out of range, filling BG (default)" << endl; itype = 1;}
   ieff = atoi(argv[2]);
-  if (ieff>1) { cout << "type " << ieff << " out of range, applying efficiency (default)" << endl; ieff = 1;}
+  if (ieff>1) { cout << "itype " << ieff << " out of range, applying efficiency (default)" << endl; ieff = 1;}
 
   string list_file;
   ifilt = atoi(argv[3]);
   if (ifilt>1) { cout << "ifilt "<< ifilt << "out of range, using filtered input by default" << endl; ifilt = 1; }
 
-  if (type==1) {
-    list_file = (ifilt==0)?"lists/sig_unfilt.list":"lists/sig.list";
+  if (itype!=0) {
+    list_file = (ifilt==0)?Form("lists/sig_unfilt%d.list",itype):Form("lists/sig%d.list",itype);
     cout << "Options: SIG: ieff= " << ieff << " ifilt = " << ifilt << endl;
   } else {
     list_file = "lists/bg.list";
   }
+  cout << "list_file = " << list_file << endl;
 
   // Grab the efficiency histograms and functions
   TFile *f_eff_ep_em = TFile::Open("eff/epem_smooth.root");
@@ -107,23 +110,27 @@ int main(const int argc, const char **argv) {
   TChain *data_in = new TChain("data","data_in");
   ifstream inf;
   inf.open(list_file.c_str());
+  double lab_mom_pbar = 0;
   string root_file;
   while(true) {
-    inf >> root_file;
+    inf >> lab_mom_pbar;
     if (!inf.good()) break;
+    inf >> root_file;
     data_in->AddFile(root_file.c_str());
   }
+
+  p_antip = lab_mom_pbar;
+  t_bins.max = 1.0;
+  t_bins.min = -1*((-0.0384615*p_antip*p_antip)+(2.51923*p_antip)-10.692);
+  cout << "p_antip = " << p_antip << endl;
 
   TClonesArray *part_array = new TClonesArray("TParticle");
   data_in->SetBranchAddress("Particles",&part_array);
 
-  if (type == 0 ) {
+  if (itype == 0 ) {
     fill_bg_hists(data_in, part_array);
-  } else if (type == 1) {
-    fill_sig_hists(data_in, part_array);
   } else {
-    cout << "type index " << type << " out of range" << endl;
-    return -1;
+    fill_sig_hists(data_in, part_array);
   }
 
   return 0;
@@ -141,7 +148,6 @@ void fill_bg_hists(TChain *data_in, TClonesArray *part_array) {
   TLorentzVector p4pbar,p4p,p4pbarp,p4pbar_cm,p4p_cm,p4pbarp_cm;
   set_init_cond(boost_to_cm, p4pbar,p4p,p4pbarp_cm,p4pbar_cm,p4p,p4pbarp_cm);
 
-  const double p_antip = 5.513;
   const double m_max = 1.1 * TMath::Sqrt(2*mass_prot + 2*p_antip*mass_prot);
   const axis mass_bins(nbins,0,m_max);
   const axis mass_sq_bins(nbins,0,m_max*m_max);
@@ -258,9 +264,9 @@ void fill_bg_hists(TChain *data_in, TClonesArray *part_array) {
     TLorentzVector p4g1, p4g2;
     decay_pi0(p4pi0,p4g1,p4g2);
 
-    // check event type
+    // check event itype
     if ( cpim!=1 || cpip!=1 || cpi0!=1 ) {
-      std::cout << "Event wrong type " << cpim << " pi- " << cpip << " pi+ " << cpi0 << " pi0 found where 1 expected" << std::endl;
+      std::cout << "Event wrong itype " << cpim << " pi- " << cpip << " pi+ " << cpi0 << " pi0 found where 1 expected" << std::endl;
       continue;
     }
 
@@ -310,7 +316,6 @@ void fill_sig_hists(TChain *data_in, TClonesArray *part_array) {
   TVector3 boost_to_cm;
   TLorentzVector p4pbar,p4p,p4pbarp,p4pbar_cm,p4p_cm,p4pbarp_cm;
   set_init_cond(boost_to_cm,p4pbar,p4p,p4pbarp,p4pbar_cm,p4p_cm,p4pbarp_cm);
-  const double p_antip = 5.513;
 
   const double m_max = 1.1 * TMath::Sqrt(2*mass_prot + 2*p_antip*mass_prot);
   const axis mass_bins(200,0,m_max);
@@ -452,9 +457,9 @@ void fill_sig_hists(TChain *data_in, TClonesArray *part_array) {
     TLorentzVector p4g3, p4g4;
     decay_pi0(p4pi0,p4g3,p4g4);
 
-    // check event type
+    // check event itype
     if ( cep!=1 || cem!=1 || cg!=2 ) {
-      std::cout << "Event wrong type " << cep << " e+ " << cem << " e- " << cg << " gamma found where (1,1,2) expected" << std::endl;
+      std::cout << "Event wrong itype " << cep << " e+ " << cem << " e- " << cg << " gamma found where (1,1,2) expected" << std::endl;
       continue;
     }
 
@@ -485,7 +490,7 @@ void fill_sig_hists(TChain *data_in, TClonesArray *part_array) {
 
   }
 
-  TFile *fout = TFile::Open(Form("hists/sig%s%s.root",filt_tag[ifilt].c_str(),eff_tag[ieff].c_str()),"RECREATE");
+  TFile *fout = TFile::Open(Form("hists/sig%d%s%s.root",itype, filt_tag[ifilt].c_str(),eff_tag[ieff].c_str()),"RECREATE");
   fout->cd();
 
   for (auto fill: inv_fillers) fill->Write();
@@ -577,7 +582,6 @@ void print_p4(const char *n, const TLorentzVector &v) {
 void set_init_cond(TVector3 &boost_to_cm, TLorentzVector &pbar, TLorentzVector &p, TLorentzVector &pbarp,
 		   TLorentzVector &pbar_cm, TLorentzVector &p_cm, TLorentzVector &pbarp_cm) {
 
-  const double p_antip = 5.513;
   const double E_antip = TMath::Hypot(mass_prot, p_antip);
   const double beta_cm = p_antip/(E_antip + mass_prot);
   cout << "betac_cm = " << beta_cm << endl;
@@ -619,7 +623,7 @@ void print_event(const vector<int> &evt) {
 }
 
 void print_log(int ievt, int npart, vector<int> &pdg_codes){
-  std::cout << "Event(Type3Pi) " << ievt << " Tca.entries= " << npart << std::endl;
+  std::cout << "Event(type3Pi) " << ievt << " Tca.entries= " << npart << std::endl;
   print_event(pdg_codes);
   cout << endl;
 }

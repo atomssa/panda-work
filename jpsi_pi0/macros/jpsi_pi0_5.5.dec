@@ -1,7 +1,7 @@
 noPhotos
 
 Decay pbarpSystem
-  1.0  J/psi pi0 PpbarJpsiPi0 24.4305;
+  1.0  J/psi pi0 PpbarJpsiPi0 12.2538;
 Enddecay
 
 Decay J/psi
