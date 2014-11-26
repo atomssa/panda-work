@@ -181,7 +181,7 @@ sim_complete(int batch /*1:Signal 0:Background */)
     primGen->AddGenerator(evtGen);
   }
   if(UseEvtGenDirect){
-    string EvtInput = Form("%s/work/jpsi_pi0/macros/jpsi_pi0_%4.1f.dec", gSystem->Getenv("PNDDIR"), BeamMomentum);
+    string EvtInput = Form("%s/work/jpsi_pi0/macros/jpsi_pi0_%3.1f.dec", gSystem->Getenv("PNDDIR"), BeamMomentum);
     PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem", EvtInput.c_str(), BeamMomentum);
     EvtGen->SetStoreTree(kTRUE);
     primGen->AddGenerator(EvtGen);
