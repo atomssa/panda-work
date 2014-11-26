@@ -32,6 +32,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
 AnaTda.cxx
+AnaTdav2.cxx
 )
 
 set(LINKDEF AnaTdaLinkDef.h)

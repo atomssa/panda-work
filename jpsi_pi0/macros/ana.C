@@ -1,47 +1,35 @@
-void ana(int plab_id = 0, int type = 0, int fid=0, int nevts = 10000) {
+void ana(int plab_id = 0, int itype = 0, int fid=0, int nevts = 10000) {
 
   int verb = 0;
   bool test_run = true;
   int brem = 1;
 
-  //gSystem->Load("libanatda");
   gSystem->Load("libanatda");
+  gSystem->ListLibraries();
 
-  // *** the files coming from the simulation
-  TString inPidFile;
-  TString inParFile;
   double plab[3] = {5.513, 8., 12.};
-
-  if (type==0) {
-    inPidFile  = Form("output/pid/pbar_p_pip_pim_pi0_plab%3.1f_%d.root", fid , plab[plab_id]);
-    inParFile  = Form("output/par/pbar_p_pip_pim_pi0_plab%3.1f_%d.root", fid , plab[plab_id]);
-  } else {
-    inPidFile  = "output/pid/pbar_p_jpsi_pi0_100.root";
-    inParFile  = "output/par/pbar_p_jpsi_pi0_100.root";
-  }
+  const char *tt[2] = {"pipm","jpsi"};
+  TString inPidFile = Form("output/pid/pbar_p_%s_pi0_plab%3.1f_%d.root", tt[itype], fid , plab[plab_id]);
+  cout << "inPidFile= " << inPidFile << endl;
 
   // *** initialization
   FairLogger::GetLogger()->SetLogToFile(kFALSE);
   FairRunAna* fRun = new FairRunAna();
-  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   fRun->SetInputFile(inPidFile);
 
-  // *** setup parameter database
-  FairParRootFileIo* parIO = new FairParRootFileIo();
-  parIO->open(inParFile);
-  FairParAsciiFileIo* parIOPid = new FairParAsciiFileIo();
-  parIOPid->open((TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/all.par").Data(),"in");
-
-  rtdb->setFirstInput(parIO);
-  rtdb->setSecondInput(parIOPid);
-  rtdb->setOutput(parIO);
-
-  AnaTda *atda = new AnaTda(brem, type  == 0);
+  AnaTda *atda = new AnaTda(brem, itype  == 0);
+  //AnaTdav2 *atda = new AnaTdav2();
   atda->set_verbosity(verb);
   fRun->AddTask(atda);
 
-  fRun->SetOutputFile(Form("%s/ana_%s_%s_plab%3.1f_%d.root", (test_run?"test":"hists"),
-			   (type==0?"bg":"jpsi"), (brem==0?"raw":"brem"), plab[plab_id], fid) );
+  const char *cbrem[2] = {"raw","brem"};
+  TString outFile;
+  if (test_run)
+    outFile = Form("test/ana_%s_%s_plab%3.1f_%d.root", tt[itype], cbrem[brem], plab[plab_id], fid);
+  else
+    outFile = Form("hists/ana_%s_%s_plab%3.1f_%d.root", tt[itype], cbrem[brem], plab[plab_id], fid);
+  cout << " tt= " << tt[itype] <<  " Outfile= " << outFile << endl;
+  fRun->SetOutputFile(outFile);
 
   fRun->Init();
 
