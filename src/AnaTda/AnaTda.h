@@ -114,14 +114,17 @@ class AnaTda : public FairTask {
   void get_singles_lists();
   void fill_single_dists();
 
-  void truth_match(RhoCandList& org, RhoCandList& dest, const int &pdg);
+  void truth_match(RhoCandList&, RhoCandList& dest, const int &);
   void truth_match_singles();
   void fill_single_dists_tr();
 
   // Pull out candidates
   void make_pair_lists();
-  void fill_pair_mass(RhoCandList& org, TH1F* dest);
-  void fill_pair_oa(RhoCandList& org, TH1F* dest);
+  void fill_pair_mass(RhoCandList&, TH1F*);
+  void fill_pair_oa(RhoCandList&, TH1F*);
+  void fill_pair_oa(RhoCandList&, const int &);
+  void fill_pair_oa_mc(RhoCandList&, const int &);
+  void fill_pair_oa(RhoCandidate*, RhoCandidate*, const int &);
   void fill_pair_dists();
 
   void truth_match_residuals();
@@ -291,6 +294,10 @@ class AnaTda : public FairTask {
 
   TH1F *h_m_gg_pi0ana[npi0ana][nhist];
   TH1F *h_oa_gg[nhist];
+  TH2F *h_oa_gg_vs_min_e_g[nhist];
+  TH2F *h_oa_gg_vs_avg_e_g[nhist];
+  TH2F *h_oa_gg_vs_asym_e_g[nhist];
+
   TH1F *h_m_gg[nhist];
   TH1F *h_e_g[nhist];
 

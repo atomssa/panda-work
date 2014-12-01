@@ -281,12 +281,27 @@ void AnaTda::def_gamma_from_pi0_hists() {
 			  "from true #pi^{0} after ana. cut", "from true #pi^{0} after mass const"};
 
   for (int it = 0; it < nhist; ++it) {
-    h_oa_gg[it] = new TH1F(Form("h_oa_gg_%s", n[it]),
-      Form("Opening angle of #gamma-#gamma pairs %s;OA[rad]", t[it]),
-      100, 0, TMath::Pi()/2.);
-    h_m_gg[it] = new TH1F(Form("h_m_gg_%s", n[it]),
-      Form("Mass of #gamma-#gamma pairs %s;M_{#gamma#gamma}[GeV/c^{2}]", t[it]),
-      100, 0, 0.25);
+    h_m_gg[it] =
+      new TH1F(Form("h_m_gg_%s", n[it]),
+	       Form("Mass of #gamma-#gamma pairs %s;M_{#gamma#gamma}[GeV/c^{2}]", t[it]),
+	       100, 0, 0.25);
+    h_oa_gg[it] =
+      new TH1F(Form("h_oa_gg_%s", n[it]),
+	       Form("Opening angle of #gamma-#gamma pairs %s;OA[rad]", t[it]),
+	       100, 0, TMath::Pi()/2.);
+    h_oa_gg_vs_min_e_g[it] =
+      new TH2F(Form("h_oa_gg_min_e_g%s", n[it]),
+	       Form("Min(E_{#gamma 1}, E_{#gamma 2}) vs. OA of #gamma-#gamma pairs %s;OA[rad];Min(E_{#gamma 1}, E_{#gamma 2})", t[it]),
+	       100, 0, 0.5, 100, 0, TMath::Pi()/2.);
+    h_oa_gg_vs_avg_e_g[it] =
+      new TH2F(Form("h_oa_gg_avg_e_g%s", n[it]),
+	       Form("Avg(E_{#gamma 1}, E_{#gamma 2}) vs. OA of #gamma-#gamma pairs %s;OA[rad];Avg(E_{#gamma 1}, E_{#gamma 2})", t[it]),
+	       100, 0, 0.5, 100, 0, TMath::Pi()/2.);
+    h_oa_gg_vs_asym_e_g[it] =
+      new TH2F(Form("h_oa_gg_asym_e_g%s", n[it]),
+	       Form("Asym(E_{#gamma 1}, E_{#gamma 2}) vs. OA of #gamma-#gamma pairs %s;OA[rad];Asym(E_{#gamma 1}, E_{#gamma 2})", t[it]),
+	       100, 0, 1.0, 100, 0, TMath::Pi()/2.);
+
     for (int ia = 0; ia < npi0ana; ++ia) {
       if (it < 4) continue;
       h_m_gg_pi0ana[ia][it] = new TH1F(Form("h_m_gg_%s_%d", n[it], ia),
@@ -626,6 +641,22 @@ void AnaTda::fill_pair_oa(RhoCandList& org, TH1F* dest) {
   for (int j = 0; j < org.GetLength(); ++j) dest->Fill(oa(org[j]->Daughter(0),org[j]->Daughter(1)));
 }
 
+void AnaTda::fill_pair_oa(RhoCandidate* _g1, RhoCandidate* _g2, const int &itype) {
+  const double _oa = oa(_g1,_g2);
+  h_oa_gg[itype]->Fill(_oa);
+  h_oa_gg_vs_min_e_g[itype]->Fill(_oa, fmin(_g1->Energy(), _g2->Energy()) );
+  h_oa_gg_vs_avg_e_g[itype]->Fill(_oa, 0.5*(_g1->Energy() + _g2->Energy()) );
+  h_oa_gg_vs_asym_e_g[itype]->Fill(_oa, fabs(_g1->Energy() - _g2->Energy())/(_g1->Energy() + _g2->Energy()) );
+}
+
+void AnaTda::fill_pair_oa(RhoCandList& org, const int &itype) {
+  for (int j = 0; j < org.GetLength(); ++j) fill_pair_oa(org[j]->Daughter(0), org[j]->Daughter(1), itype);
+}
+
+void AnaTda::fill_pair_oa_mc(RhoCandList& org, const int &itype) {
+  for (int j = 0; j < org.GetLength(); ++j) fill_pair_oa(org[j]->Daughter(0)->GetMcTruth(), org[j]->Daughter(1)->GetMcTruth(), itype);
+}
+
 void AnaTda::fill_pair_dists() {
   fill_pair_mass(epem, h_m_epem[all]);
   fill_pair_mass(epem_tr, h_m_epem[tr]);
@@ -633,8 +664,10 @@ void AnaTda::fill_pair_dists() {
   //fill_pair_mass(pippim_tr, h_m_pippim_tr);
   fill_pair_mass(gg, h_m_gg[all]);
   fill_pair_mass(gg_tr, h_m_gg[tr]);
-  fill_pair_oa(gg, h_oa_gg[all]);
-  fill_pair_oa(gg_tr, h_oa_gg[tr]);
+  //fill_pair_oa(gg, h_oa_gg[all]);
+  //fill_pair_oa(gg_tr, h_oa_gg[tr]);
+  fill_pair_oa(gg, all);
+  fill_pair_oa(gg_tr, tr);
 }
 
 inline
@@ -911,14 +944,28 @@ void AnaTda::fill_gamma_from_pi0s() {
   RhoCandidate* _g2 = pi0_true[0]->Daughter(1);
   RhoCandidate* _g1_mc = pi0_true[0]->Daughter(0)->GetMcTruth();
   RhoCandidate* _g2_mc = pi0_true[0]->Daughter(1)->GetMcTruth();
-  h_oa_gg[pm]->Fill(oa(_g1,_g2));
-  h_oa_gg[pm_mc]->Fill(oa(_g1_mc,_g2_mc));
-  h_m_gg[pm]->Fill(mass(_g1,_g2));
-  h_m_gg[pm_mc]->Fill(mass(_g1_mc,_g2_mc));
+
   h_e_g[pm]->Fill(_g1->Energy());
   h_e_g[pm]->Fill(_g2->Energy());
   h_e_g[pm_mc]->Fill(_g1_mc->Energy());
   h_e_g[pm_mc]->Fill(_g2_mc->Energy());
+
+  h_m_gg[pm_mc]->Fill(mass(_g1_mc,_g2_mc));
+  fill_pair_oa_mc(pi0_true,pm_mc);
+  //const double _oa_mc = oa(_g1_mc,_g2_mc);
+  //h_oa_gg[pm_mc]->Fill(_oa_mc);
+  //h_oa_gg_vs_min_e_g[pm_mc]->Fill(_oa, min(_g1_mc->Energy(), _g2_mc->Energy()) );
+  //h_oa_gg_vs_avg_e_g[pm_mc]->Fill(_oa, 0.5*(_g1_mc->Energy() + _g2_mc->Energy()) );
+  //h_oa_gg_vs_asym_e_g[pm_mc]->Fill(_oa, fabs(_g1_mc->Energy() - _g2_mc->Energy())/(_g1_mc->Energy() + _g2_mc->Energy()) );
+
+  h_m_gg[pm]->Fill(mass(_g1,_g2));
+  fill_pair_oa(pi0_true,pm);
+  //const double _oa = oa(_g1,_g2);
+  //h_oa_gg[pm]->Fill(_oa);
+  //h_oa_gg_vs_min_e_g[pm]->Fill(_oa, min(_g1->Energy(), _g2->Energy()) );
+  //h_oa_gg_vs_avg_e_g[pm]->Fill(_oa, 0.5*(_g1->Energy() + _g2->Energy()) );
+  //h_oa_gg_vs_asym_e_g[pm]->Fill(_oa, fabs(_g1->Energy() - _g2->Energy())/(_g1->Energy() + _g2->Energy()) );
+
 }
 
 void AnaTda::pi0_analysis_cut() {
