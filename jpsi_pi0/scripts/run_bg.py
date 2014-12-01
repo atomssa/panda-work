@@ -8,9 +8,10 @@ my_utils.sim_type = my_utils.sim_bg
 #my_utils.test_run = False
 #my_utils.delete_unfiltered_dpm = False
 
-iplab=int(sys.argv[1]) # 1=>(p=5.513), 2=>(p=8.0), 3=>(p=12.0)
-if iplab < 1 or iplab > 3:
+iplab=int(sys.argv[1]) # 0=>(p=5.513), 1=>(p=8.0), 2=>(p=12.0)
+if iplab < 0 or iplab > 2:
     print("1st argument should be between 1 and 3. Supplied = %d" % iplab)
+    exit(0)
 
 #nevt = [10000, 40000, 100000]
 nevt = [2000000, 8000000, 40000000]
