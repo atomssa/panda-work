@@ -7,8 +7,8 @@ import full_sim
 my_utils.sim_type = my_utils.sim_sig
 #my_utils.test_run = True;
 
-_sim_type=int(sys.argv[1]) # 1=>(p=5.513), 2=>(p=8.0), 3=>(p=12.0)
-if _sim_type < 1 or _sim_type > 3:
+_sim_type=int(sys.argv[1]) # 0=>(p=5.513), 1=>(p=8.0), 2=>(p=12.0)
+if _sim_type < 0 or _sim_type > 2:
     print("1st argument should be between 1 and 3. Supplied = %d" % _sim_type)
 start=int(sys.argv[2])
 number=int(sys.argv[3])
