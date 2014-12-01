@@ -949,13 +949,13 @@ void AnaTda::pi0_analysis_cut(RhoCandList& org, RhoCandList& dest, const int& an
   }
 }
 
-void AnaTda::fill_pi0_analysis_hists(RhoCandList& list, const int& type) {
-  fill_pair_mass(list, h_m_gg[type]);
-  fill_pair_oa(list, h_oa_gg[type]);
+void AnaTda::fill_pi0_analysis_hists(RhoCandList& list, const int& itype) {
+  fill_pair_mass(list, h_m_gg[itype]);
+  fill_pair_oa(list, itype);
 }
 
-void AnaTda::fill_pi0_analysis_hists(RhoCandList& list, const int& id, const int& type) {
-  fill_pair_mass(list, h_m_gg_pi0ana[id][type]);
+void AnaTda::fill_pi0_analysis_hists(RhoCandList& list, const int& id, const int& itype) {
+  fill_pair_mass(list, h_m_gg_pi0ana[id][itype]);
 }
 
 void AnaTda::find_primary_epem() {
@@ -1099,8 +1099,8 @@ void AnaTda::jpsi_analysis_cut(RhoCandList& org, RhoCandList& dest) {
   }
 }
 
-void AnaTda::fill_jpsi_analysis_hists(RhoCandList& org, const int& type) {
-  fill_pair_mass(org, h_m_epem[type]);
+void AnaTda::fill_jpsi_analysis_hists(RhoCandList& org, const int& itype) {
+  fill_pair_mass(org, h_m_epem[itype]);
 }
 
 void AnaTda::Finish() {
@@ -1152,6 +1152,9 @@ void AnaTda::Finish() {
   gDirectory->mkdir("gg");
   gDirectory->cd("gg");
   for (int it=0; it<nhist; ++it) h_oa_gg[it]->Write();
+  for (int it=0; it<nhist; ++it) h_oa_gg_vs_min_e_g[it]->Write();
+  for (int it=0; it<nhist; ++it) h_oa_gg_vs_avg_e_g[it]->Write();
+  for (int it=0; it<nhist; ++it) h_oa_gg_vs_asym_e_g[it]->Write();
   for (int it=0; it<nhist; ++it) h_m_gg[it]->Write();
   gDirectory->cd(root);
 
@@ -1213,7 +1216,7 @@ void AnaTda::def_full_sys_hists() {
   }
 }
 
-void AnaTda::def_manual_kin_fit_hists(const int &type ) {
+void AnaTda::def_manual_kin_fit_hists(const int &itype ) {
   //const char *dth = "#theta_{#gamma#gamma}+#theta_{e^{+}e^{-}}";
   //const char *mtot = "M^{inv}_{#gamma#gamma - e^{+}e^{-}}";
   //const char *mgg = "M^{inv}_{#gamma#gamma}";
@@ -1236,34 +1239,34 @@ void AnaTda::def_manual_kin_fit_hists(const int &type ) {
      (bg_mc?"from true #pi^{+}#pi^{-}#pi^{0} after mass constraint":"from true J/#psi-#pi^{0} after mass constraint") };
 
   // cts = closest-to-s, btb = most-back-to-back
-  h_dth_vs_mass_gg_epair_btb[type] = new
-    TH2F(Form("h_dth_vs_mass_gg_epair_btb_%s",n[type]),
-	 Form("most back-to-back %s vs. %s (%s);%s[GeV/c^{2}];#Delta#theta", dth, mtot, t[type], mtot),
+  h_dth_vs_mass_gg_epair_btb[itype] = new
+    TH2F(Form("h_dth_vs_mass_gg_epair_btb_%s",n[itype]),
+	 Form("most back-to-back %s vs. %s (%s);%s[GeV/c^{2}];#Delta#theta", dth, mtot, t[itype], mtot),
 	 200, 2.9, 3.7, 200, TMath::Pi()/2., 3*TMath::Pi()/2.);
 
-  h_dth_vs_mass_gg_epair_cts[type] = new
-    TH2F(Form("h_dth_vs_mass_gg_epair_cts_%s",n[type]),
-	 Form("closest to #sqrt{s} %s vs. %s (%s);%s[GeV/c^{2}];#Delta#theta", dth, mtot, t[type], mtot),
+  h_dth_vs_mass_gg_epair_cts[itype] = new
+    TH2F(Form("h_dth_vs_mass_gg_epair_cts_%s",n[itype]),
+	 Form("closest to #sqrt{s} %s vs. %s (%s);%s[GeV/c^{2}];#Delta#theta", dth, mtot, t[itype], mtot),
 	 200, 2.9, 3.7, 200, TMath::Pi()/2., 3*TMath::Pi()/2.);
 
-  h_m_gg_btb[type] = new
-    TH1F(Form("h_m_gg_btb_%s",n[type]),
-	 Form("most back-to-back %s (%s);%s[GeV/c^{2}]", mgg, t[type], mgg),
+  h_m_gg_btb[itype] = new
+    TH1F(Form("h_m_gg_btb_%s",n[itype]),
+	 Form("most back-to-back %s (%s);%s[GeV/c^{2}]", mgg, t[itype], mgg),
 	 100, 0, 0.2);
 
-  h_m_gg_cts[type] = new
-    TH1F(Form("h_m_gg_cts_%s",n[type]),
-	 Form("closest to #sqrt{s} %s (%s); %s[GeV/c^{2}]", mgg, t[type], mgg),
+  h_m_gg_cts[itype] = new
+    TH1F(Form("h_m_gg_cts_%s",n[itype]),
+	 Form("closest to #sqrt{s} %s (%s); %s[GeV/c^{2}]", mgg, t[itype], mgg),
 	 100, 0, 0.2);
 
-  h_m_epem_btb[type] = new
-    TH1F(Form("h_m_epem_btb_%s",n[type]),
-	 Form("most back-to-back %s (%s);%s[GeV/c^{2}]", mepem, t[type], mepem),
+  h_m_epem_btb[itype] = new
+    TH1F(Form("h_m_epem_btb_%s",n[itype]),
+	 Form("most back-to-back %s (%s);%s[GeV/c^{2}]", mepem, t[itype], mepem),
 	 100, 0, 0.2);
 
-  h_m_epem_cts[type] = new
-    TH1F(Form("h_m_epem_cts_%s",n[type]),
-	 Form("closest to #sqrt{s} %s (%s); %s[GeV/c^{2}]", mepem, t[type], mepem),
+  h_m_epem_cts[itype] = new
+    TH1F(Form("h_m_epem_cts_%s",n[itype]),
+	 Form("closest to #sqrt{s} %s (%s); %s[GeV/c^{2}]", mepem, t[itype], mepem),
 	 100, 0, 0.2);
 
 }
@@ -1553,17 +1556,17 @@ void AnaTda::write_full_sys_hists() {
   gDirectory->cd(root);
 }
 
-void AnaTda::write_manual_kin_fit_hists(const int& type){
-  h_dth_vs_mass_gg_epair_btb[type]->Write();      // btb = most-back-to-back
-  h_dth_vs_mass_gg_epair_cts[type]->Write();      // cts = closest-to-s
-  h_m_gg_btb[type]->Write();     // btb = most-back-to-back
-  h_m_gg_cts[type]->Write();     // cts = closest-to-s
-  h_m_epem_btb[type]->Write();     // btb = most-back-to-back
-  h_m_epem_cts[type]->Write();     // cts = closest-to-s
+void AnaTda::write_manual_kin_fit_hists(const int& itype){
+  h_dth_vs_mass_gg_epair_btb[itype]->Write();      // btb = most-back-to-back
+  h_dth_vs_mass_gg_epair_cts[itype]->Write();      // cts = closest-to-s
+  h_m_gg_btb[itype]->Write();     // btb = most-back-to-back
+  h_m_gg_cts[itype]->Write();     // cts = closest-to-s
+  h_m_epem_btb[itype]->Write();     // btb = most-back-to-back
+  h_m_epem_cts[itype]->Write();     // cts = closest-to-s
 }
 
 // --- below are some old bad ideas
-void AnaTda::def_kin_fit_hists(const int& type, const int& hyp) {
+void AnaTda::def_kin_fit_hists(const int& itype, const int& hyp) {
 
   h_m_epem_bef_mass_fit = new TH1F("h_m_epem_bef_mass_fit","h_m_epem_bef_mass_fit",200,0,5);
   h_m_epem_aft_mass_fit = new TH1F("h_m_epem_aft_mass_fit","h_m_epem_aft_mass_fit",200,0,5);
@@ -1572,23 +1575,23 @@ void AnaTda::def_kin_fit_hists(const int& type, const int& hyp) {
   //const char *nhyp[] = {"epem", "pippim"};
   //const char *thyp[] = {"e^{+}e^{-}", "#pi^{+}#pi^{-}"};
   //
-  //h_4c_chi2[type][hyp] = new TH1F(
-  //  Form("h_4c_chi2%s_%spi0", n[type], nhyp[hyp]),
+  //h_4c_chi2[itype][hyp] = new TH1F(
+  //  Form("h_4c_chi2%s_%spi0", n[itype], nhyp[hyp]),
   //  Form("#chi^{2} of 4C fit on %s#pi^{0} system; #chi^{2}", thyp[hyp]),
   //  100, 0, 200);
   //
-  //h_4c_prob[type][hyp] = new TH1F(
-  //  Form("h_4c_prob%s_%spi0", n[type], nhyp[hyp]),
+  //h_4c_prob[itype][hyp] = new TH1F(
+  //  Form("h_4c_prob%s_%spi0", n[itype], nhyp[hyp]),
   //  Form("Probability of #chi^{2} of 4C fit on %s#pi^{0} system; prob", thyp[hyp]),
   //  100, -0.1, 1.1);
   //
-  //h_4c_m[type][hyp] = new TH1F(
-  //  Form("h_4c_m%s_%s_4c", n[type], nhyp[hyp]),
+  //h_4c_m[itype][hyp] = new TH1F(
+  //  Form("h_4c_m%s_%s_4c", n[itype], nhyp[hyp]),
   //  Form("Invariant mass of %s After 4C Fit;M_{%s}[GeV/c^{2}]", thyp[hyp], thyp[hyp]),
   //  100, 0, 4.5);
   //
-  //h_4c_prob_vs_m[type][hyp] = new TH2F(
-  //  Form("h_4c_prob_vs_m%s_%s_4c", n[type], nhyp[hyp]),
+  //h_4c_prob_vs_m[itype][hyp] = new TH2F(
+  //  Form("h_4c_prob_vs_m%s_%s_4c", n[itype], nhyp[hyp]),
   //  Form("Prob. vs. Invariant mass of %s After 4C Fit;M_{%s}[GeV/c^{2}]; prob", thyp[hyp], thyp[hyp]),
   //  100, 2.9, 3.7, 100, 0, 1);
 }
@@ -1696,9 +1699,9 @@ void AnaTda::write_tut_hists() {
   hjpsipi0m_diff->Write();
 }
 
-void AnaTda::kin_fit_pi0_nearest(RhoCandList& org, const int& type) {
+void AnaTda::kin_fit_pi0_nearest(RhoCandList& org, const int& itype) {
   for (int j = 0; j < org.GetLength(); ++j) {
-    //if (type==0)
+    //if (itype==0)
     //  h_m_epem_pi0n->Fill(org[j]->M());
     //else
     //  h_m_pippim_pi0n->Fill(org[j]->M());
@@ -1707,11 +1710,11 @@ void AnaTda::kin_fit_pi0_nearest(RhoCandList& org, const int& type) {
     fitter.Fit();  //  do fit
     double chi2_4c = fitter.GetChi2();  //  get chi2 of fit
     double prob_4c = fitter.GetProb();  //  access probability of fit
-    h_4c_chi2[0][type]->Fill(chi2_4c);
-    h_4c_prob[0][type]->Fill(prob_4c);
+    h_4c_chi2[0][itype]->Fill(chi2_4c);
+    h_4c_prob[0][itype]->Fill(prob_4c);
     if ( prob_4c > 0.01 ) {
       RhoCandidate *_fit = org[j]->Daughter(0)->GetFit();
-      h_4c_m[0][type]->Fill(_fit->M());
+      h_4c_m[0][itype]->Fill(_fit->M());
     }
   }
 }
