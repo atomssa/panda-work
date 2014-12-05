@@ -54,7 +54,7 @@ void EvtPpbarJpsiPi0::init()
 
   // constants for prob. calculation
   _Mp = 0.938;
-  _Mpi0 = 0.135;
+  _Mpi0 = 0.0; // This is required to reproduce x-sect dists. on PLB paper
   _Mjpsi2 = 9.59;
   pi = 3.14159;
   fpi = 0.093;// GeV
@@ -62,7 +62,7 @@ void EvtPpbarJpsiPi0::init()
   M0 = 8776.88; //GeV
   fphi = 0.413; //GeV
   fN = 0.005;//GeV
-  alpha_s = 0.25;
+  alpha_s = 0.252062;
   M = 3.;//GeV
   C = pow(4.*pi*alpha_s,3)*(fN*fN*fphi/fpi)*(10./81.);
 
@@ -81,12 +81,12 @@ void EvtPpbarJpsiPi0::init()
 }
 
 double EvtPpbarJpsiPi0::prob(double mand) {
-  //if (mand<_max) {
+  //if (mand > -1.0 and mand<_max) {
     double _deltaT2 = ((1-_xi)/(1+_xi)) * (mand - 2.*_xi * ( (pow(_Mp,2)/(1+_xi)) - (pow(_Mpi0,2)/(1-_xi)) ));
     double I = M0*fpi*gpiNN*_Mp*(1-_xi)/(mand-_Mp*_Mp)/(1+_xi);
     double Iprim = M0*fpi*gpiNN*_Mp/(mand-_Mp*_Mp);
-    double MT2 = 0.25*C*C*(2*(_xi+1)/_xi/pow(M,6)) *  (  pow(I,2) - _deltaT2 * pow(Iprim,2)/pow(_Mp,2) );
-    double lamda2 = pow(_s,2)-4*_s*pow(_Mp,2);
+    double MT2 = 0.25*C*C*(2*(_xi+1)/_xi/pow(M,8)) *  (  pow(I,2) - _deltaT2 * pow(Iprim,2)/pow(_Mp,2) );
+    double lamda2 = pow(_s,2)-4*_s*pow(_Mp,4);
     return MT2/(16*pi*lamda2)*0.38941*pow(10,9);
   //} else {
   //  return 0;
