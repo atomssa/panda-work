@@ -285,7 +285,8 @@ double filler::ene_p_b(cr_tlv v1, cr_tlv v2, cr_tv3 b) const { return ene_b(v1+v
 
 double filler::the(cr_tlv v) const { return rtd*(v.Vect().Theta()); }
 double filler::the_b(cr_tlv v, cr_tv3 boost) const {
-  return rtd*(boost_transf(v,boost).Angle(boost));
+  //return rtd*(boost_transf(v,boost).Angle(boost)); // WTF was I thinking?
+  return rtd*(boost_transf(v,boost).Vect().Theta());
 }
 double filler::the_p(cr_tlv v1, cr_tlv v2) const { return the(v1+v2); }
 double filler::the_p_b(cr_tlv v1, cr_tlv v2, cr_tv3 b) const { return the_b(v1+v2,b); }
@@ -309,7 +310,8 @@ double filler::phi_p_b(cr_tlv v1, cr_tlv v2, cr_tv3 b) const { return phi(v1+v2)
 
 double filler::cost(cr_tlv v) const { return v.Vect().CosTheta(); }
 double filler::cost_b(cr_tlv v, cr_tv3 boost) const {
-  return TMath::Cos(boost_transf(v,boost).Vect().Angle(boost));
+  //return TMath::Cos(boost_transf(v,boost).Vect().Angle(boost)); // WTF was I thinking?
+  return boost_transf(v,boost).CosTheta();
 }
 double filler::cost_p(cr_tlv v1, cr_tlv v2) const { return cost(v1+v2); }
 double filler::cost_p_b(cr_tlv v1, cr_tlv v2, cr_tv3 b) const { return cost_b(v1+v2,b); }
