@@ -47,6 +47,8 @@
 # Icon must ends with two \r.
 Icon
 
+#ipython notebook
+.ipynb_checkpoints/
 
 # Thumbnails
 ._*
