@@ -2,33 +2,28 @@
 
 import os,sys,shutil,subprocess
 
+plab = [5.513, 8., 12.]
+nfile = [ [5, 5, 5], [10, 10, 10]]
+ibrem = 1
 ana_args  = [];
-ana_args.append((1,0,10000))
-for i in range(10):
-    ana_args.append((0,i,10000))
-print ana_args;
-
-def execute(logf, inpipe):
-    proc = subprocess.Popen("root -b", shell=True, stdout=logf, stderr=logf, stdin=inpipe);
 
 def run_ana(ii):
     args = ana_args[ii]
-    logf_path = "log/ana/ana_tda_%s_%d.log" % (("bg" if args[0]==0 else "jpsi"), args[1])
+    logf_path = "log/ana/ana_tda_brem%d_%s_%3.1f_%d.log" % (ibrem, ("bg" if args[1]==0 else "jpsi"), plab[args[0]], args[2])
     print "logf_path= %s" % logf_path
     with open(logf_path, 'w') as logf:
-        cmd = "root -b \"macros/ana.C(%d,%d,%d)\"" % (args[0], args[1], args[2] )
+        cmd = "root -b -q \"macros/ana.C(%d, %d, %d, %d, %d)\"" % (args[0], args[1], ibrem, args[2], args[3])
         print "cmd= %s" % cmd
         subprocess.Popen(cmd, shell=True, stdout=logf, stderr=logf);
 
-def count():
-    sum = 0
-    for i in range(1000):
-        if i % 5 == 0 or i % 3 == 0 :
-            sum += i
-    print sum
-
 if __name__ == "__main__":
-    base = 4 * int(sys.argv[1])
-    for i in range(4):
-        if not (base == 8 and i == 3):
-            run_ana(base+i)
+    #arg1 = 0 for Bg 1 for sig
+    #arg2 = plab idx
+    itype = int(sys.argv[1])
+    iplab = int(sys.argv[2])
+    for ii in range(nfile[itype][iplab]):
+        ana_args.append((iplab,itype,ii,10000))
+    print ana_args;
+
+    for ii in range(len(ana_args)):
+        run_ana(ii)
