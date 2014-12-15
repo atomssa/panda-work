@@ -46,51 +46,55 @@ using std::vector;
 
 AnaTda::~AnaTda() { }
 
-AnaTda::AnaTda(const int& brem, const bool& bg)
-  :FairTask("Radiation Length Profiler"), verb(0), nevt(0), bg_mc(bg),
-   njpsi_found(0), ngg_found(0),
-   pi0oacut(npi0ana), pi0ecut_min(npi0ana), pi0ecut_max(npi0ana)
-{
-
-  fBremCorr = (brem != 0);
-
-  pi0oacut[0] = pi0oacut[1] = pi0oacut[2] = pi0oacut[3] = 0.2; //
-  pi0oacut[4] = pi0oacut[5] = pi0oacut[6] = pi0oacut[7] = 0.2;
-
-  pi0ecut_min[0] = 0.005;
-  pi0ecut_min[1] = 0.01;
-  pi0ecut_min[2] = 0.015;
-  pi0ecut_min[3] = 0.02;
-  pi0ecut_min[4] = 0.025;
-  pi0ecut_min[5] = 0.05;
-  pi0ecut_min[6] = 0.075;
-  pi0ecut_min[7] = 0.1;
-
-  pi0ecut_max[0] = 1e6;
-  pi0ecut_max[1] = 1e6;
-  pi0ecut_max[2] = 1e6;
-  pi0ecut_max[3] = 1e6;
-  pi0ecut_max[4] = 1e6;
-  pi0ecut_max[5] = 1e6;
-  pi0ecut_max[6] = 1e6;
-  pi0ecut_max[7] = 1e6;
-
-  pi0mcut_min = 0.1;
-  pi0mcut_max = 0.16;
-
-  //jpsi_mcut_min = 2.96;
-  //jpsi_mcut_max = 3.22;
-  jpsi_mcut_min = 2.5;
-  jpsi_mcut_max = 3.7;
-
-  etot_min = 3.4;
-  etot_max = 3.6;
-  dth_min = 3.0;
-  dth_max = 3.3;
-}
+AnaTda::AnaTda(const int& _iplab, const int& itype, const int& brem)
+  :FairTask("Radiation Length Profiler"),
+   nevt(0),
+   bg_mc(itype==0),
+   verb(0),
+   iplab((_iplab>=0&&_iplab<3)?_iplab:0),
+   plab{5.513,8.,12.},
+   p_antip(plab[iplab]),
+   fBremCorr(brem!=0),
+   pdg_jpsi(443),
+   pdg_pi0(111),
+   pdg_pip(211),
+   pdg_pim(-pdg_pip),
+   pdg_em(11),
+   pdg_ep(-pdg_em),
+   m0_jpsi(0.),
+   m0_pi0(0.),
+   lw{{0.11,-0.05,+0.00},{0.12,-0.03,-0.03},{0.15,-0.06,-0.07}},
+   up{{0.14,0.21,0.07},{0.12,0.15,0.15},{0.11,0.10,0.20}},
+   pi0mcut_min(0.11),
+   pi0mcut_max(0.16),
+   jpsi_mcut_min(2.5), // (2.96)
+   jpsi_mcut_max(3.7),  // (3.22)
+   etot_min(3.4),
+   etot_max(3.6),
+   dth_min(3.0),
+   dth_max(3.3),
+   mcList(),
+   pip(), pim(), ep(), em(), g(),
+   pip_tr(), pim_tr(), ep_tr(), em_tr(), g_tr(),
+   epem(), pippim(), gg(),
+   epem_tr(), pippim_tr(), gg_tr(),
+   pi0(), pi0_true(), // TODO: refactor pi0_true -> pi0_pm
+   pi0_ana(), pi0_pm_ana(),
+   pi0_ana_(npi0ana),pi0_pm_ana_(npi0ana),
+   pi0nearest(), pi0_btb(), pi0_cts(),
+   epem_mcut(), pippim_mcut(),
+   jpsi(), jpsi_true(), jpsi_ana(), jpsi_pm_ana(), // TODO: refactor jpsi_true -> jpsi_pm
+   jpsi_mconst(),
+   pi0jpsi_ana(), pi0jpsi_pm_ana(),
+   epem_mcut_pi0_btb(), epem_mcut_pi0_cts(),
+   pippim_mcut_pi0_btb(), pippim_mcut_pi0_cts(),
+   epem_pi0nearest(),
+   pippim_pi0nearest() {
+     assert(iplab>=0&&iplab<=2);
+   }
 
 InitStatus AnaTda::Init() {
-  fAnalysis = new PndAnalysis();
+  fAnalysis = new PndAnalysis(),
   def_hists();
   set_selectors();
   initial_state();
@@ -118,25 +122,18 @@ void AnaTda::set_selectors() {
   cout << "AnaTda::Init() m0_jpsi= " << m0_jpsi << " m0_pi0= " << m0_pi0 << endl;
   jpsiMassSel = new RhoMassParticleSelector("jpsi",m0_jpsi,0.137); // Not exactly corresponds to binsong thesis (2.96 - 3.23)
   pi0MassSel = new RhoMassParticleSelector("pi0",m0_pi0,0.06);
-  pdg_jpsi = 443;
-  pdg_pi0 = 111;
-  pdg_pip = 211;
-  pdg_pim = -pdg_pip;
-  pdg_em = 11;
-  pdg_ep = -pdg_em;
 }
 
 void AnaTda::initial_state(){
   // *** the lorentz vector of the initial jpsi-pi0 system
-  ini = TLorentzVector(0, 0, 5.513, 6.53023); //(0, 0, 6.231552, 7.240065);
-  const double mass_prot= 0.938;
-  const double p_antip = 5.513;
-  const double E_antip = TMath::Hypot(mass_prot, p_antip);
-  const double beta_cm = p_antip/(E_antip + mass_prot);
+  const double mprot= 0.938;
+  const double E_antip = TMath::Hypot(mprot, p_antip);
+  const double beta_cm = p_antip/(E_antip + mprot);
+  ini = TLorentzVector(0, 0, p_antip, mprot+E_antip);
   cout << "betac_cm = " << beta_cm << endl;
   boost_to_cm.SetZ(-beta_cm);
   boost_to_cm.Print();
-  sqrt_s = TMath::Sqrt(2*mass_prot*(mass_prot+E_antip));
+  sqrt_s = TMath::Sqrt(2*mprot*(mprot+E_antip));
   cout << "E_cm = " << sqrt_s << endl;
 }
 
@@ -151,6 +148,7 @@ void AnaTda::Exec(Option_t* opt) {
       cout << "===== AnaTda::Exec -- Event " << nevt << " ====="<< endl;
   }
 
+  // clean up for next pass
   cleanup_rho_cand_lists();
 
   fAnalysis->GetEvent();
@@ -175,28 +173,29 @@ void AnaTda::Exec(Option_t* opt) {
   find_primary_epem();
   jpsi_analysis_cut();
 
-  pi0jpsi_efficiency(pi0_true, jpsi_true, eff_ref);
-  pi0jpsi_efficiency(pi0_pm_ana, jpsi_true, eff_pi0sel);
-  pi0jpsi_efficiency(pi0_pm_ana, jpsi_pm_ana, eff_jpsisel);
-  pi0jpsi_efficiency(pi0_pm_ana, jpsi_pm_ana, eff_kin);
-  pi0jpsi_efficiency(pi0_pm_ana, jpsi_pm_ana, eff_excl);
+  // Only do this part if truth matching is not ambiguous
+  if (pi0_true.GetLength()==1 && jpsi_true.GetLength()==1) {
+    pi0jpsi_efficiency(pi0_true, jpsi_true, eff_ref);
+    pi0jpsi_efficiency(pi0_pm_ana, jpsi_true, eff_pi0sel);
+    pi0jpsi_efficiency(pi0_pm_ana, jpsi_pm_ana, eff_jpsisel);
+    pi0jpsi_efficiency(pi0_pm_ana, jpsi_pm_ana, eff_kin);
+    pi0jpsi_efficiency(pi0_pm_ana, jpsi_pm_ana, eff_excl);
+
+    pi0jpsi_kinematics(pi0_ana,jpsi_ana,ana);
+    pi0jpsi_kinematics(pi0_pm_ana,jpsi_pm_ana,pm_ana);
+    pi0jpsi_true_kinematics(pi0_true,jpsi_true);
+    pi0jpsi_kin_fit(pi0_pm_ana, jpsi_pm_ana);
+    pi0jpsi_efficiency(pi0_pm_ana, jpsi_pm_ana, eff_const);
+  }
 
   //pi0jpsi_ana.Combine(pi0_ana,jpsi_ana);
   //pi0jpsi_pm_ana.Combine(pi0_pm_ana,jpsi_pm_ana);
-
   //pi0_kinematic_selection(pi0,jpsi,rec);
-  pi0jpsi_kinematics(pi0_ana,jpsi_ana,ana);
-  pi0jpsi_kinematics(pi0_pm_ana,jpsi_pm_ana,pm_ana);
-
-  pi0jpsi_true_kinematics(pi0_true,jpsi_true);
-
-  pi0jpsi_kin_fit(pi0_pm_ana, jpsi_pm_ana);
-  pi0jpsi_efficiency(pi0_pm_ana, jpsi_pm_ana, eff_const);
-
   //pdgm_nearest_pi0s();
   //pi0_kinematic_selection();
   //kin_fit_all();
   //kin_fit_pi0_nearest_all();
+
 }
 
 void AnaTda::def_pair_hists() {
@@ -280,33 +279,36 @@ void AnaTda::def_gamma_from_pi0_hists() {
 			  "from true #pi^{0} (MC)", "after analysis cuts",
 			  "from true #pi^{0} after ana. cut", "from true #pi^{0} after mass const"};
 
+  const double mgg_max = 0.25;
   for (int it = 0; it < nhist; ++it) {
     h_m_gg[it] =
       new TH1F(Form("h_m_gg_%s", n[it]),
 	       Form("Mass of #gamma-#gamma pairs %s;M_{#gamma#gamma}[GeV/c^{2}]", t[it]),
-	       100, 0, 0.25);
+	       100, 0, mgg_max);
     h_oa_gg[it] =
       new TH1F(Form("h_oa_gg_%s", n[it]),
 	       Form("Opening angle of #gamma-#gamma pairs %s;OA[rad]", t[it]),
-	       100, 0, TMath::Pi()/2.);
+	       200, 0, TMath::Pi()/2.);
+    double emax = 0.8;
+    if (iplab==1) emax = 1.9;
+    if (iplab==2) emax = 3.8;
     h_oa_gg_vs_min_e_g[it] =
-      new TH2F(Form("h_oa_gg_min_e_g%s", n[it]),
+      new TH2F(Form("h_oa_gg_min_e_g_%s", n[it]),
 	       Form("Min(E_{#gamma 1}, E_{#gamma 2}) vs. OA of #gamma-#gamma pairs %s;OA[rad];Min(E_{#gamma 1}, E_{#gamma 2})", t[it]),
-	       100, 0, 0.5, 100, 0, TMath::Pi()/2.);
+	       200, 0, TMath::Pi()/2., 200, 0, emax);
     h_oa_gg_vs_avg_e_g[it] =
-      new TH2F(Form("h_oa_gg_avg_e_g%s", n[it]),
+      new TH2F(Form("h_oa_gg_avg_e_g_%s", n[it]),
 	       Form("Avg(E_{#gamma 1}, E_{#gamma 2}) vs. OA of #gamma-#gamma pairs %s;OA[rad];Avg(E_{#gamma 1}, E_{#gamma 2})", t[it]),
-	       100, 0, 0.5, 100, 0, TMath::Pi()/2.);
+	       200, 0, TMath::Pi(), 200, 0, emax);
     h_oa_gg_vs_asym_e_g[it] =
-      new TH2F(Form("h_oa_gg_asym_e_g%s", n[it]),
+      new TH2F(Form("h_oa_gg_asym_e_g_%s", n[it]),
 	       Form("Asym(E_{#gamma 1}, E_{#gamma 2}) vs. OA of #gamma-#gamma pairs %s;OA[rad];Asym(E_{#gamma 1}, E_{#gamma 2})", t[it]),
-	       100, 0, 1.0, 100, 0, TMath::Pi()/2.);
-
+	       200, 0, TMath::Pi(), 200, 0, 1.1);
     for (int ia = 0; ia < npi0ana; ++ia) {
       if (it < 4) continue;
       h_m_gg_pi0ana[ia][it] = new TH1F(Form("h_m_gg_%s_%d", n[it], ia),
         Form("Mass of #gamma-#gamma pairs %s (Ana. Cut %d);M_{#gamma#gamma}[GeV/c^{2}]", t[it], ia),
-        100, 0, 0.4);
+        100, 0, mgg_max);
     }
     h_e_g[it] = new TH1F(Form("h_e_g_%s", n[it]),
       Form("Energy of #gamma %s;E[GeV]", t[it]),
@@ -839,103 +841,118 @@ double AnaTda::dist_jpsi_pair_match(RhoCandidate *c) {
 		      c->Daughter(1)->Energy()-c->Daughter(1)->GetMcTruth()->Energy());
 }
 
-void AnaTda::find_primary_gg() {
+//void AnaTda::find_primary_gg() {
+//
+//  if (verb)
+//    cout << "=============== FIND PRIMARY NEUTRAL PAIR (ng= "  << g.GetLength() << ") ================" << endl;
+//
+//  RhoCandidate *_match;
+//  double dist_min = 1e9;
+//  pi0.SetType(pdg_pi0);
+//  pi0.Combine(g, g);
+//  int tp = -1;
+//  int td[2] = {-1, -1};
+//  bool set_mc_match = false;
+//  for (int j = 0; j < pi0.GetLength(); ++j) {
+//    pi0[j]->SetType(pdg_pi0); // just to make sure in case it was forgotten
+//    // Let the framework do the matching first. This sets the matching to the full
+//    // arborescence if it scucees to find a primary match. Otherwise do it manually for the
+//    // case that fails (pi0->gg in BG simulation)
+//    fAnalysis->McTruthMatch(pi0[j]);
+//    bool framework_found = false;
+//    double dist_framework = 0;
+//    if (pi0[j]->GetMcTruth() and pi0[j]->Daughter(0)->GetMcTruth() and pi0[j]->Daughter(1)->GetMcTruth()){
+//      framework_found =true;
+//      dist_framework = dist_pi0_pair_match(pi0[j]);
+//      if (dist_framework < dist_min) {
+//	dist_min = dist_framework;
+//	_match = pi0[j];
+//	tp = pi0[j]->GetMcTruth()->GetTrackNumber();
+//	td[0] = pi0[j]->Daughter(0)->GetMcTruth()->GetTrackNumber();
+//	td[1] = pi0[j]->Daughter(1)->GetMcTruth()->GetTrackNumber();
+//      }
+//    }
+//
+//    int ip = 0, i0 = 0, i1 = 0;
+//    double dist_custom = primary_match_pair(pdg_pi0, pi0[j], ip, i0, i1);
+//    bool custom_found = false;
+//    if ( dist_custom >= 0 ) {
+//      custom_found = true;
+//      if (dist_custom < dist_min) {
+//        _match = pi0[j];
+//        dist_min = dist_custom;
+//	set_mc_match = true;
+//	tp = ip;
+//	td[0] = i0;
+//	td[1] = i1;
+//      }
+//    }
+//
+//    if (framework_found or custom_found ) {
+//      if (verb) {
+//	cout << "------------------------------------------------------------" << endl;
+//	if (framework_found) {
+//	  cout << "Framework gg=(" << pi0[j]->Daughter(0)->Uid() << "," << pi0[j]->Daughter(1)->Uid()
+//	       << "): " << pdg_pi0 << " M= " << pi0[j]->GetMcTruth()->GetTrackNumber()
+//	       << " d0= " << pi0[j]->Daughter(0)->GetMcTruth()->GetTrackNumber()
+//	       << " d1= " << pi0[j]->Daughter(1)->GetMcTruth()->GetTrackNumber()
+//	       << " dist= " << dist_framework << endl;
+//	} else {
+//	  cout << "Framework    " << pdg_pi0 << ": no match" << endl;
+//	}
+//	if (custom_found)
+//	  cout << "Custom:  gg=(" << pi0[j]->Daughter(0)->Uid() << "," << pi0[j]->Daughter(1)->Uid() << "): " << pdg_pi0 <<  " M= "
+//	       << ip << " d0= " << i0 << " d1= " << i1 << " dist= " << dist_custom << endl;
+//	else
+//	  cout << "Custom    " << pdg_pi0 << ": no match" << endl;
+//	cout << "------------------------------------------------------------" << endl;
+//      }
+//    }
+//  }
+//
+//  if (dist_min<1e8) {
+//    if (verb) {
+//      cout << "===========================================================" << endl;
+//      cout << "Custom Best Pair: TrackNum(pi0 " << _match->Daughter(0)->Uid() << "," << _match->Daughter(1)->Uid() << ")  M= "
+//	   << _match->GetTrackNumber() << " d0= " << _match->Daughter(0)->GetTrackNumber()
+//	   << " d1= " << _match->Daughter(1)->GetTrackNumber() << endl;
+//      cout << "Custom Best Pair: TruthMatch(pi0 " << _match->Daughter(0)->Uid() << "," << _match->Daughter(1)->Uid() << ")  M= "
+//	 << tp << " d0= " << td[0] << " d1= " << td[1] << " dist= " << dist_min << endl;
+//    }
+//    if (set_mc_match) {
+//      if (verb) cout << "Framwork didn't find match. Manually setting match" << endl;
+//      _match->SetMcTruth(mcList[tp]);
+//      for (int i=0; i<2; ++i) _match->Daughter(i)->SetMcTruth(mcList[td[i]]);
+//    }
+//    if (verb) {
+//      cout << "Custom  Check: TruthMatch(pi0): M= " << _match->GetMcTruth()->GetTrackNumber()
+//	   << " d0= " << _match->Daughter(0)->GetMcTruth()->GetTrackNumber()
+//	   << " d1= " << _match->Daughter(1)->GetMcTruth()->GetTrackNumber()  << endl;
+//      cout << "===========================================================" << endl;
+//    }
+//    pi0_true.Append(_match);
+//    fill_gamma_from_pi0s();
+//  }  else {
+//    if (g.GetLength()>1) {
+//      cout << "Nevt= " << nevt << " valid reonstructed photon pair, but no priamry match found" << endl;
+//    }
+//  }
+//}
 
+// Much simpler version, but there may be more than one "true" pi0 found per event
+void AnaTda::find_primary_gg() {
   if (verb)
     cout << "=============== FIND PRIMARY NEUTRAL PAIR (ng= "  << g.GetLength() << ") ================" << endl;
-
-  RhoCandidate *_match;
-  double dist_min = 1e9;
   pi0.SetType(pdg_pi0);
   pi0.Combine(g, g);
-  int tp = -1;
-  int td[2] = {-1, -1};
-  bool set_mc_match = false;
   for (int j = 0; j < pi0.GetLength(); ++j) {
     pi0[j]->SetType(pdg_pi0); // just to make sure in case it was forgotten
-    // Let the framework do the matching first. This sets the matching to the full
-    // arborescence if it scucees to find a primary match. Otherwise do it manually for the
-    // case that fails (pi0->gg in BG simulation)
     fAnalysis->McTruthMatch(pi0[j]);
-    bool framework_found = false;
-    double dist_framework = 0;
     if (pi0[j]->GetMcTruth() and pi0[j]->Daughter(0)->GetMcTruth() and pi0[j]->Daughter(1)->GetMcTruth()){
-      framework_found =true;
-      dist_framework = dist_pi0_pair_match(pi0[j]);
-      if (dist_framework < dist_min) {
-	dist_min = dist_framework;
-	_match = pi0[j];
-	tp = pi0[j]->GetMcTruth()->GetTrackNumber();
-	td[0] = pi0[j]->Daughter(0)->GetMcTruth()->GetTrackNumber();
-	td[1] = pi0[j]->Daughter(1)->GetMcTruth()->GetTrackNumber();
-      }
-    }
-
-    int ip = 0, i0 = 0, i1 = 0;
-    double dist_custom = primary_match_pair(pdg_pi0, pi0[j], ip, i0, i1);
-    bool custom_found = false;
-    if ( dist_custom >= 0 ) {
-      custom_found = true;
-      if (dist_custom < dist_min) {
-        _match = pi0[j];
-        dist_min = dist_custom;
-	set_mc_match = true;
-	tp = ip;
-	td[0] = i0;
-	td[1] = i1;
-      }
-    }
-
-    if (framework_found or custom_found ) {
-      if (verb) {
-	cout << "------------------------------------------------------------" << endl;
-	if (framework_found) {
-	  cout << "Framework gg=(" << pi0[j]->Daughter(0)->Uid() << "," << pi0[j]->Daughter(1)->Uid()
-	       << "): " << pdg_pi0 << " M= " << pi0[j]->GetMcTruth()->GetTrackNumber()
-	       << " d0= " << pi0[j]->Daughter(0)->GetMcTruth()->GetTrackNumber()
-	       << " d1= " << pi0[j]->Daughter(1)->GetMcTruth()->GetTrackNumber()
-	       << " dist= " << dist_framework << endl;
-	} else {
-	  cout << "Framework    " << pdg_pi0 << ": no match" << endl;
-	}
-	if (custom_found)
-	  cout << "Custom:  gg=(" << pi0[j]->Daughter(0)->Uid() << "," << pi0[j]->Daughter(1)->Uid() << "): " << pdg_pi0 <<  " M= "
-	       << ip << " d0= " << i0 << " d1= " << i1 << " dist= " << dist_custom << endl;
-	else
-	  cout << "Custom    " << pdg_pi0 << ": no match" << endl;
-	cout << "------------------------------------------------------------" << endl;
-      }
+      pi0_true.Append(pi0[j]);
     }
   }
-
-  if (dist_min<1e8) {
-    if (verb) {
-      cout << "===========================================================" << endl;
-      cout << "Custom Best Pair: TrackNum(pi0 " << _match->Daughter(0)->Uid() << "," << _match->Daughter(1)->Uid() << ")  M= "
-	   << _match->GetTrackNumber() << " d0= " << _match->Daughter(0)->GetTrackNumber()
-	   << " d1= " << _match->Daughter(1)->GetTrackNumber() << endl;
-      cout << "Custom Best Pair: TruthMatch(pi0 " << _match->Daughter(0)->Uid() << "," << _match->Daughter(1)->Uid() << ")  M= "
-	 << tp << " d0= " << td[0] << " d1= " << td[1] << " dist= " << dist_min << endl;
-    }
-    if (set_mc_match) {
-      if (verb) cout << "Framwork didn't find match. Manually setting match" << endl;
-      _match->SetMcTruth(mcList[tp]);
-      for (int i=0; i<2; ++i) _match->Daughter(i)->SetMcTruth(mcList[td[i]]);
-    }
-    if (verb) {
-      cout << "Custom  Check: TruthMatch(pi0): M= " << _match->GetMcTruth()->GetTrackNumber()
-	   << " d0= " << _match->Daughter(0)->GetMcTruth()->GetTrackNumber()
-	   << " d1= " << _match->Daughter(1)->GetMcTruth()->GetTrackNumber()  << endl;
-      cout << "===========================================================" << endl;
-    }
-    ngg_found++;
-    pi0_true.Append(_match);
-    fill_gamma_from_pi0s();
-  }  else {
-    if (g.GetLength()>1) {
-      cout << "Nevt= " << nevt << " valid reonstructed photon pair, but no priamry match found" << endl;
-    }
-  }
+  fill_gamma_from_pi0s();
 }
 
 void AnaTda::fill_gamma_from_pi0s() {
@@ -952,43 +969,42 @@ void AnaTda::fill_gamma_from_pi0s() {
 
   h_m_gg[pm_mc]->Fill(mass(_g1_mc,_g2_mc));
   fill_pair_oa_mc(pi0_true,pm_mc);
-  //const double _oa_mc = oa(_g1_mc,_g2_mc);
-  //h_oa_gg[pm_mc]->Fill(_oa_mc);
-  //h_oa_gg_vs_min_e_g[pm_mc]->Fill(_oa, min(_g1_mc->Energy(), _g2_mc->Energy()) );
-  //h_oa_gg_vs_avg_e_g[pm_mc]->Fill(_oa, 0.5*(_g1_mc->Energy() + _g2_mc->Energy()) );
-  //h_oa_gg_vs_asym_e_g[pm_mc]->Fill(_oa, fabs(_g1_mc->Energy() - _g2_mc->Energy())/(_g1_mc->Energy() + _g2_mc->Energy()) );
 
   h_m_gg[pm]->Fill(mass(_g1,_g2));
   fill_pair_oa(pi0_true,pm);
-  //const double _oa = oa(_g1,_g2);
-  //h_oa_gg[pm]->Fill(_oa);
-  //h_oa_gg_vs_min_e_g[pm]->Fill(_oa, min(_g1->Energy(), _g2->Energy()) );
-  //h_oa_gg_vs_avg_e_g[pm]->Fill(_oa, 0.5*(_g1->Energy() + _g2->Energy()) );
-  //h_oa_gg_vs_asym_e_g[pm]->Fill(_oa, fabs(_g1->Energy() - _g2->Energy())/(_g1->Energy() + _g2->Energy()) );
-
 }
 
 void AnaTda::pi0_analysis_cut() {
-  // for actual eff. analysis, use 5 cutset 4, e>0.05, oa>0.2
-  pi0_analysis_cut(pi0, pi0_ana, 5, true);
+  pi0_analysis_cut(pi0, pi0_ana, true);
   fill_pi0_analysis_hists(pi0_ana, ana);
-  pi0_analysis_cut(pi0_true, pi0_pm_ana, 5, true);
-  fill_pi0_analysis_hists(pi0_pm_ana, pm_ana);
+  if (pi0_true.GetLength()==1){
+    pi0_analysis_cut(pi0_true, pi0_pm_ana, true);
+    fill_pi0_analysis_hists(pi0_pm_ana, pm_ana);
+  }
   for (int i=0; i < npi0ana; ++i) {
-    pi0_analysis_cut(pi0, pi0_ana_[i], i%(npi0ana/2), i>=npi0ana/2);
+    pi0_analysis_cut(pi0, pi0_ana_[i], i==1);
     fill_pi0_analysis_hists(pi0_ana_[i], i, ana);
-    pi0_analysis_cut(pi0_true, pi0_pm_ana_[i], i%(npi0ana/2), i>=npi0ana/2);
-    fill_pi0_analysis_hists(pi0_pm_ana_[i], i, pm_ana);
+    if (pi0_true.GetLength()==1) {
+      pi0_analysis_cut(pi0_true, pi0_pm_ana_[i], i==1);
+      fill_pi0_analysis_hists(pi0_pm_ana_[i], i, pm_ana);
+    }
   }
 }
 
-void AnaTda::pi0_analysis_cut(RhoCandList& org, RhoCandList& dest, const int& ana_cut_id, bool mcut = false) {
+bool AnaTda::oa_vs_avg_cut(const double& _oa, const double &_avg){
+  bool acc = (_avg > (lw[iplab][2] + (lw[iplab][0]/(_oa-lw[iplab][1]))));
+  if (_oa>up[iplab][1])
+    acc = acc && (_avg < (up[iplab][2] + (up[iplab][0] / (_oa-up[iplab][1]))));
+  return acc;
+}
+
+void AnaTda::pi0_analysis_cut(RhoCandList& org, RhoCandList& dest, bool mcut = false) {
   for (int i = 0; i < org.GetLength(); ++i) {
     RhoCandidate *_g1 = org[i]->Daughter(0);
     RhoCandidate *_g2 = org[i]->Daughter(1);
-    if ( oa(_g1,_g2) > pi0oacut[ana_cut_id]
-      and _g1->Energy() > pi0ecut_min[ana_cut_id] and _g1->Energy() < pi0ecut_max[ana_cut_id]
-      and _g2->Energy() > pi0ecut_min[ana_cut_id] and _g2->Energy() < pi0ecut_max[ana_cut_id]) {
+    const double _oa = oa(_g1,_g2);
+    const double _e_avg = 0.5 * (_g1->Energy() + _g2->Energy());
+    if ( oa_vs_avg_cut(_oa, _e_avg) ) {
       if (!mcut || (mcut && org[i]->M() > pi0mcut_min and org[i]->M() < pi0mcut_max) ) {
         dest.Append(org[i]);
       }
@@ -1005,107 +1021,150 @@ void AnaTda::fill_pi0_analysis_hists(RhoCandList& list, const int& id, const int
   fill_pair_mass(list, h_m_gg_pi0ana[id][itype]);
 }
 
+//void AnaTda::find_primary_epem() {
+//
+//  RhoCandidate *_match;
+//  double dist_min = 1e9;
+//  jpsi.SetType(pdg_jpsi);
+//  jpsi.Combine(ep, em);
+//
+//  if (verb)
+//    cout << "=============== FIND PRIMARY CHARGED PAIR (nep= " << ep.GetLength() << " nem=" << em.GetLength()
+//	 << " njpsi= " << jpsi.GetLength() << " ) ================" << endl;
+//
+//  bool set_mc_match = false;
+//  int tp = -1;
+//  int td[2] = {-1, -1};
+//  for (int j = 0; j < jpsi.GetLength(); ++j) {
+//    jpsi[j]->SetType(pdg_jpsi); // just to make sure in case it was forgotten
+//    // Let the framework do the matching first. This sets the matching to the full
+//    // arborescence if it scucees to find a primary match. Otherwise do it manually for the
+//    // case that fails. For J/psi, framework usually succeeds
+//    fAnalysis->McTruthMatch(jpsi[j]);
+//    bool framework_found = false;
+//    double dist_framework = 0;
+//    if (jpsi[j]->GetMcTruth() and jpsi[j]->Daughter(0)->GetMcTruth() and jpsi[j]->Daughter(1)->GetMcTruth()){
+//      framework_found =true;
+//      dist_framework = dist_jpsi_pair_match(jpsi[j]);
+//      if (dist_framework < dist_min) {
+//	dist_min = dist_framework;
+//	_match = jpsi[j];
+//	tp = jpsi[j]->GetMcTruth()->GetTrackNumber();
+//	td[0] = jpsi[j]->Daughter(0)->GetMcTruth()->GetTrackNumber();
+//	td[1] = jpsi[j]->Daughter(1)->GetMcTruth()->GetTrackNumber();
+//      }
+//    }
+//
+//    int ip = 0, i0 = 0, i1 = 0;
+//    double dist_custom = primary_match_pair(pdg_jpsi, jpsi[j], ip, i0, i1);
+//    bool custom_found = false;
+//    if ( dist_custom >= 0 ) {
+//      custom_found =true;
+//      if (dist_custom < dist_min) {
+//        _match = jpsi[j];
+//        dist_min = dist_custom;
+//	set_mc_match = true;
+//	tp = ip;
+//	td[0] = i0;
+//	td[1] = i1;
+//      }
+//    }
+//
+//    if (framework_found || custom_found ) {
+//      if (verb) {
+//
+//	cout << "------------------------------------------------------------" << endl;
+//	if (framework_found) {
+//	  cout << "Framework ee=(" << jpsi[j]->Daughter(0)->Uid() << "," << jpsi[j]->Daughter(1)->Uid()
+//	       << "): " << pdg_jpsi << " M= " << jpsi[j]->GetMcTruth()->GetTrackNumber()
+//	       << " d0= " << jpsi[j]->Daughter(0)->GetMcTruth()->GetTrackNumber()
+//	       << " d1= " << jpsi[j]->Daughter(1)->GetMcTruth()->GetTrackNumber()
+//	       << " dist= " << dist_framework << endl;
+//	} else {
+//	  cout << "Framework    " << pdg_jpsi << ": no match" << endl;
+//	}
+//	if (custom_found)
+//	  cout << "Custom:  ep=(" << jpsi[j]->Daughter(0)->Uid() << "," << jpsi[j]->Daughter(1)->Uid() << "): " << pdg_jpsi << " M= "
+//	       << ip << " d0= " << i0 << " d1= " << i1 << " dist= " << dist_custom << endl;
+//	else
+//	  cout << "Custom    " << pdg_jpsi << ": no match" << endl;
+//	cout << "------------------------------------------------------------" << endl;
+//      }
+//    }
+//  }
+//
+//  if (dist_min<1e8) {
+//    if (verb) {
+//      cout << "===========================================================" << endl;
+//      cout << "Custom Best Pair: TrackNum(psi " << _match->Daughter(0)->Uid() << "," << _match->Daughter(1)->Uid()
+//	   << ")  M= " << _match->GetTrackNumber() << " d0= " << _match->Daughter(0)->GetTrackNumber()
+//	   << " d1= " << _match->Daughter(1)->GetTrackNumber() << endl;
+//      cout << "Custom Best Pair: TruthMatch(psi " << _match->Daughter(0)->Uid() << "," << _match->Daughter(1)->Uid() << ")  M= "
+//	   << tp << " d0= " << td[0] << " d1= " << td[1] << " dist= " << dist_min << endl;
+//    }
+//    if (set_mc_match) {
+//      if (verb) cout << "Framwork didn't find match. Manually setting match" << endl;
+//      _match->SetMcTruth(mcList[tp]);
+//      for (int i=0; i<2; ++i) _match->Daughter(i)->SetMcTruth(mcList[td[i]]);
+//    }
+//    if (verb){
+//      cout << "Custom check: TruthMatch(psi): M= " << _match->GetMcTruth()->GetTrackNumber()
+//	   << " d0= " << _match->Daughter(0)->GetMcTruth()->GetTrackNumber()
+//	   << " d1= " << _match->Daughter(1)->GetMcTruth()->GetTrackNumber()  << endl;
+//      cout << "===========================================================" << endl;
+//    }
+//    jpsi_true.Append(_match);
+//    fill_elecs_from_jpsi();
+//  } else {
+//    if (jpsi.GetLength()>0) {
+//      cout << "Nevt= " << nevt <<  " Valid charged pair reconstructed but coudln't be matched to primary charged pair" << endl;
+//    }
+//  }
+//
+//}
+
 void AnaTda::find_primary_epem() {
 
-  RhoCandidate *_match;
-  double dist_min = 1e9;
-  jpsi.SetType(pdg_jpsi);
   jpsi.Combine(ep, em);
 
-  if (verb)
-    cout << "=============== FIND PRIMARY CHARGED PAIR (nep= " << ep.GetLength() << " nem=" << em.GetLength()
-	 << " njpsi= " << jpsi.GetLength() << " ) ================" << endl;
-
-  bool set_mc_match = false;
-  int tp = -1;
-  int td[2] = {-1, -1};
-  for (int j = 0; j < jpsi.GetLength(); ++j) {
-    jpsi[j]->SetType(pdg_jpsi); // just to make sure in case it was forgotten
-    // Let the framework do the matching first. This sets the matching to the full
-    // arborescence if it scucees to find a primary match. Otherwise do it manually for the
-    // case that fails. For J/psi, framework usually succeeds
-    fAnalysis->McTruthMatch(jpsi[j]);
-    bool framework_found = false;
-    double dist_framework = 0;
-    if (jpsi[j]->GetMcTruth() and jpsi[j]->Daughter(0)->GetMcTruth() and jpsi[j]->Daughter(1)->GetMcTruth()){
-      framework_found =true;
-      dist_framework = dist_jpsi_pair_match(jpsi[j]);
-      if (dist_framework < dist_min) {
-	dist_min = dist_framework;
-	_match = jpsi[j];
-	tp = jpsi[j]->GetMcTruth()->GetTrackNumber();
-	td[0] = jpsi[j]->Daughter(0)->GetMcTruth()->GetTrackNumber();
-	td[1] = jpsi[j]->Daughter(1)->GetMcTruth()->GetTrackNumber();
+  // bg and signal treated differently because by definition bg events don't have true electrons
+  if (bg_mc != 0) {
+    jpsi.SetType(pdg_jpsi);
+    for (int j=0; j < jpsi.GetLength(); ++j) {
+      jpsi[j]->SetType(pdg_jpsi);
+      fAnalysis->McTruthMatch(jpsi[j]);
+      if (jpsi[j]->GetMcTruth() and jpsi[j]->Daughter(0)->GetMcTruth() and jpsi[j]->Daughter(1)->GetMcTruth()){
+	jpsi_true.Append(jpsi[j]);
       }
     }
 
-    int ip = 0, i0 = 0, i1 = 0;
-    double dist_custom = primary_match_pair(pdg_jpsi, jpsi[j], ip, i0, i1);
+  } else {
+    RhoCandidate *_match;
+    double dist_min = 1e9;
     bool custom_found = false;
-    if ( dist_custom >= 0 ) {
-      custom_found =true;
-      if (dist_custom < dist_min) {
-        _match = jpsi[j];
-        dist_min = dist_custom;
-	set_mc_match = true;
-	tp = ip;
-	td[0] = i0;
-	td[1] = i1;
-      }
-    }
-
-    if (framework_found || custom_found ) {
-      if (verb) {
-
-	cout << "------------------------------------------------------------" << endl;
-	if (framework_found) {
-	  cout << "Framework ee=(" << jpsi[j]->Daughter(0)->Uid() << "," << jpsi[j]->Daughter(1)->Uid()
-	       << "): " << pdg_jpsi << " M= " << jpsi[j]->GetMcTruth()->GetTrackNumber()
-	       << " d0= " << jpsi[j]->Daughter(0)->GetMcTruth()->GetTrackNumber()
-	       << " d1= " << jpsi[j]->Daughter(1)->GetMcTruth()->GetTrackNumber()
-	       << " dist= " << dist_framework << endl;
-	} else {
-	  cout << "Framework    " << pdg_jpsi << ": no match" << endl;
+    int tp = -1;
+    int td[2] = {-1, -1};
+    for (int j = 0; j < jpsi.GetLength(); ++j) {
+      int ip = 0, i0 = 0, i1 = 0;
+      double dist_custom = primary_match_pair(pdg_jpsi, jpsi[j], ip, i0, i1);
+      if ( dist_custom >= 0 ) {
+	custom_found =true;
+	if (dist_custom < dist_min) {
+	  _match = jpsi[j];
+	  dist_min = dist_custom;
+	  tp = ip;
+	  td[0] = i0;
+	  td[1] = i1;
 	}
-	if (custom_found)
-	  cout << "Custom:  ep=(" << jpsi[j]->Daughter(0)->Uid() << "," << jpsi[j]->Daughter(1)->Uid() << "): " << pdg_jpsi << " M= "
-	       << ip << " d0= " << i0 << " d1= " << i1 << " dist= " << dist_custom << endl;
-	else
-	  cout << "Custom    " << pdg_jpsi << ": no match" << endl;
-	cout << "------------------------------------------------------------" << endl;
       }
     }
-  }
-
-  if (dist_min<1e8) {
-    if (verb) {
-      cout << "===========================================================" << endl;
-      cout << "Custom Best Pair: TrackNum(psi " << _match->Daughter(0)->Uid() << "," << _match->Daughter(1)->Uid()
-	   << ")  M= " << _match->GetTrackNumber() << " d0= " << _match->Daughter(0)->GetTrackNumber()
-	   << " d1= " << _match->Daughter(1)->GetTrackNumber() << endl;
-      cout << "Custom Best Pair: TruthMatch(psi " << _match->Daughter(0)->Uid() << "," << _match->Daughter(1)->Uid() << ")  M= "
-	   << tp << " d0= " << td[0] << " d1= " << td[1] << " dist= " << dist_min << endl;
-    }
-    if (set_mc_match) {
-      if (verb) cout << "Framwork didn't find match. Manually setting match" << endl;
+    if (custom_found) {
       _match->SetMcTruth(mcList[tp]);
       for (int i=0; i<2; ++i) _match->Daughter(i)->SetMcTruth(mcList[td[i]]);
-    }
-    if (verb){
-      cout << "Custom check: TruthMatch(psi): M= " << _match->GetMcTruth()->GetTrackNumber()
-	   << " d0= " << _match->Daughter(0)->GetMcTruth()->GetTrackNumber()
-	   << " d1= " << _match->Daughter(1)->GetMcTruth()->GetTrackNumber()  << endl;
-      cout << "===========================================================" << endl;
-    }
-    njpsi_found++;
-    jpsi_true.Append(_match);
-    fill_elecs_from_jpsi();
-  } else {
-    if (jpsi.GetLength()>0) {
-      cout << "Nevt= " << nevt <<  " Valid charged pair reconstructed but coudln't be matched to primary charged pair" << endl;
+      jpsi_true.Append(_match);
     }
   }
-
+  fill_elecs_from_jpsi();
 }
 
 void AnaTda::find_primary_pippim() {
@@ -1133,8 +1192,10 @@ void AnaTda::fill_elecs_from_jpsi() {
 void AnaTda::jpsi_analysis_cut() {
   jpsi_analysis_cut(jpsi, jpsi_ana);
   fill_jpsi_analysis_hists(jpsi_ana,ana);
-  jpsi_analysis_cut(jpsi_true, jpsi_pm_ana);
-  fill_jpsi_analysis_hists(jpsi_pm_ana,pm_ana);
+  if (jpsi_true.GetLength()==1) {
+    jpsi_analysis_cut(jpsi_true, jpsi_pm_ana);
+    fill_jpsi_analysis_hists(jpsi_pm_ana,pm_ana);
+  }
 }
 
 void AnaTda::jpsi_analysis_cut(RhoCandList& org, RhoCandList& dest) {
@@ -1242,11 +1303,13 @@ void AnaTda::def_full_sys_hists() {
 			  (bg_mc?"from true #pi^{+}#pi^{-}#pi^{0} after mass constraint":"from true J/#psi-#pi^{0} after mass constraint"),
   };
 
+  double _m_tot_min=iplab==0?1.5:(iplab==1?2.0:2.5);
+  double _m_tot_max=iplab==0?4.5:(iplab==1?5.5:6.5);
   for (int it=2; it<nhist; ++it) {
     h_dth_vs_mass_gg_epair[it] = new
       TH2F(Form("h_dth_vs_mass_gg_epair_%s",n[it]),
 	   Form("%s vs. %s (%s);%s[GeV/c^{2}];#Delta#theta[rad]",dth,mtot,t[it], mtot),
-	   200, 2.9, 3.7, 200, TMath::Pi()/2., 3*TMath::Pi()/2.);
+	   200, _m_tot_min, _m_tot_max, 200, TMath::Pi()/2., 3*TMath::Pi()/2.);
     h_dth_vs_dph_gg_epair[it] = new
       TH2F(Form("h_dth_vs_dph_gg_epair_%s",n[it]),
 	   Form("%s vs. %s (%s);#Delta#phi[rad];#Delta#theta[rad]",dth,dph,t[it]),
@@ -1259,7 +1322,7 @@ void AnaTda::def_full_sys_hists() {
     h_mass_gg_epair_vs_mass_gg[it] = new
       TH2F(Form("h_mass_gg_epair_vs_mass_gg_%s",n[it]),
 	   Form("%s vs. %s (%s);%s[GeV/c^{2}];#Delta#theta[rad]",dth,mgg,t[it],mgg),
-	   200, 0, 0.2, 200, 2.9, 3.7);
+	   200, 0, 0.2, 200, _m_tot_min, _m_tot_max);
   }
 }
 
@@ -1364,8 +1427,6 @@ void AnaTda::calc_kin_from_daughters(
 
 void AnaTda::pi0jpsi_true_kinematics(RhoCandList& org_gg, RhoCandList& org_epem) {
 
-  if (verb)
-    cout << "njpsi_found = " << njpsi_found << " ngg_found= " << ngg_found << endl;
   double m, mgg, dth, dph;
 
   if (verb) cout << "========= FILL PI0JPSI TRUE KINEMATICS HISTS ========" << endl;
@@ -1433,6 +1494,10 @@ void AnaTda::pi0jpsi_efficiency(RhoCandList& org_gg, RhoCandList& org_epem, cons
 
   // pi0_ana->gg pairs with ana cuts,  jpsi_ana->All ep/em or pip/pim pairs with ana cuts
   //REF: pi0_pm_ana->primary matched gg pairs with ana cuts,  jpsi_pm_ana->Primary matched ep/em or pip/pim pairs with ana cuts
+
+  // If finding was ambiguous, skip event
+  if (org_gg.GetLength()!=1) return;
+  if (org_epem.GetLength()!=1) return;
 
   double m, mgg, dth, dph, thpi0, thep;
   int nexcl = 0;
@@ -1538,7 +1603,6 @@ void AnaTda::pi0jpsi_kinematics(RhoCandList& org_gg, RhoCandList& org_epem, cons
       h_dth_vs_dph_gg_epair[tt]->Fill(dph, dth);
     }
   }
-
 }
 
 void AnaTda::pi0_kinematic_selection(RhoCandList& org_gg, RhoCandList& org_epem, const int& tt) {

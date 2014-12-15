@@ -26,7 +26,7 @@ class RhoMassParticleSelector;
 class AnaTda : public FairTask {
  public:
   // ** Default constructor
-  AnaTda(const int&, const bool&);
+  AnaTda(const int&, const int&, const int&);
 
   // ** Destructor
   ~AnaTda();
@@ -46,6 +46,9 @@ class AnaTda : public FairTask {
 
   int nevt;
   bool bg_mc;
+  int iplab;
+  double plab[3];
+  double p_antip;
 
   int verb;
 
@@ -55,16 +58,13 @@ class AnaTda : public FairTask {
   int pdg_pi0;
   int pdg_pip;
   int pdg_pim;
-  int pdg_ep;
   int pdg_em;
+  int pdg_ep;
+  double m0_jpsi;
+  double m0_pi0;
 
-  int njpsi_found;
-  int ngg_found;
-
-
-  std::vector<double> pi0oacut;
-  std::vector<double> pi0ecut_min;
-  std::vector<double> pi0ecut_max;
+  double up[3][3]; // pi0 OA vs Eavg cut upper limit parameters
+  double lw[3][3]; // pi0 OA vs Eavg cut lower limit parameters
   double pi0mcut_min;
   double pi0mcut_max;
   double jpsi_mcut_min;
@@ -73,6 +73,32 @@ class AnaTda : public FairTask {
   double etot_max;
   double dth_min;
   double dth_max;
+
+  RhoCandList mcList;
+  RhoCandList pip, pim, ep, em, g;
+  RhoCandList pip_tr, pim_tr, ep_tr, em_tr, g_tr;
+  RhoCandList epem, pippim, gg;
+  RhoCandList epem_tr, pippim_tr, gg_tr;
+  RhoCandList pi0, pi0_true; // TODO: refactor pi0_true -> pi0_pm
+  RhoCandList pi0_ana, pi0_pm_ana;
+  static const int npi0ana = 2;
+  std::vector<RhoCandList> pi0_ana_, pi0_pm_ana_;
+  RhoCandList pi0nearest, pi0_btb, pi0_cts;
+  RhoCandList epem_mcut, pippim_mcut;
+  RhoCandList jpsi, jpsi_true, jpsi_ana, jpsi_pm_ana; // TODO: refactor jpsi_true -> jpsi_pm
+  RhoCandList jpsi_mconst;
+  RhoCandList pi0jpsi_ana, pi0jpsi_pm_ana;
+  RhoCandList epem_mcut_pi0_btb, epem_mcut_pi0_cts;
+  RhoCandList pippim_mcut_pi0_btb, pippim_mcut_pi0_cts;
+  RhoCandList epem_pi0nearest;
+  RhoCandList pippim_pi0nearest;
+
+  TLorentzVector ini;
+  TVector3 boost_to_cm;
+  double sqrt_s;
+
+  RhoMassParticleSelector *jpsiMassSel;
+  RhoMassParticleSelector *pi0MassSel;
 
   void calc_kin(RhoCandidate*, RhoCandidate *, double &, double &, double &, double &, double &, double &);
   void calc_kin_from_daughters(RhoCandidate*, RhoCandidate *, RhoCandidate*, RhoCandidate *, double &, double &, double &, double &);
@@ -129,7 +155,6 @@ class AnaTda : public FairTask {
 
   void truth_match_residuals();
 
-
   double dist_pi0_pair_match(RhoCandidate*);
   double dist_jpsi_pair_match(RhoCandidate*);
   double dist_photon_match(RhoCandidate*, RhoCandidate*); // This needs special treatment due to lack of matches in BG MC
@@ -142,9 +167,9 @@ class AnaTda : public FairTask {
 
   void find_primary_gg();
   void fill_gamma_from_pi0s();
-  void pi0_analysis_cut(RhoCandList&, const int&);
+  bool oa_vs_avg_cut(const double&, const double &);
   void pi0_analysis_cut();
-  void pi0_analysis_cut(RhoCandList&, RhoCandList&, const int&, bool);
+  void pi0_analysis_cut(RhoCandList&, RhoCandList&, bool);
   void fill_pi0_analysis_hists(RhoCandList&, const int&);
   void fill_pi0_analysis_hists(RhoCandList&, const int&, const int&);
 
@@ -178,40 +203,6 @@ class AnaTda : public FairTask {
   void pi0jpsi_true_kinematics(RhoCandList&, RhoCandList&);
   void pdgm_nearest_pi0s();
 
-  RhoCandList mcList;
-  RhoCandList pip, pim, ep, em, g;
-  RhoCandList pip_tr, pim_tr, ep_tr, em_tr, g_tr;
-  RhoCandList epem, pippim, gg;
-  RhoCandList epem_tr, pippim_tr, gg_tr;
-
-  RhoCandList pi0, pi0_true; // TODO: refactor pi0_true -> pi0_pm
-  RhoCandList pi0_ana, pi0_pm_ana;
-
-  static const int npi0ana = 16;
-  //std::vector<RhoCandList> pi0_ana_, pi0_pm_ana_;
-  RhoCandList pi0_ana_[npi0ana], pi0_pm_ana_[npi0ana];
-  RhoCandList pi0nearest, pi0_btb, pi0_cts;
-
-  RhoCandList epem_mcut, pippim_mcut;
-  RhoCandList jpsi, jpsi_true, jpsi_ana, jpsi_pm_ana; // TODO: refactor jpsi_true -> jpsi_pm
-
-  RhoCandList jpsi_mconst;
-
-  RhoCandList pi0jpsi_ana, pi0jpsi_pm_ana;
-
-  RhoCandList epem_mcut_pi0_btb, epem_mcut_pi0_cts;
-  RhoCandList pippim_mcut_pi0_btb, pippim_mcut_pi0_cts;
-  RhoCandList epem_pi0nearest;
-  RhoCandList pippim_pi0nearest;
-
-  double m0_jpsi;
-  double m0_pi0;
-  RhoMassParticleSelector *jpsiMassSel;
-  RhoMassParticleSelector *pi0MassSel;
-  TLorentzVector ini;
-  TVector3 boost_to_cm;
-  double sqrt_s;
-
   // *** create some histograms
   TH2F *h_resid_phth[4];
   TH2F *h_resid_pip_phth[4];
@@ -226,7 +217,6 @@ class AnaTda : public FairTask {
   TH1F *h_resid_pip_elec_hyp_mom[4];
   TH2F *h_resid_pim_elec_hyp_phth[4];
   TH1F *h_resid_pim_elec_hyp_mom[4];
-
 
   TH1F *hjpsim_all;
   TH1F *hpi0m_all;
