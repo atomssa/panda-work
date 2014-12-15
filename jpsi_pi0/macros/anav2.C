@@ -1,4 +1,6 @@
-void ana(int iplab = 0, int itype = 0, int brem = 1, int fid=0, int nevts = 10000) {
+void anav2(int iplab = 0, int itype = 0, int brem = 1, int fid=0, int nevts = 0) {
+
+  int eid_param = 1;
 
   gSystem->Load("libanatda");
   gSystem->ListLibraries();
@@ -7,6 +9,8 @@ void ana(int iplab = 0, int itype = 0, int brem = 1, int fid=0, int nevts = 1000
   const char *tt[2] = {"pip_pim","jpsi"};
   TString inPidFile = Form("output/pid/pbar_p_%s_pi0_plab%3.1f_%d.root", tt[itype], plab[iplab], fid);
   TString inParFile = Form("output/par/pbar_p_%s_pi0_plab%3.1f_%d.root", tt[itype], plab[iplab], fid);
+  //TString inPidFile = Form("output/.scrut14/pid/pbar_p_%s_pi0_%d.root", tt[itype], plab[iplab], fid);
+  //TString inParFile = Form("output/.scrut14/par/pbar_p_%s_pi0_%d.root", tt[itype], plab[iplab], fid);
   cout << "inPidFile= " << inPidFile << endl;
   cout << "inParFile= " << inParFile << endl;
 
@@ -24,12 +28,18 @@ void ana(int iplab = 0, int itype = 0, int brem = 1, int fid=0, int nevts = 1000
   rtdb->setSecondInput(parIOPid);
   rtdb->setOutput(parIO);
 
-  AnaTda *atda = new AnaTda(iplab, itype, brem);
+  AnaTdav2 *atda = new AnaTdav2(iplab, itype, brem, eid_param);
   atda->set_verbosity(0);
+  atda->set_eff_file_name("eff/epem.root");
+  atda->set_eff_hist_name("heffelec", false);
+  atda->do_apply_pi0evsoa_cut(false);
+  atda->do_apply_pi0m_cut(true);
+  atda->do_apply_mtot_cut(false);
+  atda->do_apply_dth_dph_cut(false);
   fRun->AddTask(atda);
 
   const char *cbrem[2] = {"raw","brem"};
-  TString outFile = Form("test/ana_%s_%s_plab%3.1f_%d.root", tt[itype], cbrem[brem], plab[iplab], fid);
+  TString outFile = Form("test/anav2_%s_%s_plab%3.1f_%d.root", tt[itype], cbrem[brem], plab[iplab], fid);
   cout << " tt= " << tt[itype] <<  " Outfile= " << outFile << endl;
   fRun->SetOutputFile(outFile);
 

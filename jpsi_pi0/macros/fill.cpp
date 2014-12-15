@@ -45,6 +45,7 @@ static const double mass_prot= 0.938;
 
 static const string eff_tag[2] = {"_noeff", "_eff"};
 static const string filt_tag[2] = {"_nofilt", ""};
+static int iplab = 0;
 static int itype = 0;
 static int ieff = 0;
 static int ifilt = 1;
@@ -85,20 +86,37 @@ int main(const int argc, const char **argv) {
     return -1;
   }
 
-  itype = atoi(argv[1]);
-  //if (itype>1) { cout << "itype " << itype << " out of range, filling BG (default)" << endl; itype = 1;}
-  ieff = atoi(argv[2]);
-  if (ieff>1) { cout << "itype " << ieff << " out of range, applying efficiency (default)" << endl; ieff = 1;}
+  iplab = atoi(argv[1]);
+  if (iplab<0||iplab>2) {
+    cout << "iplab << " << iplab << " out of range " << endl;
+    return -1;
+  }
+
+  itype = atoi(argv[2]);
+  if (itype!=0&&itype!=1) {
+    cout << "itype " << itype << " out of range" << endl;
+    return -1;
+  }
+
+  ieff = atoi(argv[3]);
+  if (ieff<0 || ieff>1) {
+    cout << "itype " << ieff << " out of range" << endl;
+    return -1;
+  }
 
   string list_file;
-  ifilt = atoi(argv[3]);
-  if (ifilt>1) { cout << "ifilt "<< ifilt << "out of range, using filtered input by default" << endl; ifilt = 1; }
+  ifilt = atoi(argv[4]);
+  if (itype==1 && (ifilt<0 || ifilt>1)) {
+    cout << "ifilt "<< ifilt << "out of range, using filtered input by default" << endl;
+    return -1;
+  }
 
   if (itype!=0) {
-    list_file = (ifilt==0)?Form("lists/sig_unfilt%d.list",itype):Form("lists/sig%d.list",itype);
-    cout << "Options: SIG: ieff= " << ieff << " ifilt = " << ifilt << endl;
+    list_file = (ifilt==0)?Form("lists/sig_unfilt%d.list",iplab):Form("lists/sig%d.list",iplab);
+    cout << "Options: SIG: iplab= " << iplab << "ieff= " << ieff << " ifilt = " << ifilt << endl;
   } else {
-    list_file = "lists/bg.list";
+    list_file = Form("lists/bg%d.list", iplab);
+    cout << "Options:  BG: iplab= " << iplab << " ieff= " << ieff << " ifilt = " << ifilt << endl;
   }
   cout << "list_file = " << list_file << endl;
 
@@ -198,10 +216,9 @@ void fill_bg_hists(TChain *data_in, TClonesArray *part_array) {
   inv_fillers.push_back(new var1d(pi0, pip, "mass", mass_bins, invariant, names));
   inv_fillers.push_back(new var1d(pi0, pim, "mass", mass_bins, invariant, names));
   // Mandelstam variables
-  inv_fillers.push_back(new var1d(pbar, pipm, "u", axis(200,-11,1), invariant, names));
-  inv_fillers.push_back(new var1d(pbar, pi0, "t", axis(200,-11,1), invariant, names));
-  // "Dalitz" plot
-  inv_fillers.push_back(new var2d(pbar, pi0, "t", axis(200,-11,1), invariant, pi0, "the", the_bins, lab_frame, names));
+  inv_fillers.push_back(new var1d(pbar, pipm, "u", axis(200,iplab==0?-11:(iplab==1?-16:-24),1), invariant, names));
+  inv_fillers.push_back(new var1d(pbar, pi0, "t", axis(200,iplab==0?-11:(iplab==1?-16:-24),1), invariant, names));
+  inv_fillers.push_back(new var2d(pbar, pi0, "t", axis(200,iplab==0?-11:(iplab==1?-16:-24),1), invariant, pi0, "the", the_bins, lab_frame, names));
 
   std::vector<filler*> cm_fillers;
   const char *cm_frame[] = {"cm"," (CM frame)"};
@@ -216,6 +233,9 @@ void fill_bg_hists(TChain *data_in, TClonesArray *part_array) {
   cm_fillers.push_back(new var1d(pi0, pipm, "oa", axis(200,0,60), cm_frame, names));
   cm_fillers.push_back(new var1d(pi0, pipm, "oa", axis(200,0,60), cm_frame, names));
   cm_fillers.push_back(new var1d(g1, g2, "oa", oa_bins, cm_frame, names)); // (g1-g2) OA
+
+  cm_fillers.push_back(new var2d(pbar, pi0, "t", axis(200,iplab==0?-11:(iplab==1?-16:-24),1), invariant, pi0, "the", the_bins, cm_frame, names));
+  cm_fillers.push_back(new var2d(pbar, pi0, "t", axis(200,iplab==0?-11:(iplab==1?-16:-24),1), invariant, pi0, "cost", cost_bins, cm_frame, names));
 
   std::vector<filler*> pi0f_fillers;
   const char *pi0_frame[] {"pi0f"," (#pi^{0} frame)"};
@@ -298,8 +318,7 @@ void fill_bg_hists(TChain *data_in, TClonesArray *part_array) {
 
   }
 
-
-  TFile *fout = TFile::Open(Form("hists/bg%s%s.root",filt_tag[ifilt].c_str(),eff_tag[ieff].c_str()),"RECREATE");
+  TFile *fout = TFile::Open(Form("hists/bg%d%s%s.root",iplab,filt_tag[ifilt].c_str(),eff_tag[ieff].c_str()),"RECREATE");
   //TFile *fout = TFile::Open(Form("hists/bg%s.root",eff_tag[ieff].c_str()),"RECREATE");
   fout->cd();
   for (auto fill: lab_fillers) fill->Write();
@@ -468,7 +487,8 @@ void fill_sig_hists(TChain *data_in, TClonesArray *part_array) {
     //  if (!accept_elec(p4em)||!accept_elec(p4ep)||!accept_pi0(p4pi0,p4g1,p4g2)) continue;
     //}
     double weight = 1.0;
-    if (ieff==1) weight = weight_elec(p4em)*weight_elec(p4ep)*weight_pi0(p4pi0,p4g1,p4g2);
+    //if (ieff==1) weight = weight_elec(p4em)*weight_elec(p4ep); //*weight_pi0(p4pi0,p4g1,p4g2);
+    if (ieff==1) if (!accept_elec(p4em)||!accept_elec(p4em)) continue;
 
     vector<TLorentzVector> p4s;
     p4s.push_back(p4pbar);
@@ -490,7 +510,7 @@ void fill_sig_hists(TChain *data_in, TClonesArray *part_array) {
 
   }
 
-  TFile *fout = TFile::Open(Form("hists/sig%d%s%s.root",itype, filt_tag[ifilt].c_str(),eff_tag[ieff].c_str()),"RECREATE");
+  TFile *fout = TFile::Open(Form("hists/sig%d%s%s.root",iplab, filt_tag[ifilt].c_str(),eff_tag[ieff].c_str()),"RECREATE");
   fout->cd();
 
   for (auto fill: inv_fillers) fill->Write();
