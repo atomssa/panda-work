@@ -23,14 +23,17 @@ Mpi0_sq = Mpi0*Mpi0
 Mjpsi = 3.097
 Mjpsi2 = Mjpsi*Mjpsi
 fpi = 0.093 # GeV
-#fpsi = 0.413 #GeV
-fpsi = 0.383 #GeV
+fpsi = 0.413 #GeV
+#fpsi = 0.383 #GeV
 fN = 0.005 #GeV^2
-gpiNN = 13
+gpiNN = 13.21
 
 alpha_s = 0.2520617559544493
 Mbar = 3 #GeV
 C = pow(4.0*pi*alpha_s,3)*fN*fN*fpsi*10.0/fpi/81.0
+#C = 0.000435585
+
+#(4 \[Pi]*\[Alpha]s)^3 (fpsi (fN)^2)/f\[Pi] 10/81;
 
 M0 = 8776.88 #//GeV
 #jpsi_pbarp_width = 0.42e-6;
@@ -46,6 +49,7 @@ print "alpha_s = %4.3f" % alpha_s
 print "Mbar = %4.3f" % Mbar
 print "M0 = %4.3f" % M0
 print "C = %4.3e" % C
+#print "CC = %4.3e" % CC
 
 # funciton definitions
 def _lambda_sq(x, y, z):
@@ -70,7 +74,7 @@ def _Del_sq_DelT_sq(DelT_sq,s):
     return (DelT_sq*(1+xi)/(1-xi)) + 2*xi*((Mp_sq/(1+xi))-(Mpi0_sq/(1-xi)))
 
 def _dsig_dDel_sq(Del_sq,s):
-    pbarn = 0.39e9 # 1gev^-2=3.9e9
+    pbarn = 0.39e9 # 1gev^-2=3.9e9pbarn
     xi = _xi_a(s)
     DelT_sq = _DelT_sq(Del_sq,s)
     F1 = 1/16.0/pi/_lambda_sq(s,Mp_sq,Mp_sq)
@@ -132,8 +136,8 @@ def integrate(sel,min_val_idx):
         print "xsect(s= %4.2f, %4.2f < Delta^2 < %4.2f)= %4.2f" % (_val, min_vals[idx], max_vals[idx], result[0])
     fig, ax = plt.subplots()
     ax.plot(s, xsect_tot, 'b', label=r'$\sigma_{tot}$')
-    plt.xlabel(r"$s[GeV^{2}]$", fontdict=font);
-    plt.ylabel(r"$d\sigma_{tot}[pb]$",fontdict=font);
+    plt.xlabel(r"$s[GeV^{2}]$", fontdict=font)
+    plt.ylabel(r"$d\sigma_{tot}[pb]$",fontdict=font)
 
 # test if pi0 mass hypothesis distorts Del^2 distributions too much
 def plot_mpi0_test(iplab):
