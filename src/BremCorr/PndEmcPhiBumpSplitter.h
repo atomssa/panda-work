@@ -21,6 +21,9 @@
 #ifndef PNDEMCPHIBUMPSPLITTER_H
 #define PNDEMCPHIBUMPSPLITTER_H
 
+// Path of file:
+// ----- $pandaroot/emc/EmcReco
+
 //---------------
 // C++ Headers --
 //---------------
@@ -30,12 +33,10 @@
 #include "FairTask.h"
 #include "TObject.h"
 #include "PndEmcDataTypes.h"
-#include "PndEmcDigiCalibrator.h"
+//#include "PndEmcDigiCalibrator.h"
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-
-class TH1F;
 
 class PndEmcCluster;
 class PndEmcBump;
@@ -45,6 +46,8 @@ class PndEmcTwoCoordIndex;
 class PndEmcGeoPar;
 class PndEmcDigiPar;
 class PndEmcRecoPar;
+
+class PndEmcSharedDigi;
 
 //		---------------------
 // 		-- Class Interface --
@@ -68,8 +71,8 @@ class PndEmcPhiBumpSplitter: public FairTask
 	virtual void Exec(Option_t* opt);
 	
 	void SetStorageOfData(Bool_t p = kTRUE) {fPersistance=p;};
-	PndEmcBump* AddBump();
 	PndEmcBump* AddPhiBump();
+	//PndEmcSharedDigi* AddPhiBumpSharedDigi(PndEmcDigi*, Double_t);
 	
 	virtual void FinishTask();
   
@@ -80,7 +83,7 @@ class PndEmcPhiBumpSplitter: public FairTask
 	
 	/** Output array of PndEmcBumps **/
 	TClonesArray* fPhiBumpArray;
-	TClonesArray* fPhiBumpSharedDigiArray;
+	//TClonesArray* fPhiBumpSharedDigiArray;
 
 
 	PndEmcGeoPar*     fGeoPar;       /** Geometry parameter container **/
@@ -97,8 +100,6 @@ class PndEmcPhiBumpSplitter: public FairTask
 	/** Verbosity level **/
 	Int_t fVerbose;
 
-	TH1F *h_phi_bump;
-	
         PndEmcPhiBumpSplitter(const  PndEmcPhiBumpSplitter& L);
         PndEmcPhiBumpSplitter& operator= (const  PndEmcPhiBumpSplitter&) {return *this;};
 	
@@ -106,8 +107,8 @@ class PndEmcPhiBumpSplitter: public FairTask
 
 //added for time information
 
-	PndEmcDigiCalibrator digiCalibrator;
-	Int_t HowManyDidis;
+	//PndEmcDigiCalibrator digiCalibrator;
+	//Int_t HowManyDidis;
 
 };
 #endif

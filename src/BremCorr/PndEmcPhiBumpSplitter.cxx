@@ -22,6 +22,8 @@
 // Binsong Ma, Ermias Atomssa
 //------------------------------------------------------------------------
 
+// Path of file:
+// ----- $pandaroot/emc/EmcReco
 
 //-----------------------
 // This Class's Header --
@@ -63,15 +65,15 @@
 #include "PndEmcXtal.h"
 #include "PndEmcDataTypes.h"
 
-#include "TH1.h"
 
 using std::endl;
 
 //----------------
 // Constructors --
 //----------------
+
 PndEmcPhiBumpSplitter::PndEmcPhiBumpSplitter(Int_t verbose):
-  fDigiArray(0), fClusterArray(0), fPhiBumpArray(0), fPhiBumpSharedDigiArray(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fPersistance(kTRUE), fMaxIterations(0), fCentroidShift(0), fClusterPosParam(), fVerbose(verbose)
+  fDigiArray(0), fClusterArray(0), fPhiBumpArray(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fPersistance(kTRUE), fClusterPosParam(), fVerbose(verbose)
 {
   fClusterPosParam.clear();
 }
@@ -79,6 +81,7 @@ PndEmcPhiBumpSplitter::PndEmcPhiBumpSplitter(Int_t verbose):
 //--------------
 // Destructor --
 //--------------
+
 PndEmcPhiBumpSplitter::~PndEmcPhiBumpSplitter()
 {
   // 	delete fGeoPar;
@@ -125,15 +128,12 @@ InitStatus PndEmcPhiBumpSplitter::Init() {
     }	
 
   // Create and register output array
-  fPhiBumpArray = new TClonesArray("PndEmcPhiBump");
+  fPhiBumpArray = new TClonesArray("PndEmcBump");
   ioman->Register("EmcPhiBump","Emc",fPhiBumpArray,fPersistance);
   
-  fPhiBumpSharedDigiArray = new TClonesArray("PndEmcPhiBumpSharedDigi");
-  ioman->Register("EmcPhiBumpSharedDigi","Emc",fPhiBumpSharedDigiArray,fPersistance);
-
-  h_phi_bump = new TH1F("h_phi_bump","phi bumps",160,-180,180);
-  
-  HowManyDidis = 0;
+  //fPhiBumpSharedDigiArray = new TClonesArray("	");
+  //ioman->Register("EmcPhiBumpSharedDigi","Emc",fPhiBumpSharedDigiArray,fPersistance);
+  //HowManyDidis = 0;
 
   cout << "-I- PndEmcPhiBumpSplitter: Intialization successfull" << endl;
 
@@ -147,11 +147,6 @@ void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
   // Reset output array
   if ( ! fPhiBumpArray ) Fatal("Exec", "No Phi-Bump Array");
   fPhiBumpArray->Delete();
-
-  Double_t DepoEnergyList[100];
-  Int_t DepoENoOfBinList[100];
-  Int_t GapSizeList[100];
-  Int_t DepoEListIndex = 1;
   
   // loop on each cluster. For each cluster there can be any number of phi_bumps (atleast one) 
   int nClusters = fClusterArray->GetEntriesFast();
@@ -159,136 +154,93 @@ void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
 
     PndEmcCluster* theCluster = (PndEmcCluster*) fClusterArray->At(iCluster);
         
+    std::vector<double> phi_bump(160,0);
+    
     Int_t digiSize = theCluster->DigiList().size();
     std::vector<Int_t> digiList = theCluster->DigiList();
-
     for (Int_t i_digi = 0; i_digi<digiSize; ++i_digi)
       {
 	PndEmcDigi *emcDigi = (PndEmcDigi *) fDigiArray->At(digiList[i_digi]);
 	Double_t emcDigiPhi = emcDigi->GetPhi()*TMath::RadToDeg();
 	Double_t emcDigiEnergy = emcDigi->GetEnergy();
-	h_phi_bump->Fill(EleEmcDigiPhi,EleEmcDigiEnergy); 
+	if ( fabs(emcDigiPhi)<=180 ) {
+	  Int_t iEmcDigiPhi = int( 160. * (emcDigiPhi + 180.) / 360. );
+	  phi_bump.at(iEmcDigiPhi) += emcDigiEnergy;
+	}
       }
+    
+    Int_t TotNumOfHitPhi = 160;
 
-    Int_t TotNumOfHitPhi = h_phi_bump->GetNbinsX();
-
-    Double_t DepoEnergyList[100] = {0.};
-    Int_t DepoENoOfBinList[100] = {0};
-    Int_t GapSizeList[100] = {0};
-    Int_t DepoEListIndex = 1;
-
-    DepoEnergyList[0] = 0;
-    DepoENoOfBinList[0] = -10;
-    GapSizeList[0] = -1;
-     
-    for (Int_t i_phi = 1; i_phi <= TotNumOfHitPhi; i_phi++)
+    std::vector<double> vDepoEnergyList;
+    std::vector<int> vGapSizeList;
+    
+    int i_phi_prev = 0;
+    for (Int_t i_phi=0; i_phi < TotNumOfHitPhi; ++i_phi) {
+      Double_t BinValue = phi_bump.at(i_phi);
+      if (BinValue != 0) 
+	{
+	  vDepoEnergyList.push_back(BinValue);
+	  vGapSizeList.push_back(i_phi - i_phi_prev ); 
+	  i_phi_prev = i_phi;
+	}
+    }
+    
+    // Find start bin number for the phi projection of cluster.
+    Int_t StartIndex = 0;
+    for (Int_t i = 0;i < vGapSizeList.size();i++)
       {
-	Double_t BinValue = h_phi_bump->GetBinContent(i_phi);
-	if (BinValue != 0) 
-	  {
-	    DepoEnergyList[DepoEListIndex] = BinValue;
-	    DepoENoOfBinList[DepoEListIndex] = i_phi;
-	    GapSizeList[DepoEListIndex] = DepoENoOfBinList[DepoEListIndex] - DepoENoOfBinList[DepoEListIndex-1];
-	    DepoEListIndex++;
-	  }
-      }
-    DepoEnergyList[DepoEListIndex] = 0;
-    DepoENoOfBinList[DepoEListIndex] = -1;
-    GapSizeList[DepoEListIndex] = -1;
-
-    Int_t StartIndice = 0;
-    for (Int_t i = 1;i < DepoEListIndex;i++)
-      {
-	if (GapSizeList[i] > GapSizeList[StartIndice]) StartIndice = i;     
+	if (vGapSizeList.at(i) > vGapSizeList.at(StartIndex)) StartIndex = i;
       }
 
-    if(StartIndice > 1)
-      {   
-	Int_t i_corr = 0;
-	Double_t DepoEnergyListCorr[100];
-	DepoEnergyListCorr[0] = DepoEnergyList[0];
-	for (Int_t i2 = StartIndice; i2 < DepoEListIndex;i2++)
-	  {
-	    i_corr++;
-	    DepoEnergyListCorr[i_corr] = DepoEnergyList[i2];
-	  }
-	for(Int_t i2 = 1;i2 < StartIndice;i2++)
-	  {
-	    i_corr++;
-	    DepoEnergyListCorr[i_corr] = DepoEnergyList[i2];
-	  }
-	DepoEnergyListCorr[DepoEListIndex] = DepoEnergyList[DepoEListIndex];
-      } //StartIndice
-    else if (StartIndice = 1)
-      {
-	for (Int_t i2 = 0; i2 <= DepoEListIndex ; i2++) DepoEnergyListCorr[i2] = DepoEnergyList[i2];
-      }
+    std::rotate(vDepoEnergyList.begin(),vDepoEnergyList.begin()+StartIndex,vDepoEnergyList.end());
+    vDepoEnergyList.push_back(0);
+    vDepoEnergyList.push_back(0);
+    std::rotate(vDepoEnergyList.begin(),vDepoEnergyList.begin()+(vDepoEnergyList.size()-1),vDepoEnergyList.end());
 
-     
-    Int_t Case[100];
-    Double_t enePhiBump[100] = {0.};
-    Double_t Poid[100] = {0.};
-
-
-    //std::vector<int> case;
-    //std::vector<double> enePhiBump;
-    //std::vector<double> phiPhiBump;
-    //std::vector<double> weightPhiBump;
-    //Int_t IndiceVally = 0;
-
-     
-    Int_t PhiBumpIndex = 0, PoidIndex = 0;
-    Case[0] = -3;
-    Poid[PoidIndex] = 0;
-    Int_t IndiceVally = 0;
-     
-    for (Int_t n_sel = 1; n_sel < DepoEListIndex; n_sel++)
+    // Loop through deposited energy vector and classify bins 
+    std::vector<int> Type;
+    std::vector<double> enePhiBump, Weight;
+    Weight.push_back(0);
+    Type.push_back(-3);
+    for (Int_t n_sel = 1; n_sel < vDepoEnergyList.size()-1; n_sel++)
       { 
-	if (DepoEnergyListCorr[n_sel-1] < DepoEnergyListCorr[n_sel] && DepoEnergyListCorr[n_sel] < DepoEnergyListCorr[n_sel+1] ) Case[n_sel] = 1;
-	else if(DepoEnergyListCorr[n_sel-1] < DepoEnergyListCorr[n_sel] && DepoEnergyListCorr[n_sel] > DepoEnergyListCorr[n_sel+1] )
+	if (vDepoEnergyList.at(n_sel-1) < vDepoEnergyList.at(n_sel) && vDepoEnergyList.at(n_sel) < vDepoEnergyList.at(n_sel+1) ) Type.push_back(1);
+	else if(vDepoEnergyList.at(n_sel-1) < vDepoEnergyList.at(n_sel) && vDepoEnergyList.at(n_sel) > vDepoEnergyList.at(n_sel+1) )
 	  {
-	    PoidIndex++;
-	    Case[n_sel] = 0;
-	    Poid[PoidIndex] = DepoEnergyListCorr[n_sel];
+	    Type.push_back(0);
+	    Weight.push_back(vDepoEnergyList.at(n_sel));
 	  }
-	else if(DepoEnergyListCorr[n_sel-1] > DepoEnergyListCorr[n_sel] && DepoEnergyListCorr[n_sel] > DepoEnergyListCorr[n_sel+1] ) Case[n_sel] = -1;
-	else if(DepoEnergyListCorr[n_sel-1] > DepoEnergyListCorr[n_sel] && DepoEnergyListCorr[n_sel] < DepoEnergyListCorr[n_sel+1] ) Case[n_sel] = -2;
+	else if(vDepoEnergyList.at(n_sel-1) > vDepoEnergyList.at(n_sel) && vDepoEnergyList.at(n_sel) > vDepoEnergyList.at(n_sel+1) ) Type.push_back(-1);
+	else if(vDepoEnergyList.at(n_sel-1) > vDepoEnergyList.at(n_sel) && vDepoEnergyList.at(n_sel) < vDepoEnergyList.at(n_sel+1) ) Type.push_back(-2);
       }
-    Poid[PoidIndex+1] = 0;
+    Weight.push_back(0);
 
-    Int_t iPoid = 0;
-
-    for (Int_t n_sel = 1; n_sel < DepoEListIndex; n_sel++)
+    // 
+    int ValleyIndex = 0;
+    int iWeight = 0;
+    for (Int_t n_sel = 1; n_sel < vDepoEnergyList.size()-1; n_sel++)
       {
-	if (Case[n_sel] == -2 || n_sel == DepoEListIndex-1)
+	if (Type.at(n_sel) == -2 || n_sel == vDepoEnergyList.size()-2)
 	  {
-	    iPoid++;
-	    enePhiBump[PhiBumpIndex] = DepoEnergyListCorr[IndiceVally]*(Poid[iPoid]/(Poid[iPoid]+Poid[iPoid-1]));
-	    for(Int_t p = IndiceVally;p < n_sel;p++) enePhiBump[PhiBumpIndex] += DepoEnergyListCorr[p];
-	    enePhiBump[PhiBumpIndex] += DepoEnergyListCorr[n_sel]*(Poid[iPoid]/(Poid[iPoid]+Poid[iPoid+1]));
-	    PhiBumpIndex++;
-	    IndiceVally = n_sel;
+	    iWeight++;
+	    double _enePhiBump = vDepoEnergyList.at(ValleyIndex)*(Weight.at(iWeight)/(Weight.at(iWeight)+Weight.at(iWeight-1)));
+	    for(Int_t p = ValleyIndex;p < n_sel;p++) _enePhiBump += vDepoEnergyList.at(p);
+	    _enePhiBump += vDepoEnergyList.at(n_sel)*(Weight.at(iWeight)/(Weight.at(iWeight)+Weight.at(iWeight+1) ));
+	    enePhiBump.push_back(_enePhiBump);
+	    ValleyIndex = n_sel;
 	  }
       }
-
-    //for (int i=0; i<enePhiBump.size(); ++i) {
-    //  PndEmcBump* theNewPhiBump = AddPhiBump(); 
-    //  theNewPhiBump->MadeFrom(iCluster);
-    //  theNewPhiBump->SetLink(FairLink("EmcCluster", iCluster));  
-    //  theNewBump->SetEnergy(enePhiBump.at(i));
-    //  TVector3 pos = calcPosition(phiPhiBump.at(i));
-    //  theNewBump->SetPhi(phiPhiBump.at(i));       
-    //}
-       
-    for (int i_phibump=0; i_phibump<=PhiBumpIndex; ++i_phibump) {
+    
+    for (int i_phibump=0; i_phibump<enePhiBump.size(); ++i_phibump) {
+      //cout<< " i_phibump= " <<i_phibump<<endl;
       PndEmcBump* theNewPhiBump = AddPhiBump(); 
       theNewPhiBump->MadeFrom(iCluster);
       theNewPhiBump->SetLink(FairLink("EmcCluster", iCluster));  
-      theNewPhiBump->SetEnergy(enePhiBump[i_phibump]);
+      theNewPhiBump->SetEnergy(enePhiBump.at(i_phibump));
       //  TVector3 pos = calcPosition(phiPhiBump.at(i));
       //  theNewBump->SetPhi(phiPhiBump.at(i));              
     }
-    
+        
   }
 	
 }
@@ -299,18 +251,18 @@ PndEmcBump* PndEmcPhiBumpSplitter::AddPhiBump(){
   return new(clref[size]) PndEmcBump();
 }
 
-PndEmcSharedDigi* PndEmcPhiBumpSplitter::AddPhiBumpSharedDigi(PndEmcDigi* digi, Double_t weight){
+/*PndEmcSharedDigi* PndEmcPhiBumpSplitter::AddPhiBumpSharedDigi(PndEmcDigi* digi, Double_t weight){
   TClonesArray& clref = *fPhiBumpSharedDigiArray;
   Int_t size = clref.GetEntriesFast();
   return new(clref[size]) PndEmcSharedDigi(*digi, weight);
 }
-
+*/
 void PndEmcPhiBumpSplitter::FinishTask()
 {
   cout<<"================================================="<<endl;
   cout<<"PndEmcPhiBumpSplitter::FinishTask"<<endl;
   cout<<"================================================="<<endl;
-  cout<<"read digis #"<<HowManyDidis<<endl;
+ // cout<<"read digis #"<<HowManyDidis<<endl;
 }
 
 void PndEmcPhiBumpSplitter::SetParContainers() {
