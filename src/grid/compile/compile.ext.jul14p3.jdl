@@ -1,0 +1,9 @@
+[
+Executable    = "compile.ext.jul14p3.sh";
+Arguments     = "";
+StdOutput     = "std.out";
+StdError      = "std.err";
+InputSandbox  = {"compile.ext.jul14p3.sh"};
+OutputSandbox = {"std.out","std.err"};
+OutputSandboxBaseDestURI="gsiftp://localhost";
+]
