@@ -118,13 +118,13 @@ void EvtPpbarJpsiPi0::decay(EvtParticle* p)
   EvtVector4R p4pi0_cm(p4pi0);
   p4pi0_cm.applyBoostTo(boost_to_cm);
 
-  double _prob = 0;
+  double the_prob = 0;
   if ( p4pi0_cm.get(3) > 0.0 ) {
-    _prob = prob(_t);
+    the_prob = prob(_t);
   } else {
-    _prob = prob(_u);
+    the_prob = prob(_u);
   }
-  setProb(_prob);
+  setProb(the_prob);
   return;
 
 }
