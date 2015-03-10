@@ -165,50 +165,64 @@ void PndEmcHitProducer::SetParContainers(){
 // Helper function, does not depend on class, identical to the one in PndEmcMakeCluster
 void PndEmcHitProducer::cleansortmclist( std::vector <Int_t> &newlist,TClonesArray* mcTrackArray)
 {
-	std::vector <Int_t> tmplist;
-	std::vector <Int_t> tmplist2;
-	// Sort list...
-	std::sort( newlist.begin(), newlist.end());
-	// and copy every id only once (even so it might be in the list several times)
-	std::unique_copy( newlist.begin(), newlist.end(), std::back_inserter( tmplist ) );
+  std::vector <Int_t> tmplist;
+  std::vector <Int_t> tmplist2;
+  // Sort list...
+  std::sort( newlist.begin(), newlist.end());
+  // and copy every id only once (even so it might be in the list several times)
+  std::unique_copy( newlist.begin(), newlist.end(), std::back_inserter( tmplist ) );
 
-	// Now check if mother or (grand)^x-mother are already in the list
-	// (which means i am a secondary)... if so, remove myself
-	for(Int_t j=tmplist.size()-1; j>=0; j--){
-		bool flag = false;
-		PndMCTrack *pt;
-		//pt=((PndMCTrack*)mcTrackArray->At(tmplist[j]));
-		//if(pt->GetMotherID()<0) { 
-		//	tmplist2.push_back(tmplist[j]);
-		//	continue;
-		//}
-		Int_t id = tmplist[j];
-		if(id < 0) {
-			tmplist2.push_back(id);
-			continue;
-		}
-		while(!flag){
-			pt=((PndMCTrack*)mcTrackArray->At(id));
-			//id=pt->GetMotherID();
-			if(pt->GetMotherID()<0) {
-				tmplist2.push_back(id);
-				break;
-			}
-			id = pt->GetMotherID();
-			//pt=(PndMCTrack*)mcTrackArray->At(id);
-
-			for(Int_t k=j-1; k>=0; k--){
-				if(tmplist[k]==id){
-					tmplist.erase(tmplist.begin()+j);
-					flag=true;
-					break;
-				}
-			}
-		}
-	}
-	newlist.clear();
-	std::unique_copy( tmplist2.begin(), tmplist2.end(), std::back_inserter( newlist) );
+  newlist.clear();
+  std::unique_copy( tmplist.begin(), tmplist.end(), std::back_inserter( newlist) );
 }
+
+//// Helper function, does not depend on class, identical to the one in PndEmcMakeCluster
+//void PndEmcHitProducer::cleansortmclist( std::vector <Int_t> &newlist,TClonesArray* mcTrackArray)
+//{
+//	std::vector <Int_t> tmplist;
+//	std::vector <Int_t> tmplist2;
+//	// Sort list...
+//	std::sort( newlist.begin(), newlist.end());
+//	// and copy every id only once (even so it might be in the list several times)
+//	std::unique_copy( newlist.begin(), newlist.end(), std::back_inserter( tmplist ) );
+//
+//	// Now check if mother or (grand)^x-mother are already in the list
+//	// (which means i am a secondary)... if so, remove myself
+//	for(Int_t j=tmplist.size()-1; j>=0; j--){
+//		bool flag = false;
+//		PndMCTrack *pt;
+//		//pt=((PndMCTrack*)mcTrackArray->At(tmplist[j]));
+//		//if(pt->GetMotherID()<0) { 
+//		//	tmplist2.push_back(tmplist[j]);
+//		//	continue;
+//		//}
+//		Int_t id = tmplist[j];
+//		if(id < 0) {
+//			tmplist2.push_back(id);
+//			continue;
+//		}
+//		while(!flag){
+//			pt=((PndMCTrack*)mcTrackArray->At(id));
+//			//id=pt->GetMotherID();
+//			if(pt->GetMotherID()<0) {
+//				tmplist2.push_back(id);
+//				break;
+//			}
+//			id = pt->GetMotherID();
+//			//pt=(PndMCTrack*)mcTrackArray->At(id);
+//
+//			for(Int_t k=j-1; k>=0; k--){
+//				if(tmplist[k]==id){
+//					tmplist.erase(tmplist.begin()+j);
+//					flag=true;
+//					break;
+//				}
+//			}
+//		}
+//	}
+//	newlist.clear();
+//	std::unique_copy( tmplist2.begin(), tmplist2.end(), std::back_inserter( newlist) );
+//}
 
 // -----   Public method Exec   --------------------------------------------
 void PndEmcHitProducer::Exec(Option_t* opt)
