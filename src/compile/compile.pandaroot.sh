@@ -5,7 +5,7 @@ if [[ $# != 2 ]]; then
     echo "example1(locl): ./compile.pandaroot.sh ext-apr13 oct14"
     echo "example1(grid): ./compile.pandaroot.sh apr13 oct14"
     echo "example2(grid): ./compile.pandaroot.sh jul14p3 trunk-26841"
-    return
+    exit
 else
     EXT_VER=$1
     PR_VER=$2
@@ -16,17 +16,17 @@ SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 UTILS_SCRIPT=$SCRIPT_DIR/utils.sh
 if [ ! -e $UTILS_SCRIPT ]; then
     echo "utils.sh not found in the same directory as compile script. quitting"
-    return
+    exit
 fi
 . $UTILS_SCRIPT
 
 #input sanitation
-if ! check_path $PATCH_DIR; then return; fi
-if ! check_path $EXT_DIR; then return; fi
-if ! check_path $SIMPATH; then return; fi
+if ! check_path $PATCH_DIR; then exit; fi
+if ! check_path $EXT_DIR; then exit; fi
+if ! check_path $SIMPATH; then exit; fi
 if [[ -e  $EXT_DIR/FairRoot ]]; then
     export FAIRROOTPATH=$EXT_DIR/FairRoot/install
-    if ! check_path $FAIRROOTPATH; then return; fi
+    if ! check_path $FAIRROOTPATH; then exit; fi
 fi
 echo "Pathes check out. Proceeding to compilation"
 

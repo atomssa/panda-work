@@ -3,7 +3,7 @@ Executable    = "patch.pandaroot.sh";
 Arguments     = "jul14p3 trunk-26841";
 StdOutput     = "std.out";
 StdError      = "std.err";
-InputSandbox  = {"patch.pandaroot.sh"};
+InputSandbox  = {"patch.pandaroot.sh", "utils.sh"};
 OutputSandbox = {"std.out","std.err"};
 OutputSandboxBaseDestURI="gsiftp://localhost";
 ]
