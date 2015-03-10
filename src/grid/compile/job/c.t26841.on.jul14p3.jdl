@@ -1,0 +1,9 @@
+[
+Executable    = "compile.pandaroot.sh";
+Arguments     = "jul14p3 trunk-26841";
+StdOutput     = "std.out";
+StdError      = "std.err";
+InputSandbox  = {"compile.pandaroot.sh", "utils.sh", "patch.pandaroot.sh"};
+OutputSandbox = {"std.out","std.err"};
+OutputSandboxBaseDestURI="gsiftp://localhost";
+]

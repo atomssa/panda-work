@@ -1,12 +1,14 @@
 #!/bin/bash
 
-cd /nfs1/panda/ermias/soft.fail1
-chmod -Rf g+w *
+HN=$(hostname)
 
-cd /nfs1/panda/ermias/soft.fail2
-chmod -Rf g+w *
+if [[ $HN == "ipnphen01" ]]; then
+    SOFT_DIR=/vol0/panda/svn
+else
+    SOFT_DIR=/nfs1/panda/ermias/soft
+fi
 
-cd /nfs1/panda/ermias/soft
+cd $SOFT_DIR
 
 echo PWD: $PWD
 ls -altr
@@ -14,33 +16,30 @@ ls -altr
 echo installing apr13 externals release version
 svn co https://subversion.gsi.de/fairroot/fairsoft/release/apr13
 
-echo root is missing download it manually...
-cd /nfs1/panda/ermias/soft/apr13/tools
+echo root is missing for apr13 release download it manually...
+cd $SOFT_DIR/apr13/tools
 svn co https://root.cern.ch/svn/root/tags/v5-34-05 root
 
-cd /nfs1/panda/ermias/soft/apr13
+cd $SOFT_DIR/apr13
 echo PWD: $PWD
 ls -altr
 
-mv configure.sh configure.sh.org
-cp -f ../configure.sh .
+if [[ $HN == "ipnphen01" ]]; then
+    . ./configure.sh <<EOF
+1
+1
+2
+$SOFT_DIR/apr13/install
+2
+EOF
+else
+# for grid install, we want the geant4 data archives to be
+# downloaded and installed automatically.
+    sed -i.org s/geant4_download_install_data_automatic=no/geant4_download_install_data_automatic=yes/ configure.sh
+    . ./configure.sh grid
+fi
 
-. ./configure.sh grid
-
-cd /nfs1/panda/ermias/soft
-chmod -Rf g+w *
-
-#echo installing oct14 pandaroot release version
-#export SIMPATH=$PWD
-#svn co https://subversion.gsi.de/fairroot/pandaroot/oct14 pandaroot_oct14
-#cd pandaroot_oct14
-
-## Patch oct14
-# git checkout ... somepatchfile.patch
-# patch -i somepatchfile.patch
-
-## launch build
-#mkdir build
-#cd build
-#cmake ../
-#make -j 4
+if [[ $HN != "ipnphen01" ]]; then
+    cd /nfs1/panda/ermias/soft
+    chmod -Rf g+w *
+fi

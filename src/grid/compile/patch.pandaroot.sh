@@ -1,39 +1,38 @@
 #!/bin/bash
 
-if [[ $# != 2 ]]; then
-    echo usage: ./patch.pandaroot.sh EXT_VER PR_VER
-    echo example1: ./patch.pandaroot.sh apr13 oct14
-    echo example2: ./patch.pandaroot.sh jul14p3 trunk-26841
+if [[ $# < 2 ]]; then
+    echo "usage: ./patch.pandaroot.sh EXT_VER PR_VER"
+    echo "example1(local): ./patch.pandaroot.sh ext-apr13 oct14"
+    echo "example1(grid): ./patch.pandaroot.sh apr13 oct14"
+    echo "example2(grid): ./patch.pandaroot.sh jul14p3 trunk-26841"
     return
 else
-    export EXT_VER=$1
-    export PR_VER=$2
+    if [[ $1 == '-n' ]]; then
+	DO_COMPILE=1
+	export EXT_VER=$2
+	export PR_VER=$3
+    else
+	DO_COMPILE=0
+	export EXT_VER=$1
+	export PR_VER=$2
+    fi
     echo "Patching EXT_VER=$EXT_VER and PR_VER=$PR_VER"
 fi
 
-function check_path {
-    echo "Checking existence of $1"
-    if [[ ! -e $1 ]]; then
-	echo "Doesn't exist... Quitting"
-	return 1;
-    else
-	return 0;
-    fi
-}
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+UTILS_SCRIPT=$SCRIPT_DIR/utils.sh
+if [ ! -e $UTILS_SCRIPT ]; then
+    echo "utils.sh not found in the same directory as compile script. quitting"
+    return
+fi
+. $UTILS_SCRIPT
 
 #input sanitation
-export SOFTDIR=/nfs1/panda/ermias/soft
-export PNDROOT_DIR=$SOFTDIR/$EXT_VER/pandaroot/$PR_VER
-export PATCH_DIR=$SOFTDIR/patch-$PR_VER
-
 if ! check_path $PNDROOT_DIR; then return; fi
 if ! check_path $PATCH_DIR; then return; fi
-
-export SIMPATH=$SOFTDIR/$EXT_VER/install
 if ! check_path $SIMPATH; then return; fi
-
-if [[ -e  $SOFTDIR/$EXT_VER/FairRoot ]]; then
-    export FAIRROOTPATH=$SOFTDIR/$EXT_VER/FairRoot/install
+if [[ -e  $EXT_DIR/FairRoot ]]; then
+    export FAIRROOTPATH=$EXT_DIR/FairRoot/install
     if ! check_path $FAIRROOTPATH; then return; fi
 fi
 
@@ -63,14 +62,17 @@ do
     fi
 done
 echo "############################################################################################################"
+echo "Done patching files."
 
-echo "Done patching files. Now to building"
-
-# build the patch
-cd $PNDROOT_DIR/build
-make -j 4
-
-# reset write permissions
-cd $SOFTDIR/$EXT_VER
-chmod -f g+w .
-chmod -Rf g+w pandaroot
+if [ $DO_COMPILE == 0 ]; then
+    echo "Now building ..."
+    # build the patch
+    cd $PNDROOT_DIR/build
+    make -j 4
+    if [[ $HN != "ipnphen01" ]]; then
+	# reset write permissions
+	cd $SOFT_DIR/$EXT_VER
+	chmod -f g+w .
+	chmod -Rf g+w pandaroot
+    fi
+fi

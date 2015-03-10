@@ -1,9 +1,0 @@
-[
-Executable    = "compile.pandaroot.trunk-26841.sh";
-Arguments     = "";
-StdOutput     = "std.out";
-StdError      = "std.err";
-InputSandbox  = {"compile.pandaroot.trunk-26841.sh"};
-OutputSandbox = {"std.out","std.err"};
-OutputSandboxBaseDestURI="gsiftp://localhost";
-]

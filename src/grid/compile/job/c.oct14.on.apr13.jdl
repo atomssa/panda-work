@@ -1,0 +1,9 @@
+[
+Executable    = "compile.pandaroot.sh";
+Arguments     = "apr13 oct14";
+StdOutput     = "std.out";
+StdError      = "std.err";
+InputSandbox  = {"compile.pandaroot.sh", "utils.sh", "patch.pandaroot.sh"};
+OutputSandbox = {"std.out","std.err"};
+OutputSandboxBaseDestURI="gsiftp://localhost";
+]
