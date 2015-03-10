@@ -3,6 +3,7 @@
 *.dat
 *.input
 *.pyc
+*.disk
 
 # root macro compile helpers
 *__.cxx
