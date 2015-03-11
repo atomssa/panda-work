@@ -57,7 +57,7 @@ cd build
 cmake -DUSE_DIFFERENT_COMPILER=TRUE ../
 make -j $NCORE
 
-if [[ $HN != "ipnphen01" ]]; then
+if [[ $HN != "ipnphen01" && $HN != "rasalula" ]]; then
     cd $SOFT_DIR/$PR_VER
     chmod -Rf g+w pandaroot
 fi
