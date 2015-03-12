@@ -64,7 +64,7 @@ done
 echo "############################################################################################################"
 echo "Done patching files."
 
-if [ $DO_COMPILE == 0 ]; then
+if [[ $DO_COMPILE -eq 0 ]]; then
     echo "Now building ..."
     # build the patch
     cd $PNDROOT_DIR/build
