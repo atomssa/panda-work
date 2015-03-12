@@ -44,7 +44,7 @@ do
     if [[ -e $PNDROOT_DIR/$SRC_FILE ]]; then
 	echo "$SRC_FILE found in $PNDROOT_DIR"
 	diff_cnt=$(diff -b $PNDROOT_DIR/$SRC_FILE $SRC_FILE |wc -l)
-	if [[ $diff_cnt > 0 ]]; then
+	if [[ $diff_cnt -gt 0 ]]; then
 	    echo "Patch file $SRC_FILE different from $PNDROOT_DIR version. Patching.."
 	    nbkp=$(ls $PNDROOT_DIR/$SRC_FILE.org.* 2>/dev/null | wc -l)
 	    diff -b $PNDROOT_DIR/$SRC_FILE $PATCH_DIR/$SRC_FILE
