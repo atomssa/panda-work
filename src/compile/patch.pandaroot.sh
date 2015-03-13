@@ -44,9 +44,9 @@ do
     if [[ -e $PNDROOT_DIR/$SRC_FILE ]]; then
 	echo "$SRC_FILE found in $PNDROOT_DIR"
 	diff_cnt=$(diff -b $PNDROOT_DIR/$SRC_FILE $SRC_FILE |wc -l)
-	if [[ $diff_cnt > 0 ]]; then
+	if [[ $diff_cnt -gt 0 ]]; then
 	    echo "Patch file $SRC_FILE different from $PNDROOT_DIR version. Patching.."
-	    nbkp=$(ls $PNDROOT_DIR/$SRC_FILE.org.* 2>/dev/null | wc -l)
+	    nbkp=$(ls $PNDROOT_DIR/$SRC_FILE.org.* 2>/dev/null | wc -l| tr -d '[[:space:]]')
 	    diff -b $PNDROOT_DIR/$SRC_FILE $PATCH_DIR/$SRC_FILE
 	    mv -vf $PNDROOT_DIR/$SRC_FILE $PNDROOT_DIR/$SRC_FILE.org.$nbkp
 	    cp -vf $PATCH_DIR/$SRC_FILE $PNDROOT_DIR/$SRC_FILE
@@ -64,12 +64,12 @@ done
 echo "############################################################################################################"
 echo "Done patching files."
 
-if [ $DO_COMPILE == 0 ]; then
+if [[ $DO_COMPILE -eq 0 ]]; then
     echo "Now building ..."
     # build the patch
     cd $PNDROOT_DIR/build
     make -j 4
-    if [[ $HN != "ipnphen01" ]]; then
+    if [[ $HN != "ipnphen01" && $HN != "rasalula" ]]; then
 	# reset write permissions
 	cd $SOFT_DIR/$EXT_VER
 	chmod -f g+w .

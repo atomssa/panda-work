@@ -35,7 +35,12 @@ cd $EXT_DIR
 [ -e pandaroot ] || mkdir -p pandaroot
 cd pandaroot
 if [ ! -e $PR_VER ]; then
-    svn co https://subversion.gsi.de/fairroot/pandaroot/release/$PR_VER $PR_VER
+    if [[ $PR_VER =~ ^trunk-([0-9]+)$ ]]; then
+	PR_REV=${BASH_REMATCH[1]}
+	svn co https://subversion.gsi.de/fairroot/pandaroot/trunk $PR_VER -r $PR_REV
+    else
+	svn co https://subversion.gsi.de/fairroot/pandaroot/release/$PR_VER $PR_VER
+    fi
 else
     echo "$PR_VER directory already exist. Refusing to checkout."
     echo "Will try to compile existing source"
@@ -57,7 +62,7 @@ cd build
 cmake -DUSE_DIFFERENT_COMPILER=TRUE ../
 make -j $NCORE
 
-if [[ $HN != "ipnphen01" ]]; then
+if [[ $HN != "ipnphen01" && $HN != "rasalula" ]]; then
     cd $SOFT_DIR/$PR_VER
     chmod -Rf g+w pandaroot
 fi

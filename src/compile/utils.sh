@@ -23,6 +23,12 @@ if [[ $HN == "ipnphen01" ]]; then
     export SIMPATH=$EXT_DIR/install
     export PATCH_DIR=/vol0/panda/work/src/patch-$PR_VER
     export NCORE=16
+elif [[ $HN == "rasalula" ]]; then
+    export SOFT_DIR=/Users/tujuba/panda/svn
+    export EXT_DIR=$SOFT_DIR/$EXT_VER
+    export SIMPATH=$EXT_DIR/install
+    export PATCH_DIR=/Users/tujuba/panda/work/src/patch-$PR_VER
+    export NCORE=16
 else
     export SOFT_DIR=/nfs1/panda/ermias/soft
     export EXT_DIR=$SOFT_DIR/$EXT_VER
