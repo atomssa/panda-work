@@ -43,10 +43,10 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
       if (emcHit->energy() < fCorrPar->GetEmc12Thr()) continue;
       Int_t emcModule = emcHit->GetModule();
 
-      if (emcModule>4) continue; // skip FSC
-      if ( (emcModule<3) && (helix->GetZ()>150.)  ) continue; // not consider tracks after emc barrel for BARREL
+      //if (emcModule>4) continue; // skip FSC
+      //if ( (emcModule<3) && (helix->GetZ()>150.)  ) continue; // not consider tracks after emc barrel for BARREL
       //if ( (emcModule==3) && (helix->GetZ()<165.) ) continue; // consider tracks only from last gem plane for FWD
-      if ( (emcModule==4) && (helix->GetZ()>-30.) ) continue; // consider tracks only ending at the back of STT for BKW
+      //if ( (emcModule==4) && (helix->GetZ()>-30.) ) continue; // consider tracks only ending at the back of STT for BKW
 
       emcPos = emcHit->where();
       if (fGeanePro)
