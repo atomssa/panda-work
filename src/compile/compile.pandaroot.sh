@@ -32,8 +32,8 @@ echo "Pathes check out. Proceeding to compilation"
 
 cd $EXT_DIR
 
-[ -e pandaroot ] || mkdir -p pandaroot
-cd pandaroot
+[[ -e pandaroot ]] || mkdir -p pandaroot && cd pandaroot
+
 if [ ! -e $PR_VER ]; then
     if [[ $PR_VER =~ ^trunk-([0-9]+)$ ]]; then
 	PR_REV=${BASH_REMATCH[1]}
@@ -56,9 +56,8 @@ fi
 echo "SIMPATH= $SIMPATH"
 echo "FAIRROOTPATH= $FAIRROOTPATH"
 
-[ -e build ] && mv -v build build.bkp.$(ls -d build.bkp.* 2>/dev/null | wc -l)
-mkdir -p build
-cd build
+[[ -e build ]] && mv -v build build.bkp.$(ls -d build.bkp.* 2>/dev/null | wc -l| tr -d '[[:space:]]') && mkdir -p build || mkdir -p build && cd build
+
 cmake -DUSE_DIFFERENT_COMPILER=TRUE ../
 make -j $NCORE
 
