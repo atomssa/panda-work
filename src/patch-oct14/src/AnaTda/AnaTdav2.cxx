@@ -218,10 +218,10 @@ bool AnaTdav2::check_eid(RhoCandidate* cand) {
 inline
 double AnaTdav2::dist_chpi_match(RhoCandidate *rec, RhoCandidate *mc) {
   //const double dmom = (rec->P3().Mag()-mc->P3().Mag())/1.3e-2;
-  const double dth = (rec->P3().Theta()-mc->P3().Theta())/1.54e-3;
-  const double dph = (rec->P3().Phi()-mc->P3().Phi())/3.95e-3;
+  const double _dth = (rec->P3().Theta()-mc->P3().Theta())/1.54e-3;
+  const double _dph = (rec->P3().Phi()-mc->P3().Phi())/3.95e-3;
   //return TMath::Hypot(dmom, TMath::Hypot(dth, dph));
-  return TMath::Hypot(dth, dph);
+  return TMath::Hypot(_dth, _dph);
 }
 
 void AnaTdav2::charged_pion_filter(RhoCandList& outp, RhoCandList& outm, RhoCandList& inp_pi, RhoCandList& inm_pi, RhoCandList& inp_e, RhoCandList& inm_e) {
@@ -261,14 +261,14 @@ void AnaTdav2::charged_pion_filter(RhoCandList& outp, RhoCandList& outm, RhoCand
   // Here keep the cosest matching pair
   double dmin = 1e9;
   int match_p = -1, match_m = -1;
-  for (int ip = 0; ip < inp_pi.GetLength(); ++ip) {
-    for (int im = 0; im < inm_pi.GetLength(); ++im) {
-      const double dp = dist_chpi_match(inp_pi[ip],mcList[mc_p]);
-      const double dm = dist_chpi_match(inm_pi[im],mcList[mc_m]);
+  for (int iip = 0; iip < inp_pi.GetLength(); ++iip) {
+    for (int iim = 0; iim < inm_pi.GetLength(); ++iim) {
+      const double dp = dist_chpi_match(inp_pi[iip],mcList[mc_p]);
+      const double dm = dist_chpi_match(inm_pi[iim],mcList[mc_m]);
       const double dtot = TMath::Hypot(dp,dm);
       if (dtot < dmin) {
-	match_p = ip;
-	match_m = im;
+	match_p = iip;
+	match_m = iim;
 	dmin = dtot;
       }
     }
@@ -674,15 +674,15 @@ void AnaTdav2::write_hists() {
 
 }
 
-void AnaTdav2::dth_dph_cm(RhoCandidate* _gg, RhoCandidate *_epem, double &dth, double &dph ) {
+void AnaTdav2::dth_dph_cm(RhoCandidate* _gg, RhoCandidate *_epem, double &_dth, double &_dph ) {
   TLorentzVector p4gg = _gg->P4();
   TLorentzVector p4epair = _epem->P4();
   TLorentzVector p4ep = _epem->Daughter(0)->Charge()>0? _epem->Daughter(0)->P4(): _epem->Daughter(1)->P4();
   p4gg.Boost(boost_to_cm);
   p4epair.Boost(boost_to_cm);
-  dth = fabs(p4gg.Vect().Theta() + p4epair.Vect().Theta());
-  dph = p4gg.Vect().Phi() - p4epair.Vect().Phi();
-  if (dph<0) dph *= -1;
+  _dth = fabs(p4gg.Vect().Theta() + p4epair.Vect().Theta());
+  _dph = p4gg.Vect().Phi() - p4epair.Vect().Phi();
+  if (_dph<0) _dph *= -1;
 }
 
 // This is going to be a long function...

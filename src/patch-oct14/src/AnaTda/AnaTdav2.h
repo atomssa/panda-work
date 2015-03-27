@@ -132,10 +132,10 @@ class AnaTdav2 : public FairTask{
   double oa(RhoCandidate* c1, RhoCandidate* c2) { return c1->P3().Angle(c2->P3()); }
   double m(RhoCandidate* c1, RhoCandidate* c2) { return (c1->P4() + c2->P4()).M(); }
   double dth(RhoCandList* c1, RhoCandList* c2);
-  double t_gg(RhoCandidate *gg) { return (gg->P4()-p4pbar).M2(); }
-  double t_ep(RhoCandidate *ep) { return (ep->P4()-p4targ).M2(); }
-  double u_gg(RhoCandidate *gg) { return (gg->P4()-p4targ).M2(); }
-  double u_ep(RhoCandidate *ep) { return (ep->P4()-p4pbar).M2(); }
+  double t_gg(RhoCandidate *_gg) { return (_gg->P4()-p4pbar).M2(); }
+  double t_ep(RhoCandidate *_ep) { return (_ep->P4()-p4targ).M2(); }
+  double u_gg(RhoCandidate *_gg) { return (_gg->P4()-p4targ).M2(); }
+  double u_ep(RhoCandidate *_ep) { return (_ep->P4()-p4pbar).M2(); }
 
   int find_bin(double val, double *binning);
   //int t_bin(RhoCandidate*);
