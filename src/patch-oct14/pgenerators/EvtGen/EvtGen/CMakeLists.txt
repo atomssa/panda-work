@@ -6,7 +6,6 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 
 set(EVTGEN_PRIVATE_DIR     "Private")
-#set(EVTGEN_DIR             "R01-02-00")
 set(EVTGEN_DIR             "R01-03-00")
 set(EVTGEN_SRC_DIR         "${EVTGEN_DIR}/src")
 set(EVTGEN_EXAMPLE_DIR     "${EVTGEN_DIR}/test")
@@ -48,7 +47,13 @@ set(EVTGEN_SRCS
    ${EVTGEN_PRIVATE_DIR}/EvtLambdaLambdaBar.cpp
    ${EVTGEN_PRIVATE_DIR}/EvtLambdaLambdaBarPol.cpp
    ${EVTGEN_PRIVATE_DIR}/EvtLambdaLambdaBarHE.cpp
-    ${EVTGEN_PRIVATE_DIR}/EvtDsDalitz.cpp
+   ${EVTGEN_PRIVATE_DIR}/EvtDsDalitz.cpp
+   ${EVTGEN_PRIVATE_DIR}/EvtChic1toJpsiGam.cpp
+   ${EVTGEN_PRIVATE_DIR}/EvtChic2toJpsiGam.cpp
+   ${EVTGEN_PRIVATE_DIR}/EvtDecayNew.cpp
+   ${EVTGEN_PRIVATE_DIR}/EvtPPPsiPiPi.cpp
+   ${EVTGEN_PRIVATE_DIR}/EvtPPPsiPiPi_matr2_f0.cpp
+   ${EVTGEN_PRIVATE_DIR}/EvtPP_EtacGamma.cpp
 ## overwrite EvtGen ModelReg by Panda one
    ${EVTGEN_PRIVATE_DIR}/EvtModelReg.cpp
 ##   ${EVTGEN_MODELS_DIR}/EvtModelReg.cpp
@@ -321,7 +326,7 @@ set(EVTGEN_SRCS
    ${EVTGEN_MODELS_DIR}/EvtBCVFF.cpp
    ${EVTGEN_MODELS_DIR}/EvtWnPi.cpp
    ${EVTGEN_PRIVATE_DIR}/EvtPpbarJpsiPi0.cpp
-)
+   )
 
 #   ${EVTGEN_MODELS_DIR}/EvtResonancePrototype.cpp
 
@@ -357,7 +362,6 @@ add_library(EvtGen SHARED ${EVTGEN_SRCS})
 target_link_libraries(EvtGen ${ROOT_LIBRARIES} ${Fortran_UseLib} ${HEPMCLIBLIST})
 set_target_properties(EvtGen PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 set_target_properties(EvtGen PROPERTIES LINK_FLAGS "-fPIC")
-set_target_properties(EvtGen PROPERTIES LINKER_LANGUAGE "Fortran")
 
 if(EVTGEN_EXTERNAL)
    add_library(EvtGenExternal SHARED ${EVTGEN_EXT_SRCS})
@@ -369,23 +373,19 @@ endif(EVTGEN_EXTERNAL)
 add_executable(evtgenlhc_test1 ${EVTGEN_EXAMPLE_DIR}/evtgenlhc_test1.cc)
 set_target_properties(evtgenlhc_test1 PROPERTIES OUTPUT_NAME evtgen_lhc_test1)
 set_target_properties(evtgenlhc_test1 PROPERTIES LINK_FLAGS "-fPIC")
-set_target_properties(evtgenlhc_test1 PROPERTIES LINKER_LANGUAGE "Fortran")
 target_link_libraries(evtgenlhc_test1 ${ROOT_LIBRARIES} EvtGen ${EVTGENEXTLIBLIST} ${PHOTOSLIBLIST} ${TAUOLALIBLIST} ${HEPMCLIBLIST} ${PYTHIALIBLIST} ${Fortran_UseLib} )
 
 
 add_executable(evt_dalitz ${EVTGEN_EXAMPLE_DIR}/evt_dalitz.cc)
 set_target_properties(evt_dalitz PROPERTIES OUTPUT_NAME evtgen_dalitz)
 set_target_properties(evt_dalitz PROPERTIES LINK_FLAGS "-fPIC")
-set_target_properties(evt_dalitz PROPERTIES LINKER_LANGUAGE "Fortran")
 target_link_libraries(evt_dalitz ${ROOT_LIBRARIES} EvtGen ${EVTGENEXTLIBLIST} ${PHOTOSLIBLIST} ${TAUOLALIBLIST} ${HEPMCLIBLIST} ${PYTHIALIBLIST} ${Fortran_UseLib} )
 
 
 add_executable(example1 ${EVTGEN_EXAMPLE_DIR}/example1.cc)
 set_target_properties(example1 PROPERTIES OUTPUT_NAME evtgen_example1)
 set_target_properties(example1 PROPERTIES LINK_FLAGS "-fPIC")
-set_target_properties(example1 PROPERTIES LINKER_LANGUAGE "Fortran")
 target_link_libraries(example1 ${ROOT_LIBRARIES} EvtGen ${EVTGENEXTLIBLIST} ${PHOTOSLIBLIST} ${TAUOLALIBLIST} ${HEPMCLIBLIST} ${PYTHIALIBLIST} ${Fortran_UseLib} )
 
 ################ install ###################
 install(TARGETS EvtGen DESTINATION ${CMAKE_BINARY_DIR}/lib)
-
