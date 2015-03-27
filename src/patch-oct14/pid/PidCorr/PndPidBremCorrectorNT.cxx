@@ -350,6 +350,9 @@ double PndPidBremCorrectorNT::GetSepPhotonE(PndPidCandidate *ChargedCand, int &n
   fSepClustId.clear();
   Float_t PhotonTotEnergySepWtd = 0;
 
+  const int iTrkEmcIdx = ChargedCand->GetEmcIndex();
+  if (iTrkEmcIdx<0) return 0;
+
   const int nBump = fBumpArray->GetEntriesFast();
   for(Int_t iBump = 0; iBump<nBump; ++iBump)
     {
@@ -357,8 +360,7 @@ double PndPidBremCorrectorNT::GetSepPhotonE(PndPidCandidate *ChargedCand, int &n
       const Float_t PhotonEnergySep = PhotonBump->GetEnergyCorrected();
 
       const Int_t iSepClust = PhotonBump->GetClusterIndex();
-      if ( PhotonBump->GetClusterIndex() == ChargedCand->GetEmcIndex() ) continue;
-      //if ( PhotonEnergySep > 0.9* ChargedCand->GetEnergy() ) continue;
+      if ( iSepClust == iTrkEmcIdx ) continue;
 
       const double PhotonThetaSep = PhotonBump->position().Theta()*TMath::RadToDeg();
       const double PhotonPhiSep = PhotonBump->position().Phi()*TMath::RadToDeg();
