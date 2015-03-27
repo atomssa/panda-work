@@ -1211,7 +1211,7 @@ void AnaTda::fill_jpsi_analysis_hists(RhoCandList& org, const int& itype) {
   fill_pair_mass(org, h_m_epem[itype]);
 }
 
-void AnaTda::Finish() {
+void AnaTda::FinishTask() {
 
   write_kin_fit_hists();
   write_eff_hists();

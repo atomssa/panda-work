@@ -607,7 +607,7 @@ void AnaTdav2::Exec(Option_t* opt) {
   fill_bins();
 }
 
-void AnaTdav2::Finish() {
+void AnaTdav2::FinishTask() {
   cout << "AnaTdav2::Exec" << endl;
   fAna->Reset();
   write_hists();

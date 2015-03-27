@@ -27,7 +27,8 @@ class AnaTdav2 : public FairTask{
 
   virtual void Exec(Option_t* opt);
 
-  virtual void Finish();
+  virtual void FinishTask();
+  virtual void FinishEvent() {}
 
   void set_verbosity(int v) {verb = v;}
 

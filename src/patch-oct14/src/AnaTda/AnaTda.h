@@ -37,7 +37,8 @@ class AnaTda : public FairTask {
   // ** Virtual method Exec
   virtual void Exec(Option_t* opt);
 
-  virtual void Finish();
+  virtual void FinishTask();
+  virtual void FinishEvent() {}
 
   void set_verbosity(const int &v) {verb = v;}
 
