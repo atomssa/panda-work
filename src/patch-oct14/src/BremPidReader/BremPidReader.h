@@ -59,7 +59,7 @@ class BremPidReader: public FairTask
         double GetSepPhotonE(PndPidCandidate *, int&);
         double GetMergPhotonE(PndPidCandidate *, int&);
 
-	void fill_bump_list();
+	void fill_bump_list(std::vector<std::vector<int> >&);
 	void brem_matching(std::vector<std::vector<int> >&, std::vector<std::vector<int> >&, std::vector<int>&, std::vector<int>&, std::vector<int>&, std::vector<int>&);
 	void find_ancestory(const int&, std::vector<int>&);
 	//void get_mc_brem_photons(const int&, std::vector<double>&, std::vector<double>&, std::vector<double>&,
@@ -121,6 +121,9 @@ class BremPidReader: public FairTask
 	float mom_stored[nch_max];
 	float phi[nch_max];
 	float the[nch_max];
+	float phi_mc[nch_max];
+	float the_mc[nch_max];
+	int pdg_mc[nch_max];
 	int nphot_sep[nch_max];
 	int nphot_mrg[nch_max];
 	int is_prim[nch_max];
@@ -138,6 +141,8 @@ class BremPidReader: public FairTask
 	float mcb_zed[nmcb_max];
 	int mcb_match[nmcb_max];
 	int mcb_score[nmcb_max];
+	int mcb_match_ab[nmcb_max];
+	int mcb_score_ab[nmcb_max];
 
 	int _nsb[nch_max];
 	int isb_s[nch_max];
@@ -160,6 +165,9 @@ class BremPidReader: public FairTask
 	float ab_the[nab_max];
 	float ab_ene[nab_max];
 	int ab_isb[nab_max];
+	int ab_ich[nab_max];
+	int ab_match[nsb_max];
+	int ab_score[nsb_max];
 
 	int nNeutCand;
 	int nChCand;

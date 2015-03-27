@@ -157,6 +157,9 @@ InitStatus BremPidReader::Init() {
   t->Branch("mom_stored",&mom_stored,"mom_stored[nch]/F");
   t->Branch("phi",&phi,"phi[nch]/F");
   t->Branch("the",&the,"the[nch]/F");
+  t->Branch("phi_mc",&phi_mc,"phi_mc[nch]/F");
+  t->Branch("the_mc",&the_mc,"the_mc[nch]/F");
+  t->Branch("pdg_mc",&pdg_mc,"pdg_mc[nch]/I");
   t->Branch("nphot_sep",&nphot_sep,"nphot_sep[nch]/I");
   t->Branch("nphot_mrg",&nphot_mrg,"nphot_mrg[nch]/I");
   t->Branch("is_prim",&is_prim,"is_prim[nch]/I");
@@ -174,6 +177,8 @@ InitStatus BremPidReader::Init() {
   t->Branch("mcb_zed",&mcb_zed,"mcb_zed[nmcb]/F"); // True creation radius of this MC brem photon
   t->Branch("mcb_match",&mcb_match,"mcb_match[nmcb]/I"); // The index of the best matching separated bump to this MC brem photon
   t->Branch("mcb_score",&mcb_score,"mcb_score[nmcb]/I"); // The number of common MC tracks with the matching separated bump
+  t->Branch("mcb_match_ab",&mcb_match_ab,"mcb_match_ab[nmcb]/I"); // The index of the best matching separated bump to this MC brem photon
+  t->Branch("mcb_score_ab",&mcb_score_ab,"mcb_score_ab[nmcb]/I"); // The number of common MC tracks with the matching separated bump
 
   // Separated bumps found within the brem cut window of a reconstructed track
   t->Branch("_nsb",&_nsb,"_nsb[nch]/I"); // number of separated bumps associated with this track
@@ -195,6 +200,9 @@ InitStatus BremPidReader::Init() {
   t->Branch("ab_the",&ab_the,"ab_the[nab]/F"); // theta agnle of of this separated bump
   t->Branch("ab_ene",&ab_ene,"ab_ene[nab]/F"); // reconstructed energy of this separated bump
   t->Branch("ab_isb",&ab_isb,"ab_isb[nab]/I"); // Index of the track for which this bump had been found to be a separted bump. -1 otherwise
+  t->Branch("ab_ich",&ab_ich,"ab_ich[nab]/I"); // Index of the track with which this bump shares EmcIndex
+  t->Branch("ab_match",&ab_match,"ab_match[nsb]/I"); // The index of the best matching MC brem photon to this bump
+  t->Branch("ab_score",&ab_score,"ab_score[nsb]/I"); // The number of common MC tracks with the matching MC track
 
 }
 
@@ -214,7 +222,8 @@ void BremPidReader::Exec(Option_t* opt)
   nsb = 0;
   nmcb = 0;
 
-  fill_bump_list();
+  vector<vector<int> > ab_tree;
+  fill_bump_list(ab_tree);
 
   for (int iCand = 0; iCand<nChCand; ++iCand){
 
@@ -238,9 +247,28 @@ void BremPidReader::Exec(Option_t* opt)
     // it will lead to mismatch between PndPidCand idx and PndPidBremCorr Index
     if (mcidx>nMcTrack || mcidx<0) continue;
     PndMCTrack *truth = (PndMCTrack*) fMcArray->At(mcidx);
-    if (truth->GetMotherID()!=-1) continue; // keep only primary electrons. Its complicated as it is
+
+    int pdg = truth->GetPdgCode();
+    int mid = truth->GetMotherID();
+    int mpdg = -1;
+    if (mid>=0){
+      PndMCTrack *mother = (PndMCTrack*) fMcArray->At(mcidx);
+      mpdg  = mother->GetPdgCode();
+    }
+    //if (pdg==11||pdg==-11) {
+    //  if (mid!=-1&&mpdg!=433) continue; // keep only primary electrons. Its complicated as it is
+    //} else if (pdg==211||pdg==-211) {
+    //  if (mid!=-1) continue;
+    //} else {
+    //  continue;
+    //}
+    if (mid!=-1) continue;
+    
     is_prim[nch] = truth->GetMotherID()==-1;
     mom_mc[nch] = truth->GetMomentum().Mag();
+    phi_mc[nch] = truth->GetMomentum().Phi()*TMath::RadToDeg();
+    the_mc[nch] = truth->GetMomentum().Theta()*TMath::RadToDeg();
+    pdg_mc[nch] = truth->GetPdgCode();
 
     TVector3 mom = theChargedCand->GetMomentum();
     double ene = theChargedCand->GetEnergy();
@@ -329,15 +357,30 @@ void BremPidReader::Exec(Option_t* opt)
     for (int ii = imcb_s[nch]; ii < imcb_e[nch]; ++ii) {
       mcb_match[ii] = isb_s[nch] + _mcb_match.at(ii-imcb_s[nch]);
       mcb_score[ii] = _mcb_score.at(ii-imcb_s[nch]);
-      //cout << "mcb_match[" << ii<< "] = " << mcb_match[ii] << " nsb= " << nsb << endl;
     }
     for (int ii = isb_s[nch]; ii < isb_e[nch]; ++ii) {
       sb_match[ii] = imcb_s[nch] + _sb_match.at(ii-isb_s[nch]);
       sb_score[ii] = _sb_score.at(ii-isb_s[nch]);
       if (sb_match[ii] > nmcb) { cout << "DISASTER!!" << endl;}
-      //cout << "sb_match[" << ii<< "] = " << sb_match[ii] << " nmcb= " << nmcb << endl;
     }
+
+    // Do matching between all bumps and mc-brem photons
+    vector<int> _ab_match(nab,-1), _mcb_match_ab(_nmcb[nch],-1);
+    vector<int> _ab_score(nab,-1), _mcb_score_ab(_nmcb[nch],-1);
+    brem_matching(ab_tree, mcb_tree, _ab_match, _mcb_match_ab, _ab_score, _mcb_score_ab);
+    for (int ii = imcb_s[nch]; ii < imcb_e[nch]; ++ii) {
+      mcb_match_ab[ii] = _mcb_match_ab.at(ii-imcb_s[nch]);
+      mcb_score_ab[ii] = _mcb_score_ab.at(ii-imcb_s[nch]);
+    }
+    for (int ii = 0; ii < nab; ++ii) {
+      if (_ab_match.at(ii)<0) continue;
+      ab_match[ii] = imcb_s[nch] + _ab_match.at(ii);
+      ab_score[ii] = _ab_score.at(ii);
+      if (ab_match[ii] > nmcb) { cout << "DISASTER!!" << endl;}
+    }
+
     ++nch;
+
   }
 
   //print_cands();
@@ -420,8 +463,8 @@ get_mc_brem_photons(const int &mcidx, vector<vector<int> >& _mcb_tree) {
     mcb_rad[nmcb] = radiusT;
     mcb_zed[nmcb] = McTrack->GetStartVertex().Z();
     mcb_ene[nmcb] = McTrack->GetMomentum().Mag();
-    mcb_phi[nmcb] = McTrack->GetMomentum().Phi();
-    mcb_the[nmcb] = McTrack->GetMomentum().Theta();
+    mcb_phi[nmcb] = McTrack->GetMomentum().Phi()*TMath::RadToDeg();;
+    mcb_the[nmcb] = McTrack->GetMomentum().Theta()*TMath::RadToDeg();;
     vector<int> tree;
     find_ancestory(iMcTrack,tree);
     _mcb_tree.push_back(tree);
@@ -461,15 +504,42 @@ PndPidBremCorrected4Mom* BremPidReader::AddBremCorrected4Mom(){
 }
 
 void BremPidReader::
-fill_bump_list() {
+fill_bump_list(vector<vector<int> > &_ab_tree) {
   nab = fBumpArray->GetEntriesFast();
   for(Int_t iBump = 0; iBump<nab; ++iBump) {
     PndEmcBump *PhotonBump = (PndEmcBump *) fBumpArray->At(iBump);
     assert(iBump<nab_max);
+    int _ich = -1;
+    for (int iCand = 0; iCand<nChCand; ++iCand){
+      PndPidCandidate* theChargedCand = (PndPidCandidate*) fChargedCandidateArray->At(iCand);
+      if ( PhotonBump->GetClusterIndex() == theChargedCand->GetEmcIndex() ) {
+	_ich = iCand;
+	break; // assumes a bump can be associated with only one charge candidate
+      }
+    }
     ab_ene[iBump] = PhotonBump->GetEnergyCorrected();
     ab_the[iBump] = PhotonBump->position().Theta()*TMath::RadToDeg();
     ab_phi[iBump] = PhotonBump->position().Phi()*TMath::RadToDeg();
     ab_isb[iBump] = -1;
+    ab_ich[iBump] = _ich;
+
+    const Int_t iSepClust = PhotonBump->GetClusterIndex();
+    PndEmcCluster *PhotonCluster = (PndEmcCluster*) fClusterArray->At(iSepClust);
+    vector<int> tmp;
+    int digisize = PhotonCluster->DigiList().size();
+    for (int id=0; id<digisize; ++id) {
+      PndEmcDigi *digi = (PndEmcDigi*) fDigiArray->At(PhotonCluster->DigiList()[id]);
+      PndEmcHit *hit = (PndEmcHit*) fHitArray->At(digi->GetHitIndex());
+      int mcsize = hit->GetMcList().size();
+      for (int imc=0; imc<mcsize; ++imc) {
+	tmp.push_back(hit->GetMcList()[imc]);
+      }
+    }
+    sort(tmp.begin(),tmp.end());
+    std::vector<int>::iterator it = unique(tmp.begin(),tmp.end());
+    tmp.resize(distance(tmp.begin(),it));
+    _ab_tree.push_back(tmp);
+
   }
 }
 
@@ -502,7 +572,7 @@ GetSepPhotonE_fromBumps(PndPidCandidate *ChargedCand, double &esep, double &esep
       const Float_t RealDeltaTheta = fCharge<0?PhotonThetaSep-fRecThetaOfEle:fRecThetaOfEle-PhotonThetaSep;
 
       const Float_t RealDeltaPhiRad = RealDeltaPhi*TMath::DegToRad();
-      const Float_t rad_calc = 100*TMath::Sin(RealDeltaPhiRad/2.)*2*Pt/0.3/2.0;
+      const Float_t rad_calc = 100*TMath::Sin(RealDeltaPhiRad/2.)*2*Pt/0.3/2.0; // B=2T
 
       //const Float_t wt = -rad_calc/42. + 1.;
       const Float_t wt = 1.0/(1.+TMath::Exp((rad_calc-21.)/5));
