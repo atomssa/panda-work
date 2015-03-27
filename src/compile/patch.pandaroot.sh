@@ -47,7 +47,7 @@ do
 	if [[ $diff_cnt -gt 0 ]]; then
 	    echo "Patch file $SRC_FILE different from $PNDROOT_DIR version. Patching.."
 	    nbkp=$(ls $PNDROOT_DIR/$SRC_FILE.org.* 2>/dev/null | wc -l| tr -d '[[:space:]]')
-	    diff -b $PNDROOT_DIR/$SRC_FILE $PATCH_DIR/$SRC_FILE
+	    git diff -b $PNDROOT_DIR/$SRC_FILE $PATCH_DIR/$SRC_FILE
 	    mv -vf $PNDROOT_DIR/$SRC_FILE $PNDROOT_DIR/$SRC_FILE.org.$nbkp
 	    cp -vf $PATCH_DIR/$SRC_FILE $PNDROOT_DIR/$SRC_FILE
 	else
