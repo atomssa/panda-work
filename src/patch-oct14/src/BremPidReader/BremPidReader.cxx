@@ -546,6 +546,9 @@ fill_bump_list(vector<vector<int> > &_ab_tree) {
 double BremPidReader::
 GetSepPhotonE_fromBumps(PndPidCandidate *ChargedCand, double &esep, double &esep_wtd, vector<vector<int> > &_sb_tree) {
 
+  const int iTrkEmcIdx = ChargedCand->GetEmcIndex();
+  //if (iTrkEmcIdx<0) return 0;
+
   Float_t PhotonTotEnergySep = 0;
   Float_t PhotonTotEnergySepWtd = 0;
   isb_s[nch] = nsb;
@@ -556,8 +559,7 @@ GetSepPhotonE_fromBumps(PndPidCandidate *ChargedCand, double &esep, double &esep
       const Float_t PhotonEnergySep = PhotonBump->GetEnergyCorrected();
 
       const Int_t iSepClust = PhotonBump->GetClusterIndex();
-      if ( PhotonBump->GetClusterIndex() == ChargedCand->GetEmcIndex() ) continue;
-      //if ( PhotonEnergySep > 0.8* ChargedCand->GetEnergy() ) continue;
+      if ( iSepClust == iTrkEmcIdx ) continue;
 
       PndEmcCluster *PhotonCluster = (PndEmcCluster*) fClusterArray->At(iSepClust);
 
@@ -575,7 +577,8 @@ GetSepPhotonE_fromBumps(PndPidCandidate *ChargedCand, double &esep, double &esep
       const Float_t rad_calc = 100*TMath::Sin(RealDeltaPhi*TMath::DegToRad()/2.)*2*Pt/0.3/2.0; // B=2T
       const Float_t zed_calc = rad_calc/TMath::Tan(TMath::DegToRad()*fRecThetaOfEle);
 
-      const Float_t wt = fwd ? 1.0/(1.+TMath::Exp((zed_calc-90.)/25.)) : 1.0/(1.+TMath::Exp((rad_calc-21.)/5.));
+      //const Float_t wt = fwd ? 1.0/(1.+TMath::Exp((zed_calc-90.)/25.)) : 1.0/(1.+TMath::Exp((rad_calc-21.)/5.));
+      const Float_t wt = fwd ? 0.0 : 1.0/(1.+TMath::Exp((rad_calc-21.)/5.));
       const Float_t ThetaCutUp = 2.;
       const Float_t ThetaCutDown = -2.;
       const Float_t PhiCutUp = fwd ? DeltaPhiForward : DeltaPhiBarrel;
