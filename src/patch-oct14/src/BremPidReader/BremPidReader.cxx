@@ -255,16 +255,15 @@ void BremPidReader::Exec(Option_t* opt)
       PndMCTrack *mother = (PndMCTrack*) fMcArray->At(mcidx);
       mpdg  = mother->GetPdgCode();
     }
-    //if (pdg==11||pdg==-11) {
-    //  if (mid!=-1&&mpdg!=433) continue; // keep only primary electrons. Its complicated as it is
-    //} else if (pdg==211||pdg==-211) {
-    //  if (mid!=-1) continue;
-    //} else {
-    //  continue;
-    //}
-    if (mid!=-1) continue;
-    
-    is_prim[nch] = truth->GetMotherID()==-1;
+    if (pdg==11||pdg==-11) {
+      if (mid!=-1&&mpdg!=433) continue; // keep only primary electrons. Its complicated as it is
+    } else if (pdg==211||pdg==-211) {
+      if (mid!=-1) continue;
+    } else {
+      continue;
+    }
+
+    is_prim[nch] = mid==-1;
     mom_mc[nch] = truth->GetMomentum().Mag();
     phi_mc[nch] = truth->GetMomentum().Phi()*TMath::RadToDeg();
     the_mc[nch] = truth->GetMomentum().Theta()*TMath::RadToDeg();
