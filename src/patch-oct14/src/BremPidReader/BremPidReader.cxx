@@ -263,7 +263,7 @@ void BremPidReader::Exec(Option_t* opt)
     //  continue;
     //}
     if (mid!=-1) continue;
-    
+
     is_prim[nch] = truth->GetMotherID()==-1;
     mom_mc[nch] = truth->GetMomentum().Mag();
     phi_mc[nch] = truth->GetMomentum().Phi()*TMath::RadToDeg();
@@ -561,9 +561,10 @@ GetSepPhotonE_fromBumps(PndPidCandidate *ChargedCand, double &esep, double &esep
 
       PndEmcCluster *PhotonCluster = (PndEmcCluster*) fClusterArray->At(iSepClust);
 
-      const double PhotonThetaSep = PhotonBump->position().Theta()*TMath::RadToDeg();
-      const double PhotonPhiSep = PhotonBump->position().Phi()*TMath::RadToDeg();
+      const Double_t PhotonThetaSep = PhotonBump->position().Theta()*TMath::RadToDeg();
+      const Double_t PhotonPhiSep = PhotonBump->position().Phi()*TMath::RadToDeg();
 
+      const Bool_t fwd = fRecThetaOfEle <= 23.;
       const Float_t Pt = fRecMomOfEle*TMath::Sin(fRecThetaOfEle/TMath::RadToDeg());
       const Float_t DeltaPhiBarrel = TMath::ASin(0.12/Pt)*2.*TMath::RadToDeg();
       const Float_t DeltaPhiForward = (0.6*2.0/Pt)*TMath::Tan(fRecThetaOfEle/57.3)*57.3;
@@ -571,14 +572,13 @@ GetSepPhotonE_fromBumps(PndPidCandidate *ChargedCand, double &esep, double &esep
       const Float_t RealDeltaPhi = fCharge<0?PhotonPhiSep-fRecPhiOfEle:fRecPhiOfEle-PhotonPhiSep;
       const Float_t RealDeltaTheta = fCharge<0?PhotonThetaSep-fRecThetaOfEle:fRecThetaOfEle-PhotonThetaSep;
 
-      const Float_t RealDeltaPhiRad = RealDeltaPhi*TMath::DegToRad();
-      const Float_t rad_calc = 100*TMath::Sin(RealDeltaPhiRad/2.)*2*Pt/0.3/2.0; // B=2T
+      const Float_t rad_calc = 100*TMath::Sin(RealDeltaPhi*TMath::DegToRad()/2.)*2*Pt/0.3/2.0; // B=2T
+      const Float_t zed_calc = rad_calc/TMath::Tan(TMath::DegToRad()*fRecThetaOfEle);
 
-      //const Float_t wt = -rad_calc/42. + 1.;
-      const Float_t wt = 1.0/(1.+TMath::Exp((rad_calc-21.)/5));
+      const Float_t wt = fwd ? 1.0/(1.+TMath::Exp((zed_calc-90.)/25.)) : 1.0/(1.+TMath::Exp((rad_calc-21.)/5.));
       const Float_t ThetaCutUp = 2.;
       const Float_t ThetaCutDown = -2.;
-      const Float_t PhiCutUp = (fRecThetaOfEle <= 23.)?DeltaPhiForward:DeltaPhiBarrel;
+      const Float_t PhiCutUp = fwd ? DeltaPhiForward : DeltaPhiBarrel;
       const Float_t PhiCutDown = -1;
 
       const Bool_t PhiCut = RealDeltaPhi <= PhiCutUp && RealDeltaPhi >= PhiCutDown;
