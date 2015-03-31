@@ -40,7 +40,7 @@ AnaTdav2.cxx
 set(LINKDEF AnaTdaLinkDef.h)
 set(LIBRARY_NAME anatda)
 
-#set(DEPENDENCIES Base PndData Rho AnalysisTools TrkBase)
+set(DEPENDENCIES Base PndData Rho AnalysisTools TrkBase)
 #set(DEPENDENCIES PndData Rho AnalysisTools)
 
 
