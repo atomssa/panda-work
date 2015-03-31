@@ -32,7 +32,7 @@ git checkout -b ${VFS} ${VFS}
 #fi
 
 if [[ $HN == "rasalula" ]]; then
-    . ./configure.sh <<EOF
+    ./configure.sh <<EOF
 5
 1
 1
@@ -42,7 +42,7 @@ $SOFT_DIR/${VFS}/install
 2
 EOF
 elif [[ $HN == "ipnphen01" ]]; then
-    . ./configure.sh <<EOF
+    ./configure.sh <<EOF
 1
 1
 1
@@ -55,7 +55,7 @@ else
     sed -i.bkp.0 s/geant4_download_install_data_automatic=no/geant4_download_install_data_automatic=yes/ configure.sh
     sed -i.bkp.1 s/geant4_install_data_from_dir=yes/geant4_install_data_from_dir=no/ configure.sh
     sed -i.bkp.2 s/'SIMPATH_INSTALL=$PWD\/installation'/'export SIMPATH_INSTALL=$PWD\/install'/ configure.sh
-    . ./configure.sh grid
+    ./configure.sh grid
 fi
 export SIMPATH=$SOFT_DIR/${VFS}/install
 
