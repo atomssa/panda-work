@@ -6,7 +6,7 @@
 //
 //  Created 14/08/06  by S.Spataro
 //
-/////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////
 
 #include "PndEmcHitProducer.h"
 
@@ -14,8 +14,8 @@
 #include "PndEmcHit.h"
 #include "PndEmcPoint.h"
 #include "PndEmcGeoPar.h"
-#include "PndEmcDigiPar.h"		
-#include "PndEmcDigiNonuniformityPar.h"		
+#include "PndEmcDigiPar.h"
+#include "PndEmcDigiNonuniformityPar.h"
 #include "PndMCTrack.h"
 
 #include "PndEmcXtal.h"
@@ -52,7 +52,7 @@ PndEmcHitProducer::PndEmcHitProducer() :
 PndEmcHitProducer::PndEmcHitProducer(Bool_t val) :
 	FairTask("Ideal EMC hit Producer"),
 	fUse_nonuniformity(0), fNonuniformityFile(""), fPointArray(), fMCTrackArray(), fHitArray(), fVolumeArray(), fMapVersion(0), emcX(), emcY(), emcZ(), fEmcStr(), fMapper(), fDigiPar(), fGeoPar(), fNonuniformityPar(), fStoreHits(val), fEnergyThreshold(0)
-{ 
+{
 	fNonuniformityFile=gSystem->Getenv("VMCWORKDIR");
 	fNonuniformityFile+="/input/EmcDigiNoniformityPars.root";
 }
@@ -154,7 +154,7 @@ void PndEmcHitProducer::SetParContainers(){
 	fNonuniformityPar = (PndEmcDigiNonuniformityPar*) db->getContainer("PndEmcDigiNonuniformityPar");
 
 	fDigiPar->setChanged();
-	fDigiPar->setInputVersion(run->GetRunId(),1); 
+	fDigiPar->setInputVersion(run->GetRunId(),1);
 
 	fNonuniformityPar->setChanged();
 	fNonuniformityPar->setInputVersion(run->GetRunId(),1);
@@ -192,7 +192,7 @@ void PndEmcHitProducer::cleansortmclist( std::vector <Int_t> &newlist,TClonesArr
 //		bool flag = false;
 //		PndMCTrack *pt;
 //		//pt=((PndMCTrack*)mcTrackArray->At(tmplist[j]));
-//		//if(pt->GetMotherID()<0) { 
+//		//if(pt->GetMotherID()<0) {
 //		//	tmplist2.push_back(tmplist[j]);
 //		//	continue;
 //		//}
@@ -226,7 +226,7 @@ void PndEmcHitProducer::cleansortmclist( std::vector <Int_t> &newlist,TClonesArr
 
 // -----   Public method Exec   --------------------------------------------
 void PndEmcHitProducer::Exec(Option_t* opt)
-{  
+{
 	cout << " POINT EXECUTION *********************" << endl;
 	// Reset output array
 	if (! fHitArray ) Fatal("Exec", "No DigiArray");
@@ -259,7 +259,7 @@ void PndEmcHitProducer::Exec(Option_t* opt)
 	Int_t nPoints = fPointArray->GetEntriesFast();
 
 	Double_t point_time = 0.00;
-	//------- init containers --- 
+	//------- init containers ---
 
 	for (Int_t iPoint = 0; iPoint < nPoints; iPoint++){
 		PndEmcPoint* point  = (PndEmcPoint*) fPointArray->At(iPoint);
@@ -304,12 +304,12 @@ void PndEmcHitProducer::Exec(Option_t* opt)
 			energyscalefactor=c[0]+zpos*(c[1]+zpos*c[2]);
 			fTrackEnergy[DetId] += point->GetEnergyLoss() * energyscalefactor;
 			fPointMatch[DetId].push_back(iPoint);
-			//        printf("point with detID %d has z Position %f and energyloss %f scaled with %f\n",DetId,zpos, point->GetEnergyLoss(),energyscalefactor);	
+			//        printf("point with detID %d has z Position %f and energyloss %f scaled with %f\n",DetId,zpos, point->GetEnergyLoss(),energyscalefactor);
 			//        printf("front is at x: %f y: %f z: %f\n", frontvec.X(),frontvec.Y(),frontvec.Z());
 		} else {
 			fTrackEnergy[DetId] += point->GetEnergyLoss();
 			fPointMatch[DetId].push_back(iPoint);
-			//        printf("point with detID %d has z Position %f and energyloss %f not scaled\n",DetId,zpos, point->GetEnergyLoss());	
+			//        printf("point with detID %d has z Position %f and energyloss %f not scaled\n",DetId,zpos, point->GetEnergyLoss());
 		}
 		point_time=point->GetTime();
 
@@ -390,7 +390,7 @@ PndEmcHit* PndEmcHitProducer::AddHit(Int_t trackID,Int_t detID, Float_t energy,
 	//" << box << " tube " << tub << endl;
 	TClonesArray& clref = *fHitArray;
 	Int_t size = clref.GetEntriesFast();
-	return new(clref[size]) PndEmcHit(trackID, detID, energy, time, emcX[detID], 
+	return new(clref[size]) PndEmcHit(trackID, detID, energy, time, emcX[detID],
 			emcY[detID], emcZ[detID], mctruth);
 }
 // ----
