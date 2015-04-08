@@ -47,6 +47,9 @@ class t {
   Float_t         mom_stored[10];   //[nch]
   Float_t         phi[10];   //[nch]
   Float_t         the[10];   //[nch]
+  Float_t         phi_mc[10];
+  Float_t         the_mc[10];
+  Int_t           pdg_mc[10];
   Int_t           nphot_sep[10];   //[nch]
   Int_t           nphot_mrg[10];   //[nch]
   Int_t           is_prim[10];   //[nch]
@@ -95,6 +98,9 @@ class t {
   TBranch        *b_mom_stored;   //!
   TBranch        *b_phi;   //!
   TBranch        *b_the;   //!
+  TBranch        *b_phi_mc;   //!
+  TBranch        *b_the_mc;   //!
+  TBranch        *b_pdg_mc;   //!
   TBranch        *b_nphot_sep;   //!
   TBranch        *b_nphot_mrg;   //!
   TBranch        *b_is_prim;   //!
@@ -240,6 +246,9 @@ void t::Init(TTree *tree)
   fChain->SetBranchAddress("mom_stored", mom_stored, &b_mom_stored);
   fChain->SetBranchAddress("phi", phi, &b_phi);
   fChain->SetBranchAddress("the", the, &b_the);
+  fChain->SetBranchAddress("phi_mc", phi_mc, &b_phi_mc);
+  fChain->SetBranchAddress("the_mc", the_mc, &b_the_mc);
+  fChain->SetBranchAddress("pdg_mc", pdg_mc, &b_pdg_mc);
   fChain->SetBranchAddress("nphot_sep", nphot_sep, &b_nphot_sep);
   fChain->SetBranchAddress("nphot_mrg", nphot_mrg, &b_nphot_mrg);
   fChain->SetBranchAddress("is_prim", is_prim, &b_is_prim);
