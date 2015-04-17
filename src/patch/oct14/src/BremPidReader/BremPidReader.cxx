@@ -175,6 +175,7 @@ InitStatus BremPidReader::Init() {
   t->Branch("pdg_mc",&pdg_mc,"pdg_mc[nch]/I");
   t->Branch("nphot_sep",&nphot_sep,"nphot_sep[nch]/I");
   t->Branch("nphot_mrg",&nphot_mrg,"nphot_mrg[nch]/I");
+  t->Branch("nphot_mrg_pc",&nphot_mrg_pc,"nphot_mrg_pc[nch]/I");
   t->Branch("is_prim",&is_prim,"is_prim[nch]/I");
 
   t->Branch("_nmcb",&_nmcb,"_nmcb[nch]/I"); // number of MC brem photons associated with this track with r<42cm
@@ -369,7 +370,7 @@ void BremPidReader::Exec(Option_t* opt)
 }
 
 inline
-double BremPidReader::corrected_mom(double photTotEne ) {
+double BremPidReader::corrected_mom(const double& photTotEne ) {
   return ((photTotEne+fRecMomOfEle)/fRecMomOfEle) * mom_rec[nch];
 }
 
@@ -503,11 +504,15 @@ fill_bump_list(vector<vector<int> > &_ab_tree) {
   }
 }
 
-double BremPidReader::
+void BremPidReader::
 GetSepPhotonE_fromBumps(PndPidCandidate *ChargedCand, double &esep, double &esep_wtd, double &esep_wtd_bf, vector<vector<int> > &_sb_tree) {
 
+  esep = 0;
+  esep_wtd = 0;
+  esep_wtd_bf = 0;
+
   const int iTrkEmcIdx = ChargedCand->GetEmcIndex();
-  if (iTrkEmcIdx<0) return 0;
+  if (iTrkEmcIdx<0) return;
 
   Float_t PhotonTotEnergySep = 0;
   Float_t PhotonTotEnergySepWtd = 0;
@@ -574,22 +579,18 @@ GetSepPhotonE_fromBumps(PndPidCandidate *ChargedCand, double &esep, double &esep
 	tmp.resize(distance(tmp.begin(),it));
 	_sb_tree.push_back(tmp);
 
-	PhotonTotEnergySep += PhotonEnergySep;
-	PhotonTotEnergySepWtd += wt*PhotonEnergySep;
-	PhotonTotEnergySepWtdBf += wt_bf*PhotonEnergySep;
+	esep += PhotonEnergySep;
+	esep_wtd += wt*PhotonEnergySep;
+	esep_wtd_bf += wt_bf*PhotonEnergySep;
       }
 
     }//loop neutralcand
   isb_e[nch] = nsb;
   nphot_sep[nch] = _nsb[nch] = isb_e[nch] - isb_s[nch];
 
-  if (PhotonTotEnergySep < fRecMomOfEle/100.) PhotonTotEnergySep = 0;
-  if (PhotonTotEnergySepWtd < fRecMomOfEle/100.) PhotonTotEnergySepWtd = 0;
-  if (PhotonTotEnergySepWtdBf < fRecMomOfEle/100.) PhotonTotEnergySepWtdBf = 0;
-
-  esep = PhotonTotEnergySep;
-  esep_wtd = PhotonTotEnergySepWtd;
-  esep_wtd_bf = PhotonTotEnergySepWtdBf;
+  if (esep < fRecMomOfEle/100.) esep_wtd = 0;
+  if (esep_wtd < fRecMomOfEle/100.) esep_wtd = 0;
+  if (esep_wtd_bf < fRecMomOfEle/100.) esep_wtd_bf = 0;
 
 }
 
@@ -609,12 +610,12 @@ void BremPidReader::GetMergPhotonE(PndPidCandidate *ChargedCand,
   emrg_wtd_bf_pc = 0;
 
   // no EMcal cluster associated with track ...
-  if (ChargedCand->GetEmcIndex() < 0) return 0.0;
+  if (ChargedCand->GetEmcIndex() < 0) return;
 
   PndEmcBump *EleBump = (PndEmcBump *) fBumpArray->At(ChargedCand->GetEmcIndex());
   Int_t EleRefCluster = EleBump->GetClusterIndex();
 
-  if (EleRefCluster < 0) return 0.0;
+  if (EleRefCluster < 0) return;
 
   std::vector<PndEmcBump*> EmcPhiBumpList;
   int nPhiBump = fPhiBumpArray->GetEntriesFast();
