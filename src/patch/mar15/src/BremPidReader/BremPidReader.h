@@ -56,8 +56,8 @@ class BremPidReader: public FairTask
 	void print_cands();
 	void print_vect(std::vector<int> &);
 
-        double GetSepPhotonE(PndPidCandidate *, int&);
-        double GetMergPhotonE(PndPidCandidate *, int&);
+        //double GetSepPhotonE(PndPidCandidate *, int&);
+        //double GetMergPhotonE(PndPidCandidate *, int&);
 
 	void fill_bump_list(std::vector<std::vector<int> >&);
 	void brem_matching(std::vector<std::vector<int> >&, std::vector<std::vector<int> >&, std::vector<int>&, std::vector<int>&, std::vector<int>&, std::vector<int>&);
@@ -68,7 +68,9 @@ class BremPidReader: public FairTask
 	//			       std::vector<double>&, std::vector<double>&, std::vector<double>&,
 	//			       std::vector<double>&, std::vector<std::vector<int> >&);
 	void get_mc_brem_photons(const int&, std::vector<std::vector<int> >&);
-	double GetSepPhotonE_fromBumps(PndPidCandidate*, double&, double&, std::vector<std::vector<int> >&);
+	void GetSepPhotonE_fromBumps(PndPidCandidate*, double&, double&, double&, std::vector<std::vector<int> >&);
+	void GetMergPhotonE(PndPidCandidate *, double&, double&, double&, double&, double&, double&);
+	double corrected_mom(const double&);
 
 	int nEvt;
 
@@ -94,9 +96,6 @@ class BremPidReader: public FairTask
         double fRecPhiOfEle;
         int fCharge;
 
-        //Double_t fSepPhotonE;
-        Double_t fMergPhotonE;
-
 	Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
 	// Data members
 
@@ -119,6 +118,18 @@ class BremPidReader: public FairTask
 	float mom_sep[nch_max];
 	float mom_mrg[nch_max];
 	float mom_stored[nch_max];
+
+	float mom_sep_w[nch_max];
+	float mom_sep_w_bf[nch_max];
+	float mom_mrg_w[nch_max];
+	float mom_mrg_w_bf[nch_max];
+	float mom_mrg_pc[nch_max];
+	float mom_mrg_w_pc[nch_max];
+	float mom_mrg_w_bf_pc[nch_max];
+	float mom_wbfcor[nch_max];
+	float mom_wbfcor_mw_bf[nch_max];
+	float mom_wbfcor_mw_bf_pc[nch_max];
+
 	float phi[nch_max];
 	float the[nch_max];
 	float phi_mc[nch_max];
@@ -126,6 +137,7 @@ class BremPidReader: public FairTask
 	int pdg_mc[nch_max];
 	int nphot_sep[nch_max];
 	int nphot_mrg[nch_max];
+	int nphot_mrg_pc[nch_max];
 	int is_prim[nch_max];
 
 	int _nmcb[nch_max];
