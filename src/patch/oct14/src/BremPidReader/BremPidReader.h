@@ -69,8 +69,8 @@ class BremPidReader: public FairTask
 	//			       std::vector<double>&, std::vector<std::vector<int> >&);
 	void get_mc_brem_photons(const int&, std::vector<std::vector<int> >&);
 	void GetSepPhotonE_fromBumps(PndPidCandidate*, double&, double&, double&, std::vector<std::vector<int> >&);
-	double GetMergPhotonE(PndPidCandidate *, double&, double&, double&, double&, double&, double&);
-	double corrected_mom(double&);
+	void GetMergPhotonE(PndPidCandidate *, double&, double&, double&, double&, double&, double&);
+	double corrected_mom(const double&);
 
 	int nEvt;
 
@@ -137,6 +137,7 @@ class BremPidReader: public FairTask
 	int pdg_mc[nch_max];
 	int nphot_sep[nch_max];
 	int nphot_mrg[nch_max];
+	int nphot_mrg_pc[nch_max];
 	int is_prim[nch_max];
 
 	int _nmcb[nch_max];
