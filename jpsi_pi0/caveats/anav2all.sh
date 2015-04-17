@@ -25,7 +25,7 @@ function tag_end_t {
 }
 
 
-for i in `seq 0 20`;
+for i in `seq 0 9`;
 do
     echo type:$tt brem:$bb fid:$i
     tag_start_t $i
