@@ -46,7 +46,7 @@
 using namespace std;
 
 BremPidReader::BremPidReader():
-  fClusterArray(0), fPhiBumpArray(0), fBumpArray(0), fChargedCandidateArray(0), fNeutralCandidateArray(0), fBremCorrected4MomArray(0),fRecMomOfEle(0), fRecThetaOfEle(0), fRecPhiOfEle(0), fCharge(0), /*fSepPhotonE(0.),*/ fMergPhotonE(0.), fPersistance(kTRUE)
+  fClusterArray(0), fPhiBumpArray(0), fBumpArray(0), fChargedCandidateArray(0), fNeutralCandidateArray(0), fBremCorrected4MomArray(0),fRecMomOfEle(0), fRecThetaOfEle(0), fRecPhiOfEle(0), fCharge(0), fPersistance(kTRUE)
 {
   output_name = "bremcorr.root";
   nEvt = 0;
@@ -155,6 +155,19 @@ InitStatus BremPidReader::Init() {
   t->Branch("mom_mrg",&mom_mrg,"mom_mrg[nch]/F");
   t->Branch("mom_sep",&mom_sep,"mom_sep[nch]/F");
   t->Branch("mom_stored",&mom_stored,"mom_stored[nch]/F");
+
+  // damn branches
+  t->Branch("mom_sep_w",&mom_sep_w,"mom_sep_w[nch]/F");
+  t->Branch("mom_sep_w_bf",&mom_sep_w_bf,"mom_sep_w_bf[nch]/F");
+  t->Branch("mom_mrg_w",&mom_mrg_w,"mom_mrg_w[nch]/F");
+  t->Branch("mom_mrg_w_bf",&mom_mrg_w_bf,"mom_mrg_w_bf[nch]/F");
+  t->Branch("mom_mrg_pc",&mom_mrg_pc,"mom_mrg_pc[nch]/F");
+  t->Branch("mom_mrg_w_pc",&mom_mrg_w_pc,"mom_mrg_w_pc[nch]/F");
+  t->Branch("mom_mrg_w_bf_pc",&mom_mrg_w_bf_pc,"mom_mrg_w_bf_pc[nch]/F");
+  t->Branch("mom_wbfcor",&mom_wbfcor,"mom_wbfcor[nch]/F");
+  t->Branch("mom_wbfcor_mw_bf",&mom_wbfcor_mw_bf,"mom_wbfcor_mw_bf[nch]/F");
+  t->Branch("mom_wbfcor_mw_bf_pc",&mom_wbfcor_mw_bf_pc,"mom_wbfcor_mw_bf_pc[nch]/F");
+
   t->Branch("phi",&phi,"phi[nch]/F");
   t->Branch("the",&the,"the[nch]/F");
   t->Branch("phi_mc",&phi_mc,"phi_mc[nch]/F");
@@ -264,7 +277,7 @@ void BremPidReader::Exec(Option_t* opt)
       continue;
     }
 
-    is_prim[nch] = mid==-1;
+    is_prim[nch] = (mid==-1||(mpdg==433&&(pdg==1||pdg==-1)));
     mom_mc[nch] = truth->GetMomentum().Mag();
     phi_mc[nch] = truth->GetMomentum().Phi()*TMath::RadToDeg();
     the_mc[nch] = truth->GetMomentum().Theta()*TMath::RadToDeg();
@@ -272,55 +285,36 @@ void BremPidReader::Exec(Option_t* opt)
 
     TVector3 mom = theChargedCand->GetMomentum();
     double ene = theChargedCand->GetEnergy();
-    TLorentzVector m4 = TLorentzVector(mom,ene);
+    //TLorentzVector m4 = TLorentzVector(mom,ene);
     double mass = 0.000511; // Electron mass hypothesis (GeV)
 
-    //int nPhotSep = 0;
-    //fSepPhotonE = GetSepPhotonE(theChargedCand, nPhotSep);
-
-    //vector<int> _idx_sb;
-    //vector<double> _rad_sb,_ene_sb,_phi_sb, _the_sb;
-    //vector<vector<int> > sb_tree;
-    //double sepPhotonE = 0, sepPhotonEWtd = 0;
-    //GetSepPhotonE_fromBumps(theChargedCand, sepPhotonE, sepPhotonEWtd, _idx_sb, _rad_sb, _ene_sb, _phi_sb, _the_sb, sb_tree);
-    //assert(_rad_sb.size()+nsb <= nsb_max);
-    //nphot_sep[nch] = _rad_sb.size(); // Obsolete...
-    //TVector3 momCorrSep = ((sepPhotonE+fRecMomOfEle)/fRecMomOfEle) * mom;
-    //mom_sep[nch] = momCorrSep.Mag();
-    //for (int i=0; i<_rad_sb.size(); ++i) {
-    //  ab_isb[_idx_sb[nsb+i]] = nch;
-    //  sb_idx[nsb+i] = _idx_sb[i];
-    //  sb_phi[nsb+i] = _phi_sb[i];
-    //  sb_the[nsb+i] = _the_sb[i];
-    //  sb_rcalc[nsb+i] = _rad_sb[i];
-    //  sb_ene[nsb+i] = _ene_sb[i];
-    //}
-    //isb_s[nch] = nsb;
-    //nsb += _rad_sb.size();
-    //isb_e[nch] = nsb;
-    //_nsb[nch] = _rad_sb.size();
-
     vector<vector<int> > sb_tree;
-    double sepPhotonE = 0, sepPhotonEWtd = 0;
-    GetSepPhotonE_fromBumps(theChargedCand, sepPhotonE, sepPhotonEWtd, sb_tree);
-    TVector3 momCorrSep = ((sepPhotonE+fRecMomOfEle)/fRecMomOfEle) * mom;
-    mom_sep[nch] = momCorrSep.Mag();
 
-    int nPhotMrg = 0;
-    fMergPhotonE = GetMergPhotonE(theChargedCand, nPhotMrg);
-    nphot_mrg[nch] = nPhotMrg;
-    TVector3 momCorrMrg = ((fMergPhotonE+fRecMomOfEle)/fRecMomOfEle) * mom;
-    mom_mrg[nch] = momCorrMrg.Mag();
+    double sepPhotonE = 0, sepPhotonE_wtd = 0, sepPhotonE_wtd_bf;
+    GetSepPhotonE_fromBumps(theChargedCand, sepPhotonE, sepPhotonE_wtd, sepPhotonE_wtd_bf, sb_tree);
+    double mergPhotonE = 0, mergPhotonE_wtd = 0, mergPhotonE_wtd_bf = 0;
+    double mergPhotonE_pc = 0, mergPhotonE_wtd_pc = 0, mergPhotonE_wtd_bf_pc = 0; // pc for phicut aka. political correctness
+    GetMergPhotonE(theChargedCand, mergPhotonE, mergPhotonE_wtd, mergPhotonE_wtd_bf, mergPhotonE_pc, mergPhotonE_wtd_pc, mergPhotonE_wtd_bf_pc);
 
-    const double energy_gamma = sepPhotonE + fMergPhotonE;
-    TVector3 momCorr = ((energy_gamma+fRecMomOfEle)/fRecMomOfEle) * mom;
-    //const double eneCorr = TMath::Hypot(mass, momCorr.Mag());
-    mom_cor[nch] = momCorr.Mag();
+    // Different level of weighting only in separated
+    mom_sep[nch] = corrected_mom(sepPhotonE);
+    mom_sep_w[nch] = corrected_mom(sepPhotonE_wtd);
+    mom_sep_w_bf[nch] = corrected_mom(sepPhotonE_wtd_bf);
 
-    const double energy_gamma_wtd = sepPhotonEWtd + fMergPhotonE;
-    TVector3 momCorrWtd = ((energy_gamma_wtd+fRecMomOfEle)/fRecMomOfEle) * mom;
-    //const double eneCorrWtd = TMath::Hypot(mass, momCorrWtd.Mag());
-    mom_wcor[nch] = momCorrWtd.Mag();
+    // Different level of weighting only in merged
+    mom_mrg[nch] = corrected_mom(mergPhotonE);
+    mom_mrg_w[nch] = corrected_mom(mergPhotonE_wtd);
+    mom_mrg_w_bf[nch] = corrected_mom(mergPhotonE_wtd_bf);
+    mom_mrg_pc[nch] = corrected_mom(mergPhotonE_pc);
+    mom_mrg_w_pc[nch] = corrected_mom(mergPhotonE_wtd_pc);
+    mom_mrg_w_bf_pc[nch] = corrected_mom(mergPhotonE_wtd_bf_pc);
+
+    // Combine b/f weighted separated with different level in merged
+    mom_cor[nch] = corrected_mom(sepPhotonE + mergPhotonE); // original correction
+    mom_wcor[nch] = corrected_mom(sepPhotonE_wtd + mergPhotonE); // weight only separated
+    mom_wbfcor[nch] = corrected_mom(sepPhotonE_wtd_bf + mergPhotonE); // weight separated b/f separately
+    mom_wbfcor_mw_bf[nch] = corrected_mom(sepPhotonE_wtd_bf + mergPhotonE_wtd_bf); // weight both separated and merged b/f separately
+    mom_wbfcor_mw_bf_pc[nch] = corrected_mom(sepPhotonE_wtd_bf + mergPhotonE_wtd_bf_pc); // weight both separated and merged b/f separately, phi cut merged
 
     PndPidBremCorrected4Mom *tmp = (PndPidBremCorrected4Mom*)fBremCorrected4MomArray->At(iCand);
     if(tmp) {
@@ -329,22 +323,6 @@ void BremPidReader::Exec(Option_t* opt)
     } else {
       mom_stored[nch] = -9999.;
     }
-
-    //vector<double> _rad_mc, _zed_mc, _ene_mc, _phi_mc, _the_mc;
-    //vector<vector<int> > mcb_tree;
-    //get_mc_brem_photons(mcidx, _rad_mc, _zed_mc, _ene_mc, _phi_mc, _the_mc, mcb_tree);
-    //assert(_rad_mc.size()+nmcb < nmcb_max);
-    //for (int ii = 0; ii < _rad_mc.size(); ++ii) {
-    //  mcb_phi[nmcb+ii] = _phi_mc[ii];
-    //  mcb_the[nmcb+ii] = _the_mc[ii];
-    //  mcb_rad[nmcb+ii] = _rad_mc[ii];
-    //  mcb_zed[nmcb+ii] = _zed_mc[ii];
-    //  mcb_ene[nmcb+ii] = _ene_mc[ii];
-    //}
-    //imcb_s[nch] = nmcb;
-    //nmcb += _rad_mc.size();
-    //imcb_e[nch] = nmcb;
-    //_nmcb[nch] = _rad_mc.size();
 
     vector<vector<int> > mcb_tree;
     get_mc_brem_photons(mcidx, mcb_tree);
@@ -388,6 +366,11 @@ void BremPidReader::Exec(Option_t* opt)
 
   nEvt++;
 
+}
+
+inline
+double BremPidReader::corrected_mom(double photTotEne ) {
+  return ((photTotEne+fRecMomOfEle)/fRecMomOfEle) * mom_rec[nch];
 }
 
 inline
@@ -475,28 +458,6 @@ get_mc_brem_photons(const int &mcidx, vector<vector<int> >& _mcb_tree) {
   _nmcb[nch] = imcb_e[nch] - imcb_s[nch];
 }
 
-//void BremPidReader::
-//get_mc_brem_photons(const int &mcidx, vector<double> &_rad, vector<double> &_zed,
-//		    vector<double> &_ene, vector<double> &_phi, vector<double> &the, vector<vector<int> >& _mcb_tree) {
-//  for (int iMcTrack = 0; iMcTrack<nMcTrack; ++iMcTrack){
-//    PndMCTrack *McTrack = (PndMCTrack *) fMcArray->At(iMcTrack);
-//    if (McTrack->GetPdgCode()!=22) continue; // only interested in photons
-//    if (McTrack->GetMotherID()!=mcidx) continue; // only photons emerging from primary electron
-//    const double radiusT = McTrack->GetStartVertex().Pt();
-//    const double zed = McTrack->GetStartVertex().Z();
-//    if (radiusT>radMaxTracking_cm) continue;
-//    _rad.push_back(radiusT);
-//    _zed.push_back(zed);
-//    // temporary BS to make sure kin is okay
-//    _ene.push_back(McTrack->GetMomentum().Mag());
-//    _phi.push_back(McTrack->GetMomentum().Phi());
-//    _the.push_back(McTrack->GetMomentum().Theta());
-//    vector<int> tree;
-//    find_ancestory(iMcTrack,tree);
-//    _mcb_tree.push_back(tree);
-//  }
-//}
-
 PndPidBremCorrected4Mom* BremPidReader::AddBremCorrected4Mom(){
   TClonesArray& clref = *fBremCorrected4MomArray;
   Int_t size = clref.GetEntriesFast();
@@ -539,18 +500,19 @@ fill_bump_list(vector<vector<int> > &_ab_tree) {
     std::vector<int>::iterator it = unique(tmp.begin(),tmp.end());
     tmp.resize(distance(tmp.begin(),it));
     _ab_tree.push_back(tmp);
-
   }
 }
 
 double BremPidReader::
-GetSepPhotonE_fromBumps(PndPidCandidate *ChargedCand, double &esep, double &esep_wtd, vector<vector<int> > &_sb_tree) {
+GetSepPhotonE_fromBumps(PndPidCandidate *ChargedCand, double &esep, double &esep_wtd, double &esep_wtd_bf, vector<vector<int> > &_sb_tree) {
 
   const int iTrkEmcIdx = ChargedCand->GetEmcIndex();
   if (iTrkEmcIdx<0) return 0;
 
   Float_t PhotonTotEnergySep = 0;
   Float_t PhotonTotEnergySepWtd = 0;
+  Float_t PhotonTotEnergySepWtdBf = 0;
+
   isb_s[nch] = nsb;
   const int nBump = fBumpArray->GetEntriesFast();
   for(Int_t iBump = 0; iBump<nBump; ++iBump)
@@ -577,7 +539,8 @@ GetSepPhotonE_fromBumps(PndPidCandidate *ChargedCand, double &esep, double &esep
       const Float_t rad_calc = 100*TMath::Sin(RealDeltaPhi*TMath::DegToRad()/2.)*2*Pt/0.3/2.0; // B=2T
       const Float_t zed_calc = rad_calc/TMath::Tan(TMath::DegToRad()*fRecThetaOfEle);
 
-      const Float_t wt = fwd ? 1.0/(1.+TMath::Exp((zed_calc-90.)/25.)) : 1.0/(1.+TMath::Exp((rad_calc-21.)/5.));
+      const Float_t wt = 1.0/(1.+TMath::Exp((rad_calc-21.)/5.));
+      const Float_t wt_bf = fwd ? 1.0/(1.+TMath::Exp((zed_calc-90.)/25.)) : 1.0/(1.+TMath::Exp((rad_calc-21.)/5.));
       const Float_t ThetaCutUp = 2.;
       const Float_t ThetaCutDown = -2.;
       const Float_t PhiCutUp = fwd ? DeltaPhiForward : DeltaPhiBarrel;
@@ -613,7 +576,7 @@ GetSepPhotonE_fromBumps(PndPidCandidate *ChargedCand, double &esep, double &esep
 
 	PhotonTotEnergySep += PhotonEnergySep;
 	PhotonTotEnergySepWtd += wt*PhotonEnergySep;
-
+	PhotonTotEnergySepWtdBf += wt_bf*PhotonEnergySep;
       }
 
     }//loop neutralcand
@@ -622,92 +585,28 @@ GetSepPhotonE_fromBumps(PndPidCandidate *ChargedCand, double &esep, double &esep
 
   if (PhotonTotEnergySep < fRecMomOfEle/100.) PhotonTotEnergySep = 0;
   if (PhotonTotEnergySepWtd < fRecMomOfEle/100.) PhotonTotEnergySepWtd = 0;
+  if (PhotonTotEnergySepWtdBf < fRecMomOfEle/100.) PhotonTotEnergySepWtdBf = 0;
 
   esep = PhotonTotEnergySep;
   esep_wtd = PhotonTotEnergySepWtd;
+  esep_wtd_bf = PhotonTotEnergySepWtdBf;
 
 }
 
-//double BremPidReader::
-//GetSepPhotonE_fromBumps(PndPidCandidate *ChargedCand, double &esep, double &esep_wtd, vector<int>& _idx,
-//			vector<double>& _rcalc, vector<double>& _ene, vector<double>& _phi,
-//			vector<double>& _the, vector<vector<int> > &_sb_tree) {
-//
-//  Float_t PhotonTotEnergySep = 0;
-//  Float_t PhotonTotEnergySepWtd = 0;
-//  const int nBump = fBumpArray->GetEntriesFast();
-//  for(Int_t iBump = 0; iBump<nBump; ++iBump)
-//    {
-//      PndEmcBump *PhotonBump = (PndEmcBump *) fBumpArray->At(iBump);
-//      const Float_t PhotonEnergySep = PhotonBump->GetEnergyCorrected();
-//
-//      const Int_t iSepClust = PhotonBump->GetClusterIndex();
-//      if ( PhotonBump->GetClusterIndex() == ChargedCand->GetEmcIndex() ) continue;
-//      //if ( PhotonEnergySep > 0.8* ChargedCand->GetEnergy() ) continue;
-//
-//      PndEmcCluster *PhotonCluster = (PndEmcCluster*) fClusterArray->At(iSepClust);
-//
-//      const double PhotonThetaSep = PhotonBump->position().Theta()*TMath::RadToDeg();
-//      const double PhotonPhiSep = PhotonBump->position().Phi()*TMath::RadToDeg();
-//
-//      const Float_t Pt = fRecMomOfEle*TMath::Sin(fRecThetaOfEle/TMath::RadToDeg());
-//      const Float_t DeltaPhiBarrel = TMath::ASin(0.12/Pt)*2.*TMath::RadToDeg();
-//      const Float_t DeltaPhiForward = (0.6*2.0/Pt)*TMath::Tan(fRecThetaOfEle/57.3)*57.3;
-//
-//      const Float_t RealDeltaPhi = fCharge<0?PhotonPhiSep-fRecPhiOfEle:fRecPhiOfEle-PhotonPhiSep;
-//      const Float_t RealDeltaTheta = fCharge<0?PhotonThetaSep-fRecThetaOfEle:fRecThetaOfEle-PhotonThetaSep;
-//
-//      const Float_t RealDeltaPhiRad = RealDeltaPhi*TMath::DegToRad();
-//      const Float_t rad_calc = 100*TMath::Sin(RealDeltaPhiRad/2.)*2*Pt/0.3/2.0;
-//
-//      //const Float_t wt = -rad_calc/42. + 1.;
-//      const Float_t wt = 1.0/(1.+TMath::Exp((rad_calc-21.)/5));
-//      const Float_t ThetaCutUp = 2.;
-//      const Float_t ThetaCutDown = -2.;
-//      const Float_t PhiCutUp = (fRecThetaOfEle <= 23.)?DeltaPhiForward:DeltaPhiBarrel;
-//      const Float_t PhiCutDown = -1;
-//
-//      const Bool_t PhiCut = RealDeltaPhi <= PhiCutUp && RealDeltaPhi >= PhiCutDown;
-//      const Bool_t ThetaCut = RealDeltaTheta <= ThetaCutUp && RealDeltaTheta >= ThetaCutDown;
-//
-//      if (PhiCut && ThetaCut) {
-//	_idx.push_back(iBump);
-//	_rcalc.push_back(rad_calc);
-//	_ene.push_back(PhotonEnergySep);
-//	_phi.push_back(PhotonPhiSep);
-//	_the.push_back(PhotonThetaSep);
-//
-//	vector<int> tmp;
-//	int digisize = PhotonCluster->DigiList().size();
-//	for (int id=0; id<digisize; ++id) {
-//	  PndEmcDigi *digi = (PndEmcDigi*) fDigiArray->At(PhotonCluster->DigiList()[id]);
-//	  PndEmcHit *hit = (PndEmcHit*) fHitArray->At(digi->GetHitIndex());
-//	  int mcsize = hit->GetMcList().size();
-//	  for (int imc=0; imc<mcsize; ++imc) {
-//	    tmp.push_back(hit->GetMcList()[imc]);
-//	  }
-//	}
-//	_sb_tree.push_back(tmp);
-//	sort(tmp.begin(),tmp.end());
-//	std::vector<int>::iterator it = unique(tmp.begin(),tmp.end());
-//	tmp.resize(distance(tmp.begin(),it));
-//	PhotonTotEnergySep += PhotonEnergySep;
-//	PhotonTotEnergySepWtd += wt*PhotonEnergySep;
-//      }
-//
-//    }//loop neutralcand
-//
-//  if (PhotonTotEnergySep < fRecMomOfEle/100.) PhotonTotEnergySep = 0;
-//  if (PhotonTotEnergySepWtd < fRecMomOfEle/100.) PhotonTotEnergySepWtd = 0;
-//
-//  esep = PhotonTotEnergySep;
-//  esep_wtd = PhotonTotEnergySepWtd;
-//
-//}
 
-double BremPidReader::GetMergPhotonE(PndPidCandidate *ChargedCand, int &nphotmrg){
+void BremPidReader::GetMergPhotonE(PndPidCandidate *ChargedCand,
+				     double &emrg, double &emrg_wtd, double &emrg_wtd_bf,
+				     double &emrg_pc, double &emrg_wtd_pc,  double &emrg_wtd_bf_pc){
 
+  nphot_mrg[nch] = 0;
   Double_t PhotonTotEnergyMerg = 0.0;
+
+  emrg = 0;
+  emrg_wtd = 0;
+  emrg_wtd_bf = 0;
+  emrg_pc = 0;
+  emrg_wtd_pc =0;
+  emrg_wtd_bf_pc = 0;
 
   // no EMcal cluster associated with track ...
   if (ChargedCand->GetEmcIndex() < 0) return 0.0;
@@ -739,38 +638,46 @@ double BremPidReader::GetMergPhotonE(PndPidCandidate *ChargedCand, int &nphotmrg
   Int_t iS = fCharge<0?0:iMax+1;
   Int_t iE = fCharge<0?iMax-1:EmcPhiBumpList.size()-1;
   for(Int_t r = iS; r<=iE; r++) {
-    PhotonTotEnergyMerg += EmcPhiBumpList[r]->energy();
-    nphotmrg++;
+    const Double_t PhotonThetaMrg = EmcPhiBumpList[r]->position().Theta()*TMath::RadToDeg();
+    const Double_t PhotonPhiMrg = EmcPhiBumpList[r]->position().Phi()*TMath::RadToDeg();
+    const Bool_t fwd = fRecThetaOfEle <= 23.;
+    const Float_t Pt = fRecMomOfEle*TMath::Sin(fRecThetaOfEle/TMath::RadToDeg());
+    const Float_t DeltaPhiBarrel = TMath::ASin(0.12/Pt)*2.*TMath::RadToDeg();
+    const Float_t DeltaPhiForward = (0.6*2.0/Pt)*TMath::Tan(fRecThetaOfEle/57.3)*57.3;
+    const Float_t RealDeltaPhi = fCharge<0?PhotonPhiMrg-fRecPhiOfEle:fRecPhiOfEle-PhotonPhiMrg;
+    const Float_t RealDeltaTheta = fCharge<0?PhotonThetaMrg-fRecThetaOfEle:fRecThetaOfEle-PhotonThetaMrg;
+    const Float_t rad_calc = 100*TMath::Sin(RealDeltaPhi*TMath::DegToRad()/2.)*2*Pt/0.3/2.0; // B=2T
+    const Float_t zed_calc = rad_calc/TMath::Tan(TMath::DegToRad()*fRecThetaOfEle);
+    const Float_t wt = 1.0/(1.+TMath::Exp((rad_calc-21.)/5.));
+    const Float_t wt_bf = fwd ? 1.0/(1.+TMath::Exp((zed_calc-90.)/25.)) : 1.0/(1.+TMath::Exp((rad_calc-21.)/5.));
+    const Float_t ThetaCutUp = 2.;
+    const Float_t ThetaCutDown = -2.;
+    const Float_t PhiCutUp = fwd ? DeltaPhiForward : DeltaPhiBarrel;
+    const Float_t PhiCutDown = -1;
+    const Bool_t PhiCut = RealDeltaPhi <= PhiCutUp && RealDeltaPhi >= PhiCutDown;
+    const Bool_t ThetaCut = RealDeltaTheta <= ThetaCutUp && RealDeltaTheta >= ThetaCutDown;
+
+    emrg += EmcPhiBumpList[r]->energy();
+    emrg_wtd = wt * EmcPhiBumpList[r]->energy();
+    emrg_wtd_bf = wt_bf * EmcPhiBumpList[r]->energy();
+    nphot_mrg[nch]++;
+
+    if (PhiCut&&ThetaCut) {
+      emrg_pc += EmcPhiBumpList[r]->energy();
+      emrg_wtd_pc = wt * EmcPhiBumpList[r]->energy();
+      emrg_wtd_bf_pc = wt_bf * EmcPhiBumpList[r]->energy();
+      PhotonTotEnergyMerg += EmcPhiBumpList[r]->energy();
+      nphot_mrg_pc[nch]++;
+    }
+
   }
 
-  //Double_t EnergyCut = 0.15/TMath::Sin(fRecThetaOfEle*TMath::DegToRad());
-  //if (fCharge<0) {
-  //  for (Int_t i_phibump = EmcPhiBumpList.size()-1; i_phibump >= 0; --i_phibump) {
-  //    if( EmcPhiBumpList[i_phibump]->energy() > EnergyCut) {
-  //	for(Int_t r = 0; r<i_phibump; r++) {
-  //	  PhotonTotEnergyMerg += EmcPhiBumpList[r]->energy();
-  //	  nphotmrg++;
-  //	}
-  //	i_phibump = -1;
-  //    }
-  //  }
-  //} else {
-  //  for (Int_t i_phibump =0; i_phibump < EmcPhiBumpList.size(); ++i_phibump) {
-  //    if( EmcPhiBumpList[i_phibump]->energy() > EnergyCut) {
-  //	for(Int_t r = i_phibump+1; r<EmcPhiBumpList.size(); r++) {
-  //	  PhotonTotEnergyMerg += EmcPhiBumpList[r]->energy();
-  //	  nphotmrg++;
-  //	}
-  //	i_phibump = EmcPhiBumpList.size()+1;
-  //    }
-  //  }
-  //}
-
-  if(PhotonTotEnergyMerg > fRecMomOfEle/100.)  {
-    return PhotonTotEnergyMerg;
-  } else {
-    return 0.0;
-  }
+  if (emrg > fRecMomOfEle/100.) emrg = 0;
+  if (emrg_wtd > fRecMomOfEle/100.) emrg_wtd = 0;
+  if (emrg_wtd_bf > fRecMomOfEle/100.) emrg_wtd_bf = 0;
+  if (emrg_pc > fRecMomOfEle/100.) emrg_pc = 0;
+  if (emrg_wtd_pc > fRecMomOfEle/100.) emrg_wtd_pc = 0;
+  if (emrg_wtd_bf_pc > fRecMomOfEle/100.) emrg_wtd_bf_pc = 0;
 
 }
 
@@ -931,56 +838,7 @@ void BremPidReader::print_cands() {
 
 }
 
-double BremPidReader::GetSepPhotonE(PndPidCandidate *ChargedCand, int &nphotsep){
-
-  Float_t PhotonTotEnergySep = 0;
-  for(Int_t iNeutralCand = 0; iNeutralCand<nNeutCand; ++iNeutralCand)
-    {
-      Float_t PhotonEnergySep = 0;
-      PndPidCandidate *PhotonCand = (PndPidCandidate *) fNeutralCandidateArray->At(iNeutralCand);
-      PhotonEnergySep = PhotonCand->GetEmcCalEnergy();
-      PndEmcBump *PhotonBump = (PndEmcBump *) fBumpArray->At(PhotonCand->GetEmcIndex());
-
-      Int_t iSepClust = PhotonCand->GetEmcIndex();
-
-      if ( PhotonCand->GetEmcIndex() == ChargedCand->GetEmcIndex() ) continue;
-      //if ( PhotonEnergySep > 0.8* ChargedCand->GetEnergy() ) continue;
-
-      const double PhotonThetaSep = PhotonBump->position().Theta()*TMath::RadToDeg();
-      const double PhotonPhiSep = PhotonBump->position().Phi()*TMath::RadToDeg();
-
-      const Float_t Pt = fRecMomOfEle*TMath::Sin(fRecThetaOfEle/TMath::RadToDeg());
-      const Float_t DeltaPhiBarrel = TMath::ASin(0.12/Pt)*2.*TMath::RadToDeg();
-      const Float_t DeltaPhiForward = (0.6*2.0/Pt)*TMath::Tan(fRecThetaOfEle/57.3)*57.3;
-      //cout << "DphBar= " << DeltaPhiBarrel << " DphFor= " << DeltaPhiForward << endl;
-
-      const Float_t RealDeltaPhi = fCharge<0?PhotonPhiSep-fRecPhiOfEle:fRecPhiOfEle-PhotonPhiSep;
-      const Float_t RealDeltaTheta = fCharge<0?PhotonThetaSep-fRecThetaOfEle:fRecThetaOfEle-PhotonThetaSep;
-
-      const Float_t ThetaCutUp = 2.;
-      const Float_t ThetaCutDown = -2.;
-      const Float_t PhiCutUp = (fRecThetaOfEle <= 23.)?DeltaPhiForward:DeltaPhiBarrel;
-      const Float_t PhiCutDown = -1;
-
-      const Bool_t PhiCut = RealDeltaPhi <= PhiCutUp && RealDeltaPhi >= PhiCutDown;
-      const Bool_t ThetaCut = RealDeltaTheta <= ThetaCutUp && RealDeltaTheta >= ThetaCutDown;
-      if (PhiCut && ThetaCut) {
-	PhotonTotEnergySep += PhotonEnergySep;
-	nphotsep++;
-      }
-
-    }//loop neutralcand
-
-  if(PhotonTotEnergySep > fRecMomOfEle/100.)
-    {
-      return PhotonTotEnergySep;
-    }
-  else return 0.;
-
-}
-
 //double BremPidReader::GetSepPhotonE(PndPidCandidate *ChargedCand, int &nphotsep){
-//
 //
 //  Float_t PhotonTotEnergySep = 0;
 //  for(Int_t iNeutralCand = 0; iNeutralCand<nNeutCand; ++iNeutralCand)
@@ -995,29 +853,24 @@ double BremPidReader::GetSepPhotonE(PndPidCandidate *ChargedCand, int &nphotsep)
 //      if ( PhotonCand->GetEmcIndex() == ChargedCand->GetEmcIndex() ) continue;
 //      //if ( PhotonEnergySep > 0.8* ChargedCand->GetEnergy() ) continue;
 //
-//      double PhotonThetaSep = PhotonBump->position().Theta()*TMath::RadToDeg();
-//      double PhotonPhiSep = PhotonBump->position().Phi()*TMath::RadToDeg();
+//      const double PhotonThetaSep = PhotonBump->position().Theta()*TMath::RadToDeg();
+//      const double PhotonPhiSep = PhotonBump->position().Phi()*TMath::RadToDeg();
 //
-//      Float_t Pt = fRecMomOfEle*TMath::Sin(fRecThetaOfEle/TMath::RadToDeg());
-//      Float_t DeltaPhiBarrel = TMath::ASin(0.12/Pt)*2.*TMath::RadToDeg();
-//      Float_t DeltaPhiForward = (0.6*2.0/Pt)*TMath::Tan(fRecThetaOfEle/57.3)*57.3;
-//      Float_t RealDeltaPhi = 0, RealDeltaTheta =0;
+//      const Float_t Pt = fRecMomOfEle*TMath::Sin(fRecThetaOfEle/TMath::RadToDeg());
+//      const Float_t DeltaPhiBarrel = TMath::ASin(0.12/Pt)*2.*TMath::RadToDeg();
+//      const Float_t DeltaPhiForward = (0.6*2.0/Pt)*TMath::Tan(fRecThetaOfEle/57.3)*57.3;
+//      //cout << "DphBar= " << DeltaPhiBarrel << " DphFor= " << DeltaPhiForward << endl;
 //
-//      if (fCharge < 0){
-//	RealDeltaPhi = PhotonPhiSep - fRecPhiOfEle;
-//	RealDeltaTheta = PhotonThetaSep - fRecThetaOfEle;
-//      } else {
-//	RealDeltaPhi = fRecPhiOfEle - PhotonPhiSep;
-//	RealDeltaTheta =fRecThetaOfEle - PhotonThetaSep;
-//      }
+//      const Float_t RealDeltaPhi = fCharge<0?PhotonPhiSep-fRecPhiOfEle:fRecPhiOfEle-PhotonPhiSep;
+//      const Float_t RealDeltaTheta = fCharge<0?PhotonThetaSep-fRecThetaOfEle:fRecThetaOfEle-PhotonThetaSep;
 //
-//      Float_t ThetaCutUp = 4.;
-//      Float_t ThetaCutDown = -4.;
-//      Float_t PhiCutUp = (fRecThetaOfEle <= 23.)?DeltaPhiForward:DeltaPhiBarrel;
-//      Float_t PhiCutDown = -1;
+//      const Float_t ThetaCutUp = 2.;
+//      const Float_t ThetaCutDown = -2.;
+//      const Float_t PhiCutUp = (fRecThetaOfEle <= 23.)?DeltaPhiForward:DeltaPhiBarrel;
+//      const Float_t PhiCutDown = -1;
 //
-//      Bool_t PhiCut = RealDeltaPhi <= PhiCutUp && RealDeltaPhi >= PhiCutDown;
-//      Bool_t ThetaCut = RealDeltaTheta <= ThetaCutUp && RealDeltaTheta >= ThetaCutDown;
+//      const Bool_t PhiCut = RealDeltaPhi <= PhiCutUp && RealDeltaPhi >= PhiCutDown;
+//      const Bool_t ThetaCut = RealDeltaTheta <= ThetaCutUp && RealDeltaTheta >= ThetaCutDown;
 //      if (PhiCut && ThetaCut) {
 //	PhotonTotEnergySep += PhotonEnergySep;
 //	nphotsep++;

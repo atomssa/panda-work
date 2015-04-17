@@ -6,6 +6,7 @@
 #include <TCanvas.h>
 //#include <TLegend.h>
 #include <TLatex.h>
+#include <TMath.h>
 
 #include <iostream>
 
@@ -23,17 +24,27 @@ void t::Loop()
   Long64_t nentries = fChain->GetEntriesFast();
 
   int nbin = 200;
-  double xmin = -0.2, xmax = 1.0;
+  double xmin = -0.2, xmax = 0.2;
   TH2F* h_rad_calc_vs_true = new TH2F("h_rad_calc_vs_true","Calculated radius vs. true radius; R_{True}; R_{Calc}", 200, 0, 40, 200, 0, 40);
   set_style(h_rad_calc_vs_true);
+  TH2F* h_zed_calc_vs_true = new TH2F("h_zed_calc_vs_true","Calculated Z vs. true Z; Z_{True}; Z_{Calc}", 500, 0, 500, 500, 0, 500);
+  set_style(h_zed_calc_vs_true);
+  double zdet[7] = {0,6,8.5,12,17,25,500};
+  TH1F* h_zed_calc[6];
+  for (int ii = 0; ii < 6; ++ii) {
+    h_zed_calc[ii] = new TH1F(Form("h_zed_calc_%d",ii),Form("h_zed_calc_%d",ii),200,0,60);
+  }
   TH2F* h_cor_vs_rec = new TH2F("h_cor_vs_rec","Reconstructed vs. corrected momentum",nbin,xmin,xmax,nbin,xmin,xmax);
   TH2F* prec_vs_rec = new TH2F("prec_vs_rec","prec_vs_rec",nbin,-0.3,1.0,nbin,0,10.0);
-  TH1F* h_rec = th1f("h_rec","Resolution of reconstructed momentum;(p_{KF} - p_{MC})/p_{MC}",nbin,xmin,xmax,1);
-  TH1F* h_wtd = th1f("h_wtd","Resolution of fully corrected (with weight) momentum;(p_{WTD} - p_{MC})/p_{MC}",nbin,xmin,xmax,9);
-  TH1F* h_cor = th1f("h_cor","Resolution of fully corrected momentum;(p_{COR} - p_{MC})/p_{MC}",nbin,xmin,xmax,2);
-  TH1F* h_sep = th1f("h_sep","Resolution of sep. clust corrected momentum;(p_{SEP} - p_{MC})/p_{MC}",nbin,xmin,xmax,3);
-  TH1F* h_mrg = th1f("h_mrg","Resolution of mrg. clust momentum;(p_{mrg} - p_{MC})/p_{MC}",nbin,xmin,xmax,4);
-  TH1F* h_sto = th1f("h_sto","Resolution of stored momentum;(p_{STO} - p_{MC})/p_{MC}",nbin,xmin,xmax,7);
+  TH1F* h_rec = th1f("h_rec","Resolution of reconstructed momentum;(p_{MC} - p_{KF})/p_{MC}",nbin,xmin,xmax,1);
+  TH1F* h_wtd = th1f("h_wtd","Resolution of fully corrected (with weight) momentum;(p_{MC} - p_{WTD})/p_{MC}",nbin,xmin,xmax,9);
+  TH1F* h_cor = th1f("h_cor","Resolution of fully corrected momentum;(p_{MC} - p_{COR})/p_{MC}",nbin,xmin,xmax,2);
+  TH1F* h_sep = th1f("h_sep","Resolution of sep. clust corrected momentum;(p_{MC} - p_{SEP})/p_{MC}",nbin,xmin,xmax,3);
+  TH1F* h_mrg = th1f("h_mrg","Resolution of mrg. clust momentum;(p_{MC} - p_{mrg})/p_{MC}",nbin,xmin,xmax,4);
+  TH1F* h_sto = th1f("h_sto","Resolution of stored momentum;(p_{MC} - p_{STO})/p_{MC}",nbin,xmin,xmax,7);
+
+  TH1F* h_out = th1f("h_out","Resolution W.R.T p_{MC}-E_{#gamma} #approx p_{OUT} ... (Single Brem < 42cm);((p_{MC}-E_{#gamma})-p_{KF})/(p_{MC}-E_{#gamma})",nbin,xmin,xmax,4);
+
   TH1F* h_nmcb_gt1mev = th1f("h_nmcb_gt1mev","Percentage of tracks with N Brem. #gamma (E>1MeV) R<42cm;N;%-age",10,0,10,1);
   TH1F* h_dphi_all = th1f("h_dphi_all","#Delta#phi (all bumps)",nbin,-60,40,4);
   TH1F* h_dthe_all = th1f("h_dthe_all","#Delta#theta (all bumps)",nbin,-20,20,4);
@@ -48,8 +59,8 @@ void t::Loop()
   TH1F* h_rec_1brem_found[6];
   int col_rec_1brem[6] = {1,2,4,6,7,9};
   for (int ii = 0; ii < 6; ++ii) {
-    h_rec_1brem_found[ii] = th1f(Form("h_rec_1brem_found_%d",ii),"Resolution of reconstructed momentum;(p_{KF} - p_{MC})/p_{MC}",nbin,xmin,xmax,col_rec_1brem[ii]);
-    h_rec_1brem[ii] = th1f(Form("h_rec_1brem_%d",ii),"Resolution of reconstructed momentum;(p_{KF} - p_{MC})/p_{MC}",nbin,xmin,xmax,col_rec_1brem[ii]);
+    h_rec_1brem_found[ii] = th1f(Form("h_rec_1brem_found_%d",ii),"Resolution of reconstructed momentum;(p_{MC} - p_{KF})/p_{MC}",nbin,xmin,xmax,col_rec_1brem[ii]);
+    h_rec_1brem[ii] = th1f(Form("h_rec_1brem_%d",ii),"Resolution of reconstructed momentum;(p_{MC} - p_{KF})/p_{MC}",nbin,xmin,xmax,col_rec_1brem[ii]);
   }
 
   Long64_t nbytes = 0, nb = 0;
@@ -70,6 +81,8 @@ void t::Loop()
       	cout << "Non Primary track  in event " << jentry << endl;
       	continue;
       }
+
+      //if ( the_mc[ich] > 15 ) continue;
 
       float res_cor = (mom_mc[ich]-mom_cor[ich])/mom_mc[ich];
       float res_wtd = (mom_mc[ich]-mom_wcor[ich])/mom_mc[ich];
@@ -107,14 +120,14 @@ void t::Loop()
       }
 
       // Tracks that emitted only one bremstrahlung photon
-      //  and have only one separated photon bump found
-      //  and the two have a good match
-      if ( _nmcb[ich]==1) {
+      if ( _nmcb[ich]==1 ) {
 	double rad_mc = mcb_rad[imcb_s[ich]];
 	if (rad_mc<42) {
 	  int irad_mc = int(rad_mc/7);
 	  h_rec_1brem[irad_mc]->Fill(res_rec);
 	}
+	double mom_out = (mom_mc[ich]-mcb_ene[imcb_s[ich]]);
+	h_out->Fill((mom_out-mom_rec[ich])/mom_out);
       }
 
       for (int isb=isb_s[ich]; isb<isb_e[ich]; ++isb) {
@@ -128,6 +141,16 @@ void t::Loop()
       	  //if (nmcb > 4) continue;
       	  h_rad_calc_vs_true->Fill(mcb_rad[sb_match[isb]], sb_rcalc[isb]*42./30.);
       	  //h_rad_calc_vs_true->Fill(mcb_rad[sb_match[isb]], sb_rcalc[isb]);
+
+      	  h_zed_calc_vs_true->Fill(mcb_zed[sb_match[isb]], sb_rcalc[isb]/TMath::Tan(TMath::DegToRad()*sb_the[isb]));
+	  int ized = 0;
+	  for (int ii=0; ii<6;++ii) {
+	    if (mcb_zed[sb_match[isb]]>zdet[ii] && mcb_zed[sb_match[isb]]<zdet[ii+1]) {
+	      ized = ii;
+	      break;
+	    }
+	  }
+      	  h_zed_calc[ized]->Fill(sb_rcalc[isb]/TMath::Tan(TMath::DegToRad()*sb_the[isb]));
 	}
       }
 
@@ -162,6 +185,10 @@ void t::Loop()
   TFile *fout = TFile::Open(fout_name,"RECREATE");
   fout->cd();
   h_rad_calc_vs_true->Write();
+  h_zed_calc_vs_true->Write();
+  for (int ii = 0; ii < 6; ++ii) {
+    h_zed_calc[ii]->Write();
+  }
   h_cor_vs_rec->Write();
   prec_vs_rec->Write();
   h_rec->Write();
@@ -170,6 +197,7 @@ void t::Loop()
   h_sep->Write();
   h_mrg->Write();
   h_sto->Write();
+  h_out->Write();
   h_nmcb_gt1mev->Write();
   h_dphi_all->Write();
   h_dthe_all->Write();
