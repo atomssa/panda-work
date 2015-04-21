@@ -143,7 +143,6 @@ class BremPidReader: public FairTask
 	int _nmcb[nch_max];
 	int imcb_s[nch_max];
 	int imcb_e[nch_max];
-
 	static const int nmcb_max = 200;
 	int nmcb;
 	float mcb_phi[nmcb_max];
@@ -159,7 +158,6 @@ class BremPidReader: public FairTask
 	int _nsb[nch_max];
 	int isb_s[nch_max];
 	int isb_e[nch_max];
-
 	static const int nsb_max = 100;
 	int nsb;
 	int sb_idx[nsb_max];
@@ -167,8 +165,21 @@ class BremPidReader: public FairTask
 	float sb_the[nsb_max];
 	float sb_ene[nsb_max];
 	float sb_rcalc[nsb_max];
+	float sb_zcalc[nsb_max];
 	int sb_match[nsb_max];
 	int sb_score[nsb_max];
+
+	int _npb[nch_max];
+	float ipb_s[nch_max];
+	float ipb_e[nch_max];
+	static const int npb_max = 100;
+	int npb;
+	int pb_acc[npb_max];
+	float pb_phi[npb_max];
+	float pb_the[npb_max];
+	float pb_ene[npb_max];
+	float pb_rcalc[npb_max];
+	float pb_zcalc[npb_max];
 
 	// All bumps list
 	static const int nab_max = 100;
