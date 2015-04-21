@@ -726,8 +726,8 @@ void BremPidReader::GetMergPhotonE(PndPidCandidate *ChargedCand,
 
   } // ChargedCand->GetEmcIndex() >= 0
 
-
-
+  ipb_e[nch] = npb;
+  assert(ipb_e[nch] - ipb_s[nch] == _npb[nch]);
 
 }
 
