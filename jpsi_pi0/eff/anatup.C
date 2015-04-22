@@ -45,7 +45,6 @@ void anatup( Double_t pBeam=3.3077729, Int_t Did=19)
   Double_t TOT98CUT=0.98;
   Double_t TOT99CUT=0.99;
 
-
   // Set up the Lorentzvectors of the system
   TLorentzVector target(0.0, 0.0, 0.0, mProt);
   Double_t eBeam=sqrt(pBeam*pBeam+mProt*mProt);
@@ -186,9 +185,11 @@ void anatup( Double_t pBeam=3.3077729, Int_t Did=19)
   cout << "NTevents: " << NTevents << endl;
   if(NTevents>NTmax) NTevents=NTmax;
   for (Int_t j=0; j< NTevents ; j++) {
+
     lhe->GetEntry(j);   // kinematics
     NEVcount++;
     if(j%1000 == 0) cout << "event: " << j << endl;
+
     //       cout << "processing event: " << j<< endl ;
     Int_t nmc      = mc_array->GetEntriesFast();
     Int_t ncCand=cCand_array->GetEntriesFast();
@@ -198,6 +199,7 @@ void anatup( Double_t pBeam=3.3077729, Int_t Did=19)
       cout << " ncCand: " << cCand_array->GetEntriesFast() << endl;
       cout << " nnCand: " << nCand_array->GetEntriesFast() << endl;
     }
+
     // Loop over electron tracks, store in mcTrack[0,1], pizero_MC, QQ_MC
     Float_t mc_pp = 0, mc_E = 0, mc_mass = 0;
     Float_t mc_px = 0, mc_py = 0, mc_pz = 0;
@@ -257,6 +259,7 @@ void anatup( Double_t pBeam=3.3077729, Int_t Did=19)
 						 mcTrack[1].Py(),
 						 mcTrack[1].Pz(),
 						 mcTrack[1].E());
+
     // boost
     elecMC0->Boost(bSigma);
     elecMC1->Boost(bSigma);

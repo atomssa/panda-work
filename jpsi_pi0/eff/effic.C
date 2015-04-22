@@ -1,4 +1,4 @@
-void effic(Int_t NTmax=100)
+void effic()
 // Read back the new proba files
 // Test with gosia's tuples
 {
@@ -9,12 +9,7 @@ void effic(Int_t NTmax=100)
   Float_t procut=0.99999;
 
   FILE *fp;
-  //   Int_t NTmax=1000;
-  //   Int_t NFmax=10;   // max number of files
-  //   Int_t NTmax=100;   // max number per file
-  Int_t NEVcount[10]={0,0,0,0,0, 0,0,0,0,0}; ;   // max number per file
-  //   Int_t NTmax=10000;
-  //   Int_t NTmax=200;
+  Int_t NEVcount[10]={0,0,0,0,0,0,0,0,0,0}; ;   // max number per file
 
   Int_t kLog=1;
   Double_t p0=0.2, p1=5.0;
@@ -135,252 +130,266 @@ void effic(Int_t NTmax=100)
 
     if(Did == 1) continue;
 
-    TString inFile = Directory[Did]+".root";
+    TString inFile = basedir+Directory[Did]+subdir+"pid_complete.root";
     cout << "filename:" << inFile;
 
     TFile *hfile1 = TFile::Open(inFile,"READ");
-    TNtuple *NTev;
-
-    NTev = (TNtuple*) hfile1->Get("ntuple");
-    // process the data
-    NTevents=NTev->GetEntriesFast();
+    TTree *lhe=(TTree *) inFile->Get("cbmsim") ;
+    TClonesArray* cCand_array=new TClonesArray("PndPidCandidate");
+    lhe->SetBranchAddress("PidChargedCand", &cCand_array);
+    NTevents = lhe->GetEntries();
     cout << " NTevents: " << NTevents << endl;
-    if(NTevents>NTmax && NTmax>0) NTevents=NTmax;
+
+    //TNtuple *NTev;
+    //NTev = (TNtuple*) hfile1->Get("ntuple");
+    //// process the data
+    //NTevents=NTev->GetEntriesFast();
+    //cout << " NTevents: " << NTevents << endl;
+
+    //if(NTevents>NTmax && NTmax>0) NTevents=NTmax;
+
     for (Int_t j=0; j< NTevents; j++) {
-      NTev->GetEntry(j);
+      //NTev->GetEntry(j);
+      lhe->GetEntry(j);
       NEVcount[Did]++;
 
-      Float_t    momM         = NTev->GetArgs()[ 0]; // MC momentum
-      Float_t    thetaM       = NTev->GetArgs()[ 1]; // MC theta
-      Float_t    phiM         = NTev->GetArgs()[ 2]; // MC phi
-      Float_t    recQ         = NTev->GetArgs()[ 3]; // Reco charge
-      Float_t    MOMBase      = NTev->GetArgs()[ 4]; // Reco momentum
-      if(MOMBase<0) continue;
-      Float_t    thetaR       = NTev->GetArgs()[ 5]; // Reco theta
-      if(thetaR<0) continue;
-      Float_t    phiR         = NTev->GetArgs()[ 6]; // Reco phi
-      Float_t    qR           = NTev->GetArgs()[ 7]; // Reco q ??
-      Float_t    Z20          = NTev->GetArgs()[ 8]; // Zernik moments: Z20
-      Float_t    Z53          = NTev->GetArgs()[ 9]; // Zernik moments: Z53
-      Float_t    Er           = NTev->GetArgs()[10]; // Raw energy from EMC
-      Float_t    Ec           = NTev->GetArgs()[11]; // Calibrated energy from EMC
-      Float_t    lat          = NTev->GetArgs()[12]; // Lateral momenta from EMC
-      Float_t    emc_qa       = NTev->GetArgs()[13]; // matching QA from EMC
-      Float_t    emc_index    = NTev->GetArgs()[14]; // index to EMC
-      Float_t    emc_crystal  = NTev->GetArgs()[15]; // number of cristal
-      Float_t    e1           = NTev->GetArgs()[16]; // E1 from EMC
-      Float_t    e9           = NTev->GetArgs()[17]; // E9 from EMC
-      Float_t    e25          = NTev->GetArgs()[18]; // E25 from EMC
-      Float_t    e1e9         = NTev->GetArgs()[19]; // ratio E1/E9 from EMC
-      Float_t    e9e25        = NTev->GetArgs()[20]; // ratio E9/E25 from EMC
-      Float_t    stt_dedx     = NTev->GetArgs()[21]; // truncated dE/dx from STT
-      Float_t    stt_hits     = NTev->GetArgs()[22]; // number of hits in STT
-      Float_t    mvd_dedx     = NTev->GetArgs()[23]; // dE/dx from MVD
-      Float_t    mvd_hits     = NTev->GetArgs()[24]; // number of hits in MVD
-      Float_t    muo_index    = NTev->GetArgs()[25]; // index to MUO (muon detector)
-      Float_t    muo_nbLayer  = NTev->GetArgs()[26]; // number of crossed layers in MUO
-      Float_t    muo_module   = NTev->GetArgs()[27]; // number of modules in MUO
-      Float_t    muo_iron     = NTev->GetArgs()[28]; // amount of crossed iron in MUO
-      Float_t    muo_qa       = NTev->GetArgs()[29]; // matching parameters from MUO
-      Float_t    muo_momIn    = NTev->GetArgs()[30]; // momentum at entrance of MUO
-      Float_t    drc_thetaC   = NTev->GetArgs()[31]; // thetaC from DRC
-      Float_t    drc_qa       = NTev->GetArgs()[32]; // matching QA from DRC
-      Float_t    drc_nbPh     = NTev->GetArgs()[33]; // number of photons from DRC
-      Float_t    drc_index    = NTev->GetArgs()[34]; // index to DRC
-      Float_t    disc_thetaC  = NTev->GetArgs()[35]; // thetaC from DIS
-      Float_t    disc_qs      = NTev->GetArgs()[36]; // matching QA from DIS
-      Float_t    disc_nbPh    = NTev->GetArgs()[37]; // number of photons from DIS
-      Float_t    disc_index   = NTev->GetArgs()[38]; // index to DIS
+      int ntrk = cCand_array->GetEntriesFast();
+      for (int itrk=0; itrk<ntrk; ++itrk) {
 
-      //       Float_t    THBase = radeg*thetaM; // Reco theta
-      Float_t    THBase = thetaR; // Reco theta
+	PndPidCandidate *cand = (PndPidCandidate*) cCand_array->At(i);
 
-      // emc on the fly
-      probRK[0][5] = NTev->GetArgs()[69]; // ele/emc
-      probRK[1][5] = NTev->GetArgs()[70];
-      probRK[2][5] = NTev->GetArgs()[71];
-      probRK[3][5] = NTev->GetArgs()[72];
-      probRK[4][5] = NTev->GetArgs()[73];
-      if(j<5) cout << " Did: " << Did ;
-      if(j<5) cout << " MOMBase: " << MOMBase ;
-      if(j<5) cout << " THBase: " << THBase ;
-      if(j<5) cout << " EP: " << Er/MOMBase << endl;
-      if(j<5) cout << " probEMC: " << probRK[0][5];
-      if(j<5) cout << " " << probRK[1][5];
-      if(j<5) cout << " " << probRK[2][5];
-      if(j<5) cout << " " << probRK[3][5];
-      if(j<5) cout << " " << probRK[4][5] << endl;
+	Float_t    momM         = cand->GetMomentum()->Mag(); // NTev->GetArgs()[ 0]; // MC momentum
+	Float_t    thetaM       = cand->GetMomentum()->Theta()*TMath::RadToDeg(); // NTev->GetArgs()[ 1]; // MC theta
+	Float_t    phiM         = cand->GetMomentum()->Phi()*TMath::RadToDeg(); // NTev->GetArgs()[ 2]; // MC phi
+	Float_t    recQ         = cand->GetCharge(); //NTev->GetArgs()[ 3]; // Reco charge
+	Float_t    MOMBase      = cand->GetMomentum()->Mag(); NTev->GetArgs()[ 4]; // Reco momentum
+	if(MOMBase<0) continue;
+	Float_t    thetaR       = cand->GetMomentum()->Theta()*TMath::RadToDeg(); // NTev->GetArgs()[ 5]; // Reco theta
+	if(thetaR<0) continue;
+	Float_t    phiR         = cand->GetMomentum()->Phi()*TMath::RadToDeg(); // NTev->GetArgs()[ 6]; // Reco phi
+	Float_t    qR           = Float_t(cand->GetCharge()); // NTev->GetArgs()[ 7]; // Reco q ??
+	Float_t    Z20          = cand->GetEmcClusterZ20(); // NTev->GetArgs()[ 8]; // Zernik moments: Z20
+	Float_t    Z53          = cand->GetEmcClusterZ53(); // NTev->GetArgs()[ 9]; // Zernik moments: Z53
+	Float_t    Er           = cand->GetEmcRawEnergy(); // NTev->GetArgs()[10]; // Raw energy from EMC
+	Float_t    Ec           = cand->GetEmcCalEnergy(); // NTev->GetArgs()[11]; // Calibrated energy from EMC
+	Float_t    lat          = cand->GetEmcClusterLat(); // NTev->GetArgs()[12]; // Lateral momenta from EMC
+	Float_t    emc_qa       = cand->GetEmcQuality(); // NTev->GetArgs()[13]; // matching QA from EMC
+	Float_t    emc_index    = Float_t(cand->GetEmcIndex()); // NTev->GetArgs()[14]; // index to EMC
+	Float_t    emc_crystal  = cand->GetEmcNumberOfCrystals(); //NTev->GetArgs()[15]; // number of cristal
+	Float_t    e1           = cand->GetEmcClusterE1(); // NTev->GetArgs()[16]; // E1 from EMC
+	Float_t    e9           = cand->GetEmcClusterE9(); // NTev->GetArgs()[17]; // E9 from EMC
+	Float_t    e25          = cand->GetEmcClusterE25(); // NTev->GetArgs()[18]; // E25 from EMC
+	Float_t    e1e9         = e1/e9; // NTev->GetArgs()[19]; // ratio E1/E9 from EMC
+	Float_t    e9e25        = e9/e25; // NTev->GetArgs()[20]; // ratio E9/E25 from EMC
+	Float_t    stt_dedx     = cand->GetSttMeanDEDX(); // NTev->GetArgs()[21]; // truncated dE/dx from STT
+	Float_t    stt_hits     = Float_t(cand->GetSttHits()); // NTev->GetArgs()[22]; // number of hits in STT
+	Float_t    mvd_dedx     = cand->GetMvdDEDX(); // NTev->GetArgs()[23]; // dE/dx from MVD
+	Float_t    mvd_hits     = Float_t(cand->GetSttHits()); // NTev->GetArgs()[24]; // number of hits in MVD
+	Float_t    muo_index    = Float_t(cand->GetMuoIndex()); // NTev->GetArgs()[25]; // index to MUO (muon detector)
+	Float_t    muo_nbLayer  = Float_t(cand->GetMuoN); // NTev->GetArgs()[26]; // number of crossed layers in MUO
+	Float_t    muo_module   = Float_t(cand->GetMuoModule()); // NTev->GetArgs()[27]; // number of modules in MUO
+	Float_t    muo_iron     = cand->GetMuoIron(); // NTev->GetArgs()[28]; // amount of crossed iron in MUO
+	Float_t    muo_qa       = cand->GetMuoQuality(); // NTev->GetArgs()[29]; // matching parameters from MUO
+	Float_t    muo_momIn    = cand->GetMuoMomentumIn(); // NTev->GetArgs()[30]; // momentum at entrance of MUO
+	Float_t    drc_thetaC   = cand->GetDrcThetaC(); // NTev->GetArgs()[31]; // thetaC from DRC
+	Float_t    drc_qa       = cand->GetDrcQuality(); // NTev->GetArgs()[32]; // matching QA from DRC
+	Float_t    drc_nbPh     = Float_t(cand->GetDrcNumberOfPhotons()); // NTev->GetArgs()[33]; // number of photons from DRC
+	Float_t    drc_index    = Float_t(cand->GetDrcIndex()); // NTev->GetArgs()[34]; // index to DRC
+	Float_t    disc_thetaC  = cand->GetDiskThetaC(); // NTev->GetArgs()[35]; // thetaC from DIS
+	Float_t    disc_qs      = cand->GetDiskQuality(); // NTev->GetArgs()[36]; // matching QA from DIS
+	Float_t    disc_nbPh    = Float_t(cand->GetDiskNumberOfPhotons()); // NTev->GetArgs()[37]; // number of photons from DIS
+	Float_t    disc_index   = Float_t(cand->GetDiskIndex()); //NTev->GetArgs()[38]; // index to DIS
+
+	//       Float_t    THBase = radeg*thetaM; // Reco theta
+	Float_t    THBase = thetaR; // Reco theta
+
+	// emc on the fly
+	probRK[0][5] = NTev->GetArgs()[69]; // ele/emc
+	probRK[1][5] = NTev->GetArgs()[70];
+	probRK[2][5] = NTev->GetArgs()[71];
+	probRK[3][5] = NTev->GetArgs()[72];
+	probRK[4][5] = NTev->GetArgs()[73];
+	if(j<5) cout << " Did: " << Did ;
+	if(j<5) cout << " MOMBase: " << MOMBase ;
+	if(j<5) cout << " THBase: " << THBase ;
+	if(j<5) cout << " EP: " << Er/MOMBase << endl;
+	if(j<5) cout << " probEMC: " << probRK[0][5];
+	if(j<5) cout << " " << probRK[1][5];
+	if(j<5) cout << " " << probRK[2][5];
+	if(j<5) cout << " " << probRK[3][5];
+	if(j<5) cout << " " << probRK[4][5] << endl;
 
 
-      /*
-	probGS[0][0] = NTev->GetArgs()[64]; // ele/stt
-	probGS[1][0] = NTev->GetArgs()[65];
-	probGS[2][0] = NTev->GetArgs()[66];
-	probGS[3][0] = NTev->GetArgs()[67];
-	probGS[4][0] = NTev->GetArgs()[68];
+	/*
+	  probGS[0][0] = NTev->GetArgs()[64]; // ele/stt
+	  probGS[1][0] = NTev->GetArgs()[65];
+	  probGS[2][0] = NTev->GetArgs()[66];
+	  probGS[3][0] = NTev->GetArgs()[67];
+	  probGS[4][0] = NTev->GetArgs()[68];
 
-	probGS[0][2] = NTev->GetArgs()[74]; // ele/drc
-	probGS[1][2] = NTev->GetArgs()[75];
-	probGS[2][2] = NTev->GetArgs()[76];
-	probGS[3][2] = NTev->GetArgs()[77];
-	probGS[4][2] = NTev->GetArgs()[78];
+	  probGS[0][2] = NTev->GetArgs()[74]; // ele/drc
+	  probGS[1][2] = NTev->GetArgs()[75];
+	  probGS[2][2] = NTev->GetArgs()[76];
+	  probGS[3][2] = NTev->GetArgs()[77];
+	  probGS[4][2] = NTev->GetArgs()[78];
 
-	probGS[0][1] = NTev->GetArgs()[79]; // ele/disc
-	probGS[1][1] = NTev->GetArgs()[80];
-	probGS[2][1] = NTev->GetArgs()[81];
-	probGS[3][1] = NTev->GetArgs()[82];
-	probGS[4][1] = NTev->GetArgs()[83];
-      */
-      //  Fill histos
-      if(MOMBase>5) MOMBase=4.999999;
-      if(MOMBase<0.2) MOMBase=0.200001;
-      Float_t momR=MOMBase;
-      if(kLog>0) momR=TMath::Log10(MOMBase);
+	  probGS[0][1] = NTev->GetArgs()[79]; // ele/disc
+	  probGS[1][1] = NTev->GetArgs()[80];
+	  probGS[2][1] = NTev->GetArgs()[81];
+	  probGS[3][1] = NTev->GetArgs()[82];
+	  probGS[4][1] = NTev->GetArgs()[83];
+	*/
+	//  Fill histos
+	if(MOMBase>5) MOMBase=4.999999;
+	if(MOMBase<0.2) MOMBase=0.200001;
+	Float_t momR=MOMBase;
+	if(kLog>0) momR=TMath::Log10(MOMBase);
 
-      EMCBase = Er/MOMBase;
-      STTBase = stt_dedx;
-      DISBase = radeg*disc_thetaC;
-      DRCBase = radeg*drc_thetaC;
-      MUOBase = muo_iron;
-      MVDBase = 1000*mvd_dedx;
+	EMCBase = Er/MOMBase;
+	STTBase = stt_dedx;
+	DISBase = radeg*disc_thetaC;
+	DRCBase = radeg*drc_thetaC;
+	MUOBase = muo_iron;
+	MVDBase = 1000*mvd_dedx;
 
-      if(j<5) cout << " Did: " << Did ;
-      if(j<5) cout << " momR: " << MOMBase;
-      if(j<5) cout << " EMC: " << EMCBase;
-      if(j<5) cout << " STT: " << STTBase ;
-      if(j<5) cout << " DIS: " << DISBase ;
-      if(j<5) cout << " DRC: " << DRCBase ;
-      if(j<5) cout << " MUO: " << MUOBase ;
-      if(j<5) cout << " MVD: " << MVDBase << endl;
+	if(j<5) cout << " Did: " << Did ;
+	if(j<5) cout << " momR: " << MOMBase;
+	if(j<5) cout << " EMC: " << EMCBase;
+	if(j<5) cout << " STT: " << STTBase ;
+	if(j<5) cout << " DIS: " << DISBase ;
+	if(j<5) cout << " DRC: " << DRCBase ;
+	if(j<5) cout << " MUO: " << MUOBase ;
+	if(j<5) cout << " MVD: " << MVDBase << endl;
 
-      // calculate the probabilities for each detector
-      // first index is particle, second is detector
-      // STT data
-      Double_t DETbase[5], DETtrafo[5];
-      DETbase[0] = STTBase;    DETtrafo[0]= -2;
-      DETbase[1] = DISBase;    DETtrafo[1]= -2;
-      DETbase[2] = DRCBase;    DETtrafo[2]= -2;
-      DETbase[3] = MUOBase;    DETtrafo[3]= -2;
-      DETbase[4] = MVDBase;    DETtrafo[4]= -2;
-      Int_t binx    = (hprob[0][0]->GetXaxis())->FindBin(momR);
-      Int_t biny;
-      for (Int_t id=0; id<5 ; id++){
-	for (Int_t ip=0; ip<5 ; ip++){
-	  probRK[ip][id]=0.2;
-	}
-      }
-      for (Int_t id=0; id<5 ; id++){
-	if(j<5) cout << " check base: " << id << " " << DETbase[id] << endl;
-	if(DETbase[id]>0.01) {
-	  if(id==0) DETtrafo[id]= TMath::ATan(2.00 *(DETbase[id]-7));
-	  if(id==1) DETtrafo[id]= TMath::ATan(1.25 *(DETbase[id]-44));
-	  if(id==2) DETtrafo[id]= TMath::ATan(1.25 *(DETbase[id]-44));
-	  if(id==3) DETtrafo[id]= TMath::ATan(0.125*(DETbase[id]-40));
-	  if(id==4) DETtrafo[id]= TMath::ATan(2.00 *(DETbase[id]-4));
-	  biny = (hprob[0][0]->GetYaxis())->FindBin(DETtrafo[id]);
-	  if(j<5) cout << " check biny: " << biny << endl;
+	// calculate the probabilities for each detector
+	// first index is particle, second is detector
+	// STT data
+	Double_t DETbase[5], DETtrafo[5];
+	DETbase[0] = STTBase;    DETtrafo[0]= -2;
+	DETbase[1] = DISBase;    DETtrafo[1]= -2;
+	DETbase[2] = DRCBase;    DETtrafo[2]= -2;
+	DETbase[3] = MUOBase;    DETtrafo[3]= -2;
+	DETbase[4] = MVDBase;    DETtrafo[4]= -2;
+	Int_t binx    = (hprob[0][0]->GetXaxis())->FindBin(momR);
+	Int_t biny;
+	for (Int_t id=0; id<5 ; id++){
 	  for (Int_t ip=0; ip<5 ; ip++){
-	    //             probRK[ip][id]=hprob[ip][id]->GetBinContent(binx,biny);
-	    if(abs(DETtrafo[id]) < 1.57) {
-	      probRK[ip][id]=hprob[ip][id]-> Interpolate(momR, DETtrafo[id]);
+	    probRK[ip][id]=0.2;
+	  }
+	}
+	for (Int_t id=0; id<5 ; id++){
+	  if(j<5) cout << " check base: " << id << " " << DETbase[id] << endl;
+	  if(DETbase[id]>0.01) {
+	    if(id==0) DETtrafo[id]= TMath::ATan(2.00 *(DETbase[id]-7));
+	    if(id==1) DETtrafo[id]= TMath::ATan(1.25 *(DETbase[id]-44));
+	    if(id==2) DETtrafo[id]= TMath::ATan(1.25 *(DETbase[id]-44));
+	    if(id==3) DETtrafo[id]= TMath::ATan(0.125*(DETbase[id]-40));
+	    if(id==4) DETtrafo[id]= TMath::ATan(2.00 *(DETbase[id]-4));
+	    biny = (hprob[0][0]->GetYaxis())->FindBin(DETtrafo[id]);
+	    if(j<5) cout << " check biny: " << biny << endl;
+	    for (Int_t ip=0; ip<5 ; ip++){
+	      //             probRK[ip][id]=hprob[ip][id]->GetBinContent(binx,biny);
+	      if(abs(DETtrafo[id]) < 1.57) {
+		probRK[ip][id]=hprob[ip][id]-> Interpolate(momR, DETtrafo[id]);
+	      }
+	      if(j<5 && ip==0 && id==0) {
+		cout << " momR: " << momR ;
+		cout << " base: " << DETbase[id] ;
+		cout << " traf: " << DETtrafo[id] ;
+		cout << " binx: " << binx ;
+		cout << " biny: " << biny ;
+		cout << " prob: " << probRK[ip][id] << endl;
+	      }
 	    }
-	    if(j<5 && ip==0 && id==0) {
-	      cout << " momR: " << momR ;
-	      cout << " base: " << DETbase[id] ;
-	      cout << " traf: " << DETtrafo[id] ;
-	      cout << " binx: " << binx ;
-	      cout << " biny: " << biny ;
-	      cout << " prob: " << probRK[ip][id] << endl;
-	    }
 	  }
-	}
-      }  //  for (Int_t id=0; id<5 ; id++)
+	}  //  for (Int_t id=0; id<5 ; id++)
 
-      // Fill ALL using EMC (5), STT (0), DIS(1), DRC(2)
-      Double_t sum=0;
-      for (Int_t ip=0; ip<5 ; ip++){
-	Double_t Kfactor= probRK[ip][5]/(1-probRK[ip][5]);    // emc
-	Kfactor *= probRK[ip][0]/(1-probRK[ip][0]);    // stt
-	Kfactor *= probRK[ip][1]/(1-probRK[ip][1]);    // dis
-	Kfactor *= probRK[ip][2]/(1-probRK[ip][2]);    // drc
-	probRK[ip][6]=Kfactor/(1+Kfactor);
-	sum += probRK[ip][6];
-      }  //  for (Int_t ip=0; ip<5 ; ip++)
-      // Normalisation
-      for (Int_t ip=0; ip<5 ; ip++){
-	probRK[ip][6] /= sum;
-      }  //  for (Int_t ip=0; ip<5 ; ip++)
+	// Fill ALL using EMC (5), STT (0), DIS(1), DRC(2)
+	Double_t sum=0;
+	for (Int_t ip=0; ip<5 ; ip++){
+	  Double_t Kfactor= probRK[ip][5]/(1-probRK[ip][5]);    // emc
+	  Kfactor *= probRK[ip][0]/(1-probRK[ip][0]);    // stt
+	  Kfactor *= probRK[ip][1]/(1-probRK[ip][1]);    // dis
+	  Kfactor *= probRK[ip][2]/(1-probRK[ip][2]);    // drc
+	  probRK[ip][6]=Kfactor/(1+Kfactor);
+	  sum += probRK[ip][6];
+	}  //  for (Int_t ip=0; ip<5 ; ip++)
+	// Normalisation
+	for (Int_t ip=0; ip<5 ; ip++){
+	  probRK[ip][6] /= sum;
+	}  //  for (Int_t ip=0; ip<5 ; ip++)
 
-      //  probRK[ip][id] contains now the proba for particle ip, detector id
-      //  TString detector[7]= {"STT","DIS","DRC","MUO","MVD","EMC","ALL"};
-      //  TString type[4]= {"e-cut","e-all","pi-cut","pi-all"};
+	//  probRK[ip][id] contains now the proba for particle ip, detector id
+	//  TString detector[7]= {"STT","DIS","DRC","MUO","MVD","EMC","ALL"};
+	//  TString type[4]= {"e-cut","e-all","pi-cut","pi-all"};
 
-      //  TH2F *hist[7][4];
-      //  TH1F *hpp[7][4];
-      //  TH1F *hth[7][4];
+	//  TH2F *hist[7][4];
+	//  TH1F *hpp[7][4];
+	//  TH1F *hth[7][4];
 
-      Double_t probe;
-      for (Int_t id=0; id<7 ; id++){
-	//  e->e efficiency
-	if(Did==0) {
-	  hist[id][1]->Fill(MOMBase,THBase);   // all for e
-	  hpp[id][1]->Fill(MOMBase);
-	  hth[id][1]->Fill(THBase);
-	  probe = probRK[0][id];          // proba for e
-	  hprobe[id][0]->Fill(probe);
-	  factor=TMath::Log10(probe/(1-probe));
-	  hfactor[id][0]->Fill(factor);
-	  if( (id==6 && probe>procut) ||
-	      (id<6 && probe > probRK[1][id] && probe > probRK[2][id] &&
-               probe > probRK[3][id] && probe > probRK[4][id])) {
-	    hist[id][0]->Fill(MOMBase,THBase);   // e best
-	    hpp[id][0]->Fill(MOMBase);
-	    hth[id][0]->Fill(THBase);
-	  }
-	}
-
-	//  pi->e mis id
-	if(Did==2) {
-	  hist[id][3]->Fill(MOMBase,THBase);   // all for e
-	  hpp[id][3]->Fill(MOMBase);
-	  hth[id][3]->Fill(THBase);
-	  probe = probRK[0][id];          // proba for e
-	  hprobe[id][1]->Fill(probe);
-	  factor=TMath::Log10(probe/(1-probe));
-	  hfactor[id][1]->Fill(factor);
-	  if( (id==6 && probe>procut) ||
-	      (id<6 && probe > probRK[1][id] && probe > probRK[2][id] &&
-               probe > probRK[3][id] && probe > probRK[4][id])) {
-	    hist[id][2]->Fill(MOMBase,THBase);   // e best
-	    hpp[id][2]->Fill(MOMBase);
-	    hth[id][2]->Fill(THBase);
-	  }
-	}
-
-      }    // for (Int_t id=0; id<7 ; id++)
-
-      Double_t probe = probRK[0][6];          // proba for e
-      if(probe>procut) {
-	for (Int_t id=0; id<7 ; id++) {
-	  /*
-	    cout << "Did: " << Did << " id: " << id;
-	    cout << " " << probRK[0][id] ;
-	    cout << " " << probRK[1][id] ;
-	    cout << " " << probRK[2][id] ;
-	    cout << " " << probRK[3][id] ;
-	    cout << " " << probRK[4][id] << endl;
-	  */
+	Double_t probe;
+	for (Int_t id=0; id<7 ; id++){
+	  //  e->e efficiency
 	  if(Did==0) {
-	    hkcut[id][0][0]->Fill(TMath::Log10(probRK[0][id]));
-	    hkcut[id][1][0]->Fill(TMath::Log10(probRK[2][id]));
+	    hist[id][1]->Fill(MOMBase,THBase);   // all for e
+	    hpp[id][1]->Fill(MOMBase);
+	    hth[id][1]->Fill(THBase);
+	    probe = probRK[0][id];          // proba for e
+	    hprobe[id][0]->Fill(probe);
+	    factor=TMath::Log10(probe/(1-probe));
+	    hfactor[id][0]->Fill(factor);
+	    if( (id==6 && probe>procut) ||
+		(id<6 && probe > probRK[1][id] && probe > probRK[2][id] &&
+		 probe > probRK[3][id] && probe > probRK[4][id])) {
+	      hist[id][0]->Fill(MOMBase,THBase);   // e best
+	      hpp[id][0]->Fill(MOMBase);
+	      hth[id][0]->Fill(THBase);
+	    }
 	  }
+
+	  //  pi->e mis id
 	  if(Did==2) {
-	    hkcut[id][0][1]->Fill(TMath::Log10(probRK[0][id]));
-	    hkcut[id][1][1]->Fill(TMath::Log10(probRK[2][id]));
+	    hist[id][3]->Fill(MOMBase,THBase);   // all for e
+	    hpp[id][3]->Fill(MOMBase);
+	    hth[id][3]->Fill(THBase);
+	    probe = probRK[0][id];          // proba for e
+	    hprobe[id][1]->Fill(probe);
+	    factor=TMath::Log10(probe/(1-probe));
+	    hfactor[id][1]->Fill(factor);
+	    if( (id==6 && probe>procut) ||
+		(id<6 && probe > probRK[1][id] && probe > probRK[2][id] &&
+		 probe > probRK[3][id] && probe > probRK[4][id])) {
+	      hist[id][2]->Fill(MOMBase,THBase);   // e best
+	      hpp[id][2]->Fill(MOMBase);
+	      hth[id][2]->Fill(THBase);
+	    }
+	  }
+
+	}    // for (Int_t id=0; id<7 ; id++)
+
+	Double_t probe = probRK[0][6];          // proba for e
+	if(probe>procut) {
+	  for (Int_t id=0; id<7 ; id++) {
+	    /*
+	      cout << "Did: " << Did << " id: " << id;
+	      cout << " " << probRK[0][id] ;
+	      cout << " " << probRK[1][id] ;
+	      cout << " " << probRK[2][id] ;
+	      cout << " " << probRK[3][id] ;
+	      cout << " " << probRK[4][id] << endl;
+	    */
+	    if(Did==0) {
+	      hkcut[id][0][0]->Fill(TMath::Log10(probRK[0][id]));
+	      hkcut[id][1][0]->Fill(TMath::Log10(probRK[2][id]));
+	    }
+	    if(Did==2) {
+	      hkcut[id][0][1]->Fill(TMath::Log10(probRK[0][id]));
+	      hkcut[id][1][1]->Fill(TMath::Log10(probRK[2][id]));
+	    }
 	  }
 	}
-      }
 
+      } // for (int itrk=0; itrk<ntrk; ++itrk)
     }   // for (Int_t j=0; j< NTevents; j++)
 
   } //for (Int_t Did = 0; Did < 10; Did++)
