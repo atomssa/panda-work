@@ -25,18 +25,19 @@ double get_comb_prob(ppp_p prob_emc, ppp_p prob_stt, ppp_p prob_mvd, ppp_p prob_
 void eff2(int sp /*species index*/, int ifile ) {
 
   const double mom_max = 2.0;
+  const double the_max = 180.0;
 
-  const TString basedir="/Users/tujuba/panda/work/jpsi_pi0/grid.out/jacek/";
+  const TString basedir="/vol0/panda/work/jpsi_pi0/grid.out/jacek/";
   const TString subdir = Form("/runall.%d/",ifile);
 
   //const int nsp_max = 10;
   const enum{ielec=0, imuonm, ipionm, ikaonm, iantiprot, iposit, imuonp, ipionp, ikaonp, iprot, nsp_max};
-  const TString species[nsp_max] = {"posit","muplus","piminus","kplus","antiprot","elec","muminus","piminus","kminus","antiprot"};
+  const TString species[nsp_max] = {"posit","muplus","piplus","kplus","prot","elec","muminus","piminus","kminus","antiprot"};
 
   //const int ndet = 5;
   const enum{iemc = 0, istt, imvd, idirc, idisc, ndet};
   const TString det[ndet] = {"emc", "stt", "mvd", "dirc", "disc"};
-
+  const double det_var_max[ndet] = {1.5, 4, 4, 90, 90};
   TString fName = basedir+species[sp]+subdir+"pid_complete.root";
   cout << "opening " << fName << " in read mode... " << endl;
   TFile *inFile = new TFile(fName,"READ");
@@ -65,24 +66,25 @@ void eff2(int sp /*species index*/, int ifile ) {
 
   TH2F* prob[nsp_max][ndet];
   for (int idet=0; idet<ndet; ++idet) {
-    for (int isp=0; isp<nsp; ++isp) {
-      TString name = Form("%s_prob_%s", det[idet], spc[sp]);
-      TString title = Form("%s_prob_%s", det[idet], spc[sp]);
+    for (int isp=0; isp<nsp_max; ++isp) {
+      TString name = Form("%s_prob_%s", det[idet].Data(), species[isp].Data());
+      TString title = Form("%s_prob_%s", det[idet].Data(), species[isp].Data());
+      cout << "hist name  = "  << name << endl;
       prob[isp][idet] = new TH2F(name, title, 200, 0, mom_max, 200, det_var_max[idet]);
     }
   }
 
-  TH2F* eff_den[nsp_max], eff_num[nsp_max];
+  TH2F* eff_den[nsp_max], *eff_num[nsp_max];
   TEfficiency *eff1d_the[nsp_max], eff1d_mom[nsp_max];
   for (int isp = 0; isp < nsp_max; ++isp) {
-    eff_den[isp] = TH2F(Form("eff_den_%s",spc[isp]),Form("eff_den_%s",spc[isp]),200,0,mom_max,200,0,the_max);
-    eff_num[isp] = TH2F(Form("eff_den_%s",spc[isp]),Form("eff_den_%s",spc[isp]),200,0,mom_max,200,0,the_max);
-    eff1d_mom[isp] = TEfficiency(Form("eff1d_the_%s",spc[isp]), Form("eff1d_the_%s",spc[isp]), 200, 0, the_max);
-    eff1d_the[isp] = TEfficiency(Form("eff1d_mom_%s",spc[isp]), Form("eff1d_mom_%s",spc[isp]), 200, 0, the_max);
+    eff_den[isp] = new TH2F(Form("eff_den_%s",species[isp].Data()),Form("eff_den_%s",species[isp].Data()),200,0,mom_max,200,0,the_max);
+    eff_num[isp] = new TH2F(Form("eff_den_%s",species[isp].Data()),Form("eff_den_%s",species[isp].Data()),200,0,mom_max,200,0,the_max);
+    eff1d_mom[isp] = new TEfficiency(Form("eff1d_the_%s",species[isp].Data()), Form("eff1d_the_%s",species[isp].Data()), 200, 0, the_max);
+    eff1d_the[isp] = new TEfficiency(Form("eff1d_mom_%s",species[isp].Data()), Form("eff1d_mom_%s",species[isp].Data()), 200, 0, the_max);
   }
 
-  TH2F* emc_prob_e = TH2F("emc_prob_e", "emc_prob_e", 200, 0, 5, 200, 0, 1);
-  TH2F* stt_prob_e = TH2F("stt_prob_e", "stt_prob_e", 200, 0, 5, 200, 0, 1);
+  //TH2F* emc_prob_e = TH2F("emc_prob_e", "emc_prob_e", 200, 0, 5, 200, 0, 1);
+  //TH2F* stt_prob_e = TH2F("stt_prob_e", "stt_prob_e", 200, 0, 5, 200, 0, 1);
 
   //  for (int ievt = 0; ievt < nevt; ++ievt) {
   for (int ievt = 0; ievt < 1000; ++ievt) {
@@ -91,7 +93,7 @@ void eff2(int sp /*species index*/, int ifile ) {
     int ntrk = cbmsim->GetEntriesFast();
     for (int itrk = 0; itrk < ntrk; ++itrk) {
 
-      PndPidCandidate *cand = (PndPidCandidate*) cCand_array->At(i);
+      PndPidCandidate *cand = (PndPidCandidate*) cCand_array->At(itrk);
 
       Double_t mom = cand->GetMomentum().Mag();
       Double_t the = TMath::RadToDeg()*cand->GetMomentum().Mag();
@@ -102,19 +104,22 @@ void eff2(int sp /*species index*/, int ifile ) {
       Double_t muo_iron = cand->GetMuoIron();
       Double_t mvd_dedx = 1000*cand->GetMvdDEDX();
 
-      PndPidProbability *prob_drc = (PndPidProbability*) drc_array->At(i);
-      PndPidProbability *prob_disc = (PndPidProbability*) disc_array->At(i);
-      PndPidProbability *prob_mvd = (PndPidProbability*) mvd_array->At(i);
-      PndPidProbability *prob_stt = (PndPidProbability*) stt_array->At(i);
-      PndPidProbability *prob_emc = (PndPidProbability*) emcb_array->At(i);
+      PndPidProbability *prob_drc = (PndPidProbability*) drc_array->At(itrk);
+      PndPidProbability *prob_disc = (PndPidProbability*) disc_array->At(itrk);
+      PndPidProbability *prob_mvd = (PndPidProbability*) mvd_array->At(itrk);
+      PndPidProbability *prob_stt = (PndPidProbability*) stt_array->At(itrk);
+      PndPidProbability *prob_emc = (PndPidProbability*) emcb_array->At(itrk);
 
       // combined probability of this track being a
-      double prob_comb[nsp_max];
-      double prob_comb[ielec] = get_comb_prob(&PndPidProbability::GetElectronPidProb);
-      double prob_comb[imuonm] = get_comb_prob(&PndPidProbability::GetMuonPidProb);
-      double prob_comb[ipionm] = get_comb_prob(&PndPidProbability::GetPionPidProb);
-      double prob_comb[ikaonm] = get_comb_prob(&PndPidProbability::GetKaonPidProb);
-      double prob_comb[iprotm] = get_comb_prob(&PndPidProbability::GetProtonPidProb);
+      double prob_comb[nsp_max] = {0.0};
+
+      
+
+      double prob_comb[ielec] = get_comb_prob(prob_emc, prob_stt, prob_mvd, prob_drc, prob_disc, &PndPidProbability::GetElectronPidProb);
+      double prob_comb[imuonm] = get_comb_prob(prob_emc, prob_stt, prob_mvd, prob_drc, prob_disc, &PndPidProbability::GetMuonPidProb);
+      double prob_comb[ipionm] = get_comb_prob(prob_emc, prob_stt, prob_mvd, prob_drc, prob_disc, &PndPidProbability::GetPionPidProb);
+      double prob_comb[ikaonm] = get_comb_prob(prob_emc, prob_stt, prob_mvd, prob_drc, prob_disc, &PndPidProbability::GetKaonPidProb);
+      double prob_comb[iprotm] = get_comb_prob(prob_emc, prob_stt, prob_mvd, prob_drc, prob_disc, &PndPidProbability::GetProtonPidProb);
 
       eff_den->Fill(mom,the);
       if (prob_comb[ielec]>0.99) { eff_num[sp]->Fill(mom, the); }
