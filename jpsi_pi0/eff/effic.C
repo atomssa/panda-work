@@ -2,6 +2,7 @@ void effic(Int_t NTmax=100)
 // Read back the new proba files
 // Test with gosia's tuples
 {
+
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
 
@@ -22,16 +23,22 @@ void effic(Int_t NTmax=100)
   TRandom *momran       = new TRandom();
   Float_t radeg=57.29578;
 
-  TString Directory[10]={
-    "electronsP_trunk","muonsP_trunk","pionsP_trunk","kaonsP_trunk","protonsP_trunk",
-    "electronsN_trunk","muonsN_trunk","pionsN_trunk","kaonsN_trunk","protonsN_trunk"
-  };
+  int batch = 0;
 
-  Int_t Type[10]={0,0,0,0,0, 1,1,1,1,1};
+  TString basedir="/Users/tujuba/panda/work/jpsi_pi0/grid.out/jacek/";
+  TString subdir = Form("runall.%d",batch);
+  TString Directory[10] = {"posit","muplus","piminus","kplus","antiprot","elec","muminus","piminus","kminus","antiprot"};
+
+  //TString Directory[10]={
+  //  "electronsP_trunk","muonsP_trunk","pionsP_trunk","kaonsP_trunk","protonsP_trunk",
+  //  "electronsN_trunk","muonsN_trunk","pionsN_trunk","kaonsN_trunk","protonsN_trunk"
+  //};
+
+  Int_t Type[10]={0,0,0,0,0,1,1,1,1,1};
+  //Int_t Type[6]={0,0,0,1,1,1};
 
   TString particle[10]= {"elecP","muonP","pionP","kaonP","protP",
                          "elecN","muonN","pionN","kaonN","protN"};
-
 
   TString detector[7]= {"STT","DIS","DRC","MUO","MVD","EMC","ALL"};
   TString type[4]= {"e-cut","e-all","pi-cut","pi-all"};
@@ -104,13 +111,12 @@ void effic(Int_t NTmax=100)
   //      gStyle->SetOptFit(1);
   gStyle->SetOptStat(0);
 
-
   cout << " finished histos " << endl;
 
   // Get the probabilities for the detectors (all but EMC)
   aline="Newproba.root";
   if(kLog>0) aline="NewprobaLog.root";
-  TFile* hfile1 = new TFile (aline);
+  TFile* hfile1 = new TFile (aline,"RECREATE");
 
   TH2D  *hprob[10][5];
   for (Int_t ip=0; ip<10 ; ip++){
@@ -119,7 +125,6 @@ void effic(Int_t NTmax=100)
       hprob[ip][k] = (TH2D)hfile1->Get(aline);
       //       cout << ip << " " << k << " " << hprob[ip][k]->GetEntries();
       //       cout << aline->Data() << endl;
-
     }
   }
 
@@ -127,12 +132,15 @@ void effic(Int_t NTmax=100)
   Double_t probRK[5][7];
   //  for (Int_t Did = 0; Did < 4; Did++) {
   for (Int_t Did = 0; Did < 3; Did++) {
+
     if(Did == 1) continue;
+
     TString inFile = Directory[Did]+".root";
     cout << "filename:" << inFile;
 
     TFile *hfile1 = TFile::Open(inFile,"READ");
     TNtuple *NTev;
+
     NTev = (TNtuple*) hfile1->Get("ntuple");
     // process the data
     NTevents=NTev->GetEntriesFast();
@@ -141,6 +149,7 @@ void effic(Int_t NTmax=100)
     for (Int_t j=0; j< NTevents; j++) {
       NTev->GetEntry(j);
       NEVcount[Did]++;
+
       Float_t    momM         = NTev->GetArgs()[ 0]; // MC momentum
       Float_t    thetaM       = NTev->GetArgs()[ 1]; // MC theta
       Float_t    phiM         = NTev->GetArgs()[ 2]; // MC phi
@@ -373,6 +382,7 @@ void effic(Int_t NTmax=100)
       }
 
     }   // for (Int_t j=0; j< NTevents; j++)
+
   } //for (Int_t Did = 0; Did < 10; Did++)
 
   cout << "finished files" << endl;
@@ -462,7 +472,6 @@ void effic(Int_t NTmax=100)
   cCHECK->cd(2); heffpion -> Draw("COLZ");
   cCHECK->cd(3); hpppion -> Draw("");
   cCHECK->cd(4); hthpion -> Draw("");
-
 
   TString outFile = "effic.root";
   cout << "filename:" << outFile << endl;
