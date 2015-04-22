@@ -170,8 +170,8 @@ class BremPidReader: public FairTask
 	int sb_score[nsb_max];
 
 	int _npb[nch_max];
-	float ipb_s[nch_max];
-	float ipb_e[nch_max];
+	int ipb_s[nch_max];
+	int ipb_e[nch_max];
 	static const int npb_max = 100;
 	int npb;
 	int pb_acc[npb_max];
