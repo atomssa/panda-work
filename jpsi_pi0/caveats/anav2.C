@@ -13,9 +13,9 @@ void anav2(int iplab = 0, int itype = 0, int brem = 1, int fid=0, int nevts = 0)
   //TString inPidFile = Form("output/.scrut14/pid/pbar_p_%s_pi0_%d.root", tt[itype], plab[iplab], fid);
   //TString inParFile = Form("output/.scrut14/par/pbar_p_%s_pi0_%d.root", tt[itype], plab[iplab], fid);
   //TString outFile = Form("test/anav2_%s_%s_plab%3.1f_%d.root", tt[itype], cbrem[brem], plab[iplab], fid);
-  TString inPidFile = Form("../../grid.out/%s/runall_short.%d.%d/pid_complete.root", tt[itype], iplab, fid);
-  TString inParFile = Form("../../grid.out/%s/runall_short.%d.%d/simparams.root", tt[itype], iplab, fid);
-  TString outFile = Form("../../grid.out/%s/runall_short.%d.%d/anav2_plab%3.1f_%s.root", tt[itype], iplab, fid, plab[iplab], cbrem[brem]);
+  TString inPidFile = Form("../grid.out/%s/runall.%d.%d/pid_complete.root", tt[itype], iplab, fid);
+  TString inParFile = Form("../grid.out/%s/runall.%d.%d/simparams.root", tt[itype], iplab, fid);
+  TString outFile = Form("../grid.out/%s/runall.%d.%d/anav2_plab%3.1f_%s.root", tt[itype], iplab, fid, plab[iplab], cbrem[brem]);
   cout << "inPidFile= " << inPidFile << endl;
   cout << "inParFile= " << inParFile << endl;
   cout << "outFile= " << outFile << endl;

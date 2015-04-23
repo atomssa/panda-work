@@ -13,8 +13,11 @@ void theta(int nevts=0)
   TString OutFile="output.root";
 
   // *** the files coming from the simulation
-  TString inPidFile  = "pid_complete.root";    // this file contains the PndPidCandidates and McTruth
-  TString inParFile  = "simparams.root";
+  TString inPidFile  = TString(gSystem->Getenv("DIR"))+"pid_complete.root";    // this file contains the PndPidCandidates and McTruth
+  TString inParFile  = TString(gSystem->Getenv("DIR"))+"simparams.root";
+
+  cout << "inPid= " << inPidFile << endl;
+  cout << "inPar= " << inParFile << endl;
 
   // *** PID table with selection thresholds; can be modified by the user
   TString pidParFile = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/all.par";
