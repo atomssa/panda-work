@@ -76,6 +76,7 @@ PidCorr/PndPidEmcInfo.cxx
 PidCorr/PndPidTofInfo.cxx
 PidCorr/PndPidBremCorrector.cxx
 PidCorr/PndPidBremCorrectorNT.cxx
+PidCorr/PndPidBremCorrectorSaveMCT.cxx
 PndPidContFact.cxx
 
 ###### Associator
@@ -99,6 +100,7 @@ PidCorr/PndPidCorrPar.h
 PidCorr/PndPidCorrelator.h
 PidCorr/PndPidBremCorrector.h
 PidCorr/PndPidBremCorrectorNT.h
+PidCorr/PndPidBremCorrectorSaveMCT.h
 PndPidContFact.h
 
 ###### Associator Headers

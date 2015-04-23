@@ -30,7 +30,7 @@ set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
 )
 
-link_directories( ${LINK_DIRECTORIES})
+link_directories( ${LINK_DIRECTORIES} ${FAIRROOT_LIBRARY_DIR})
 
 set(SRCS
 AnaTda.cxx
