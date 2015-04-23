@@ -3,7 +3,7 @@
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
- 
+
 // Method types enum.
 #pragma link C++ enum Mva_MethodType;
 
@@ -13,6 +13,7 @@
 #pragma link C++ class  PndPidCorrelator+;
 #pragma link C++ class  PndPidBremCorrector+;
 #pragma link C++ class  PndPidBremCorrectorNT+;
+#pragma link C++ class  PndPidBremCorrectorSaveMCT+;
 #pragma link C++ class  PndPidIdealAssociatorTask+;
 #pragma link C++ class  PndPidIdealFwdOnlyAssociatorTask+;
 #pragma link C++ class  PndPidMvdAssociatorTask+;
@@ -26,4 +27,3 @@
 #pragma link C++ class  PndPidEmcBayesAssociatorTask+;
 
 #endif
-
