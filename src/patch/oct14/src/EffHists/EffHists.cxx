@@ -15,15 +15,14 @@
 
 using namespace std;
 
-const TString s_spc[EffHists::nsp_max] = {"posit","muplus","piplus","kplus","prot","elec","muminus","piminus","kminus","antiprot"};
-const TString s_spc_tex[EffHists::nsp_max] = {"e^{+}","#mu^{+}","#pi^{+}","K^{+}","p","e^{-}","#mu^{-}","#pi^{-}","K^{-}","#bar{p}"};
-const TString s_pid[EffHists::npid_max] = {"e_id", "mu_id", "pi_id", "k_id", "prot_id"};
-const TString s_det[EffHists::ndet] = {"emc", "stt", "mvd", "dirc", "disc"};
+const TString EffHists::s_spc[EffHists::nsp_max] = {"posit","muplus","piplus","kplus","prot","elec","muminus","piminus","kminus","antiprot"};
+const TString EffHists::s_spc_tex[EffHists::nsp_max] = {"e^{+}","#mu^{+}","#pi^{+}","K^{+}","p","e^{-}","#mu^{-}","#pi^{-}","K^{-}","#bar{p}"};
+const TString EffHists::s_pid[EffHists::npid_max] = {"e_id", "mu_id", "pi_id", "k_id", "prot_id"};
+const TString EffHists::s_det[EffHists::ndet] = {"emc", "stt", "mvd", "dirc", "disc"};
 
 EffHists::EffHists(int a_sp):
   m_sp(a_sp),
   verb(false),
-  out_file_name("eff_hists.root"),
   prob_cut{0.5, 0.5, 0.5, 0.5, 0.5},
   det_var_max{1.5, 4, 4, 90, 90},
   mom_max(2.0),
@@ -35,38 +34,41 @@ EffHists::EffHists(int a_sp):
 EffHists::~EffHists() {
 }
 
-InitStatus EffHists::init_tca(TClonesArray *tca, TString name) {
-  tca = dynamic_cast<TClonesArray *> (m_ioman->GetObject(name));
+TClonesArray* EffHists::init_tca(TString name) {
+  TClonesArray *tca = dynamic_cast<TClonesArray *> (m_ioman->GetObject(name));
   if ( ! tca ) {
-    cout << "-W- EffHists::Init: "
-	 << "No " << name << " array!" << endl;
-    return kERROR;
+    cout << "-W- EffHists::Init: "  << "No " << name << " array!" << endl;  
+    return NULL; 
+  } else {
+    cout << "-I- EffHists::Init: "  << " finished reading " << name << " array!" << endl;  
+    return tca;
   }
-  return kSUCCESS;
 }
 
 InitStatus EffHists::init_tcas() {
   m_ioman = FairRootManager::Instance();
   if ( ! m_ioman ){
-    cout << "-E- BremPidReader::Init: "
+    cout << "-E- EffHists::Init: "
 	 << "RootManager not instantiated!" << endl;
     return kFATAL;
   }
-  if ( init_tca(m_cand_array, "PidChargedCand") != kSUCCESS) return kERROR;
-  if ( init_tca(m_drc_array, "PidAlgoDrc") != kSUCCESS) return kERROR;
-  if ( init_tca(m_disc_array, "PidAlgoDisc") != kSUCCESS) return kERROR;
-  if ( init_tca(m_stt_array, "PidAlgoEmcStt") != kSUCCESS) return kERROR;
-  if ( init_tca(m_mvd_array, "PidAlgoEmcMvd") != kSUCCESS) return kERROR;
-  if ( init_tca(m_emcb_array, "PidAlgoEmcBayes") != kSUCCESS) return kERROR;
+  m_cand_array = init_tca( "PidChargedCand");
+  m_drc_array = init_tca( "PidAlgoDrc");
+  m_disc_array = init_tca( "PidAlgoDisc");
+  m_stt_array = init_tca( "PidAlgoStt");
+  m_mvd_array = init_tca( "PidAlgoMvd");
+  m_emcb_array = init_tca( "PidAlgoEmcBayes");
   return kSUCCESS;
 }
 
 void EffHists::init_hists() {
   int nbin =100;
   for (int ipid = 0; ipid < npid_max; ++ipid) {
-    TString title = Form("Eff %s to pass %s cuts at prob>%4.2f",s_spc[m_sp].Data(),s_pid[ipid].Data(),prob_cut[ipid]);
+    TString title = Form("%s",s_spc_tex[m_sp].Data());
     eff_den[ipid] = new TH2F(Form("eff_den_%s",s_pid[ipid].Data()),title+";mom[GeV/c];#theta[rad]",nbin,0,mom_max,nbin,0,the_max);
+    title = Form("%s passing %s cuts with prob>%4.2f",s_spc_tex[m_sp].Data(),s_pid[ipid].Data(),prob_cut[ipid]);
     eff_num[ipid] = new TH2F(Form("eff_num_%s",s_pid[ipid].Data()),title+";mom[GeV/c];#theta[rad]",nbin,0,mom_max,nbin,0,the_max);
+    title = Form("efficiency of %s to pass %s cuts at prob>%4.2f",s_spc_tex[m_sp].Data(),s_pid[ipid].Data(),prob_cut[ipid]);
     eff1d_mom[ipid] = new TEfficiency(Form("eff1d_mom_%s",s_pid[ipid].Data()), title+";mom[GeV/c]", nbin, 0, mom_max);
     eff1d_the[ipid] = new TEfficiency(Form("eff1d_the_%s",s_pid[ipid].Data()), title+";#theta[rad]", nbin, 0, the_max);
     eff2d[ipid] = new TEfficiency(Form("eff2d_%s",s_pid[ipid].Data()), title+";mom[GeV/c];#theta[rad]", nbin, 0, mom_max, nbin, 0, the_max);
@@ -76,6 +78,7 @@ void EffHists::init_hists() {
 InitStatus EffHists::Init() {
   cout << "EffHists::Init" << endl;
   fAna = new PndAnalysis();
+  init_tcas();
   init_hists();
   return kSUCCESS;
 }
@@ -92,70 +95,10 @@ double EffHists::get_comb_prob(prob_func func) {
   return xx/(xx+1);
 }
 
-double EffHists::get_comb_prob_elec() {
-  Double_t prob_emc = m_prob_emcb->GetElectronPidProb();
-  Double_t prob_stt = m_prob_stt->GetElectronPidProb();
-  Double_t prob_mvd = m_prob_mvd->GetElectronPidProb();
-  Double_t prob_drc = m_prob_drc->GetElectronPidProb();
-  Double_t prob_disc = m_prob_disc->GetElectronPidProb();
-  Double_t xx = (prob_drc/(1-prob_drc))*(prob_disc/(1-prob_disc))
-    *(prob_mvd/(1-prob_mvd))*(prob_stt/(1-prob_stt))
-    *(prob_emc/(1-prob_emc));
-  return xx/(xx+1);
-}
-
-double EffHists::get_comb_prob_pion() {
-  Double_t prob_emc = m_prob_emcb->GetPionPidProb();
-  Double_t prob_stt = m_prob_stt->GetPionPidProb();
-  Double_t prob_mvd = m_prob_mvd->GetPionPidProb();
-  Double_t prob_drc = m_prob_drc->GetPionPidProb();
-  Double_t prob_disc = m_prob_disc->GetPionPidProb();
-  Double_t xx = (prob_drc/(1-prob_drc))*(prob_disc/(1-prob_disc))
-    *(prob_mvd/(1-prob_mvd))*(prob_stt/(1-prob_stt))
-    *(prob_emc/(1-prob_emc));
-  return xx/(xx+1);
-}
-
-double EffHists::get_comb_prob_proton() {
-  Double_t prob_emc = m_prob_emcb->GetProtonPidProb();
-  Double_t prob_stt = m_prob_stt->GetProtonPidProb();
-  Double_t prob_mvd = m_prob_mvd->GetProtonPidProb();
-  Double_t prob_drc = m_prob_drc->GetProtonPidProb();
-  Double_t prob_disc = m_prob_disc->GetProtonPidProb();
-  Double_t xx = (prob_drc/(1-prob_drc))*(prob_disc/(1-prob_disc))
-    *(prob_mvd/(1-prob_mvd))*(prob_stt/(1-prob_stt))
-    *(prob_emc/(1-prob_emc));
-  return xx/(xx+1);
-}
-
-double EffHists::get_comb_prob_kaon() {
-  Double_t prob_emc = m_prob_emcb->GetKaonPidProb();
-  Double_t prob_stt = m_prob_stt->GetKaonPidProb();
-  Double_t prob_mvd = m_prob_mvd->GetKaonPidProb();
-  Double_t prob_drc = m_prob_drc->GetKaonPidProb();
-  Double_t prob_disc = m_prob_disc->GetKaonPidProb();
-  Double_t xx = (prob_drc/(1-prob_drc))*(prob_disc/(1-prob_disc))
-    *(prob_mvd/(1-prob_mvd))*(prob_stt/(1-prob_stt))
-    *(prob_emc/(1-prob_emc));
-  return xx/(xx+1);
-}
-
-double EffHists::get_comb_prob_muon() {
-  Double_t prob_emc = m_prob_emcb->GetMuonPidProb();
-  Double_t prob_stt = m_prob_stt->GetMuonPidProb();
-  Double_t prob_mvd = m_prob_mvd->GetMuonPidProb();
-  Double_t prob_drc = m_prob_drc->GetMuonPidProb();
-  Double_t prob_disc = m_prob_disc->GetMuonPidProb();
-  Double_t xx = (prob_drc/(1-prob_drc))*(prob_disc/(1-prob_disc))
-    *(prob_mvd/(1-prob_mvd))*(prob_stt/(1-prob_stt))
-    *(prob_emc/(1-prob_emc));
-  return xx/(xx+1);
-}
-
 void EffHists::Exec(Option_t* opt) {
-  if (verb>1 or nevt%100==0)
-    cout << "======== EffHists::Exec evt " << nevt << " ======== " << endl;
-  fAna->GetEvent();
+  if (verb>1 or nevt%1000==0)
+    cout << "EffHists::Exec evt " << nevt << " ======== " << endl;
+  fAna->GetEvent(); // this may not be necessary
   nevt++;
   int ntrk = m_cand_array->GetEntriesFast();
   for (int itrk = 0; itrk < ntrk; ++itrk) {
@@ -207,8 +150,20 @@ void EffHists::FinishTask() {
 }
 
 void EffHists::FinishEvent() {
-  cout << "EffHists::Finish" << endl;
-  fAna->Reset();
+  //cout << "EffHists::FinishEvent" << endl;
+  //fAna->Reset();
+}
+
+void EffHists::set_prob_cut(int a_pid, double a_cut) {
+  if (a_pid<0 || a_pid >= npid_max) {
+    cout << "EffHists::set_prob_cut a_pid= " << a_pid << " outside of allowed range [0," << npid_max << ")" << endl;
+    return;
+  }
+  if (a_cut<0 || a_cut >= 1) {
+    cout << "EffHists::set_prob_cut a_cut= " << a_cut << " outside of sensible range [0,1]. consider using a value between 0 and 1" << endl;
+    return;
+  }
+  prob_cut[a_pid] = a_cut;
 }
 
 void EffHists::write_hists() {

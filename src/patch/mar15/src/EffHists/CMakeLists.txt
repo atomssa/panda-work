@@ -25,16 +25,16 @@ include_directories( ${INCLUDE_DIRECTORIES})
 
 add_definitions(${CXX11_COMPILER_FLAGS})
 
-set(LINK_DIRECTORIES ${ROOT_LIBRARY_DIR} )
+set(LINK_DIRECTORIES ${ROOT_LIBRARY_DIR} ${FAIRROOT_LIBRARY_DIR})
 
 link_directories( ${LINK_DIRECTORIES})
 
-set(SRCS EffHists.cxx )
+set(SRCS EffHists.cxx)
 
 set(LINKDEF EffHistsLinkDef.h)
 set(LIBRARY_NAME effhists)
 
-#set(DEPENDENCIES Base PndData Rho AnalysisTools TrkBase)
+set(DEPENDENCIES Base PndData Rho AnalysisTools TrkBase)
 #set(DEPENDENCIES PndData Rho AnalysisTools)
 
 GENERATE_LIBRARY()

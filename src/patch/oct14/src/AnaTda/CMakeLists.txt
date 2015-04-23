@@ -30,7 +30,7 @@ set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
 )
 
-link_directories( ${LINK_DIRECTORIES})
+link_directories( ${LINK_DIRECTORIES} ${FAIRROOT_LIBRARY_DIR})
 
 set(SRCS
 AnaTda.cxx
@@ -41,7 +41,5 @@ set(LINKDEF AnaTdaLinkDef.h)
 set(LIBRARY_NAME anatda)
 
 set(DEPENDENCIES Base PndData Rho AnalysisTools TrkBase)
-#set(DEPENDENCIES PndData Rho AnalysisTools)
-
 
 GENERATE_LIBRARY()

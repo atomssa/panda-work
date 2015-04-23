@@ -34,27 +34,21 @@ class EffHists : public FairTask{
   virtual void FinishEvent();
 
   void set_verbosity(int v) {verb = v;}
-  void set_output_name(std::string a) {out_file_name= a;}
-  void set_prob_cut(int a_pid);
+  void set_prob_cut(int, double);
+
  private:
   void init_hists();
   void write_hists();
-  InitStatus init_tca(TClonesArray *, TString);
+  TClonesArray* init_tca(TString);
   InitStatus init_tcas();
 
   double get_comb_prob(prob_func);
-  double get_comb_prob_elec();
-  double get_comb_prob_pion();
-  double get_comb_prob_proton();
-  double get_comb_prob_kaon();
-  double get_comb_prob_muon();
-
 
  private:
   int verb;
   int nevt;
   int m_sp;
-  std::string out_file_name;
+
   PndAnalysis *fAna;
   FairRootManager* m_ioman;
 
@@ -76,7 +70,7 @@ class EffHists : public FairTask{
   static const TString s_spc_tex[nsp_max];
 
   enum{iel=0,imu,ipi,ik,iprot,npid_max};
-  TString s_pid[npid_max]; // = {"e_id", "mu_id", "pi_id", "k_id", "prot_id"};
+  static const TString s_pid[npid_max]; // = {"e_id", "mu_id", "pi_id", "k_id", "prot_id"};
 
   enum{iemc = 0, istt, imvd, idirc, idisc, ndet};
   static const TString s_det[ndet];
@@ -88,6 +82,8 @@ class EffHists : public FairTask{
   TEfficiency *eff2d[npid_max], *eff1d_the[npid_max], *eff1d_mom[npid_max];
   double mom_max;
   double the_max;
+
+  ClassDef(EffHists,1);
 
 };
 
