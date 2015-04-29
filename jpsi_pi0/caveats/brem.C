@@ -1,4 +1,6 @@
-void brem(TString dir="./") {
+void brem() {
+
+  TString dir = gSystem->Getenv("ODIR");
   // Macro created 02/10/2012 by S.Spataro
   // It loads a reconstruction file and compute PID informations
 

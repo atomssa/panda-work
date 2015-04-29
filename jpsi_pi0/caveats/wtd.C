@@ -93,9 +93,9 @@ void wtd(int grp) {
   TH1F *hdummy[6];
   TPad *pads[6];
 
-  for (int ii = 0; ii < nc; ++ii) {
+  for (int ii = 0; ii < 6; ++ii) {
 
-    TFile *f = new TFile(Form("../grid.out/psim_oct14_binsong_configs/bremcorr.%d.old_hists.root",ic[ii]));
+    TFile *f = new TFile(Form("../grid.out/psim_oct14_binsong_configs/bremcorr.%d_hists.root",ic[ii]));
     h_wtd[ii] = (TH1F*) f->Get("h_wtd");
     h_cor[ii] = (TH1F*) f->Get("h_cor");
     h_rec[ii] = (TH1F*) f->Get("h_rec");

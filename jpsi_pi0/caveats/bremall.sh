@@ -1,7 +1,8 @@
 #!/bin/bash
 
 #. /vol0/panda/svn/pandaroot-oct14/build/config.sh
-. /vol0/panda/svn/apr13/pandaroot/oct14/build/config.sh
+#. /vol0/panda/svn/apr13/pandaroot/oct14/build/config.sh
+. /vol0/panda/svn/jul14p3/pandaroot/oct14/build/config.sh
 
 echo
 echo
@@ -26,24 +27,25 @@ arg=$1
 
 if [[ $arg == 17 || $arg == 2 || $arg == 8 ]]; then
     [[ $arg == 17 ]] && q=esim || q=psim
-    [[ $arg == 17 ]] && n=9 || n=20
+    #[[ $arg == 17 ]] && n=9 || n=20
+    n=20
     for i in `seq 0 $n`;
     do
-	wdir=/vol0/panda/work/jpsi_pi0/grid.out/${q}_oct14_binsong_config${arg}/runall.$i
-	echo $wdir
+	export ODIR=/vol0/panda/work/jpsi_pi0/grid.out/${q}_oct14_binsong_config${arg}/runall.$i
+	echo $ODIR
 	tag_start_t $i
-	root -b -q -w -l brem.C"(\"$wdir\")";
+	root -b -q -w -l brem.C
 	tag_end_t $i
     done
 else
-    for i in `seq 17 17`;
+    for i in `seq 0 21`;
     do
 	for j in `seq 0 4`;
 	do
-	    wdir=/vol0/panda/work/jpsi_pi0/grid.out/psim_oct14_binsong_configs/runall.$i.$j
-	    echo $wdir
+	    export ODIR=/vol0/panda/work/jpsi_pi0/grid.out/psim_oct14_binsong_configs/runall.$i.$j
+	    echo $ODIR
 	    tag_start_t $i
-	    root -l -b -q -w brem.C"(\"$wdir\")"
+	    root -l -b -q -w brem.C
 	    tag_end_t $i
 	done
     done

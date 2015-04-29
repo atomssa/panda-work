@@ -79,11 +79,18 @@ InitStatus PndPidBremCorrectorNT::Init() {
 
   fPhiBumpArray = dynamic_cast<TClonesArray *> (ioman->GetObject("EmcPhiBump"));
   if ( ! fPhiBumpArray ) {
-    cout << "-W- PndEmcMakePhiBump::Init: "
+    cout << "-W- PndPidBremCorrectorNT::Init: "
 	 << "No PhiBumpArray array!" << endl;
     return kERROR;
   }
-  ioman->Register("EmcPhiBump","Emc",fPhiBumpArray,kTRUE);
+
+  for (int i=0; i<8; ++i) {
+    const char* tca_name = (i==0?"EmcPhiBump":Form("EmcPhiBump%d",i));
+    cout << "PndPidBremCorrectorNT::Init saving tca " << tca_name << " to pid out file "<< endl;
+    fPhiBumpArraySave[i] = dynamic_cast<TClonesArray *> (ioman->GetObject(tca_name));
+    if ( ! fPhiBumpArraySave[i] ) { cout << "-W- PndPidBremCorrectorNT::Init: No PhiBumpArray array!" << endl; return kERROR; }
+    ioman->Register(tca_name,"Emc",fPhiBumpArraySave[i],kTRUE);
+  }
 
   fBumpArray = dynamic_cast<TClonesArray *> (ioman->GetObject("EmcBump"));
   if ( ! fBumpArray ) {
@@ -136,6 +143,7 @@ InitStatus PndPidBremCorrectorNT::Init() {
   fBremCorrected4MomArray = new TClonesArray("PndPidBremCorrected4Mom");
   ioman->Register("BremCorrected4Mom","Pid",fBremCorrected4MomArray,fPersistance);
 
+  return kSUCCESS;
 }
 
 void PndPidBremCorrectorNT::print_cands() {
