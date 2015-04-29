@@ -6,8 +6,8 @@ void raddep(){
   gStyle->SetTitleFontSize(0.08);
   gStyle->SetTitleFont(62);
 
-  int iconfig = 8; double max = 0.2;
-  //int iconfig = 2; double max = 0.2;
+  //int iconfig = 8; double max = 0.2;
+  int iconfig = 2; double max = 0.2;
 
   Double_t config[22][3] = {
     {0.15, 30.0, 45.0}, {0.25, 30.0, 45.0}, {0.5, 30.0, 45.0}, {0.5, 45.0, 60.0},

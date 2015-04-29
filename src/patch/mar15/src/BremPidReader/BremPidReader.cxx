@@ -45,12 +45,13 @@
 
 using namespace std;
 
-BremPidReader::BremPidReader():
-  fClusterArray(0), fPhiBumpArray(0), fBumpArray(0), fChargedCandidateArray(0), fNeutralCandidateArray(0), fBremCorrected4MomArray(0),fRecMomOfEle(0), fRecThetaOfEle(0), fRecPhiOfEle(0), fCharge(0), fPersistance(kTRUE)
+BremPidReader::BremPidReader(int ibinsize):
+  iBinSize(ibinsize), fClusterArray(0), fPhiBumpArray(0), fBumpArray(0), fChargedCandidateArray(0), fNeutralCandidateArray(0), fBremCorrected4MomArray(0),fRecMomOfEle(0), fRecThetaOfEle(0), fRecPhiOfEle(0), fCharge(0), fPersistance(kTRUE)
 {
   output_name = "bremcorr.root";
   nEvt = 0;
   radMaxTracking_cm = 42.0;
+  if (iBinSize>7) iBinSize=0;
 }
 
 BremPidReader::~BremPidReader()
@@ -84,10 +85,12 @@ InitStatus BremPidReader::Init() {
     return kERROR;
   }
 
-  fPhiBumpArray = dynamic_cast<TClonesArray *> (ioman->GetObject("EmcPhiBump"));
+  const char* tca_name = (iBinSize==0?"EmcPhiBump":Form("EmcPhiBump%d",iBinSize));
+  cout << "BremPidReader::Init: using tca " << tca_name << " as phibump data source" << endl;
+  fPhiBumpArray = dynamic_cast<TClonesArray *> (ioman->GetObject(tca_name));
   if ( ! fPhiBumpArray ) {
     cout << "-W- PndEmcMakePhiBump::Init: "
-	 << "No PhiBumpArray array!" << endl;
+	 << "No " << tca_name << " array!" << endl;
     return kERROR;
   }
 

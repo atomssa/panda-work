@@ -49,7 +49,10 @@ fi
 . $SCRIPT_DIR/patch.pandaroot.sh -n $EXT_VER $PR_VER
 
 cd $PNDROOT_DIR
-if [[ $EXT_VER == "jul14p3" ]]; then
+if [[ $EXT_VER == "jul14p3" && $PR_VER == "oct14" ]]; then
+    rm -vrf base generators geobase parbase cmake geane eventdisplay trackbase fairtools dbase MbsAPI
+fi
+if [[ $EXT_VER == "mar15" && $PR_VER == "oct14" ]]; then
     rm -vrf base generators geobase parbase cmake geane eventdisplay trackbase fairtools dbase MbsAPI
 fi
 

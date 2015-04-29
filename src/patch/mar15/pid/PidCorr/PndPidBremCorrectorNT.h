@@ -63,6 +63,7 @@ class PndPidBremCorrectorNT: public FairTask
         TClonesArray* fHitArray;
 
         TClonesArray* fPhiBumpArray;
+	TClonesArray* fPhiBumpArraySave[8];
 
         TClonesArray* fChargedCandidateArray;
         TClonesArray* fNeutralCandidateArray;
