@@ -29,6 +29,11 @@ static Double_t config[22][3] = {
   {0.25, 10.0, 20.0}, {0.5, 10.0, 20.0}, {1.0, 10.0, 20.0}, {1.5, 10.0, 20.0},
   {2.0, 10.0, 20.0}, {2.5, 10.0, 20.0}};
 
+static const int nch_max = 10;
+static const int nmcb_max = 200;
+static const int nsb_max = 100;
+static const int npb_max = 100;
+static const int nab_max = 100;
 
 class t {
  public :
@@ -37,54 +42,76 @@ class t {
 
   // Declaration of leaf types
   Int_t           nch;
-  Int_t           charge[10];   //[nch]
-  Float_t         mom_mc[10];   //[nch]
-  Float_t         mom_rec[10];   //[nch]
-  Float_t         mom_cor[10];   //[nch]
-  Float_t         mom_wcor[10];   //[nch]
-  Float_t         mom_mrg[10];   //[nch]
-  Float_t         mom_sep[10];   //[nch]
-  Float_t         mom_stored[10];   //[nch]
-  Float_t         phi[10];   //[nch]
-  Float_t         the[10];   //[nch]
-  Float_t         phi_mc[10];
-  Float_t         the_mc[10];
-  Int_t           pdg_mc[10];
-  Int_t           nphot_sep[10];   //[nch]
-  Int_t           nphot_mrg[10];   //[nch]
-  Int_t           is_prim[10];   //[nch]
-  Int_t           _nmcb[10];   //[nch]
-  Int_t           imcb_s[10];   //[nch]
-  Int_t           imcb_e[10];   //[nch]
+  Int_t           charge[nch_max];   //[nch]
+  Float_t         mom_mc[nch_max];   //[nch]
+  Float_t         mom_rec[nch_max];   //[nch]
+  Float_t         mom_cor[nch_max];   //[nch]
+  Float_t         mom_wcor[nch_max];   //[nch]
+  Float_t         mom_mrg[nch_max];   //[nch]
+  Float_t         mom_sep[nch_max];   //[nch]
+  Float_t         mom_stored[nch_max];   //[nch]
+  Float_t         mom_sep_w[nch_max];   //[nch]
+  Float_t         mom_sep_w_bf[nch_max];   //[nch]
+  Float_t         mom_mrg_w[nch_max];   //[nch]
+  Float_t         mom_mrg_w_bf[nch_max];   //[nch]
+  Float_t         mom_mrg_pc[nch_max];   //[nch]
+  Float_t         mom_mrg_w_pc[nch_max];   //[nch]
+  Float_t         mom_mrg_w_bf_pc[nch_max];   //[nch]
+  Float_t         mom_wbfcor[nch_max];   //[nch]
+  Float_t         mom_wbfcor_mw_bf[nch_max];   //[nch]
+  Float_t         mom_wbfcor_mw_bf_pc[nch_max];   //[nch]
+  Float_t         phi[nch_max];   //[nch]
+  Float_t         the[nch_max];   //[nch]
+  Float_t         phi_mc[nch_max];   //[nch]
+  Float_t         the_mc[nch_max];   //[nch]
+  Int_t           pdg_mc[nch_max];   //[nch]
+  Int_t           nphot_sep[nch_max];   //[nch]
+  Int_t           nphot_mrg[nch_max];   //[nch]
+  Int_t           nphot_mrg_pc[nch_max];   //[nch]
+  Int_t           is_prim[nch_max];   //[nch]
+  Int_t           _nmcb[nch_max];   //[nch]
+  Int_t           imcb_s[nch_max];   //[nch]
+  Int_t           imcb_e[nch_max];   //[nch]
   Int_t           nmcb;
-  Float_t         mcb_phi[200];   //[nmcb]
-  Float_t         mcb_the[200];   //[nmcb]
-  Float_t         mcb_ene[200];   //[nmcb]
-  Float_t         mcb_rad[200];   //[nmcb]
-  Float_t         mcb_zed[200];   //[nmcb]
-  Int_t           mcb_match[200];   //[nmcb]
-  Int_t           mcb_score[200];   //[nmcb]
-  Int_t           mcb_match_ab[200];   //[nmcb]
-  Int_t           mcb_score_ab[200];   //[nmcb]
-  Int_t           _nsb[10];   //[nch]
-  Int_t           isb_s[10];   //[nch]
-  Int_t           isb_e[10];   //[nch]
+  Float_t         mcb_phi[57];   //[nmcb]
+  Float_t         mcb_the[57];   //[nmcb]
+  Float_t         mcb_ene[57];   //[nmcb]
+  Float_t         mcb_rad[57];   //[nmcb]
+  Float_t         mcb_zed[57];   //[nmcb]
+  Int_t           mcb_match[57];   //[nmcb]
+  Int_t           mcb_score[57];   //[nmcb]
+  Int_t           mcb_match_ab[57];   //[nmcb]
+  Int_t           mcb_score_ab[57];   //[nmcb]
+  Int_t           _nsb[nch_max];   //[nch]
+  Int_t           isb_s[nch_max];   //[nch]
+  Int_t           isb_e[nch_max];   //[nch]
   Int_t           nsb;
-  Int_t           sb_idx[100];   //[nsb]
-  Float_t         sb_phi[100];   //[nsb]
-  Float_t         sb_the[100];   //[nsb]
-  Float_t         sb_ene[100];   //[nsb]
-  Float_t         sb_rcalc[100];   //[nsb]
-  Int_t           sb_match[100];   //[nsb]
-  Int_t           sb_score[100];   //[nsb]
+  Float_t         sb_idx[nsb_max];   //[nsb]
+  Float_t         sb_phi[nsb_max];   //[nsb]
+  Float_t         sb_the[nsb_max];   //[nsb]
+  Float_t         sb_ene[nsb_max];   //[nsb]
+  Float_t         sb_rcalc[nsb_max];   //[nsb]
+  Float_t         sb_zcalc[nsb_max];   //[nsb]
+  Int_t           sb_match[nsb_max];   //[nsb]
+  Int_t           sb_score[nsb_max];   //[nsb]
+  Int_t           _npb[nch_max];   //[nch]
+  Int_t           ipb_s[nch_max];   //[nch]
+  Int_t           ipb_e[nch_max];   //[nch]
+  Int_t           npb;
+  Int_t           pb_acc[npb_max];   //[npb]
+  Float_t         pb_phi[npb_max];   //[npb]
+  Float_t         pb_the[npb_max];   //[npb]
+  Float_t         pb_ene[npb_max];   //[npb]
+  Float_t         pb_rcalc[npb_max];   //[npb]
+  Float_t         pb_zcalc[npb_max];   //[npb]
   Int_t           nab;
-  Float_t         ab_phi[100];   //[nsb]
-  Float_t         ab_the[100];   //[nsb]
-  Float_t         ab_ene[100];   //[nsb]
-  Int_t           ab_isb[100];   //[nsb]
-  Int_t           ab_ich[100];   //[nsb]
-  Int_t           ab_match[100];   //[nsb]
-  Int_t           ab_score[100];   //[nsb]
+  Float_t         ab_phi[nab_max];   //[nab]
+  Float_t         ab_the[nab_max];   //[nab]
+  Float_t         ab_ene[nab_max];   //[nab]
+  Int_t           ab_isb[nab_max];   //[nab]
+  Int_t           ab_ich[nab_max];   //[nab]
+  Int_t           ab_match[nsb_max];   //[nsb]
+  Int_t           ab_score[nsb_max];   //[nsb]
 
   // List of branches
   TBranch        *b_nch;   //!
@@ -96,6 +123,16 @@ class t {
   TBranch        *b_mom_mrg;   //!
   TBranch        *b_mom_sep;   //!
   TBranch        *b_mom_stored;   //!
+  TBranch        *b_mom_sep_w;   //!
+  TBranch        *b_mom_sep_w_bf;   //!
+  TBranch        *b_mom_mrg_w;   //!
+  TBranch        *b_mom_mrg_w_bf;   //!
+  TBranch        *b_mom_mrg_pc;   //!
+  TBranch        *b_mom_mrg_w_pc;   //!
+  TBranch        *b_mom_mrg_w_bf_pc;   //!
+  TBranch        *b_mom_wbfcor;   //!
+  TBranch        *b_mom_wbfcor_mw_bf;   //!
+  TBranch        *b_mom_wbfcor_mw_bf_pc;   //!
   TBranch        *b_phi;   //!
   TBranch        *b_the;   //!
   TBranch        *b_phi_mc;   //!
@@ -103,6 +140,7 @@ class t {
   TBranch        *b_pdg_mc;   //!
   TBranch        *b_nphot_sep;   //!
   TBranch        *b_nphot_mrg;   //!
+  TBranch        *b_nphot_mrg_pc;   //!
   TBranch        *b_is_prim;   //!
   TBranch        *b__nmcb;   //!
   TBranch        *b_imcb_s;   //!
@@ -126,14 +164,25 @@ class t {
   TBranch        *b_sb_the;   //!
   TBranch        *b_sb_ene;   //!
   TBranch        *b_sb_rcalc;   //!
+  TBranch        *b_sb_zcalc;   //!
   TBranch        *b_sb_match;   //!
   TBranch        *b_sb_score;   //!
-  TBranch        *b_nab;
-  TBranch        *b_ab_phi;   //[nsb]
-  TBranch        *b_ab_the;   //[nsb]
-  TBranch        *b_ab_ene;   //[nsb]
-  TBranch        *b_ab_isb;   //[nsb]
-  TBranch        *b_ab_ich;   //[nsb]
+  TBranch        *b__npb;   //!
+  TBranch        *b_ipb_s;   //!
+  TBranch        *b_ipb_e;   //!
+  TBranch        *b_npb;   //!
+  TBranch        *b_pb_acc;   //!
+  TBranch        *b_pb_phi;   //!
+  TBranch        *b_pb_the;   //!
+  TBranch        *b_pb_ene;   //!
+  TBranch        *b_pb_rcalc;   //!
+  TBranch        *b_pb_zcalc;   //!
+  TBranch        *b_nab;   //!
+  TBranch        *b_ab_phi;   //!
+  TBranch        *b_ab_the;   //!
+  TBranch        *b_ab_ene;   //!
+  TBranch        *b_ab_isb;   //!
+  TBranch        *b_ab_ich;   //!
   TBranch        *b_ab_match;   //!
   TBranch        *b_ab_score;   //!
 
@@ -153,7 +202,8 @@ class t {
   virtual TLegend* tleg(double,double,double,double);
   virtual void     set_style(TH2* h);
   virtual void     set_style(TH1* h, int col);
-
+  virtual Double_t res_func(const double &m, const double &mref) { return (mref-m)/mref; }
+  virtual Bool_t   check_invariants(Int_t, Bool_t);
 };
 
 #endif
@@ -180,6 +230,9 @@ t::t(TTree *tree) : fChain(0)
 
 t::t(TString fname) : fChain(0)
 {
+  cout << endl;
+  cout << endl;
+  cout << "t::t(TString) Opening " << fname << endl;
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree.
   TTree *tree;
@@ -234,7 +287,6 @@ void t::Init(TTree *tree)
   fChain = tree;
   fCurrent = -1;
   fChain->SetMakeClass(1);
-
   fChain->SetBranchAddress("nch", &nch, &b_nch);
   fChain->SetBranchAddress("charge", charge, &b_charge);
   fChain->SetBranchAddress("mom_mc", mom_mc, &b_mom_mc);
@@ -244,6 +296,16 @@ void t::Init(TTree *tree)
   fChain->SetBranchAddress("mom_mrg", mom_mrg, &b_mom_mrg);
   fChain->SetBranchAddress("mom_sep", mom_sep, &b_mom_sep);
   fChain->SetBranchAddress("mom_stored", mom_stored, &b_mom_stored);
+  fChain->SetBranchAddress("mom_sep_w", mom_sep_w, &b_mom_sep_w);
+  fChain->SetBranchAddress("mom_sep_w_bf", mom_sep_w_bf, &b_mom_sep_w_bf);
+  fChain->SetBranchAddress("mom_mrg_w", mom_mrg_w, &b_mom_mrg_w);
+  fChain->SetBranchAddress("mom_mrg_w_bf", mom_mrg_w_bf, &b_mom_mrg_w_bf);
+  fChain->SetBranchAddress("mom_mrg_pc", mom_mrg_pc, &b_mom_mrg_pc);
+  fChain->SetBranchAddress("mom_mrg_w_pc", mom_mrg_w_pc, &b_mom_mrg_w_pc);
+  fChain->SetBranchAddress("mom_mrg_w_bf_pc", mom_mrg_w_bf_pc, &b_mom_mrg_w_bf_pc);
+  fChain->SetBranchAddress("mom_wbfcor", mom_wbfcor, &b_mom_wbfcor);
+  fChain->SetBranchAddress("mom_wbfcor_mw_bf", mom_wbfcor_mw_bf, &b_mom_wbfcor_mw_bf);
+  fChain->SetBranchAddress("mom_wbfcor_mw_bf_pc", mom_wbfcor_mw_bf_pc, &b_mom_wbfcor_mw_bf_pc);
   fChain->SetBranchAddress("phi", phi, &b_phi);
   fChain->SetBranchAddress("the", the, &b_the);
   fChain->SetBranchAddress("phi_mc", phi_mc, &b_phi_mc);
@@ -251,6 +313,7 @@ void t::Init(TTree *tree)
   fChain->SetBranchAddress("pdg_mc", pdg_mc, &b_pdg_mc);
   fChain->SetBranchAddress("nphot_sep", nphot_sep, &b_nphot_sep);
   fChain->SetBranchAddress("nphot_mrg", nphot_mrg, &b_nphot_mrg);
+  fChain->SetBranchAddress("nphot_mrg_pc", nphot_mrg_pc, &b_nphot_mrg_pc);
   fChain->SetBranchAddress("is_prim", is_prim, &b_is_prim);
   fChain->SetBranchAddress("_nmcb", _nmcb, &b__nmcb);
   fChain->SetBranchAddress("imcb_s", imcb_s, &b_imcb_s);
@@ -259,8 +322,8 @@ void t::Init(TTree *tree)
   fChain->SetBranchAddress("mcb_phi", mcb_phi, &b_mcb_phi);
   fChain->SetBranchAddress("mcb_the", mcb_the, &b_mcb_the);
   fChain->SetBranchAddress("mcb_ene", mcb_ene, &b_mcb_ene);
-  fChain->SetBranchAddress("mcb_zed", mcb_zed, &b_mcb_zed);
   fChain->SetBranchAddress("mcb_rad", mcb_rad, &b_mcb_rad);
+  fChain->SetBranchAddress("mcb_zed", mcb_zed, &b_mcb_zed);
   fChain->SetBranchAddress("mcb_match", mcb_match, &b_mcb_match);
   fChain->SetBranchAddress("mcb_score", mcb_score, &b_mcb_score);
   fChain->SetBranchAddress("mcb_match_ab", mcb_match_ab, &b_mcb_match_ab);
@@ -274,8 +337,19 @@ void t::Init(TTree *tree)
   fChain->SetBranchAddress("sb_the", sb_the, &b_sb_the);
   fChain->SetBranchAddress("sb_ene", sb_ene, &b_sb_ene);
   fChain->SetBranchAddress("sb_rcalc", sb_rcalc, &b_sb_rcalc);
+  fChain->SetBranchAddress("sb_zcalc", sb_zcalc, &b_sb_zcalc);
   fChain->SetBranchAddress("sb_match", sb_match, &b_sb_match);
   fChain->SetBranchAddress("sb_score", sb_score, &b_sb_score);
+  fChain->SetBranchAddress("_npb", _npb, &b__npb);
+  fChain->SetBranchAddress("ipb_s", ipb_s, &b_ipb_s);
+  fChain->SetBranchAddress("ipb_e", ipb_e, &b_ipb_e);
+  fChain->SetBranchAddress("npb", &npb, &b_npb);
+  fChain->SetBranchAddress("pb_acc", pb_acc, &b_pb_acc);
+  fChain->SetBranchAddress("pb_phi", pb_phi, &b_pb_phi);
+  fChain->SetBranchAddress("pb_the", pb_the, &b_pb_the);
+  fChain->SetBranchAddress("pb_ene", pb_ene, &b_pb_ene);
+  fChain->SetBranchAddress("pb_rcalc", pb_rcalc, &b_pb_rcalc);
+  fChain->SetBranchAddress("pb_zcalc", pb_zcalc, &b_pb_zcalc);
   fChain->SetBranchAddress("nab", &nab, &b_nab);
   fChain->SetBranchAddress("ab_phi", ab_phi, &b_ab_phi);
   fChain->SetBranchAddress("ab_the", ab_the, &b_ab_the);
@@ -284,9 +358,49 @@ void t::Init(TTree *tree)
   fChain->SetBranchAddress("ab_ich", ab_ich, &b_ab_ich);
   fChain->SetBranchAddress("ab_match", ab_match, &b_ab_match);
   fChain->SetBranchAddress("ab_score", ab_score, &b_ab_score);
-
   Notify();
 
+}
+
+Bool_t t::check_invariants(Int_t ient, Bool_t debug) {
+  Bool_t ok = true;
+  int _nmcb_sum = 0, _nsb_sum = 0, _npb_sum = 0;
+  for (int ich=0; ich<nch; ++ich) {
+    if (imcb_e[ich] - imcb_s[ich] != _nmcb[ich] ) {
+      if (debug) cout << "assert imcb_e[ich] - imcb_s[ich] == _nmcb[ich] failed for event " << ient;
+      if (debug) cout << ": imcb_e["<<ich<<"]= " << imcb_e[ich] << " imcb_s["<<ich<<"]= " << imcb_s[ich] << " _nmcb["<<ich<<"]= " <<  _nmcb[ich] << endl;
+      ok=false;
+    }
+    _nmcb_sum+=_nmcb[ich];
+    if (isb_e[ich] - isb_s[ich] != _nsb[ich] ) {
+      if (debug) cout << "assert isb_e[ich] - isb_s[ich] == _nsb[ich] failed for event " << ient;
+      if (debug) cout << ": isb_e["<<ich<<"]= " << isb_e[ich] << " isb_s["<<ich<<"]= " << isb_s[ich] << " _nsb["<<ich<<"]= " <<  _nsb[ich] << endl;
+      ok=false;
+    }
+    _nsb_sum+=_nsb[ich];
+    if (ipb_e[ich] - ipb_s[ich] != _npb[ich] ) {
+      if (debug) cout << "assert ipb_e[ich] - ipb_s[ich] == _npb[ich] failed for event " << ient;
+      if (debug) cout << ": ipb_e["<<ich<<"]= " << ipb_e[ich] << " ipb_s["<<ich<<"]= " << ipb_s[ich] << " _npb["<<ich<<"]= " <<  _npb[ich] << endl;
+      ok=false;
+    }
+    _npb_sum+=_npb[ich];
+  }
+  if (nmcb!=_nmcb_sum ) {
+    if (debug) cout << "assert nmcb==_nmcb_sum failed for event " << ient;
+    if (debug) cout << ": nmcb= " << nmcb << " _nmcb_sum= " << _nmcb_sum << endl;
+    ok=false;
+  }
+  if (nsb!=_nsb_sum ) {
+    if (debug) cout << "assert nsb==_nsb_sum failed for event " << ient;
+    if (debug) cout << ": nsb= " << nsb << " _nsb_sum= " << _nsb_sum << endl;
+    ok=false;
+  }
+  if (npb!=_npb_sum ) {
+    if (debug) cout << "assert npb==_npb_sum failed for event " << ient;
+    if (debug) cout << ": npb= " << npb << " _npb_sum= " << _npb_sum << endl;
+    ok=false;
+  }
+  return ok;
 }
 
 Bool_t t::Notify()

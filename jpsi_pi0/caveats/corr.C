@@ -10,9 +10,9 @@ void corr() {
      | 12 |  1.5 |   30.0 |   45.0 |
      | 14 |  2.0 |   30.0 |   45.0 |
   */
-  //const int nc = 6;
-  //int ic[nc] = {0,1,2,8,12,14};
-  //int col[nc] = {1,2,5,6,9,7};
+  const int nc = 6;
+  int ic[nc] = {0,1,2,8,12,14};
+  int col[nc] = {1,2,5,6,9,7};
 
   /*
      |  2 |  0.5 |   30.0 |   45.0 |
@@ -34,9 +34,9 @@ void corr() {
     | 18 |  1.0 |   10.0 |   20.0 |
     | 20 |  2.0 |   10.0 |   20.0 |
   */
-  const nc = 6;
-  int ic[nc] = {2,8,14,17,18,20};
-  int col[nc] = {1,2,5,6,9,7};
+  //const nc = 6;
+  //int ic[nc] = {2,8,14,17,18,20};
+  //int col[nc] = {1,2,5,6,9,7};
 
   /*
      |  8 |  1.0 |   30.0 |   45.0 |
@@ -137,10 +137,18 @@ void corr() {
     pads[ii]->SetTicks(0,1);
     pads[ii]->cd();
 
-    h_cor[ii]->Draw();
-    h_rec[ii]->Draw("same");
-    //h_mrg[ii]->Draw("same");
-    h_sep[ii]->Draw("same");
+
+    if (ii>=2) {
+      h_cor[ii]->Draw();
+      h_rec[ii]->Draw("same");
+      //h_mrg[ii]->Draw("same");
+      h_sep[ii]->Draw("same");
+    } else {
+      h_sep[ii]->Draw();
+      h_cor[ii]->Draw("same");
+      h_rec[ii]->Draw("same");
+      //h_mrg[ii]->Draw("same");
+    }
 
     //hdummy[ii] = tmg_yield[ii]->GetHistogram();
     //for (int ibin=0; ibin<5; ++ibin){
@@ -160,6 +168,7 @@ void corr() {
     //hdummy[ii]->SetMinimum(0);
     //hdummy[ii]->SetMaximum(max_yield*1.1);
 
+    /*
     if (ii==0) {
       tl1->AddEntry(h_rec[ii],"Uncorrected", "pl");
       tl1->AddEntry(h_sep[ii],"Sep. bumps only", "pl");
@@ -167,11 +176,13 @@ void corr() {
       //tl1->AddEntry(h_mrg[ii],"Sep. + Merged bumps", "pl");
       tl1->Draw();
     }
+    */
 
     tt->SetTextColor(1);
     tt->SetTextSize(0.07);
-    tt->DrawLatex(0.5,0.82,Form("p_{T}= %3.1f GeV/c",config[ic[ii]][0]));
-    tt->DrawLatex(0.5,0.72,Form("%3.0f < #theta < %3.0f",config[ic[ii]][1],config[ic[ii]][2]));
+    tt->DrawLatex(0.7,0.82,Form("p_{T}= %3.1f GeV/c",config[ic[ii]][0]));
+    tt->DrawLatex(0.65,0.72,Form("%3.0f < #theta < %3.0f",config[ic[ii]][1],config[ic[ii]][2]));
+    /*
     tt->SetTextColor(2);
     tt->SetTextSize(0.07);
     if (ii<3) {
@@ -179,6 +190,8 @@ void corr() {
     } else {
       tt->DrawLatex(0.47,0.62,"FWD. ENDCAP");
     }
+    */
+
     gPad->SetGridx();
   }
 
