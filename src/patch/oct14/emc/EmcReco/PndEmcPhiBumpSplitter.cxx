@@ -65,17 +65,20 @@
 #include "PndEmcXtal.h"
 #include "PndEmcDataTypes.h"
 
+static const double epbs_binSize[8]={2.25,1,1.5,1.8,2.0,2.5,3.0,4.0};
 
+using std::cout;
 using std::endl;
 
 //----------------
 // Constructors --
 //----------------
 
-PndEmcPhiBumpSplitter::PndEmcPhiBumpSplitter(Int_t verbose):
-  fDigiArray(0), fClusterArray(0), fPhiBumpArray(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fPersistance(kTRUE), fClusterPosParam(), fVerbose(verbose)
+PndEmcPhiBumpSplitter::PndEmcPhiBumpSplitter(Int_t ibinsize):
+  fDigiArray(0), fClusterArray(0), fPhiBumpArray(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fPersistance(kTRUE), fClusterPosParam(), fVerbose(0), iBinSize(ibinsize)
 {
   fClusterPosParam.clear();
+  if (iBinSize>7) iBinSize=0;
 }
 
 //--------------
@@ -126,9 +129,11 @@ InitStatus PndEmcPhiBumpSplitter::Init() {
 
   // Create and register output array
   fPhiBumpArray = new TClonesArray("PndEmcBump");
-  ioman->Register("EmcPhiBump","Emc",fPhiBumpArray,fPersistance);
+  ioman->Register((iBinSize==0?"EmcPhiBump":Form("EmcPhiBump%d",iBinSize)),"Emc",fPhiBumpArray,fPersistance);
 
   cout << "-I- PndEmcPhiBumpSplitter: Intialization successfull" << endl;
+
+  return kSUCCESS;
 
 }
 
@@ -147,8 +152,7 @@ void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
 
     PndEmcCluster* theCluster = (PndEmcCluster*) fClusterArray->At(iCluster);
 
-    const Int_t TotNumOfHitPhi = 160;
-
+    const Int_t TotNumOfHitPhi = int(360./epbs_binSize[iBinSize]);
     std::vector<double> phi_bump(TotNumOfHitPhi,0);
 
     Int_t digiSize = theCluster->DigiList().size();
@@ -173,7 +177,7 @@ void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
       Double_t BinValue = phi_bump.at(i_phi);
       if (BinValue != 0)
 	{
-	  vPhiList.push_back(-180. + (160.*(0.5+i_phi)/360.));
+	  vPhiList.push_back(-180. + ((0.5+i_phi)*360./TotNumOfHitPhi));
 	  vDepoEnergyList.push_back(BinValue);
 	  vGapSizeList.push_back(i_phi - i_phi_prev );
 	  i_phi_prev = i_phi;
@@ -197,7 +201,6 @@ void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
     vPhiList.push_back(0);
     vPhiList.push_back(0);
     std::rotate(vPhiList.begin(),vPhiList.begin()+(vPhiList.size()-1),vPhiList.end());
-
 
     // Loop through deposited energy vector and classify bins
     std::vector<int> Type;
@@ -250,10 +253,9 @@ void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
       theNewPhiBump->SetLink(FairLink("EmcCluster", iCluster));
       theNewPhiBump->SetEnergy(enePhiBump.at(i_phibump));
       TVector3 posPhiBump;
-      posPhiBump.SetMagThetaPhi(posClust.Mag(),posClust.Theta(),phiPhiBump.at(i_phibump));
+      posPhiBump.SetMagThetaPhi(posClust.Mag(),posClust.Theta(),phiPhiBump.at(i_phibump)*TMath::DegToRad());
       theNewPhiBump->SetPosition(posPhiBump);
     }
-
   }
 
 }
