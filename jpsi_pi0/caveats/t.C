@@ -79,6 +79,11 @@ void t::Loop()
   TH1F* h_mcb_match_rad_of_ab = new TH1F("h_mcb_match_rad_of_ab", "R_{True} of MC brem photons that match to a bump a priori", nbin, 0, 100);
   TH1F* h_dphi_max_rec = new TH1F("h_dphi_max_rec", "#Delta#phi maximum cut from reco pT", nbin, -20, 200);
   TH1F* h_dphi_max_mc = new TH1F("h_dphi_max_mc", "#Delta#phi maximum cut from mc pT", nbin, -20, 200);
+  TH1F* h_dphi_all_sep = new TH1F("h_dphi_all_sep", "#Delta#phi of all non electron bumps in event", nbin, -200, 200);
+  TH1F* h_dphi_brem_sep = new TH1F("h_dphi_brem_sep", "#Delta#phi of all non electron bumps in event", nbin, -200, 200);
+  TH1F* h_dphi_cut_sep = new TH1F("h_dphi_cut_sep", "#Delta#phi of all non electron bumps in event", nbin, -200, 200);
+  TH1F* h_dphi_all_mrg = new TH1F("h_dphi_all_mrg", "#Delta#phi of all non electron bumps in event", nbin, -200, 200);
+  TH1F* h_dphi_cut_mrg = new TH1F("h_dphi_cut_mrg", "#Delta#phi of all non electron bumps in event", nbin, -200, 200);
 
   // dphi_dtheta for all merged phi-bumps
   TH2F* h_dphi_dthe_mrg = new TH2F("h_dphi_dthe_mrg","#Delta#phi vs #Delta#theta (all phi bumps)",nbin,dth_min,dth_max,nbin,dphi_min*8,dphi_max*12);
@@ -199,11 +204,9 @@ void t::Loop()
       	    cout << "!! sb_match>nmcb. Shouldnt happen."<< endl;
 	    continue;
       	  }
-
 	  //if (nmcb > 4) continue;
       	  h_rad_calc_vs_true->Fill(mcb_rad[sb_match[isb]], sb_rcalc[isb]*42./30.);
       	  //h_rad_calc_vs_true->Fill(mcb_rad[sb_match[isb]], sb_rcalc[isb]);
-
       	  h_zed_calc_vs_true->Fill(mcb_zed[sb_match[isb]], sb_rcalc[isb]/TMath::Tan(TMath::DegToRad()*sb_the[isb]));
 	  int ized = 0;
 	  for (int ii=0; ii<6;++ii) {
@@ -220,9 +223,9 @@ void t::Loop()
       double ptmc = mom_mc[ich]*TMath::Sin(the_mc[ich]*TMath::DegToRad());
       double _dph_max_rec = 2*TMath::ASin(0.12/ptrec)*TMath::RadToDeg();
       double _dph_max_mc = 2*TMath::ASin(0.12/ptmc)*TMath::RadToDeg();
-      if (_dph_max_rec>175) {
-	cout << "dph_max_rec " << _dph_max_rec  << " > 150: dph_max_mc= " << _dph_max_mc << " ptmc= " << ptmc << " ptrec= " << ptrec << endl;
-      }
+      //if (_dph_max_rec>175) {
+      //	cout << "dph_max_rec " << _dph_max_rec  << " > 150: dph_max_mc= " << _dph_max_mc << " ptmc= " << ptmc << " ptrec= " << ptrec << endl;
+      //}
       h_dphi_max_rec->Fill(_dph_max_rec);
       h_dphi_max_mc->Fill(_dph_max_mc);
       if (_nmcb[ich]==1) { // only one brem photon
@@ -230,13 +233,15 @@ void t::Loop()
 	  if (ab_ich[iab]>=0) continue; // skip bumps associated with track
 	  if (ab_ene[iab]<0.01*mom_rec[ich]) continue;
 	  h_dphi_dthe_all->Fill(ab_the[iab]-the[ich],ab_phi[iab]-phi[ich]);
+	  h_dphi_all_sep->Fill(ab_phi[iab]-phi[ich]);
 	  if ( ab_score[iab] > 0 ) {
 	    h_mcb_match_rad_of_ab->Fill(mcb_rad[ab_match[iab]]);
-	    if (mcb_rad[ab_match[iab]]<13)
-	      h_dphi_dthe_brem->Fill(ab_the[iab]-the[ich],ab_phi[iab]-phi[ich]);
+	    h_dphi_dthe_brem->Fill(ab_the[iab]-the[ich],ab_phi[iab]-phi[ich]);
+	    h_dphi_brem_sep->Fill(ab_phi[iab]-phi[ich]);
 	  }
 	  if ( ab_isb[iab] == ich ) {
 	    h_dphi_dthe_brem_cut->Fill(ab_the[iab]-the[ich],ab_phi[iab]-phi[ich]);
+	    h_dphi_cut_sep->Fill(ab_phi[iab]-phi[ich]);
 	  }
 	}
       }
@@ -247,8 +252,11 @@ void t::Loop()
 
       for (int ipb = ipb_s[ich]; ipb < ipb_e[ich]; ++ipb) {
 	h_dphi_dthe_mrg->Fill(pb_the[ipb]-the[ich], pb_phi[ipb]-phi[ich]);
-	if (pb_acc[ipb])
+	h_dphi_all_mrg->Fill(ab_phi[ipb]-phi[ich]);
+	if (pb_acc[ipb]) {
 	  h_dphi_dthe_mrg_acc->Fill(pb_the[ipb]-the[ich], pb_phi[ipb]-phi[ich]);
+	  h_dphi_cut_mrg->Fill(ab_phi[ipb]-phi[ich]);
+	}
       }
 
       // Count number of MC brem photons (R<42cm) emitted from this track
@@ -309,9 +317,14 @@ void t::Loop()
   h_dphi_dthe_brem_cut->Write();
   h_dphi_dthe_brem_cut2->Write();
 
+  h_mcb_match_rad_of_ab->Write();
   h_dphi_max_rec->Write();
   h_dphi_max_mc->Write();
-  h_mcb_match_rad_of_ab->Write();
+  h_dphi_all_sep->Write();
+  h_dphi_brem_sep->Write();
+  h_dphi_cut_sep->Write();
+  h_dphi_all_mrg->Write();
+  h_dphi_cut_mrg->Write();
 
   h_dphi_dthe_mrg->Write();
   h_dphi_dthe_mrg_acc->Write();
