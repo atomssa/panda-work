@@ -702,8 +702,6 @@ void BremPidReader::GetMergPhotonE(PndPidCandidate *ChargedCand,
 	pb_zcalc[npb] = zed_calc;
 	pb_ene[npb] = EmcPhiBumpList[r]->energy();
 	pb_acc[npb] = 0;
-	_npb[nch]++;
-	npb++;
 
 	emrg += EmcPhiBumpList[r]->energy();
 	emrg_wtd = wt * EmcPhiBumpList[r]->energy();
@@ -716,6 +714,8 @@ void BremPidReader::GetMergPhotonE(PndPidCandidate *ChargedCand,
 	  emrg_wtd_bf_pc = wt_bf * EmcPhiBumpList[r]->energy();
 	  nphot_mrg_pc[nch]++;
 	}
+	_npb[nch]++;
+	npb++;
       }
 
       if (emrg > fRecMomOfEle/100.) emrg = 0;
