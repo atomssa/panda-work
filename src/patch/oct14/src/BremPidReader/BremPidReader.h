@@ -30,7 +30,7 @@ class BremPidReader: public FairTask
 
  public:
 
-        BremPidReader();
+        BremPidReader(int ibinsize=0);
 
 	// Destructor
 	virtual ~BremPidReader();
@@ -72,6 +72,7 @@ class BremPidReader: public FairTask
 	void GetMergPhotonE(PndPidCandidate *, double&, double&, double&, double&, double&, double&);
 	double corrected_mom(const double&);
 
+	int iBinSize;
 	int nEvt;
 
 	/** Input array of PndEmcClusters **/
