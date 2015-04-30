@@ -1,4 +1,4 @@
-void brem() {
+void brem(int ibinsize=0 ) {
 
   TString dir = gSystem->Getenv("ODIR");
   // Macro created 02/10/2012 by S.Spataro
@@ -7,7 +7,7 @@ void brem() {
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0; // just forget about it, for the moment
 
-	// Number of events to process
+  // Number of events to process
   Int_t nEvents = 0;  // if 0 all the vents will be processed
 
   // Parameter file
@@ -48,8 +48,8 @@ void brem() {
 
   //PndPidBremCorrectorNT *bremCorr = new PndPidBremCorrectorNT();
   //fRun->AddTask(bremCorr);
-  BremPidReader *bpr = new BremPidReader();
-  bpr->set_output_name(dir+"/bremcorr.root");
+  BremPidReader *bpr = new BremPidReader(ibinsize);
+  bpr->set_output_name(dir+Form("/bremcorr.ibs.%d.root",ibinsize));
   fRun->AddTask(bpr);
 
   // -----   Intialise and run   --------------------------------------------
