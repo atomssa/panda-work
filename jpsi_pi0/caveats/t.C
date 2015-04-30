@@ -232,16 +232,16 @@ void t::Loop()
 	for (int iab = 0; iab < nab; ++iab) {
 	  if (ab_ich[iab]>=0) continue; // skip bumps associated with track
 	  if (ab_ene[iab]<0.01*mom_rec[ich]) continue;
-	  h_dphi_dthe_all->Fill(ab_the[iab]-the[ich],ab_phi[iab]-phi[ich]);
-	  h_dphi_all_sep->Fill(ab_phi[iab]-phi[ich]);
+	  h_dphi_dthe_all->Fill(ab_the[iab]-the[ich],dphi(ab_phi[iab],ich));
+	  h_dphi_all_sep->Fill(dphi(ab_phi[iab],ich));
 	  if ( ab_score[iab] > 0 ) {
 	    h_mcb_match_rad_of_ab->Fill(mcb_rad[ab_match[iab]]);
-	    h_dphi_dthe_brem->Fill(ab_the[iab]-the[ich],ab_phi[iab]-phi[ich]);
-	    h_dphi_brem_sep->Fill(ab_phi[iab]-phi[ich]);
+	    h_dphi_dthe_brem->Fill(ab_the[iab]-the[ich],dphi(ab_phi[iab],ich));
+	    h_dphi_brem_sep->Fill(dphi(ab_phi[iab],ich));
 	  }
 	  if ( ab_isb[iab] == ich ) {
-	    h_dphi_dthe_brem_cut->Fill(ab_the[iab]-the[ich],ab_phi[iab]-phi[ich]);
-	    h_dphi_cut_sep->Fill(ab_phi[iab]-phi[ich]);
+	    h_dphi_dthe_brem_cut->Fill(ab_the[iab]-the[ich],dphi(ab_phi[iab],ich));
+	    h_dphi_cut_sep->Fill(dphi(ab_phi[iab],ich));
 	  }
 	}
       }
@@ -251,11 +251,11 @@ void t::Loop()
       }
 
       for (int ipb = ipb_s[ich]; ipb < ipb_e[ich]; ++ipb) {
-	h_dphi_dthe_mrg->Fill(pb_the[ipb]-the[ich], pb_phi[ipb]-phi[ich]);
-	h_dphi_all_mrg->Fill(ab_phi[ipb]-phi[ich]);
+	h_dphi_dthe_mrg->Fill(pb_the[ipb]-the[ich], dphi(pb_phi[ipb],ich));
+	h_dphi_all_mrg->Fill(dphi(pb_phi[ipb],ich));
 	if (pb_acc[ipb]) {
-	  h_dphi_dthe_mrg_acc->Fill(pb_the[ipb]-the[ich], pb_phi[ipb]-phi[ich]);
-	  h_dphi_cut_mrg->Fill(ab_phi[ipb]-phi[ich]);
+	  h_dphi_dthe_mrg_acc->Fill(pb_the[ipb]-the[ich], dphi(pb_phi[ipb],ich));
+	  h_dphi_cut_mrg->Fill(dphi(pb_phi[ipb],ich));
 	}
       }
 

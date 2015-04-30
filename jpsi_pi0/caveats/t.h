@@ -204,6 +204,7 @@ class t {
   virtual void     set_style(TH1* h, int col);
   virtual Double_t res_func(const double &m, const double &mref) { return (mref-m)/mref; }
   virtual Bool_t   check_invariants(Int_t, Bool_t);
+  virtual double   dphi(double, int);
 };
 
 #endif
@@ -251,6 +252,10 @@ t::~t()
 {
   if (!fChain) return;
   delete fChain->GetCurrentFile();
+}
+
+double t::dphi(double _phi, int ichtrk) {
+  return charge[ichtrk]>0?(phi[ichtrk] - _phi):(_phi - phi[ichtrk]);
 }
 
 Int_t t::GetEntry(Long64_t entry)
