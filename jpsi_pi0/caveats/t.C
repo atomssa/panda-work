@@ -77,8 +77,8 @@ void t::Loop()
   TH2F* h_dphi_dthe_brem_cut2 = new TH2F("h_dphi_dthe_brem_cut2","#Delta#phi vs #Delta#theta (brem cut (sb))",nbin,dth_min,dth_max,nbin,dphi_min,dphi_max);
 
   TH1F* h_mcb_match_rad_of_ab = new TH1F("h_mcb_match_rad_of_ab", "R_{True} of MC brem photons that match to a bump a priori", nbin, 0, 100);
-  TH1F* h_dphi_max_rec = new TH1F("h_dphi_max_rec", "#Delta#phi maximum cut from reco pT", nbin, -20, 200);
-  TH1F* h_dphi_max_mc = new TH1F("h_dphi_max_mc", "#Delta#phi maximum cut from mc pT", nbin, -20, 200);
+  TH1F* h_dphi_max_rec = new TH1F("h_dphi_max_rec", "#Delta#phi maximum cut from reco pT", nbin, -200, 200);
+  TH1F* h_dphi_max_mc = new TH1F("h_dphi_max_mc", "#Delta#phi maximum cut from mc pT", nbin, -200, 200);
   TH1F* h_dphi_all_sep = new TH1F("h_dphi_all_sep", "#Delta#phi of all non electron bumps in event", nbin, -200, 200);
   TH1F* h_dphi_brem_sep = new TH1F("h_dphi_brem_sep", "#Delta#phi of all non electron bumps in event", nbin, -200, 200);
   TH1F* h_dphi_cut_sep = new TH1F("h_dphi_cut_sep", "#Delta#phi of all non electron bumps in event", nbin, -200, 200);
