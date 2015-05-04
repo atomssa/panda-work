@@ -169,7 +169,7 @@ InitStatus BremPidReader::Init() {
   t->Branch("mom_sep_w",&mom_sep_w,"mom_sep_w[nch]/F");
   t->Branch("mom_sep_w_bf",&mom_sep_w_bf,"mom_sep_w_bf[nch]/F");
 
-  for (int ibs; ibs< nbs; ++ibs) {
+  for (int ibs=0; ibs< nbs; ++ibs) {
     t->Branch(Form("b%d_mom_cor",ibs),&mom_cor[ibs],Form("b%d_mom_cor[nch]/F",ibs));
     t->Branch(Form("b%d_mom_wcor",ibs),&mom_wcor[ibs],Form("b%d_mom_wcor[nch]/F",ibs));
     t->Branch(Form("b%d_mom_mrg",ibs),&mom_mrg[ibs],Form("b%d_mom_mrg[nch]/F",ibs));
