@@ -46,12 +46,12 @@
 using namespace std;
 
 BremPidReader::BremPidReader(int ibinsize):
-  iBinSize(ibinsize), fClusterArray(0), fPhiBumpArray(0), fBumpArray(0), fChargedCandidateArray(0), fNeutralCandidateArray(0), fBremCorrected4MomArray(0),fRecMomOfEle(0), fRecThetaOfEle(0), fRecPhiOfEle(0), fCharge(0), fPersistance(kTRUE)
+  iBinSize(ibinsize), fClusterArray(0), fPhiBumpArray(), fBumpArray(0), fChargedCandidateArray(0), fNeutralCandidateArray(0), fBremCorrected4MomArray(0),fRecMomOfEle(0), fRecThetaOfEle(0), fRecPhiOfEle(0), fCharge(0), fPersistance(kTRUE)
 {
   output_name = "bremcorr.root";
   nEvt = 0;
   radMaxTracking_cm = 42.0;
-  if (iBinSize>7) iBinSize=0;
+  if (iBinSize>nbs) iBinSize=0;
 }
 
 BremPidReader::~BremPidReader()
@@ -85,13 +85,24 @@ InitStatus BremPidReader::Init() {
     return kERROR;
   }
 
-  const char* tca_name = (iBinSize==0?"EmcPhiBump":Form("EmcPhiBump%d",iBinSize));
-  cout << "BremPidReader::Init: using tca " << tca_name << " as phibump data source" << endl;
-  fPhiBumpArray = dynamic_cast<TClonesArray *> (ioman->GetObject(tca_name));
-  if ( ! fPhiBumpArray ) {
-    cout << "-W- PndEmcMakePhiBump::Init: "
-	 << "No " << tca_name << " array!" << endl;
-    return kERROR;
+//  const char* tca_name = (iBinSize==0?"EmcPhiBump":Form("EmcPhiBump%d",iBinSize));
+//  cout << "BremPidReader::Init: using tca " << tca_name << " as phibump data source" << endl;
+//  fPhiBumpArray = dynamic_cast<TClonesArray *> (ioman->GetObject(tca_name));
+//  if ( ! fPhiBumpArray ) {
+//    cout << "-W- PndEmcMakePhiBump::Init: "
+//	 << "No " << tca_name << " array!" << endl;
+//    return kERROR;
+//  }
+
+  for (int ibs=0; ibs<nbs; ++ibs) {
+    const char* tca_name = (ibs==0?"EmcPhiBump":Form("EmcPhiBump%d",ibs));
+    cout << "BremPidReader::Init: using tca " << tca_name << " as phibump data source" << endl;
+    fPhiBumpArray[ibs] = dynamic_cast<TClonesArray *> (ioman->GetObject(tca_name));
+    if ( ! fPhiBumpArray[ibs] ) {
+      cout << "-W- PndEmcMakePhiBump::Init: "
+	   << "No " << tca_name << " array!" << endl;
+      return kERROR;
+    }
   }
 
   fBumpArray = dynamic_cast<TClonesArray *> (ioman->GetObject("EmcBump"));
@@ -153,23 +164,24 @@ InitStatus BremPidReader::Init() {
   t->Branch("charge",&charge,"charge[nch]/I");
   t->Branch("mom_mc",&mom_mc,"mom_mc[nch]/F");
   t->Branch("mom_rec",&mom_rec,"mom_rec[nch]/F");
-  t->Branch("mom_cor",&mom_cor,"mom_cor[nch]/F");
-  t->Branch("mom_wcor",&mom_wcor,"mom_wcor[nch]/F");
-  t->Branch("mom_mrg",&mom_mrg,"mom_mrg[nch]/F");
   t->Branch("mom_sep",&mom_sep,"mom_sep[nch]/F");
   t->Branch("mom_stored",&mom_stored,"mom_stored[nch]/F");
-
-  // damn branches
   t->Branch("mom_sep_w",&mom_sep_w,"mom_sep_w[nch]/F");
   t->Branch("mom_sep_w_bf",&mom_sep_w_bf,"mom_sep_w_bf[nch]/F");
-  t->Branch("mom_mrg_w",&mom_mrg_w,"mom_mrg_w[nch]/F");
-  t->Branch("mom_mrg_w_bf",&mom_mrg_w_bf,"mom_mrg_w_bf[nch]/F");
-  t->Branch("mom_mrg_pc",&mom_mrg_pc,"mom_mrg_pc[nch]/F");
-  t->Branch("mom_mrg_w_pc",&mom_mrg_w_pc,"mom_mrg_w_pc[nch]/F");
-  t->Branch("mom_mrg_w_bf_pc",&mom_mrg_w_bf_pc,"mom_mrg_w_bf_pc[nch]/F");
-  t->Branch("mom_wbfcor",&mom_wbfcor,"mom_wbfcor[nch]/F");
-  t->Branch("mom_wbfcor_mw_bf",&mom_wbfcor_mw_bf,"mom_wbfcor_mw_bf[nch]/F");
-  t->Branch("mom_wbfcor_mw_bf_pc",&mom_wbfcor_mw_bf_pc,"mom_wbfcor_mw_bf_pc[nch]/F");
+
+  for (int ibs; ibs< nbs; ++ibs) {
+    t->Branch(Form("b%d_mom_cor",ibs),&mom_cor[ibs],Form("b%d_mom_cor[nch]/F",ibs));
+    t->Branch(Form("b%d_mom_wcor",ibs),&mom_wcor[ibs],Form("b%d_mom_wcor[nch]/F",ibs));
+    t->Branch(Form("b%d_mom_mrg",ibs),&mom_mrg[ibs],Form("b%d_mom_mrg[nch]/F",ibs));
+    t->Branch(Form("b%d_mom_mrg_w",ibs),&mom_mrg_w[ibs],Form("b%d_mom_mrg_w[nch]/F",ibs));
+    t->Branch(Form("b%d_mom_mrg_w_bf",ibs),&mom_mrg_w_bf[ibs],Form("b%d_mom_mrg_w_bf[nch]/F",ibs));
+    t->Branch(Form("b%d_mom_mrg_pc",ibs),&mom_mrg_pc[ibs],Form("b%d_mom_mrg_pc[nch]/F",ibs));
+    t->Branch(Form("b%d_mom_mrg_w_pc",ibs),&mom_mrg_w_pc[ibs],Form("b%d_mom_mrg_w_pc[nch]/F",ibs));
+    t->Branch(Form("b%d_mom_mrg_w_bf_pc",ibs),&mom_mrg_w_bf_pc[ibs],Form("b%d_mom_mrg_w_bf_pc[nch]/F",ibs));
+    t->Branch(Form("b%d_mom_wbfcor",ibs),&mom_wbfcor[ibs],Form("b%d_mom_wbfcor[nch]/F",ibs));
+    t->Branch(Form("b%d_mom_wbfcor_mw_bf",ibs),&mom_wbfcor_mw_bf[ibs],Form("b%d_mom_wbfcor_mw_bf[nch]/F",ibs));
+    t->Branch(Form("b%d_mom_wbfcor_mw_bf_pc",ibs),&mom_wbfcor_mw_bf_pc[ibs],Form("b%d_mom_wbfcor_mw_bf_pc[nch]/F",ibs));
+  }
 
   t->Branch("phi",&phi,"phi[nch]/F");
   t->Branch("the",&the,"the[nch]/F");
@@ -211,16 +223,18 @@ InitStatus BremPidReader::Init() {
   t->Branch("sb_score",&sb_score,"sb_score[nsb]/I"); // The number of common MC tracks with the matching MC brem photon
 
   // Merged phibumps found in the electron's cluster
-  t->Branch("_npb",&_npb,"_npb[nch]/I"); // number of merged phi bumps associated with this track
-  t->Branch("ipb_s",&ipb_s,"ipb_s[nch]/I"); // Start index (inclusive) of merged phi bumps associated with this track
-  t->Branch("ipb_e",&ipb_e,"ipb_e[nch]/I"); // End index (exclusive) of merged phi bumps associated with this track
-  t->Branch("npb",&npb,"npb/I"); // number of merged phi bumps found for all tracks
-  t->Branch("pb_acc",&pb_acc,"pb_acc[npb]/I"); // whether this phi-bump falls within the max delta phi cut or not
-  t->Branch("pb_phi",&pb_phi,"pb_phi[npb]/F"); // phi agnle of of this merged phi bump
-  t->Branch("pb_the",&pb_the,"pb_the[npb]/F"); // theta agnle of of this merged phi bump (should be same as the cluster's phi)
-  t->Branch("pb_ene",&pb_ene,"pb_ene[npb]/F"); // energy of this phi bump (found binsong's splitting)
-  t->Branch("pb_rcalc",&pb_rcalc,"pb_rcalc[npb]/F"); // The recalculated radius of emission of this merged phi bump based on DeltaPhi and pT
-  t->Branch("pb_zcalc",&pb_zcalc,"pb_zcalc[npb]/F"); // The recalculated radius of emission of this merged phi bump based on DeltaPhi and pT
+  for (int ibs=0; ibs<nbs; ++ibs) {
+    t->Branch(Form("b%d__npb",ibs),&_npb[ibs],Form("b%d__npb[nch]/I",ibs)); // number of merged phi bumps associated with this track
+    t->Branch(Form("b%d_ipb_s",ibs),&ipb_s[ibs],Form("b%d_ipb_s[nch]/I",ibs)); // Start index (inclusive) of merged phi bumps associated with this track
+    t->Branch(Form("b%d_ipb_e",ibs),&ipb_e[ibs],Form("b%d_ipb_e[nch]/I",ibs)); // End index (exclusive) of merged phi bumps associated with this track
+    t->Branch(Form("b%d_npb",ibs),&npb[ibs],Form("b%d_npb/I",ibs)); // number of merged phi bumps found for all tracks
+    t->Branch(Form("b%d_pb_acc",ibs),&pb_acc[ibs],Form("b%d_pb_acc[b%d_npb]/I",ibs,ibs)); // whether this phi-bump falls within the max delta phi cut or not
+    t->Branch(Form("b%d_pb_phi",ibs),&pb_phi[ibs],Form("b%d_pb_phi[b%d_npb]/F",ibs,ibs)); // phi agnle of of this merged phi bump
+    t->Branch(Form("b%d_pb_the",ibs),&pb_the[ibs],Form("b%d_pb_the[b%d_npb]/F",ibs,ibs)); // theta agnle of of this merged phi bump (should be same as the cluster's phi)
+    t->Branch(Form("b%d_pb_ene",ibs),&pb_ene[ibs],Form("b%d_pb_ene[b%d_npb]/F",ibs,ibs)); // energy of this phi bump (found binsong's splitting)
+    t->Branch(Form("b%d_pb_rcalc",ibs),&pb_rcalc[ibs],Form("b%d_pb_rcalc[b%d_npb]/F",ibs,ibs)); // Recalculated radius of emission of this merged phi bump based on DeltaPhi and pT
+    t->Branch(Form("b%d_pb_zcalc",ibs),&pb_zcalc[ibs],Form("b%d_pb_zcalc[b%d_npb]/F",ibs,ibs)); // Recalculated radius of emission of this merged phi bump based on DeltaPhi and pT
+  }
   // Kind of impossible to figure out the best matching mc brem photon because digis are mangled when making phi-bumps
   //t->Branch("pb_match",&pb_match,"pb_match[npb]/I"); // The index of the best matching MC brem photon to this separated bump: no way to find this
   //t->Branch("pb_score",&pb_score,"pb_score[npb]/I"); // The number of common MC tracks with the matching MC track by def, this will be 100%
@@ -252,7 +266,7 @@ void BremPidReader::Exec(Option_t* opt)
 
   nch = 0;
   nsb = 0;
-  npb = 0;
+  for (int ibs=0; ibs<nbs; ++ibs) npb[ibs] = 0;
   nmcb = 0;
 
   vector<vector<int> > ab_tree;
@@ -312,29 +326,31 @@ void BremPidReader::Exec(Option_t* opt)
 
     double sepPhotonE = 0, sepPhotonE_wtd = 0, sepPhotonE_wtd_bf;
     GetSepPhotonE_fromBumps(theChargedCand, sepPhotonE, sepPhotonE_wtd, sepPhotonE_wtd_bf, sb_tree);
-    double mergPhotonE = 0, mergPhotonE_wtd = 0, mergPhotonE_wtd_bf = 0;
-    double mergPhotonE_pc = 0, mergPhotonE_wtd_pc = 0, mergPhotonE_wtd_bf_pc = 0; // pc for phicut aka. political correctness
-    GetMergPhotonE(theChargedCand, mergPhotonE, mergPhotonE_wtd, mergPhotonE_wtd_bf, mergPhotonE_pc, mergPhotonE_wtd_pc, mergPhotonE_wtd_bf_pc);
-
     // Different level of weighting only in separated
     mom_sep[nch] = corrected_mom(sepPhotonE);
     mom_sep_w[nch] = corrected_mom(sepPhotonE_wtd);
     mom_sep_w_bf[nch] = corrected_mom(sepPhotonE_wtd_bf);
 
-    // Different level of weighting only in merged
-    mom_mrg[nch] = corrected_mom(mergPhotonE);
-    mom_mrg_w[nch] = corrected_mom(mergPhotonE_wtd);
-    mom_mrg_w_bf[nch] = corrected_mom(mergPhotonE_wtd_bf);
-    mom_mrg_pc[nch] = corrected_mom(mergPhotonE_pc);
-    mom_mrg_w_pc[nch] = corrected_mom(mergPhotonE_wtd_pc);
-    mom_mrg_w_bf_pc[nch] = corrected_mom(mergPhotonE_wtd_bf_pc);
+    double mergPhotonE = 0, mergPhotonE_wtd = 0, mergPhotonE_wtd_bf = 0;
+    double mergPhotonE_pc = 0, mergPhotonE_wtd_pc = 0, mergPhotonE_wtd_bf_pc = 0; // pc for phicut aka. political correctness
+    //GetMergPhotonE(theChargedCand, i, mergPhotonE, mergPhotonE_wtd, mergPhotonE_wtd_bf, mergPhotonE_pc, mergPhotonE_wtd_pc, mergPhotonE_wtd_bf_pc);
+    for (int ibs =0; ibs<nbs; ++ibs) {
+      GetMergPhotonE(theChargedCand, ibs, mergPhotonE, mergPhotonE_wtd, mergPhotonE_wtd_bf, mergPhotonE_pc, mergPhotonE_wtd_pc, mergPhotonE_wtd_bf_pc);
+      // Different level of weighting only in merged
+      mom_mrg[ibs][nch] = corrected_mom(mergPhotonE);
+      mom_mrg_w[ibs][nch] = corrected_mom(mergPhotonE_wtd);
+      mom_mrg_w_bf[ibs][nch] = corrected_mom(mergPhotonE_wtd_bf);
+      mom_mrg_pc[ibs][nch] = corrected_mom(mergPhotonE_pc);
+      mom_mrg_w_pc[ibs][nch] = corrected_mom(mergPhotonE_wtd_pc);
+      mom_mrg_w_bf_pc[ibs][nch] = corrected_mom(mergPhotonE_wtd_bf_pc);
 
-    // Combine b/f weighted separated with different level in merged
-    mom_cor[nch] = corrected_mom(sepPhotonE + mergPhotonE); // original correction
-    mom_wcor[nch] = corrected_mom(sepPhotonE_wtd + mergPhotonE); // weight only separated
-    mom_wbfcor[nch] = corrected_mom(sepPhotonE_wtd_bf + mergPhotonE); // weight separated b/f separately
-    mom_wbfcor_mw_bf[nch] = corrected_mom(sepPhotonE_wtd_bf + mergPhotonE_wtd_bf); // weight both separated and merged b/f separately
-    mom_wbfcor_mw_bf_pc[nch] = corrected_mom(sepPhotonE_wtd_bf + mergPhotonE_wtd_bf_pc); // weight both separated and merged b/f separately, phi cut merged
+      // Combine b/f weighted separated with different level in merged
+      mom_cor[ibs][nch] = corrected_mom(sepPhotonE + mergPhotonE); // original correction
+      mom_wcor[ibs][nch] = corrected_mom(sepPhotonE_wtd + mergPhotonE); // weight only separated
+      mom_wbfcor[ibs][nch] = corrected_mom(sepPhotonE_wtd_bf + mergPhotonE); // weight separated b/f separately
+      mom_wbfcor_mw_bf[ibs][nch] = corrected_mom(sepPhotonE_wtd_bf + mergPhotonE_wtd_bf); // weight both separated and merged b/f separately
+      mom_wbfcor_mw_bf_pc[ibs][nch] = corrected_mom(sepPhotonE_wtd_bf + mergPhotonE_wtd_bf_pc); // weight both separated and merged b/f separately, phi cut merged
+    }
 
     PndPidBremCorrected4Mom *tmp = (PndPidBremCorrected4Mom*)fBremCorrected4MomArray->At(iCand);
     if(tmp) {
@@ -627,7 +643,7 @@ GetSepPhotonE_fromBumps(PndPidCandidate *ChargedCand, double &esep, double &esep
 }
 
 
-void BremPidReader::GetMergPhotonE(PndPidCandidate *ChargedCand,
+void BremPidReader::GetMergPhotonE(PndPidCandidate *ChargedCand, int binSize,
 				     double &emrg, double &emrg_wtd, double &emrg_wtd_bf,
 				     double &emrg_pc, double &emrg_wtd_pc,  double &emrg_wtd_bf_pc){
 
@@ -641,8 +657,8 @@ void BremPidReader::GetMergPhotonE(PndPidCandidate *ChargedCand,
   nphot_mrg[nch] = 0;
   nphot_mrg_pc[nch] = 0;
 
-  ipb_s[nch] = npb;
-  _npb[nch] = 0;
+  ipb_s[binSize][nch] = npb[binSize];
+  _npb[binSize][nch] = 0;
 
   // EMcal cluster associated with track ...
   if (ChargedCand->GetEmcIndex() >= 0) {
@@ -653,9 +669,9 @@ void BremPidReader::GetMergPhotonE(PndPidCandidate *ChargedCand,
     if (EleRefCluster >= 0) {
 
       std::vector<PndEmcBump*> EmcPhiBumpList;
-      int nPhiBump = fPhiBumpArray->GetEntriesFast();
+      int nPhiBump = fPhiBumpArray[binSize]->GetEntriesFast();
       for (int ipb=0; ipb<nPhiBump; ++ipb) {
-	PndEmcBump *phibump = (PndEmcBump*) fPhiBumpArray->At(ipb);
+	PndEmcBump *phibump = (PndEmcBump*) fPhiBumpArray[binSize]->At(ipb);
 	if ( phibump->GetClusterIndex() == EleRefCluster ) {
 	  EmcPhiBumpList.push_back(phibump);
 	}
@@ -696,26 +712,26 @@ void BremPidReader::GetMergPhotonE(PndPidCandidate *ChargedCand,
 	const Bool_t PhiCut = RealDeltaPhi <= PhiCutUp && RealDeltaPhi >= PhiCutDown;
 	const Bool_t ThetaCut = RealDeltaTheta <= ThetaCutUp && RealDeltaTheta >= ThetaCutDown;
 
-	pb_phi[npb] = PhotonPhiMrg;
-	pb_the[npb] = PhotonThetaMrg;
-	pb_rcalc[npb] = rad_calc;
-	pb_zcalc[npb] = zed_calc;
-	pb_ene[npb] = EmcPhiBumpList[r]->energy();
-	pb_acc[npb] = 0;
+	pb_phi[binSize][npb[binSize]] = PhotonPhiMrg;
+	pb_the[binSize][npb[binSize]] = PhotonThetaMrg;
+	pb_rcalc[binSize][npb[binSize]] = rad_calc;
+	pb_zcalc[binSize][npb[binSize]] = zed_calc;
+	pb_ene[binSize][npb[binSize]] = EmcPhiBumpList[r]->energy();
+	pb_acc[binSize][npb[binSize]] = 0;
 
 	emrg += EmcPhiBumpList[r]->energy();
 	emrg_wtd = wt * EmcPhiBumpList[r]->energy();
 	emrg_wtd_bf = wt_bf * EmcPhiBumpList[r]->energy();
 	nphot_mrg[nch]++;
 	if (PhiCut&&ThetaCut) {
-	  pb_acc[npb] = 1;
+	  pb_acc[binSize][npb[binSize]] = 1;
 	  emrg_pc += EmcPhiBumpList[r]->energy();
 	  emrg_wtd_pc = wt * EmcPhiBumpList[r]->energy();
 	  emrg_wtd_bf_pc = wt_bf * EmcPhiBumpList[r]->energy();
 	  nphot_mrg_pc[nch]++;
 	}
-	_npb[nch]++;
-	npb++;
+	_npb[binSize][nch]++;
+	npb[binSize]++;
       }
 
       if (emrg < fRecMomOfEle/100.) emrg = 0;
@@ -729,8 +745,8 @@ void BremPidReader::GetMergPhotonE(PndPidCandidate *ChargedCand,
 
   } // ChargedCand->GetEmcIndex() >= 0
 
-  ipb_e[nch] = npb;
-  assert(ipb_e[nch] - ipb_s[nch] == _npb[nch]);
+  ipb_e[binSize][nch] = npb[binSize];
+  assert(ipb_e[binSize][nch] - ipb_s[binSize][nch] == _npb[binSize][nch]);
 
 }
 

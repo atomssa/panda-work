@@ -69,7 +69,7 @@ class BremPidReader: public FairTask
 	//			       std::vector<double>&, std::vector<std::vector<int> >&);
 	void get_mc_brem_photons(const int&, std::vector<std::vector<int> >&);
 	void GetSepPhotonE_fromBumps(PndPidCandidate*, double&, double&, double&, std::vector<std::vector<int> >&);
-	void GetMergPhotonE(PndPidCandidate *, double&, double&, double&, double&, double&, double&);
+	void GetMergPhotonE(PndPidCandidate *, int, double&, double&, double&, double&, double&, double&);
 	double corrected_mom(const double&);
 
 	int iBinSize;
@@ -81,7 +81,9 @@ class BremPidReader: public FairTask
         TClonesArray* fDigiArray;
         TClonesArray* fHitArray;
 
-        TClonesArray* fPhiBumpArray;
+	static const int nbs = 8;
+        //TClonesArray* fPhiBumpArray;
+        TClonesArray* fPhiBumpArray[nbs];
 
         TClonesArray* fChargedCandidateArray;
         TClonesArray* fNeutralCandidateArray;
@@ -114,22 +116,22 @@ class BremPidReader: public FairTask
 	int charge[nch_max];
 	float mom_mc[nch_max];
 	float mom_rec[nch_max];
-	float mom_cor[nch_max];
-	float mom_wcor[nch_max];
 	float mom_sep[nch_max];
-	float mom_mrg[nch_max];
 	float mom_stored[nch_max];
-
 	float mom_sep_w[nch_max];
 	float mom_sep_w_bf[nch_max];
-	float mom_mrg_w[nch_max];
-	float mom_mrg_w_bf[nch_max];
-	float mom_mrg_pc[nch_max];
-	float mom_mrg_w_pc[nch_max];
-	float mom_mrg_w_bf_pc[nch_max];
-	float mom_wbfcor[nch_max];
-	float mom_wbfcor_mw_bf[nch_max];
-	float mom_wbfcor_mw_bf_pc[nch_max];
+
+	float mom_cor[nbs][nch_max];
+	float mom_wcor[nbs][nch_max];
+	float mom_mrg[nbs][nch_max];
+	float mom_mrg_w[nbs][nch_max];
+	float mom_mrg_w_bf[nbs][nch_max];
+	float mom_mrg_pc[nbs][nch_max];
+	float mom_mrg_w_pc[nbs][nch_max];
+	float mom_mrg_w_bf_pc[nbs][nch_max];
+	float mom_wbfcor[nbs][nch_max];
+	float mom_wbfcor_mw_bf[nbs][nch_max];
+	float mom_wbfcor_mw_bf_pc[nbs][nch_max];
 
 	float phi[nch_max];
 	float the[nch_max];
@@ -170,17 +172,17 @@ class BremPidReader: public FairTask
 	int sb_match[nsb_max];
 	int sb_score[nsb_max];
 
-	int _npb[nch_max];
-	int ipb_s[nch_max];
-	int ipb_e[nch_max];
+	int _npb[nbs][nch_max];
+	int ipb_s[nbs][nch_max];
+	int ipb_e[nbs][nch_max];
 	static const int npb_max = 100;
-	int npb;
-	int pb_acc[npb_max];
-	float pb_phi[npb_max];
-	float pb_the[npb_max];
-	float pb_ene[npb_max];
-	float pb_rcalc[npb_max];
-	float pb_zcalc[npb_max];
+	int npb[nbs];
+	int pb_acc[nbs][npb_max];
+	float pb_phi[nbs][npb_max];
+	float pb_the[nbs][npb_max];
+	float pb_ene[nbs][npb_max];
+	float pb_rcalc[nbs][npb_max];
+	float pb_zcalc[nbs][npb_max];
 
 	// All bumps list
 	static const int nab_max = 100;
