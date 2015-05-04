@@ -718,12 +718,12 @@ void BremPidReader::GetMergPhotonE(PndPidCandidate *ChargedCand,
 	npb++;
       }
 
-      if (emrg > fRecMomOfEle/100.) emrg = 0;
-      if (emrg_wtd > fRecMomOfEle/100.) emrg_wtd = 0;
-      if (emrg_wtd_bf > fRecMomOfEle/100.) emrg_wtd_bf = 0;
-      if (emrg_pc > fRecMomOfEle/100.) emrg_pc = 0;
-      if (emrg_wtd_pc > fRecMomOfEle/100.) emrg_wtd_pc = 0;
-      if (emrg_wtd_bf_pc > fRecMomOfEle/100.) emrg_wtd_bf_pc = 0;
+      if (emrg < fRecMomOfEle/100.) emrg = 0;
+      if (emrg_wtd < fRecMomOfEle/100.) emrg_wtd = 0;
+      if (emrg_wtd_bf < fRecMomOfEle/100.) emrg_wtd_bf = 0;
+      if (emrg_pc < fRecMomOfEle/100.) emrg_pc = 0;
+      if (emrg_wtd_pc < fRecMomOfEle/100.) emrg_wtd_pc = 0;
+      if (emrg_wtd_bf_pc < fRecMomOfEle/100.) emrg_wtd_bf_pc = 0;
 
     } // EleRefCluster >= 0
 
