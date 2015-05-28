@@ -49,7 +49,7 @@ void brem(int ibinsize=0 ) {
   //PndPidBremCorrectorNT *bremCorr = new PndPidBremCorrectorNT();
   //fRun->AddTask(bremCorr);
   BremPidReader *bpr = new BremPidReader(ibinsize);
-  bpr->set_output_name(dir+Form("/bremcorr.ibs.%d.root",ibinsize));
+  bpr->set_output_name(dir+Form("/bremcorr.all.bs.root"));
   fRun->AddTask(bpr);
 
   // -----   Intialise and run   --------------------------------------------
