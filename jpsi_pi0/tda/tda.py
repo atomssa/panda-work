@@ -178,9 +178,6 @@ def plot_mpi0_test(iplab):
     frame = legend.get_frame();
     frame.set_facecolor('0.90')
 
-
-
-
 #plotting
 def plot_del(ax, sel):
     #ax.set_yscale("log")
@@ -222,7 +219,6 @@ def plot_s(ax):
     legend = ax.legend(loc='best', shadow=True);
     frame = legend.get_frame();
     frame.set_facecolor('0.90')
-
 
 def plot_xsect_int():
     svals2 =    [12.2649, 16.8745,  24.346]

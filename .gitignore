@@ -102,6 +102,7 @@ Thumbs.db
 *.png
 *.eps
 *.pdf
+*.svg
 
 # .svn directories
 .svn/

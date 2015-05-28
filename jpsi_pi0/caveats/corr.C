@@ -90,7 +90,6 @@ void corr() {
   tt->SetNDC(kTRUE);
 
   TCanvas *tc_corr = new TCanvas("tc_corr","tc_corr");
-
   TH1F *hdummy[6];
   TPad *pads[6];
 

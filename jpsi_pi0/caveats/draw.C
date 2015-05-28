@@ -6,7 +6,7 @@
   gStyle->SetTitleFontSize(0.08);
   gStyle->SetTitleFont(62);
 
-  int iconfig = 8;
+  int iconfig = 17;
 
   Double_t config[22][3] = {
     {0.15, 30.0, 45.0}, {0.25, 30.0, 45.0}, {0.5, 30.0, 45.0}, {0.5, 45.0, 60.0},
@@ -20,7 +20,7 @@
   tt->SetTextSize(0.07);
   tt->SetNDC(kTRUE);
 
-  int _type = 0;
+  int _type = 13;
 
   if (_type==0) {
     TCanvas *tc_wtd = new TCanvas("tc_wtd","tc_wtd",1000,1000);
@@ -52,7 +52,6 @@
     tt->DrawLatex(0.54,0.42,Form("%3.0f < #theta < %3.0f",config[iconfig][1],config[iconfig][2]));
     gPad->SetGridx();
   }
-
 
   else if (_type==1) {
     TCanvas *tc_nmcb = new TCanvas("tc_nmcb","tc_nmcb");
@@ -98,6 +97,16 @@
     h_rad_calc_vs_true->Draw("colz");
     tt->DrawLatex(0.2,0.8,Form("p_{T} = %3.1f GeV/c",config[iconfig][0]));
     tc_rcor->Print(Form("tc_rcor_config%d.pdf",iconfig));
+  }
+
+  else if (_type==13) {
+    TCanvas *tc_rcor = new TCanvas("tc_zcor","tc_zcor",1000,1000);
+    tc_rcor->cd();
+    h_zed_calc_vs_true->GetXaxis()->SetRangeUser(0.,200.);
+    h_zed_calc_vs_true->GetYaxis()->SetRangeUser(0.,200.);
+    h_zed_calc_vs_true->Draw("colz");
+    tt->DrawLatex(0.2,0.8,Form("p_{T} = %3.1f GeV/c",config[iconfig][0]));
+    tc_rcor->Print(Form("tc_zcor_config%d.pdf",iconfig));
   }
 
   else if (_type==4) {
