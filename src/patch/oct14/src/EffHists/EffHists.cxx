@@ -24,13 +24,13 @@ EffHists::EffHists(int a_sp):
   m_sp(a_sp),
   verb(false),
   det_var_max{1.5, 4, 4, 90, 90},
-  mom_max(2.0),
+  mom_max(10.0),
   the_max(180.0),
   fAna()
 {
   for (int iprob_cut=0; iprob_cut < nprob_cut; ++iprob_cut) {
     prob_cut[iprob_cut] = (1.0/double(nprob_cut-1))*double(iprob_cut);
-    cout << "prob_cut[" << iprob_cut << "] = " << prob_cut[iprob_cut] << endl;
+    //cout << "prob_cut[" << iprob_cut << "] = " << prob_cut[iprob_cut] << endl;
   }
 }
 
@@ -65,7 +65,7 @@ InitStatus EffHists::init_tcas() {
 }
 
 void EffHists::init_hists() {
-  int nbin =100;
+  int nbin = 200;
   for (int ipid = 0; ipid < npid_max; ++ipid) {
 
     TString title = Form("%s",s_spc_tex[m_sp].Data());
