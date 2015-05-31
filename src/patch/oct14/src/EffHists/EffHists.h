@@ -76,10 +76,17 @@ class EffHists : public FairTask{
   static const TString s_det[ndet];
 
  private:
-  double prob_cut[npid_max]; // = {0.5, 0.5, 0.5, 0.5, 0.5}
+  static const int nprob_cut = 101;
+  double prob_cut[nprob_cut]; //[npid_max]; // = {0.5, 0.5, 0.5, 0.5, 0.5}
   double det_var_max[ndet]; // = {"emc", "stt", "mvd", "dirc", "disc"};
-  TH2F* eff_den[npid_max], *eff_num[npid_max];
-  TEfficiency *eff2d[npid_max], *eff1d_the[npid_max], *eff1d_mom[npid_max];
+  TH2F* eff_den[npid_max];
+
+  TH2F* eff_num[nprob_cut][npid_max];
+
+  TEfficiency *eff2d[nprob_cut][npid_max];
+  TEfficiency *eff1d_the[nprob_cut][npid_max];
+  TEfficiency *eff1d_mom[nprob_cut][npid_max];
+
   double mom_max;
   double the_max;
 

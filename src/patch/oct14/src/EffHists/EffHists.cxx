@@ -23,12 +23,15 @@ const TString EffHists::s_det[EffHists::ndet] = {"emc", "stt", "mvd", "dirc", "d
 EffHists::EffHists(int a_sp):
   m_sp(a_sp),
   verb(false),
-  prob_cut{0.5, 0.5, 0.5, 0.5, 0.5},
   det_var_max{1.5, 4, 4, 90, 90},
   mom_max(2.0),
   the_max(180.0),
   fAna()
 {
+  for (int iprob_cut=0; iprob_cut < nprob_cut; ++iprob_cut) {
+    prob_cut[iprob_cut] = (1.0/double(nprob_cut-1))*double(iprob_cut);
+    cout << "prob_cut[" << iprob_cut << "] = " << prob_cut[iprob_cut] << endl;
+  }
 }
 
 EffHists::~EffHists() {
@@ -37,10 +40,10 @@ EffHists::~EffHists() {
 TClonesArray* EffHists::init_tca(TString name) {
   TClonesArray *tca = dynamic_cast<TClonesArray *> (m_ioman->GetObject(name));
   if ( ! tca ) {
-    cout << "-W- EffHists::Init: "  << "No " << name << " array!" << endl;  
-    return NULL; 
+    cout << "-W- EffHists::Init: "  << "No " << name << " array!" << endl;
+    return NULL;
   } else {
-    cout << "-I- EffHists::Init: "  << " finished reading " << name << " array!" << endl;  
+    cout << "-I- EffHists::Init: "  << " finished reading " << name << " array!" << endl;
     return tca;
   }
 }
@@ -64,15 +67,23 @@ InitStatus EffHists::init_tcas() {
 void EffHists::init_hists() {
   int nbin =100;
   for (int ipid = 0; ipid < npid_max; ++ipid) {
+
     TString title = Form("%s",s_spc_tex[m_sp].Data());
     eff_den[ipid] = new TH2F(Form("eff_den_%s",s_pid[ipid].Data()),title+";mom[GeV/c];#theta[rad]",nbin,0,mom_max,nbin,0,the_max);
-    title = Form("%s passing %s cuts with prob>%4.2f",s_spc_tex[m_sp].Data(),s_pid[ipid].Data(),prob_cut[ipid]);
-    eff_num[ipid] = new TH2F(Form("eff_num_%s",s_pid[ipid].Data()),title+";mom[GeV/c];#theta[rad]",nbin,0,mom_max,nbin,0,the_max);
-    title = Form("efficiency of %s to pass %s cuts at prob>%4.2f",s_spc_tex[m_sp].Data(),s_pid[ipid].Data(),prob_cut[ipid]);
-    eff1d_mom[ipid] = new TEfficiency(Form("eff1d_mom_%s",s_pid[ipid].Data()), title+";mom[GeV/c]", nbin, 0, mom_max);
-    eff1d_the[ipid] = new TEfficiency(Form("eff1d_the_%s",s_pid[ipid].Data()), title+";#theta[rad]", nbin, 0, the_max);
-    eff2d[ipid] = new TEfficiency(Form("eff2d_%s",s_pid[ipid].Data()), title+";mom[GeV/c];#theta[rad]", nbin, 0, mom_max, nbin, 0, the_max);
+
+    for (int ipc=0; ipc < nprob_cut; ++ipc) {
+
+      title = Form("%s passing %s cuts with prob>%4.2f",s_spc_tex[m_sp].Data(),s_pid[ipid].Data(),prob_cut[ipc]);
+      eff_num[ipc][ipid] = new TH2F(Form("eff_num_%s_ipc%d",s_pid[ipid].Data(),ipc),title+";mom[GeV/c];#theta[rad]",nbin,0,mom_max,nbin,0,the_max);
+
+      title = Form("efficiency of %s to pass %s cuts at prob>%4.2f",s_spc_tex[m_sp].Data(),s_pid[ipid].Data(),prob_cut[ipc]);
+      eff1d_mom[ipc][ipid] = new TEfficiency(Form("eff1d_mom_%s_ipc%d",s_pid[ipid].Data(),ipc), title+";mom[GeV/c]", nbin, 0, mom_max);
+      eff1d_the[ipc][ipid] = new TEfficiency(Form("eff1d_the_%s_ipc%d",s_pid[ipid].Data(),ipc), title+";#theta[rad]", nbin, 0, the_max);
+      eff2d[ipc][ipid] = new TEfficiency(Form("eff2d_%s_ipc%d",s_pid[ipid].Data(),ipc), title+";mom[GeV/c];#theta[rad]", nbin, 0, mom_max, nbin, 0, the_max);
+
+    }
   }
+
 }
 
 InitStatus EffHists::Init() {
@@ -135,13 +146,15 @@ void EffHists::Exec(Option_t* opt) {
 
     for (int ipid=0; ipid<npid_max; ++ipid) {
       eff_den[ipid]->Fill(mom,the);
-      if (prob_comb[ipid]>prob_cut[ipid]) { eff_num[ipid]->Fill(mom, the); }
-      eff1d_the[ipid]->Fill(prob_comb[ipid]>prob_cut[ipid],the);
-      eff1d_mom[ipid]->Fill(prob_comb[ipid]>prob_cut[ipid],mom);
-      eff2d[ipid]->Fill(prob_comb[ipid]>prob_cut[ipid],mom,the);
+      for (int ipc=0; ipc < nprob_cut; ++ipc) {
+	if (prob_comb[ipid]>prob_cut[ipc]) { eff_num[ipc][ipid]->Fill(mom, the); }
+	eff1d_the[ipc][ipid]->Fill(prob_comb[ipid]>prob_cut[ipc],the);
+	eff1d_mom[ipc][ipid]->Fill(prob_comb[ipid]>prob_cut[ipc],mom);
+	eff2d[ipc][ipid]->Fill(prob_comb[ipid]>prob_cut[ipc],mom,the);
+      }
     }
-  }
 
+  }
 }
 
 void EffHists::FinishTask() {
@@ -155,23 +168,35 @@ void EffHists::FinishEvent() {
 }
 
 void EffHists::set_prob_cut(int a_pid, double a_cut) {
-  if (a_pid<0 || a_pid >= npid_max) {
-    cout << "EffHists::set_prob_cut a_pid= " << a_pid << " outside of allowed range [0," << npid_max << ")" << endl;
-    return;
-  }
-  if (a_cut<0 || a_cut >= 1) {
-    cout << "EffHists::set_prob_cut a_cut= " << a_cut << " outside of sensible range [0,1]. consider using a value between 0 and 1" << endl;
-    return;
-  }
-  prob_cut[a_pid] = a_cut;
+  //if (a_pid<0 || a_pid >= npid_max) {
+  //  cout << "EffHists::set_prob_cut a_pid= " << a_pid << " outside of allowed range [0," << npid_max << ")" << endl;
+  //  return;
+  //}
+  //if (a_cut<0 || a_cut >= 1) {
+  //  cout << "EffHists::set_prob_cut a_cut= " << a_cut << " outside of sensible range [0,1]. consider using a value between 0 and 1" << endl;
+  //  return;
+  //}
+  //prob_cut[a_pid] = a_cut;
 }
 
 void EffHists::write_hists() {
+
   for (int ipid=0; ipid<npid_max; ++ipid) {
     eff_den[ipid]->Write();
-    eff_num[ipid]->Write();
-    eff1d_the[ipid]->Write();
-    eff1d_mom[ipid]->Write();
-    eff2d[ipid]->Write();
   }
+
+  const char* root = gDirectory->GetPath();
+  for (int ipc=0; ipc < nprob_cut; ++ipc) {
+    const char* subdir = Form("prob_cut_%d",ipc);
+    gDirectory->mkdir(subdir);
+    gDirectory->cd(subdir);
+    for (int ipid=0; ipid<npid_max; ++ipid) {
+      eff_num[ipc][ipid]->Write();
+      eff1d_the[ipc][ipid]->Write();
+      eff1d_mom[ipc][ipid]->Write();
+      eff2d[ipc][ipid]->Write();
+    }
+    gDirectory->cd(root);
+  }
+
 }
