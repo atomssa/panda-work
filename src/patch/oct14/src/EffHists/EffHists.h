@@ -77,9 +77,11 @@ class EffHists : public FairTask{
   static const TString s_det[ndet];
 
  private:
-  static const int nprob_cut = 101;
-  double prob_cut[nprob_cut]; //[npid_max]; // = {0.5, 0.5, 0.5, 0.5, 0.5}
+
   double det_var_max[ndet]; // = {"emc", "stt", "mvd", "dirc", "disc"};
+
+  static const int nprob_cut = 200;
+  std::vector<double> prob_cut; // [nprob_cut]; //[npid_max]; // = {0.5, 0.5, 0.5, 0.5, 0.5}
 
   TH2F* eff_den_mc[npid_max];
   TH2F* eff_den_rec[npid_max];
