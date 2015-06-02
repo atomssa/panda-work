@@ -141,25 +141,25 @@ InitStatus EffHists::Init() {
 
 bool EffHists::check_prob_indiv(prob_func func, double cut, bool sans_dedx) {
   if ((m_prob_emcb->*func)(NULL)<cut) {
-    cout << "fail emc. prob= " << (m_prob_emcb->*func)(NULL) << endl;
+    cout << "fail emc prob.emc= " << (m_prob_emcb->*func)(NULL) << endl;
     return false;
   }
   if (!sans_dedx) {
     if ((m_prob_stt->*func)(NULL)<cut) {
-      cout << "fail sttt. prob.stt= " << (m_prob_emcb->*func)(NULL) << endl;
+      cout << "fail stt prob.stt= " << (m_prob_stt->*func)(NULL) << endl;
       return false;
     }
     if ((m_prob_mvd->*func)(NULL)<cut) {
-      cout << "fail mvd. prob.mvd= " << (m_prob_emcb->*func)(NULL) << endl;
+      cout << "fail mvd prob.mvd= " << (m_prob_mvd->*func)(NULL) << endl;
       return false;
     }
   }
-  if ((m_prob_drc->*func)(NULL)>cut) {
-    cout << "fail drc. prob.drc= " << (m_prob_drc->*func)(NULL) << endl;
+  if ((m_prob_drc->*func)(NULL)<cut) {
+    cout << "fail drc prob.drc= " << (m_prob_drc->*func)(NULL) << endl;
     return false;
   }
-  if ((m_prob_disc->*func)(NULL)>cut) {
-    cout << "fail disc. prob.disc= " << (m_prob_disc->*func)(NULL) << endl;
+  if ((m_prob_disc->*func)(NULL)<cut) {
+    cout << "fail disc prob.disc= " << (m_prob_disc->*func)(NULL) << endl;
     return false;
   }
   return true;
