@@ -15,8 +15,13 @@ class TH2F;
 class TVector3;
 class TFile;
 class TLorentzVector;
+class PndPidProbability;
+class TClonesArray;
+class FairRootManager;
 
 class AnaTdav2 : public FairTask{
+
+  typedef Double_t (PndPidProbability::*prob_func)(PndPidProbability*) const;
 
  public:
 
@@ -38,6 +43,8 @@ class AnaTdav2 : public FairTask{
  private:
   void fill_lists();
   void cleanup_lists() { for (int ii = 0; ii < rcl.size(); ++ii) rcl[ii].Cleanup(); }
+  TClonesArray* init_tca(TString);
+  void init_tcas();
   void init_hists();
   void beam_cond();
 
@@ -53,6 +60,7 @@ class AnaTdav2 : public FairTask{
   bool bayes_pid(RhoCandidate*);
   bool check_eid(RhoCandidate*);
   void eid_filter(RhoCandList&, RhoCandList&);
+  double get_comb_prob(prob_func func);
 
   double dist_chpi_match(RhoCandidate*, RhoCandidate*);
   void charged_pion_filter(RhoCandList&, RhoCandList&, RhoCandList&, RhoCandList&, RhoCandList&, RhoCandList&);
@@ -67,6 +75,18 @@ class AnaTdav2 : public FairTask{
   bool eid_param_method;
 
   PndAnalysis *fAna;
+  FairRootManager* m_ioman;
+  TClonesArray* m_cand_array;
+  TClonesArray* m_drc_array;
+  TClonesArray* m_disc_array;
+  TClonesArray* m_mvd_array;
+  TClonesArray* m_stt_array;
+  TClonesArray* m_emcb_array;
+  PndPidProbability *m_prob_emcb;
+  PndPidProbability *m_prob_stt;
+  PndPidProbability *m_prob_mvd;
+  PndPidProbability *m_prob_drc;
+  PndPidProbability *m_prob_disc;
 
   int iplab;
   double plab[3];

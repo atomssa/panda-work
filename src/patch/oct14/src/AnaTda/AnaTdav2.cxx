@@ -3,6 +3,8 @@
 #include "FairTask.h"
 #include "RhoCandList.h"
 #include "PndKinFitter.h"
+#include "PndPidProbability.h"
+#include "FairRootManager.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -10,6 +12,7 @@
 #include "TRandom.h"
 #include "TVector3.h"
 #include "TLorentzVector.h"
+#include "TClonesArray.h"
 
 using namespace std;
 
@@ -56,6 +59,32 @@ AnaTdav2::AnaTdav2(const int& _iplab, const int& itype, const int& brem, const i
 
 AnaTdav2::~AnaTdav2() {
 
+}
+
+TClonesArray* AnaTdav2::init_tca(TString name) {
+  TClonesArray *tca = dynamic_cast<TClonesArray *> (m_ioman->GetObject(name));
+  if ( ! tca ) {
+    cout << "-W- EffHists::Init: "  << "No " << name << " array!" << endl;
+    return NULL;
+  } else {
+    cout << "-I- EffHists::Init: "  << " finished reading " << name << " array!" << endl;
+    return tca;
+  }
+}
+
+void AnaTdav2::init_tcas() {
+  m_ioman = FairRootManager::Instance();
+  if ( ! m_ioman ){
+    cout << "-E- EffHists::Init: "
+	 << "RootManager not instantiated!" << endl;
+    return;
+  }
+  m_cand_array = init_tca( "PidChargedCand");
+  m_drc_array = init_tca( "PidAlgoDrc");
+  m_disc_array = init_tca( "PidAlgoDisc");
+  m_stt_array = init_tca( "PidAlgoStt");
+  m_mvd_array = init_tca( "PidAlgoMvd");
+  m_emcb_array = init_tca( "PidAlgoEmcBayes");
 }
 
 void AnaTdav2::init_hists() {
@@ -159,6 +188,7 @@ InitStatus AnaTdav2::Init() {
   fAna = new PndAnalysis();
   beam_cond();
   init_hists();
+  init_tcas();
   return kSUCCESS;
 }
 
@@ -670,8 +700,6 @@ void AnaTdav2::write_hists() {
   htrupi0thcm->Write();
   htrupi0costhcm->Write();
   htrupi0thlab->Write();
-
-
 }
 
 void AnaTdav2::dth_dph_cm(RhoCandidate* _gg, RhoCandidate *_epem, double &_dth, double &_dph ) {
@@ -685,7 +713,25 @@ void AnaTdav2::dth_dph_cm(RhoCandidate* _gg, RhoCandidate *_epem, double &_dth, 
   if (_dph<0) _dph *= -1;
 }
 
-// This is going to be a long function...
 bool AnaTdav2::bayes_pid(RhoCandidate* cand) {
-  return true;
+  const int itrk = cand->GetTrackNumber();
+  m_prob_drc = (PndPidProbability*) m_drc_array->At(itrk);
+  m_prob_disc = (PndPidProbability*) m_disc_array->At(itrk);
+  m_prob_mvd = (PndPidProbability*) m_mvd_array->At(itrk);
+  m_prob_stt = (PndPidProbability*) m_stt_array->At(itrk);
+  m_prob_emcb = (PndPidProbability*) m_emcb_array->At(itrk);
+  double prob_comb = get_comb_prob(&PndPidProbability::GetElectronPidProb);
+  return prob_comb>0.9;
+}
+
+double AnaTdav2::get_comb_prob(prob_func func) {
+  Double_t prob_emc = (m_prob_emcb->*func)(NULL);
+  Double_t prob_stt = (m_prob_stt->*func)(NULL);
+  Double_t prob_mvd = (m_prob_mvd->*func)(NULL);
+  Double_t prob_drc = (m_prob_drc->*func)(NULL);
+  Double_t prob_disc = (m_prob_disc->*func)(NULL);
+  Double_t xx = (prob_drc/(1-prob_drc))*(prob_disc/(1-prob_disc))
+    *(prob_mvd/(1-prob_mvd))*(prob_stt/(1-prob_stt))
+    *(prob_emc/(1-prob_emc));
+  return xx/(xx+1);
 }
