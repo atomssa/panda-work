@@ -57,7 +57,7 @@ InitStatus EffHists::init_tcas() {
     return kFATAL;
   }
   m_cand_array = init_tca( "PidChargedCand");
-  m_mc_array = init_tca( "McTrack");
+  m_mc_array = init_tca( "MCTrack");
   m_drc_array = init_tca( "PidAlgoDrc");
   m_disc_array = init_tca( "PidAlgoDisc");
   m_stt_array = init_tca( "PidAlgoStt");
