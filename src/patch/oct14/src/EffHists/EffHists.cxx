@@ -4,6 +4,7 @@
 
 #include "PndPidProbability.h"
 #include "PndPidCandidate.h"
+#include "PndMCTrack.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -56,6 +57,7 @@ InitStatus EffHists::init_tcas() {
     return kFATAL;
   }
   m_cand_array = init_tca( "PidChargedCand");
+  m_mc_array = init_tca( "McTrack");
   m_drc_array = init_tca( "PidAlgoDrc");
   m_disc_array = init_tca( "PidAlgoDisc");
   m_stt_array = init_tca( "PidAlgoStt");
@@ -69,20 +71,38 @@ void EffHists::init_hists() {
   for (int ipid = 0; ipid < npid_max; ++ipid) {
 
     TString title = Form("%s",s_spc_tex[m_sp].Data());
-    eff_den[ipid] = new TH2F(Form("eff_den_%s",s_pid[ipid].Data()),title+";mom[GeV/c];#theta[rad]",nbin,0,mom_max,nbin,0,the_max);
+    eff_den_mc[ipid] = new TH2F(Form("eff_den_%s",s_pid[ipid].Data()),title+" (MC);p_{MC}[GeV/c];#theta_{MC}[rad]",nbin,0,mom_max,nbin,0,the_max);
+    eff_den_rec[ipid] = new TH2F(Form("rec_eff_den_%s",s_pid[ipid].Data()),title+" (REC);p_{REC}[GeV/c];#theta_{REC}[rad]",nbin,0,mom_max,nbin,0,the_max);
 
     for (int ipc=0; ipc < nprob_cut; ++ipc) {
 
       title = Form("%s passing %s cuts with prob>%4.2f",s_spc_tex[m_sp].Data(),s_pid[ipid].Data(),prob_cut[ipc]);
-      eff_num[ipc][ipid] = new TH2F(Form("eff_num_%s_ipc%d",s_pid[ipid].Data(),ipc),title+";mom[GeV/c];#theta[rad]",nbin,0,mom_max,nbin,0,the_max);
+      eff_num_mc[ipc][ipid] = new TH2F(Form("eff_num_%s_ipc%d",s_pid[ipid].Data(),ipc),title+" (MC);p_{MC}[GeV/c];#theta_{MC}[rad]",nbin,0,mom_max,nbin,0,the_max);
+      eff_num_rec[ipc][ipid] = new TH2F(Form("rec_eff_num_%s_ipc%d",s_pid[ipid].Data(),ipc),title+" (REC);p_{REC}[GeV/c];#theta_{REC}[rad]",nbin,0,mom_max,nbin,0,the_max);
 
       title = Form("efficiency of %s to pass %s cuts at prob>%4.2f",s_spc_tex[m_sp].Data(),s_pid[ipid].Data(),prob_cut[ipc]);
-      eff1d_mom[ipc][ipid] = new TEfficiency(Form("eff1d_mom_%s_ipc%d",s_pid[ipid].Data(),ipc), title+";mom[GeV/c]", nbin, 0, mom_max);
-      eff1d_the[ipc][ipid] = new TEfficiency(Form("eff1d_the_%s_ipc%d",s_pid[ipid].Data(),ipc), title+";#theta[rad]", nbin, 0, the_max);
-      eff2d[ipc][ipid] = new TEfficiency(Form("eff2d_%s_ipc%d",s_pid[ipid].Data(),ipc), title+";mom[GeV/c];#theta[rad]", nbin, 0, mom_max, nbin, 0, the_max);
+      eff1d_mom_mc[ipc][ipid] = new TEfficiency(Form("eff1d_mom_%s_ipc%d",s_pid[ipid].Data(),ipc), title+" (MC);p_{MC}[GeV/c]", nbin, 0, mom_max);
+      eff1d_the_mc[ipc][ipid] = new TEfficiency(Form("eff1d_the_%s_ipc%d",s_pid[ipid].Data(),ipc), title+" (MC);#theta_{MC}[rad]", nbin, 0, the_max);
+      eff2d_mc[ipc][ipid] = new TEfficiency(Form("eff2d_%s_ipc%d",s_pid[ipid].Data(),ipc), title+" (MC);p_{MC}[GeV/c];#theta_{MC}[rad]", nbin, 0, mom_max, nbin, 0, the_max);
+
+      eff1d_mom_rec[ipc][ipid] = new TEfficiency(Form("rec_eff1d_mom_%s_ipc%d",s_pid[ipid].Data(),ipc), title+" (REC);p_{REC}[GeV/c]", nbin, 0, mom_max);
+      eff1d_the_rec[ipc][ipid] = new TEfficiency(Form("rec_eff1d_the_%s_ipc%d",s_pid[ipid].Data(),ipc), title+" (REC);#theta_{REC}[rad]", nbin, 0, the_max);
+      eff2d_rec[ipc][ipid] = new TEfficiency(Form("rec_eff2d_%s_ipc%d",s_pid[ipid].Data(),ipc), title+" (REC);p_{REC}[GeV/c];#theta_{REC}[rad]", nbin, 0, mom_max, nbin, 0, the_max);
 
     }
   }
+
+  h_emc_mc = new TH2F("h_emc_mc", "EMC: E/p vs mom_{MC}; p_{MC}[GeV/c]; E/p", 200, 0, mom_max, 200, 0, det_var_max[0]);
+  h_stt_mc = new TH2F("h_stt_mc", "STT: dedx vs mom_{MC}; p_{MC}[GeV/c]; dE/dx", 200, 0, mom_max, 200, 0, det_var_max[1]);
+  h_mvd_mc = new TH2F("h_mvd_mc", "MVD: dedx vs mom_{MC}; p_{MC}[GeV/c]; dE/dx", 200, 0, mom_max, 200, 0, det_var_max[2]);
+  h_dirc_mc = new TH2F("h_dirc_mc", "DIRC: #tehta_{C} vs mom_{MC}; p_{MC}[GeV/c]; #theta_{C}(deg)", 200, 0, mom_max, 200, 0, det_var_max[3]);
+  h_disc_mc = new TH2F("h_disc_mc", "DISC: #tehta_{C} vs mom_{MC}; p_{MC}[GeV/c]; #theta_{C}(deg)", 200, 0, mom_max, 200, 0, det_var_max[4]);
+
+  h_emc_rec = new TH2F("h_emc_rec", "EMC: E/p vs mom_{REC}; p_{REC}[GeV/c]; E/p", 200, 0, mom_max, 200, 0, det_var_max[0]);
+  h_stt_rec = new TH2F("h_stt_rec", "STT: dedx vs mom_{REC}; p_{REC}[GeV/c]; dE/dx", 200, 0, mom_max, 200, 0, det_var_max[1]);
+  h_mvd_rec = new TH2F("h_mvd_rec", "MVD: dedx vs mom_{REC}; p_{REC}[GeV/c]; dE/dx", 200, 0, mom_max, 200, 0, det_var_max[2]);
+  h_dirc_rec = new TH2F("h_dirc_rec", "DIRC: #tehta_{C} vs mom_{REC}; p_{REC}[GeV/c]; #theta_{C}(deg)", 200, 0, mom_max, 200, 0, det_var_max[3]);
+  h_disc_rec = new TH2F("h_disc_rec", "DISC: #tehta_{C} vs mom_{REC}; p_{REC}[GeV/c]; #theta_{C}(deg)", 200, 0, mom_max, 200, 0, det_var_max[4]);
 
 }
 
@@ -112,49 +132,90 @@ void EffHists::Exec(Option_t* opt) {
   fAna->GetEvent(); // this may not be necessary
   nevt++;
   int ntrk = m_cand_array->GetEntriesFast();
-  for (int itrk = 0; itrk < ntrk; ++itrk) {
-    PndPidCandidate *cand = (PndPidCandidate*) m_cand_array->At(itrk);
-    Double_t mom = cand->GetMomentum().Mag();
-    Double_t the = TMath::RadToDeg()*cand->GetMomentum().Theta();
-    Double_t eoverp = cand->GetEmcCalEnergy()/mom;
-    Double_t stt_dedx = cand->GetSttMeanDEDX();
-    Double_t disc_thetaC = TMath::RadToDeg()*cand->GetDiscThetaC();
-    Double_t drc_thetaC = TMath::RadToDeg()*cand->GetDrcThetaC();
-    Double_t muo_iron = cand->GetMuoIron();
-    Double_t mvd_dedx = 1000*cand->GetMvdDEDX();
-
-    m_prob_drc = (PndPidProbability*) m_drc_array->At(itrk);
-    m_prob_disc = (PndPidProbability*) m_disc_array->At(itrk);
-    m_prob_mvd = (PndPidProbability*) m_mvd_array->At(itrk);
-    m_prob_stt = (PndPidProbability*) m_stt_array->At(itrk);
-    m_prob_emcb = (PndPidProbability*) m_emcb_array->At(itrk);
-
-    // combined probability of this track being a given type
-    double prob_comb[npid_max]= {0.0};
-    //prob_comb[iel] = get_comb_prob_elec();
-    //prob_comb[imu] = get_comb_prob_muon();
-    //prob_comb[ipi] = get_comb_prob_pion();
-    //prob_comb[ik]  = get_comb_prob_kaon();
-    //prob_comb[iprot] = get_comb_prob_proton();
-
-    prob_comb[iel] = get_comb_prob(&PndPidProbability::GetElectronPidProb);
-    prob_comb[imu] = get_comb_prob(&PndPidProbability::GetMuonPidProb);
-    prob_comb[ipi] = get_comb_prob(&PndPidProbability::GetPionPidProb);
-    prob_comb[ik]  = get_comb_prob(&PndPidProbability::GetKaonPidProb);
-    prob_comb[iprot] = get_comb_prob(&PndPidProbability::GetProtonPidProb);
-    //prob_comb[iposit]  = get_comb_prob(&PndPidProbability::GetElectronPidProb);
-
-    for (int ipid=0; ipid<npid_max; ++ipid) {
-      eff_den[ipid]->Fill(mom,the);
-      for (int ipc=0; ipc < nprob_cut; ++ipc) {
-	if (prob_comb[ipid]>prob_cut[ipc]) { eff_num[ipc][ipid]->Fill(mom, the); }
-	eff1d_the[ipc][ipid]->Fill(prob_comb[ipid]>prob_cut[ipc],the);
-	eff1d_mom[ipc][ipid]->Fill(prob_comb[ipid]>prob_cut[ipc],mom);
-	eff2d[ipc][ipid]->Fill(prob_comb[ipid]>prob_cut[ipc],mom,the);
-      }
-    }
-
+  int ntrkmc = m_mc_array->GetEntriesFast();
+  if (ntrkmc!=1) {
+    cout << "WARNING: number of mc track!= 1" << endl;
+    return;
   }
+
+  PndMCTrack *truth = (PndMCTrack*) m_mc_array->At(0);
+  Double_t mom_mc = truth->GetMomentum().Mag();
+  Double_t the_mc = TMath::RadToDeg()*truth->GetMomentum().Theta();
+  double mom_diff_min = 1e9;
+  int itrk = -1;
+  for (int ii = 0; ii < ntrk; ++ii) {
+    PndPidCandidate *cand = (PndPidCandidate*) m_cand_array->At(ii);
+    TVector3 r = cand->GetMomentum();
+    TVector3 t = truth->GetMomentum();
+    double mom_diff = hypot(hypot(r.X()-t.X(),r.Y()-t.Y()),r.Z()-t.Z());
+    if (mom_diff<mom_diff_min) { mom_diff_min = mom_diff; itrk = ii;}
+  }
+  if (itrk == -1 ) {
+    return;
+  }
+
+  PndPidCandidate *cand = (PndPidCandidate*) m_cand_array->At(itrk);
+  Double_t mom_rec = cand->GetMomentum().Mag();
+  Double_t the_rec = TMath::RadToDeg()*cand->GetMomentum().Theta();
+  Double_t eoverp = cand->GetEmcCalEnergy()/mom_rec;
+  Double_t stt_dedx = cand->GetSttMeanDEDX();
+  Double_t disc_thetaC = TMath::RadToDeg()*cand->GetDiscThetaC();
+  Double_t drc_thetaC = TMath::RadToDeg()*cand->GetDrcThetaC();
+  Double_t muo_iron = cand->GetMuoIron();
+  Double_t mvd_dedx = 1000*cand->GetMvdDEDX();
+
+  h_emc_mc->Fill(mom_mc,eoverp);
+  h_stt_mc->Fill(mom_mc,stt_dedx);
+  h_mvd_mc->Fill(mom_mc,mvd_dedx);
+  h_dirc_mc->Fill(mom_mc,drc_thetaC);
+  h_disc_mc->Fill(mom_mc,disc_thetaC);
+
+  h_emc_rec->Fill(mom_rec,eoverp);
+  h_stt_rec->Fill(mom_rec,stt_dedx);
+  h_mvd_rec->Fill(mom_rec,mvd_dedx);
+  h_dirc_rec->Fill(mom_rec,drc_thetaC);
+  h_disc_rec->Fill(mom_rec,disc_thetaC);
+
+  m_prob_drc = (PndPidProbability*) m_drc_array->At(itrk);
+  m_prob_disc = (PndPidProbability*) m_disc_array->At(itrk);
+  m_prob_mvd = (PndPidProbability*) m_mvd_array->At(itrk);
+  m_prob_stt = (PndPidProbability*) m_stt_array->At(itrk);
+  m_prob_emcb = (PndPidProbability*) m_emcb_array->At(itrk);
+
+  // combined probability of this track being a given type
+  double prob_comb[npid_max]= {0.0};
+  //prob_comb[iel] = get_comb_prob_elec();
+  //prob_comb[imu] = get_comb_prob_muon();
+  //prob_comb[ipi] = get_comb_prob_pion();
+  //prob_comb[ik]  = get_comb_prob_kaon();
+  //prob_comb[iprot] = get_comb_prob_proton();
+
+  prob_comb[iel] = get_comb_prob(&PndPidProbability::GetElectronPidProb);
+  prob_comb[imu] = get_comb_prob(&PndPidProbability::GetMuonPidProb);
+  prob_comb[ipi] = get_comb_prob(&PndPidProbability::GetPionPidProb);
+  prob_comb[ik]  = get_comb_prob(&PndPidProbability::GetKaonPidProb);
+  prob_comb[iprot] = get_comb_prob(&PndPidProbability::GetProtonPidProb);
+  //prob_comb[iposit]  = get_comb_prob(&PndPidProbability::GetElectronPidProb);
+
+  for (int ipid=0; ipid<npid_max; ++ipid) {
+    eff_den_mc[ipid]->Fill(mom_mc,the_mc);
+    eff_den_rec[ipid]->Fill(mom_rec,the_rec);
+    for (int ipc=0; ipc < nprob_cut; ++ipc) {
+      if (prob_comb[ipid]>prob_cut[ipc]) {
+	eff_num_mc[ipc][ipid]->Fill(mom_mc, the_mc);
+	eff_num_rec[ipc][ipid]->Fill(mom_rec, the_rec);
+      }
+      eff1d_the_mc[ipc][ipid]->Fill(prob_comb[ipid]>prob_cut[ipc],the_mc);
+      eff1d_mom_mc[ipc][ipid]->Fill(prob_comb[ipid]>prob_cut[ipc],mom_mc);
+      eff2d_mc[ipc][ipid]->Fill(prob_comb[ipid]>prob_cut[ipc],mom_mc,the_mc);
+
+      eff1d_the_rec[ipc][ipid]->Fill(prob_comb[ipid]>prob_cut[ipc],the_rec);
+      eff1d_mom_rec[ipc][ipid]->Fill(prob_comb[ipid]>prob_cut[ipc],mom_rec);
+      eff2d_rec[ipc][ipid]->Fill(prob_comb[ipid]>prob_cut[ipc],mom_rec,the_rec);
+
+    }
+  }
+
 }
 
 void EffHists::FinishTask() {
@@ -181,8 +242,21 @@ void EffHists::set_prob_cut(int a_pid, double a_cut) {
 
 void EffHists::write_hists() {
 
+  h_emc_mc->Write();
+  h_stt_mc->Write();
+  h_mvd_mc->Write();
+  h_dirc_mc->Write();
+  h_disc_mc->Write();
+  h_emc_rec->Write();
+  h_stt_rec->Write();
+  h_mvd_rec->Write();
+  h_dirc_rec->Write();
+  h_disc_rec->Write();
+
+
   for (int ipid=0; ipid<npid_max; ++ipid) {
-    eff_den[ipid]->Write();
+    eff_den_mc[ipid]->Write();
+    eff_den_rec[ipid]->Write();
   }
 
   const char* root = gDirectory->GetPath();
@@ -191,10 +265,15 @@ void EffHists::write_hists() {
     gDirectory->mkdir(subdir);
     gDirectory->cd(subdir);
     for (int ipid=0; ipid<npid_max; ++ipid) {
-      eff_num[ipc][ipid]->Write();
-      eff1d_the[ipc][ipid]->Write();
-      eff1d_mom[ipc][ipid]->Write();
-      eff2d[ipc][ipid]->Write();
+      eff_num_mc[ipc][ipid]->Write();
+      eff1d_the_mc[ipc][ipid]->Write();
+      eff1d_mom_mc[ipc][ipid]->Write();
+      eff2d_mc[ipc][ipid]->Write();
+
+      eff_num_rec[ipc][ipid]->Write();
+      eff1d_the_rec[ipc][ipid]->Write();
+      eff1d_mom_rec[ipc][ipid]->Write();
+      eff2d_rec[ipc][ipid]->Write();
     }
     gDirectory->cd(root);
   }

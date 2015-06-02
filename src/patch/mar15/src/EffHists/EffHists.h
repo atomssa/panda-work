@@ -53,6 +53,7 @@ class EffHists : public FairTask{
   FairRootManager* m_ioman;
 
   TClonesArray* m_cand_array;
+  TClonesArray* m_mc_array;
   TClonesArray* m_drc_array;
   TClonesArray* m_disc_array;
   TClonesArray* m_mvd_array;
@@ -79,13 +80,32 @@ class EffHists : public FairTask{
   static const int nprob_cut = 101;
   double prob_cut[nprob_cut]; //[npid_max]; // = {0.5, 0.5, 0.5, 0.5, 0.5}
   double det_var_max[ndet]; // = {"emc", "stt", "mvd", "dirc", "disc"};
-  TH2F* eff_den[npid_max];
 
-  TH2F* eff_num[nprob_cut][npid_max];
+  TH2F* eff_den_mc[npid_max];
+  TH2F* eff_den_rec[npid_max];
 
-  TEfficiency *eff2d[nprob_cut][npid_max];
-  TEfficiency *eff1d_the[nprob_cut][npid_max];
-  TEfficiency *eff1d_mom[nprob_cut][npid_max];
+  TH2F* eff_num_mc[nprob_cut][npid_max];
+  TH2F* eff_num_rec[nprob_cut][npid_max];
+
+  TEfficiency *eff2d_mc[nprob_cut][npid_max];
+  TEfficiency *eff1d_the_mc[nprob_cut][npid_max];
+  TEfficiency *eff1d_mom_mc[nprob_cut][npid_max];
+
+  TEfficiency *eff2d_rec[nprob_cut][npid_max];
+  TEfficiency *eff1d_the_rec[nprob_cut][npid_max];
+  TEfficiency *eff1d_mom_rec[nprob_cut][npid_max];
+
+  TH2F* h_emc_mc;
+  TH2F* h_stt_mc;
+  TH2F* h_mvd_mc;
+  TH2F* h_dirc_mc;
+  TH2F* h_disc_mc;
+
+  TH2F* h_emc_rec;
+  TH2F* h_stt_rec;
+  TH2F* h_mvd_rec;
+  TH2F* h_dirc_rec;
+  TH2F* h_disc_rec;
 
   double mom_max;
   double the_max;
