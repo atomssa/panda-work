@@ -24,7 +24,7 @@ const TString EffHists::s_det[EffHists::ndet] = {"emc", "stt", "mvd", "dirc", "d
 EffHists::EffHists(int a_sp):
   m_sp(a_sp),
   verb(false),
-  det_var_max{1.5, 4, 4, 90, 90},
+  det_var_max{1.5, 20, 10, 90, 90},
   mom_max(10.0),
   the_max(180.0),
   fAna()
