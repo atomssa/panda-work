@@ -104,17 +104,30 @@ void EffHists::init_hists() {
 
   }
 
-  h_emc_mc = new TH2F("h_emc_mc", "EMC: E/p vs mom_{MC}; p_{MC}[GeV/c]; E/p", 200, 0, mom_max, 200, 0, det_var_max[0]);
-  h_stt_mc = new TH2F("h_stt_mc", "STT: dedx vs mom_{MC}; p_{MC}[GeV/c]; dE/dx", 200, 0, mom_max, 200, 0, det_var_max[1]);
-  h_mvd_mc = new TH2F("h_mvd_mc", "MVD: dedx vs mom_{MC}; p_{MC}[GeV/c]; dE/dx", 200, 0, mom_max, 200, 0, det_var_max[2]);
-  h_dirc_mc = new TH2F("h_dirc_mc", "DIRC: #tehta_{C} vs mom_{MC}; p_{MC}[GeV/c]; #theta_{C}(deg)", 200, 0, mom_max, 200, 0, det_var_max[3]);
-  h_disc_mc = new TH2F("h_disc_mc", "DISC: #tehta_{C} vs mom_{MC}; p_{MC}[GeV/c]; #theta_{C}(deg)", 200, 0, mom_max, 200, 0, det_var_max[4]);
+  h_emc_mom_mc = new TH2F("h_emc_mom_mc", "EMC: E/p vs mom_{MC}; p_{MC}[GeV/c]; E/p", 200, 0, mom_max, 200, 0, det_var_max[0]);
+  h_stt_mom_mc = new TH2F("h_stt_mom_mc", "STT: dedx vs mom_{MC}; p_{MC}[GeV/c]; dE/dx", 200, 0, mom_max, 200, 0, det_var_max[1]);
+  h_mvd_mom_mc = new TH2F("h_mvd_mom_mc", "MVD: dedx vs mom_{MC}; p_{MC}[GeV/c]; dE/dx", 200, 0, mom_max, 200, 0, det_var_max[2]);
+  h_dirc_mom_mc = new TH2F("h_dirc_mom_mc", "DIRC: #tehta_{C} vs mom_{MC}; p_{MC}[GeV/c]; #theta_{C}(deg)", 200, 0, mom_max, 200, 0, det_var_max[3]);
+  h_disc_mom_mc = new TH2F("h_disc_mom_mc", "DISC: #tehta_{C} vs mom_{MC}; p_{MC}[GeV/c]; #theta_{C}(deg)", 200, 0, mom_max, 200, 0, det_var_max[4]);
 
-  h_emc_rec = new TH2F("h_emc_rec", "EMC: E/p vs mom_{REC}; p_{REC}[GeV/c]; E/p", 200, 0, mom_max, 200, 0, det_var_max[0]);
-  h_stt_rec = new TH2F("h_stt_rec", "STT: dedx vs mom_{REC}; p_{REC}[GeV/c]; dE/dx", 200, 0, mom_max, 200, 0, det_var_max[1]);
-  h_mvd_rec = new TH2F("h_mvd_rec", "MVD: dedx vs mom_{REC}; p_{REC}[GeV/c]; dE/dx", 200, 0, mom_max, 200, 0, det_var_max[2]);
-  h_dirc_rec = new TH2F("h_dirc_rec", "DIRC: #tehta_{C} vs mom_{REC}; p_{REC}[GeV/c]; #theta_{C}(deg)", 200, 0, mom_max, 200, 0, det_var_max[3]);
-  h_disc_rec = new TH2F("h_disc_rec", "DISC: #tehta_{C} vs mom_{REC}; p_{REC}[GeV/c]; #theta_{C}(deg)", 200, 0, mom_max, 200, 0, det_var_max[4]);
+  h_emc_mom_rec = new TH2F("h_emc_mom_rec", "EMC: E/p vs mom_{REC}; p_{REC}[GeV/c]; E/p", 200, 0, mom_max, 200, 0, det_var_max[0]);
+  h_stt_mom_rec = new TH2F("h_stt_mom_rec", "STT: dedx vs mom_{REC}; p_{REC}[GeV/c]; dE/dx", 200, 0, mom_max, 200, 0, det_var_max[1]);
+  h_mvd_mom_rec = new TH2F("h_mvd_mom_rec", "MVD: dedx vs mom_{REC}; p_{REC}[GeV/c]; dE/dx", 200, 0, mom_max, 200, 0, det_var_max[2]);
+  h_dirc_mom_rec = new TH2F("h_dirc_mom_rec", "DIRC: #tehta_{C} vs mom_{REC}; p_{REC}[GeV/c]; #theta_{C}(deg)", 200, 0, mom_max, 200, 0, det_var_max[3]);
+  h_disc_mom_rec = new TH2F("h_disc_mom_rec", "DISC: #tehta_{C} vs mom_{REC}; p_{REC}[GeV/c]; #theta_{C}(deg)", 200, 0, mom_max, 200, 0, det_var_max[4]);
+
+  h_emc_th_mc = new TH2F("h_emc_th_mc", "EMC: E/p vs #theta_{MC}; #theta_{MC}[GeV/c]; E/p", 200, 0, the_max, 200, 0, det_var_max[0]);
+  h_stt_th_mc = new TH2F("h_stt_th_mc", "STT: dedx vs #theta_{MC}; #theta_{MC}[GeV/c]; dE/dx", 200, 0, the_max, 200, 0, det_var_max[1]);
+  h_mvd_th_mc = new TH2F("h_mvd_th_mc", "MVD: dedx vs #theta_{MC}; #theta_{MC}[GeV/c]; dE/dx", 200, 0, the_max, 200, 0, det_var_max[2]);
+  h_dirc_th_mc = new TH2F("h_dirc_th_mc", "DIRC: #tehta_{C} vs #theta_{MC}; #theta_{MC}[GeV/c]; #theta_{C}(deg)", 200, 0, the_max, 200, 0, det_var_max[3]);
+  h_disc_th_mc = new TH2F("h_disc_th_mc", "DISC: #tehta_{C} vs #theta_{MC}; #theta_{MC}[GeV/c]; #theta_{C}(deg)", 200, 0, the_max, 200, 0, det_var_max[4]);
+
+  h_emc_th_rec = new TH2F("h_emc_th_rec", "EMC: E/p vs #theta_{REC}; #theta_{REC}[GeV/c]; E/p", 200, 0, the_max, 200, 0, det_var_max[0]);
+  h_stt_th_rec = new TH2F("h_stt_th_rec", "STT: dedx vs #theta_{REC}; #theta_{REC}[GeV/c]; dE/dx", 200, 0, the_max, 200, 0, det_var_max[1]);
+  h_mvd_th_rec = new TH2F("h_mvd_th_rec", "MVD: dedx vs #theta_{REC}; #theta_{REC}[GeV/c]; dE/dx", 200, 0, the_max, 200, 0, det_var_max[2]);
+  h_dirc_th_rec = new TH2F("h_dirc_th_rec", "DIRC: #tehta_{C} vs #theta_{REC}; #theta_{REC}[GeV/c]; #theta_{C}(deg)", 200, 0, the_max, 200, 0, det_var_max[3]);
+  h_disc_th_rec = new TH2F("h_disc_th_rec", "DISC: #tehta_{C} vs #theta_{REC}; #theta_{REC}[GeV/c]; #theta_{C}(deg)", 200, 0, the_max, 200, 0, det_var_max[4]);
+
 
 }
 
@@ -134,7 +147,7 @@ double EffHists::get_comb_prob(prob_func func) {
   Double_t prob_disc = (m_prob_disc->*func)(NULL);
   Double_t xx = 1.0;
   xx *= (prob_drc/(1.-prob_drc));
-  xx *= (prob_disc/(1.-prob_disc));
+  //xx *= (prob_disc/(1.-prob_disc));
   //xx *= (prob_mvd/(1.-prob_mvd));
   //xx *= (prob_stt/(1.-prob_stt));
   xx *= (prob_emc/(1.-prob_emc));
@@ -179,17 +192,26 @@ void EffHists::Exec(Option_t* opt) {
   Double_t muo_iron = cand->GetMuoIron();
   Double_t mvd_dedx = 1000*cand->GetMvdDEDX();
 
-  h_emc_mc->Fill(mom_mc,eoverp);
-  h_stt_mc->Fill(mom_mc,stt_dedx);
-  h_mvd_mc->Fill(mom_mc,mvd_dedx);
-  h_dirc_mc->Fill(mom_mc,drc_thetaC);
-  h_disc_mc->Fill(mom_mc,disc_thetaC);
-
-  h_emc_rec->Fill(mom_rec,eoverp);
-  h_stt_rec->Fill(mom_rec,stt_dedx);
-  h_mvd_rec->Fill(mom_rec,mvd_dedx);
-  h_dirc_rec->Fill(mom_rec,drc_thetaC);
-  h_disc_rec->Fill(mom_rec,disc_thetaC);
+  h_emc_mom_mc->Fill(mom_mc,eoverp);
+  h_stt_mom_mc->Fill(mom_mc,stt_dedx);
+  h_mvd_mom_mc->Fill(mom_mc,mvd_dedx);
+  h_dirc_mom_mc->Fill(mom_mc,drc_thetaC);
+  h_disc_mom_mc->Fill(mom_mc,disc_thetaC);
+  h_emc_mom_rec->Fill(mom_rec,eoverp);
+  h_stt_mom_rec->Fill(mom_rec,stt_dedx);
+  h_mvd_mom_rec->Fill(mom_rec,mvd_dedx);
+  h_dirc_mom_rec->Fill(mom_rec,drc_thetaC);
+  h_disc_mom_rec->Fill(mom_rec,disc_thetaC);
+  h_emc_th_mc->Fill(the_mc,eoverp);
+  h_stt_th_mc->Fill(the_mc,stt_dedx);
+  h_mvd_th_mc->Fill(the_mc,mvd_dedx);
+  h_dirc_th_mc->Fill(the_mc,drc_thetaC);
+  h_disc_th_mc->Fill(the_mc,disc_thetaC);
+  h_emc_th_rec->Fill(the_rec,eoverp);
+  h_stt_th_rec->Fill(the_rec,stt_dedx);
+  h_mvd_th_rec->Fill(the_rec,mvd_dedx);
+  h_dirc_th_rec->Fill(the_rec,drc_thetaC);
+  h_disc_th_rec->Fill(the_rec,disc_thetaC);
 
   m_prob_drc = (PndPidProbability*) m_drc_array->At(itrk);
   m_prob_disc = (PndPidProbability*) m_disc_array->At(itrk);
@@ -258,23 +280,37 @@ void EffHists::set_prob_cut(int a_pid, double a_cut) {
 
 void EffHists::write_hists() {
 
-  h_emc_mc->Write();
-  h_stt_mc->Write();
-  h_mvd_mc->Write();
-  h_dirc_mc->Write();
-  h_disc_mc->Write();
-  h_emc_rec->Write();
-  h_stt_rec->Write();
-  h_mvd_rec->Write();
-  h_dirc_rec->Write();
-  h_disc_rec->Write();
+  const char* root = gDirectory->GetPath();
+
+  gDirectory->mkdir("detvars");
+  gDirectory->cd("detvars");
+  h_emc_mom_mc->Write();
+  h_stt_mom_mc->Write();
+  h_mvd_mom_mc->Write();
+  h_dirc_mom_mc->Write();
+  h_disc_mom_mc->Write();
+  h_emc_mom_rec->Write();
+  h_stt_mom_rec->Write();
+  h_mvd_mom_rec->Write();
+  h_dirc_mom_rec->Write();
+  h_disc_mom_rec->Write();
+  h_emc_th_mc->Write();
+  h_stt_th_mc->Write();
+  h_mvd_th_mc->Write();
+  h_dirc_th_mc->Write();
+  h_disc_th_mc->Write();
+  h_emc_th_rec->Write();
+  h_stt_th_rec->Write();
+  h_mvd_th_rec->Write();
+  h_dirc_th_rec->Write();
+  h_disc_th_rec->Write();
+  gDirectory->cd(root);
 
   for (int ipid=0; ipid<npid_max; ++ipid) {
     eff_den_mc[ipid]->Write();
     eff_den_rec[ipid]->Write();
   }
 
-  const char* root = gDirectory->GetPath();
   for (int ipc=0; ipc < prob_cut.size(); ++ipc) {
     if (ipc>=nprob_cut) break;
     const char* subdir = Form("prob_cut_%d",ipc);

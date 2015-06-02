@@ -97,17 +97,30 @@ class EffHists : public FairTask{
   TEfficiency *eff1d_the_rec[nprob_cut][npid_max];
   TEfficiency *eff1d_mom_rec[nprob_cut][npid_max];
 
-  TH2F* h_emc_mc;
-  TH2F* h_stt_mc;
-  TH2F* h_mvd_mc;
-  TH2F* h_dirc_mc;
-  TH2F* h_disc_mc;
+  TH2F* h_emc_mom_mc;
+  TH2F* h_stt_mom_mc;
+  TH2F* h_mvd_mom_mc;
+  TH2F* h_dirc_mom_mc;
+  TH2F* h_disc_mom_mc;
 
-  TH2F* h_emc_rec;
-  TH2F* h_stt_rec;
-  TH2F* h_mvd_rec;
-  TH2F* h_dirc_rec;
-  TH2F* h_disc_rec;
+  TH2F* h_emc_mom_rec;
+  TH2F* h_stt_mom_rec;
+  TH2F* h_mvd_mom_rec;
+  TH2F* h_dirc_mom_rec;
+  TH2F* h_disc_mom_rec;
+
+  TH2F* h_emc_th_mc;
+  TH2F* h_stt_th_mc;
+  TH2F* h_mvd_th_mc;
+  TH2F* h_dirc_th_mc;
+  TH2F* h_disc_th_mc;
+
+  TH2F* h_emc_th_rec;
+  TH2F* h_stt_th_rec;
+  TH2F* h_mvd_th_rec;
+  TH2F* h_dirc_th_rec;
+  TH2F* h_disc_th_rec;
+
 
   double mom_max;
   double the_max;
