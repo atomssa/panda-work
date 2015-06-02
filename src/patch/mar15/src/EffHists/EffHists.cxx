@@ -130,12 +130,12 @@ double EffHists::get_comb_prob(prob_func func) {
   Double_t prob_drc = (m_prob_drc->*func)(NULL);
   Double_t prob_disc = (m_prob_disc->*func)(NULL);
   Double_t xx = 1.0;
-  xx *= (prob_drc/(1.-prob_drc));
-  xx *= (prob_disc/(1.-prob_disc));
-  xx *= (prob_mvd/(1.-prob_mvd));
-  xx *= (prob_stt/(1.-prob_stt));
-  //xx *= (prob_emc/(1.-prob_emc));
-  return xx/(xx+1.);
+  //xx *= (prob_drc/(1.-prob_drc));
+  //xx *= (prob_disc/(1.-prob_disc));
+  //xx *= (prob_mvd/(1.-prob_mvd));
+  //xx *= (prob_stt/(1.-prob_stt));
+  xx *= (prob_emc/(1.-prob_emc));
+  return xx/(xx+1.); // aka prob_emc
 }
 
 void EffHists::Exec(Option_t* opt) {
