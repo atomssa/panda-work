@@ -43,7 +43,7 @@ class EffHists : public FairTask{
   InitStatus init_tcas();
 
   double get_comb_prob(prob_func,bool);
-
+  bool check_prob_indiv(prob_func, double, bool);
   bool isTop(int, double[]);
 
  private:
@@ -89,17 +89,17 @@ class EffHists : public FairTask{
   TEfficiency *eff1d_the[nprob_cut][npid_max];
   TEfficiency *eff1d_mom[nprob_cut][npid_max];
 
-  TEfficiency *eff2d_top[nprob_cut][npid_max];
-  TEfficiency *eff1d_the_top[nprob_cut][npid_max];
-  TEfficiency *eff1d_mom_top[nprob_cut][npid_max];
+  TEfficiency *eff2d_indiv[nprob_cut][npid_max];
+  TEfficiency *eff1d_the_indiv[nprob_cut][npid_max];
+  TEfficiency *eff1d_mom_indiv[nprob_cut][npid_max];
 
   TEfficiency *eff2d_sd[nprob_cut][npid_max];
   TEfficiency *eff1d_the_sd[nprob_cut][npid_max];
   TEfficiency *eff1d_mom_sd[nprob_cut][npid_max];
 
-  TEfficiency *eff2d_sd_top[nprob_cut][npid_max];
-  TEfficiency *eff1d_the_sd_top[nprob_cut][npid_max];
-  TEfficiency *eff1d_mom_sd_top[nprob_cut][npid_max];
+  TEfficiency *eff2d_sd_indiv[nprob_cut][npid_max];
+  TEfficiency *eff1d_the_sd_indiv[nprob_cut][npid_max];
+  TEfficiency *eff1d_mom_sd_indiv[nprob_cut][npid_max];
 
   TH2F* h_emc_mom_mc;
   TH2F* h_stt_mom_mc;
