@@ -328,10 +328,10 @@ void AnaTda::def_elecs_from_jpsi_hists() {
       100, 0, 5.0);
     h_mom_epm[it] = new TH1F(Form("h_mom_epm_%s", n[it]),
       Form("Momentum of e^{+} and e^{-} %s;p[GeV/c]", t[it]),
-      100, 0, 6.0);
+      200, 0, 10.0);
     h_mom_the_epm[it] = new TH2F(Form("h_mom_the_epm_%s", n[it]),
       Form("#theta vs. momentum of e^{+} and e^{-} %s;p[GeV/c];#theta[rad]", t[it]),
-      100, 0, 6.0, 100, 0, TMath::Pi());
+      200, 0, 10.0, 200, 0, TMath::Pi());
   }
 }
 
@@ -343,7 +343,7 @@ void AnaTda::def_single_hists() {
   h_num_pipm = new TH1F("h_num_pipm",
     "Number of charged pion tracks per event;N_{#pi^{#pm}}", 10, 0, 10);
   h_mom_the_pipm = new TH2F("h_mom_the_pipm",
-    "#theta vs. momentum of charge pion tracks;p[GeV/c];#theta[rad]", 100, 0, 5, 100, 0, TMath::Pi());
+    "#theta vs. momentum of charge pion tracks;p[GeV/c];#theta[rad]", 200, 0, 10, 200, 0, TMath::Pi());
 
   h_num_g_tr = new TH1F("h_num_g_tr",
     "Number of #gamma per event (Truth Match);N_{#gamma}", 25, 0, 25);
@@ -352,7 +352,7 @@ void AnaTda::def_single_hists() {
   h_num_pipm_tr = new TH1F("h_num_pipm_tr",
     "Number of charged pion tracks per event (Truth Match);N_{#pi^{#pm}}", 10, 0, 10);
   h_mom_the_pipm_tr = new TH2F("h_mom_the_pipm_tr",
-    "#theta vs. momentum of charge pion tracks (Truth Match);p[GeV/c];#theta[rad]", 100, 0, 5, 100, 0, TMath::Pi());
+    "#theta vs. momentum of charge pion tracks (Truth Match);p[GeV/c];#theta[rad]", 200, 0, 10, 200, 0, TMath::Pi());
 }
 
 void AnaTda::cleanup_rho_cand_lists() {
