@@ -42,7 +42,9 @@ class EffHists : public FairTask{
   TClonesArray* init_tca(TString);
   InitStatus init_tcas();
 
-  double get_comb_prob(prob_func);
+  double get_comb_prob(prob_func,bool);
+
+  bool isTop(int, double[]);
 
  private:
   int verb;
@@ -83,19 +85,21 @@ class EffHists : public FairTask{
   static const int nprob_cut = 200;
   std::vector<double> prob_cut; // [nprob_cut]; //[npid_max]; // = {0.5, 0.5, 0.5, 0.5, 0.5}
 
-  TH2F* eff_den_mc[npid_max];
-  TH2F* eff_den_rec[npid_max];
+  TEfficiency *eff2d[nprob_cut][npid_max];
+  TEfficiency *eff1d_the[nprob_cut][npid_max];
+  TEfficiency *eff1d_mom[nprob_cut][npid_max];
 
-  TH2F* eff_num_mc[nprob_cut][npid_max];
-  TH2F* eff_num_rec[nprob_cut][npid_max];
+  TEfficiency *eff2d_top[nprob_cut][npid_max];
+  TEfficiency *eff1d_the_top[nprob_cut][npid_max];
+  TEfficiency *eff1d_mom_top[nprob_cut][npid_max];
 
-  TEfficiency *eff2d_mc[nprob_cut][npid_max];
-  TEfficiency *eff1d_the_mc[nprob_cut][npid_max];
-  TEfficiency *eff1d_mom_mc[nprob_cut][npid_max];
+  TEfficiency *eff2d_sd[nprob_cut][npid_max];
+  TEfficiency *eff1d_the_sd[nprob_cut][npid_max];
+  TEfficiency *eff1d_mom_sd[nprob_cut][npid_max];
 
-  TEfficiency *eff2d_rec[nprob_cut][npid_max];
-  TEfficiency *eff1d_the_rec[nprob_cut][npid_max];
-  TEfficiency *eff1d_mom_rec[nprob_cut][npid_max];
+  TEfficiency *eff2d_sd_top[nprob_cut][npid_max];
+  TEfficiency *eff1d_the_sd_top[nprob_cut][npid_max];
+  TEfficiency *eff1d_mom_sd_top[nprob_cut][npid_max];
 
   TH2F* h_emc_mom_mc;
   TH2F* h_stt_mom_mc;

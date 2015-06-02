@@ -29,22 +29,20 @@ EffHists::EffHists(int a_sp):
   the_max(180.0),
   fAna()
 {
-  for (int iprob_cut=0; iprob_cut < 99; ++iprob_cut) {
-    prob_cut.push_back( 0.01*iprob_cut );
+
+  for (int iprob_cut=0; iprob_cut < 9; ++iprob_cut) {
+    prob_cut.push_back( 0.1*iprob_cut );
     //prob_cut[iprob_cut] = (1.0/double(nprob_cut-1))*double(iprob_cut);
     //cout << "prob_cut[" << iprob_cut << "] = " << prob_cut[iprob_cut] << endl;
   }
   for (int iprob_cut=0; iprob_cut < 9; ++iprob_cut) {
-    prob_cut.push_back( 0.99 + (0.001*iprob_cut) );
-  }
-
-  for (int iprob_cut=0; iprob_cut < 9; ++iprob_cut) {
-    prob_cut.push_back( 0.999 + (0.0001*iprob_cut) );
+    prob_cut.push_back( 0.9 + (0.01*iprob_cut) );
   }
 
   for (int iprob_cut=0; iprob_cut < 10; ++iprob_cut) {
-    prob_cut.push_back( 0.9999 + (0.00001*iprob_cut) );
+    prob_cut.push_back( 0.99 + (0.001*iprob_cut) );
   }
+
 }
 
 EffHists::~EffHists() {
@@ -83,23 +81,26 @@ void EffHists::init_hists() {
   for (int ipid = 0; ipid < npid_max; ++ipid) {
 
     TString title = Form("%s",s_spc_tex[m_sp].Data());
-    eff_den_mc[ipid] = new TH2F(Form("eff_den_%s",s_pid[ipid].Data()),title+" (MC);p_{MC}[GeV/c];#theta_{MC}[rad]",nbin,0,mom_max,nbin,0,the_max);
-    eff_den_rec[ipid] = new TH2F(Form("rec_eff_den_%s",s_pid[ipid].Data()),title+" (REC);p_{REC}[GeV/c];#theta_{REC}[rad]",nbin,0,mom_max,nbin,0,the_max);
-
     for (int ipc=0; ipc < prob_cut.size(); ++ipc) {
       if (ipc>=nprob_cut) break;
-      title = Form("%s passing %s cuts with prob>%4.2f%%",s_spc_tex[m_sp].Data(),s_pid[ipid].Data(),prob_cut[ipc]*100.);
-      eff_num_mc[ipc][ipid] = new TH2F(Form("eff_num_%s",s_pid[ipid].Data()),title+" (MC);p_{MC}[GeV/c];#theta_{MC}[rad]",nbin,0,mom_max,nbin,0,the_max);
-      eff_num_rec[ipc][ipid] = new TH2F(Form("rec_eff_num_%s",s_pid[ipid].Data()),title+" (REC);p_{REC}[GeV/c];#theta_{REC}[rad]",nbin,0,mom_max,nbin,0,the_max);
 
       title = Form("efficiency of %s to pass %s cuts at prob>%4.2f%%",s_spc_tex[m_sp].Data(),s_pid[ipid].Data(),prob_cut[ipc]*100.);
-      eff1d_mom_mc[ipc][ipid] = new TEfficiency(Form("eff1d_mom_%s",s_pid[ipid].Data()), title+" (MC);p_{MC}[GeV/c]", nbin, 0, mom_max);
-      eff1d_the_mc[ipc][ipid] = new TEfficiency(Form("eff1d_the_%s",s_pid[ipid].Data()), title+" (MC);#theta_{MC}[rad]", nbin, 0, the_max);
-      eff2d_mc[ipc][ipid] = new TEfficiency(Form("eff2d_%s",s_pid[ipid].Data()), title+" (MC);p_{MC}[GeV/c];#theta_{MC}[rad]", nbin, 0, mom_max, nbin, 0, the_max);
+      eff1d_mom[ipc][ipid] = new TEfficiency(Form("eff1d_mom_%s",s_pid[ipid].Data()), title+" (MC);p_{MC}[GeV/c]", nbin, 0, mom_max);
+      eff1d_the[ipc][ipid] = new TEfficiency(Form("eff1d_the_%s",s_pid[ipid].Data()), title+" (MC);#theta_{MC}[rad]", nbin, 0, the_max);
+      eff2d[ipc][ipid] = new TEfficiency(Form("eff2d_%s",s_pid[ipid].Data()), title+" (MC);p_{MC}[GeV/c];#theta_{MC}[rad]", nbin, 0, mom_max, nbin, 0, the_max);
 
-      eff1d_mom_rec[ipc][ipid] = new TEfficiency(Form("rec_eff1d_mom_%s",s_pid[ipid].Data()), title+" (REC);p_{REC}[GeV/c]", nbin, 0, mom_max);
-      eff1d_the_rec[ipc][ipid] = new TEfficiency(Form("rec_eff1d_the_%s",s_pid[ipid].Data()), title+" (REC);#theta_{REC}[rad]", nbin, 0, the_max);
-      eff2d_rec[ipc][ipid] = new TEfficiency(Form("rec_eff2d_%s",s_pid[ipid].Data()), title+" (REC);p_{REC}[GeV/c];#theta_{REC}[rad]", nbin, 0, mom_max, nbin, 0, the_max);
+      eff1d_mom_top[ipc][ipid] = new TEfficiency(Form("eff1d_mom_%s_top",s_pid[ipid].Data()), title+" (TOP);p_{MC}[GeV/c]", nbin, 0, mom_max);
+      eff1d_the_top[ipc][ipid] = new TEfficiency(Form("eff1d_the_%s_top",s_pid[ipid].Data()), title+" (TOP);#theta_{MC}[rad]", nbin, 0, the_max);
+      eff2d_top[ipc][ipid] = new TEfficiency(Form("eff2d_%s_top",s_pid[ipid].Data()), title+" (TOP);p_{MC}[GeV/c];#theta_{MC}[rad]", nbin, 0, mom_max, nbin, 0, the_max);
+
+      eff1d_mom_sd[ipc][ipid] = new TEfficiency(Form("eff1d_mom_%s_sd",s_pid[ipid].Data()), title+" Sans dE/dx;p_{MC}[GeV/c]", nbin, 0, mom_max);
+      eff1d_the_sd[ipc][ipid] = new TEfficiency(Form("eff1d_the_%s_sd",s_pid[ipid].Data()), title+" Sans dE/dx;#theta_{MC}[rad]", nbin, 0, the_max);
+      eff2d_sd[ipc][ipid] = new TEfficiency(Form("eff2d_%s_sd",s_pid[ipid].Data()), title+" Sans dE/dx;p_{MC}[GeV/c];#theta_{MC}[rad]", nbin, 0, mom_max, nbin, 0, the_max);
+
+      eff1d_mom_sd_top[ipc][ipid] = new TEfficiency(Form("eff1d_mom_%s_sd_top",s_pid[ipid].Data()), title+" Sans dE/dx (TOP);p_{MC}[GeV/c]", nbin, 0, mom_max);
+      eff1d_the_sd_top[ipc][ipid] = new TEfficiency(Form("eff1d_the_%s_sd_top",s_pid[ipid].Data()), title+" Sans dE/dx (TOP);#theta_{MC}[rad]", nbin, 0, the_max);
+      eff2d_sd_top[ipc][ipid] = new TEfficiency(Form("eff2d_%s_sd_top",s_pid[ipid].Data()), title+" Sans dE/dx  (TOP);p_{MC}[GeV/c];#theta_{MC}[rad]", nbin, 0, mom_max, nbin, 0, the_max);
+
     }
 
   }
@@ -128,7 +129,6 @@ void EffHists::init_hists() {
   h_dirc_th_rec = new TH2F("h_dirc_th_rec", "DIRC: #tehta_{C} vs #theta_{REC}; #theta_{REC}[GeV/c]; #theta_{C}(deg)", 200, 0, the_max, 200, 0, det_var_max[3]);
   h_disc_th_rec = new TH2F("h_disc_th_rec", "DISC: #tehta_{C} vs #theta_{REC}; #theta_{REC}[GeV/c]; #theta_{C}(deg)", 200, 0, the_max, 200, 0, det_var_max[4]);
 
-
 }
 
 InitStatus EffHists::Init() {
@@ -139,7 +139,7 @@ InitStatus EffHists::Init() {
   return kSUCCESS;
 }
 
-double EffHists::get_comb_prob(prob_func func) {
+double EffHists::get_comb_prob(prob_func func, bool sans_dedx) {
   Double_t prob_emc = (m_prob_emcb->*func)(NULL);
   Double_t prob_stt = (m_prob_stt->*func)(NULL);
   Double_t prob_mvd = (m_prob_mvd->*func)(NULL);
@@ -147,9 +147,11 @@ double EffHists::get_comb_prob(prob_func func) {
   Double_t prob_disc = (m_prob_disc->*func)(NULL);
   Double_t xx = 1.0;
   xx *= (prob_drc/(1.-prob_drc));
-  //xx *= (prob_disc/(1.-prob_disc));
-  //xx *= (prob_mvd/(1.-prob_mvd));
-  //xx *= (prob_stt/(1.-prob_stt));
+  xx *= (prob_disc/(1.-prob_disc));
+  if (!sans_dedx) {
+    xx *= (prob_mvd/(1.-prob_mvd));
+    xx *= (prob_stt/(1.-prob_stt));
+  }
   xx *= (prob_emc/(1.-prob_emc));
   return xx/(xx+1.);
 }
@@ -221,39 +223,55 @@ void EffHists::Exec(Option_t* opt) {
 
   // combined probability of this track being a given type
   double prob_comb[npid_max]= {0.0};
-  //prob_comb[iel] = get_comb_prob_elec();
-  //prob_comb[imu] = get_comb_prob_muon();
-  //prob_comb[ipi] = get_comb_prob_pion();
-  //prob_comb[ik]  = get_comb_prob_kaon();
-  //prob_comb[iprot] = get_comb_prob_proton();
+  prob_comb[iel] = get_comb_prob(&PndPidProbability::GetElectronPidProb,false);
+  prob_comb[imu] = get_comb_prob(&PndPidProbability::GetMuonPidProb,false);
+  prob_comb[ipi] = get_comb_prob(&PndPidProbability::GetPionPidProb,false);
+  prob_comb[ik]  = get_comb_prob(&PndPidProbability::GetKaonPidProb,false);
+  prob_comb[iprot] = get_comb_prob(&PndPidProbability::GetProtonPidProb,false);
 
-  prob_comb[iel] = get_comb_prob(&PndPidProbability::GetElectronPidProb);
-  prob_comb[imu] = get_comb_prob(&PndPidProbability::GetMuonPidProb);
-  prob_comb[ipi] = get_comb_prob(&PndPidProbability::GetPionPidProb);
-  prob_comb[ik]  = get_comb_prob(&PndPidProbability::GetKaonPidProb);
-  prob_comb[iprot] = get_comb_prob(&PndPidProbability::GetProtonPidProb);
-  //prob_comb[iposit]  = get_comb_prob(&PndPidProbability::GetElectronPidProb);
+  double prob_comb_sd[npid_max]= {0.0};
+  prob_comb_sd[iel] = get_comb_prob(&PndPidProbability::GetElectronPidProb,true);
+  prob_comb_sd[imu] = get_comb_prob(&PndPidProbability::GetMuonPidProb,true);
+  prob_comb_sd[ipi] = get_comb_prob(&PndPidProbability::GetPionPidProb,true);
+  prob_comb_sd[ik]  = get_comb_prob(&PndPidProbability::GetKaonPidProb,true);
+  prob_comb_sd[iprot] = get_comb_prob(&PndPidProbability::GetProtonPidProb,true);
 
   for (int ipid=0; ipid<npid_max; ++ipid) {
-    eff_den_mc[ipid]->Fill(mom_mc,the_mc);
-    eff_den_rec[ipid]->Fill(mom_rec,the_rec);
+    bool top = isTop(ipid, prob_comb);
+    bool top_sd = isTop(ipid, prob_comb_sd);
+
     for (int ipc=0; ipc < prob_cut.size(); ++ipc) {
       if (ipc>=nprob_cut) break;
-      if (prob_comb[ipid]>prob_cut[ipc]) {
-	eff_num_mc[ipc][ipid]->Fill(mom_mc, the_mc);
-	eff_num_rec[ipc][ipid]->Fill(mom_rec, the_rec);
-      }
-      eff1d_the_mc[ipc][ipid]->Fill(prob_comb[ipid]>prob_cut[ipc],the_mc);
-      eff1d_mom_mc[ipc][ipid]->Fill(prob_comb[ipid]>prob_cut[ipc],mom_mc);
-      eff2d_mc[ipc][ipid]->Fill(prob_comb[ipid]>prob_cut[ipc],mom_mc,the_mc);
 
-      eff1d_the_rec[ipc][ipid]->Fill(prob_comb[ipid]>prob_cut[ipc],the_rec);
-      eff1d_mom_rec[ipc][ipid]->Fill(prob_comb[ipid]>prob_cut[ipc],mom_rec);
-      eff2d_rec[ipc][ipid]->Fill(prob_comb[ipid]>prob_cut[ipc],mom_rec,the_rec);
+      eff1d_the[ipc][ipid]->Fill(prob_comb[ipid]>prob_cut[ipc],the_mc);
+      eff1d_mom[ipc][ipid]->Fill(prob_comb[ipid]>prob_cut[ipc],mom_mc);
+      eff2d[ipc][ipid]->Fill(prob_comb[ipid]>prob_cut[ipc],mom_mc,the_mc);
+
+      eff1d_the_top[ipc][ipid]->Fill(top&&prob_comb[ipid]>prob_cut[ipc],the_mc);
+      eff1d_mom_top[ipc][ipid]->Fill(top&&prob_comb[ipid]>prob_cut[ipc],mom_mc);
+      eff2d_top[ipc][ipid]->Fill(top&&prob_comb[ipid]>prob_cut[ipc],mom_mc,the_mc);
+
+      eff1d_the_sd[ipc][ipid]->Fill(prob_comb_sd[ipid]>prob_cut[ipc],the_mc);
+      eff1d_mom_sd[ipc][ipid]->Fill(prob_comb_sd[ipid]>prob_cut[ipc],mom_mc);
+      eff2d_sd[ipc][ipid]->Fill(prob_comb_sd[ipid]>prob_cut[ipc],mom_mc,the_mc);
+
+      eff1d_the_sd_top[ipc][ipid]->Fill(top_sd&&prob_comb_sd[ipid]>prob_cut[ipc],the_mc);
+      eff1d_mom_sd_top[ipc][ipid]->Fill(top_sd&&prob_comb_sd[ipid]>prob_cut[ipc],mom_mc);
+      eff2d_sd_top[ipc][ipid]->Fill(top_sd&&prob_comb_sd[ipid]>prob_cut[ipc],mom_mc,the_mc);
 
     }
   }
 
+}
+
+bool EffHists::isTop(int ipid, double prob[]) {
+    for (int ii=0; ii < npid_max; ++ii) {
+      if (ipid == ii) continue;
+      if (prob[ii]>prob[ipid]) {
+	return false;
+      }
+    }
+    return true;
 }
 
 void EffHists::FinishTask() {
@@ -306,26 +324,27 @@ void EffHists::write_hists() {
   h_disc_th_rec->Write();
   gDirectory->cd(root);
 
-  for (int ipid=0; ipid<npid_max; ++ipid) {
-    eff_den_mc[ipid]->Write();
-    eff_den_rec[ipid]->Write();
-  }
-
   for (int ipc=0; ipc < prob_cut.size(); ++ipc) {
     if (ipc>=nprob_cut) break;
     const char* subdir = Form("prob_cut_%d",ipc);
     gDirectory->mkdir(subdir);
     gDirectory->cd(subdir);
     for (int ipid=0; ipid<npid_max; ++ipid) {
-      eff_num_mc[ipc][ipid]->Write();
-      eff1d_the_mc[ipc][ipid]->Write();
-      eff1d_mom_mc[ipc][ipid]->Write();
-      eff2d_mc[ipc][ipid]->Write();
+      eff1d_the[ipc][ipid]->Write();
+      eff1d_mom[ipc][ipid]->Write();
+      eff2d[ipc][ipid]->Write();
 
-      eff_num_rec[ipc][ipid]->Write();
-      eff1d_the_rec[ipc][ipid]->Write();
-      eff1d_mom_rec[ipc][ipid]->Write();
-      eff2d_rec[ipc][ipid]->Write();
+      eff1d_the_top[ipc][ipid]->Write();
+      eff1d_mom_top[ipc][ipid]->Write();
+      eff2d_top[ipc][ipid]->Write();
+
+      eff1d_the_sd[ipc][ipid]->Write();
+      eff1d_mom_sd[ipc][ipid]->Write();
+      eff2d_sd[ipc][ipid]->Write();
+
+      eff1d_the_sd_top[ipc][ipid]->Write();
+      eff1d_mom_sd_top[ipc][ipid]->Write();
+      eff2d_sd_top[ipc][ipid]->Write();
     }
     gDirectory->cd(root);
   }
