@@ -133,8 +133,8 @@ void EffHists::Exec(Option_t* opt) {
   nevt++;
   int ntrk = m_cand_array->GetEntriesFast();
   int ntrkmc = m_mc_array->GetEntriesFast();
-  if (ntrkmc!=1) {
-    cout << "WARNING: number of mc track!= 1" << endl;
+  if (ntrkmc==0) {
+    cout << "WARNING: number of mc track==0 " << endl;
     return;
   }
 
