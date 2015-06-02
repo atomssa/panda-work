@@ -35,11 +35,11 @@ EffHists::EffHists(int a_sp):
     //cout << "prob_cut[" << iprob_cut << "] = " << prob_cut[iprob_cut] << endl;
   }
   for (int iprob_cut=0; iprob_cut < 9; ++iprob_cut) {
-    prob_cut.push_back( 99.0 + (0.001*iprob_cut) );
+    prob_cut.push_back( 0.99 + (0.001*iprob_cut) );
   }
 
   for (int iprob_cut=0; iprob_cut < 9; ++iprob_cut) {
-    prob_cut.push_back( 99.9 + (0.0001*iprob_cut) );
+    prob_cut.push_back( 0.999 + (0.0001*iprob_cut) );
   }
 
 }
@@ -129,9 +129,12 @@ double EffHists::get_comb_prob(prob_func func) {
   Double_t prob_mvd = (m_prob_mvd->*func)(NULL);
   Double_t prob_drc = (m_prob_drc->*func)(NULL);
   Double_t prob_disc = (m_prob_disc->*func)(NULL);
-  Double_t xx = (prob_drc/(1.-prob_drc))*(prob_disc/(1.-prob_disc))
-    *(prob_mvd/(1.-prob_mvd))*(prob_stt/(1.-prob_stt))
-    *(prob_emc/(1.-prob_emc));
+  Double_t xx = 1.0;
+  xx *= (prob_drc/(1.-prob_drc));
+  xx *= (prob_disc/(1.-prob_disc));
+  xx *= (prob_mvd/(1.-prob_mvd));
+  xx *= (prob_stt/(1.-prob_stt));
+  //xx *= (prob_emc/(1.-prob_emc));
   return xx/(xx+1.);
 }
 
