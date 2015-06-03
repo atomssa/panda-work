@@ -16,6 +16,13 @@
 
 using namespace std;
 
+static const double dpx_min[20] = { -0.0235856, -0.016433, -0.022361, -0.0311639, -0.0408277, -0.049248, -0.0626825, -0.0709645, -0.0834883, -0.0926895, -0.0961089, -0.100969, -0.0978446, -0.111202, -0.121147, -0.100926, -0.116786, -0.114434, -0.12469, -0.126147};
+static const double dpx_max[20] = { 0.0238193, 0.0164182, 0.0217275, 0.0310145, 0.0407391, 0.049224, 0.0617949, 0.0714845, 0.0838231, 0.090658, 0.0957098, 0.099138, 0.096258, 0.106792, 0.114417, 0.100926, 0.116978, 0.111493, 0.124899, 0.125351};
+static const double dpy_min[20] = { -0.0262052, -0.0177316, -0.0204651, -0.0286626, -0.0384467, -0.0491804, -0.0617386, -0.0560984, -0.057134, -0.0802229, -0.092882, -0.0883073, -0.0934353, -0.0983313, -0.0955621, -0.096944, -0.108257, -0.108708, -0.11006, -0.11348};
+static const double dpy_max[20] = { 0.0264953, 0.0180457, 0.0207731, 0.0278699, 0.0384214, 0.04838, 0.0624423, 0.0558169, 0.0569003, 0.0813983, 0.090161, 0.0862677, 0.0935711, 0.0943912, 0.0964051, 0.0971344, 0.109794, 0.107839, 0.110128, 0.116133};
+static const double dpz_min[20] = { -0.0161801, -0.0176935, -0.0254173, -0.0366754, -0.052316, -0.0633923, -0.0802275, -0.0916246, -0.103904, -0.12348, -0.118053, -0.121892, -0.146836, -0.144744, -0.144244, -0.154281, -0.168258, -0.188327, -0.16868, -0.16266};
+static const double dpz_max[20] = { 0.0141423, 0.0172002, 0.0260039, 0.0375642, 0.052133, 0.0642037, 0.0803328, 0.0917838, 0.106182, 0.121883, 0.115329, 0.117401, 0.144266, 0.145639, 0.140742, 0.152066, 0.17101, 0.176431, 0.164111, 0.161177};
+
 const TString EffHists::s_spc[EffHists::nsp_max] = {"posit","muplus","piplus","kplus","prot","elec","muminus","piminus","kminus","antiprot"};
 const TString EffHists::s_spc_tex[EffHists::nsp_max] = {"e^{+}","#mu^{+}","#pi^{+}","K^{+}","p","e^{-}","#mu^{-}","#pi^{-}","K^{-}","#bar{p}"};
 const TString EffHists::s_pid[EffHists::npid_max] = {"e_id", "mu_id", "pi_id", "k_id", "prot_id"};
@@ -192,12 +199,26 @@ void EffHists::Exec(Option_t* opt) {
     PndPidCandidate *cand = (PndPidCandidate*) m_cand_array->At(ii);
     TVector3 r = cand->GetMomentum();
 
-    h_dpx->Fill(r.X()-t.X(), mom_mc);
-    h_dpy->Fill(r.Y()-t.Y(), mom_mc);
-    h_dpz->Fill(r.Z()-t.Z(), mom_mc);
+    int imom = mom_mc<5?int(mom_mc/0.25):19;
+
+    double dpx = r.X()-t.X();
+    double dpy = r.Y()-t.Y();
+    double dpz = r.Z()-t.Z();
+    h_dpx->Fill(dpx, mom_mc);
+    h_dpy->Fill(dpy, mom_mc);
+    h_dpz->Fill(dpz, mom_mc);
+
+    if ((dpx<dpx_min[imom]||dpx>dpx_max[imom])||
+	(dpy<dpy_min[imom]||dpy>dpy_max[imom])||
+	(dpz<dpz_min[imom]||dpz>dpz_max[imom])) {
+      continue;
+    }
 
     double mom_diff = hypot(hypot(r.X()-t.X(),r.Y()-t.Y()),r.Z()-t.Z());
-    if (mom_diff<mom_diff_min) { mom_diff_min = mom_diff; itrk = ii;}
+    if (mom_diff<mom_diff_min) {
+      mom_diff_min = mom_diff; itrk = ii;
+    }
+
   }
 
   if (itrk == -1 ) {
