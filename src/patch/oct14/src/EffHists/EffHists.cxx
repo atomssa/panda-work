@@ -338,8 +338,8 @@ void EffHists::Exec(Option_t* opt) {
 }
 
 void EffHists::fill_prob_hists(int ipid, prob_func func, double _prob_comb, double _prob_comb_sd) {
-  h_prob[ipid][0]->Fill(_prob_comb,mom_rec);
-  h_prob[ipid][1]->Fill(_prob_comb_sd,mom_rec);
+  h_prob[ipid][0]->Fill(mom_rec, _prob_comb);
+  h_prob[ipid][1]->Fill(mom_rec, _prob_comb_sd,mom_rec);
   h_prob[ipid][2]->Fill(eoverp, (m_prob_emcb->*func)(NULL));
   h_prob[ipid][3]->Fill(stt_dedx, (m_prob_stt->*func)(NULL));
   h_prob[ipid][4]->Fill(mvd_dedx, (m_prob_mvd->*func)(NULL));
