@@ -88,6 +88,18 @@ void EffHists::init_hists() {
   h_dpx = new TH2F("h_dpx", "px_{MC}-px_{REC} vs p_{MC};px_{MC}-px_{REC};p_{MC}",2000,-1,1,200,0,mom_max);
   h_dpy = new TH2F("h_dpy", "py_{MC}-py_{REC} vs p_{MC};py_{MC}-py_{REC};p_{MC}",2000,-1,1,200,0,mom_max);
   h_dpz = new TH2F("h_dpz", "pz_{MC}-pz_{REC} vs p_{MC};pz_{MC}-pz_{REC};p_{MC}",2000,-1,1,200,0,mom_max);
+
+  for (int ipid=0; ipid < npid_max; ++ipid) {
+    const char *tt = s_pid[ipid];
+    h_prob[ipid][0] = new TH2F(Form("h_prob_comb_%s_vs_mom",tt),Form("p_{COMB}(%s) vs. p_{REC};p_{REC}[GeV/c];p_{COMB}(%s)",tt,tt), 200, 0, 1, 200, 0, mom_max);
+    h_prob[ipid][1] = new TH2F(Form("h_prob_comb_sd_%s_vs_mom",tt),Form("p_{COMB}(%s, Sans dE/dx) vs. p_{REC};p_{REC}[GeV/c];p^{SD}_{COMB}(%s)",tt,tt), 200, 0, 1, 200, 0, mom_max);
+    h_prob[ipid][2] = new TH2F(Form("h_prob_emc_%s_vs_eoverp",tt),Form("p_{EMC}(%s) vs. E/p; E/p; p_{EMC}(%s)",tt,tt), 200, 0, 1, 200, 0, det_var_max[0]);
+    h_prob[ipid][3] = new TH2F(Form("h_prob_stt_%s_vs_dedx",tt),Form("p_{STT}(%s) vs. dE/dx(STT);dE/dx(STT); p_{STT}(%s)",tt,tt), 200, 0, 1, 200, 0, det_var_max[1]);
+    h_prob[ipid][4] = new TH2F(Form("h_prob_mvd_%s_vs_dedx",tt),Form("p_{MVD}(%s) vs. dE/dx(MVD);dE/dx(MVD); p_{MVD}(%s)",tt,tt), 200, 0, 1, 200, 0, det_var_max[2]);
+    h_prob[ipid][5] = new TH2F(Form("h_prob_drc_%s_vs_thec",tt),Form("p_{DRC}(%s) vs. #theta_{C}(DRC);#theta_{C}(DRC); p_{DRC}(%s)",tt,tt), 200, 0, 1, 200, 0, det_var_max[3]);
+    h_prob[ipid][6] = new TH2F(Form("h_prob_disc_%s_vs_thec",tt),Form("p_{DISC}(%s) vs. #theta_{C}(DISC);#theta_{C}(DISC); p_{DISC}(%s)",tt,tt), 200, 0, 1, 200, 0, det_var_max[4]);
+  }
+
   for (int ipid = 0; ipid < npid_max; ++ipid) {
 
     TString title = Form("%s",s_spc_tex[m_sp].Data());
@@ -226,14 +238,14 @@ void EffHists::Exec(Option_t* opt) {
   }
 
   PndPidCandidate *cand = (PndPidCandidate*) m_cand_array->At(itrk);
-  Double_t mom_rec = cand->GetMomentum().Mag();
-  Double_t the_rec = TMath::RadToDeg()*cand->GetMomentum().Theta();
-  Double_t eoverp = cand->GetEmcCalEnergy()/mom_rec;
-  Double_t stt_dedx = cand->GetSttMeanDEDX();
-  Double_t disc_thetaC = TMath::RadToDeg()*cand->GetDiscThetaC();
-  Double_t drc_thetaC = TMath::RadToDeg()*cand->GetDrcThetaC();
-  Double_t muo_iron = cand->GetMuoIron();
-  Double_t mvd_dedx = 1000*cand->GetMvdDEDX();
+  mom_rec = cand->GetMomentum().Mag();
+  the_rec = TMath::RadToDeg()*cand->GetMomentum().Theta();
+  eoverp = cand->GetEmcCalEnergy()/mom_rec;
+  stt_dedx = cand->GetSttMeanDEDX();
+  disc_thetaC = TMath::RadToDeg()*cand->GetDiscThetaC();
+  drc_thetaC = TMath::RadToDeg()*cand->GetDrcThetaC();
+  muo_iron = cand->GetMuoIron();
+  mvd_dedx = 1000*cand->GetMvdDEDX();
 
   h_emc_mom_mc->Fill(mom_mc,eoverp);
   h_stt_mom_mc->Fill(mom_mc,stt_dedx);
@@ -291,6 +303,12 @@ void EffHists::Exec(Option_t* opt) {
   prob_indiv_sd[ik]  = check_prob_indiv(&PndPidProbability::GetKaonPidProb,0.05,false);
   prob_indiv_sd[iprot] = check_prob_indiv(&PndPidProbability::GetProtonPidProb,0.05,false);
 
+  fill_prob_hists(iel, &PndPidProbability::GetElectronPidProb, prob_comb[iel], prob_comb_sd[iel]);
+  fill_prob_hists(ipi, &PndPidProbability::GetPionPidProb, prob_comb[ipi], prob_comb_sd[ipi]);
+  fill_prob_hists(imu, &PndPidProbability::GetMuonPidProb, prob_comb[imu], prob_comb_sd[imu]);
+  fill_prob_hists(ik, &PndPidProbability::GetKaonPidProb, prob_comb[ik], prob_comb_sd[ik]);
+  fill_prob_hists(iprot, &PndPidProbability::GetProtonPidProb, prob_comb[iprot], prob_comb_sd[iprot]);
+
   for (int ipid=0; ipid<npid_max; ++ipid) {
     bool top = isTop(ipid, prob_comb);
     bool top_sd = isTop(ipid, prob_comb_sd);
@@ -317,6 +335,16 @@ void EffHists::Exec(Option_t* opt) {
     }
   }
 
+}
+
+void EffHists::fill_prob_hists(int ipid, prob_func func, double _prob_comb, double _prob_comb_sd) {
+  h_prob[ipid][0]->Fill(_prob_comb,mom_rec);
+  h_prob[ipid][1]->Fill(_prob_comb_sd,mom_rec);
+  h_prob[ipid][2]->Fill(eoverp, (m_prob_emcb->*func)(NULL));
+  h_prob[ipid][3]->Fill(stt_dedx, (m_prob_stt->*func)(NULL));
+  h_prob[ipid][4]->Fill(mvd_dedx, (m_prob_mvd->*func)(NULL));
+  h_prob[ipid][5]->Fill(drc_thetaC, (m_prob_drc->*func)(NULL));
+  h_prob[ipid][6]->Fill(disc_thetaC, (m_prob_disc->*func)(NULL));
 }
 
 bool EffHists::isTop(int ipid, double prob[]) {
@@ -358,6 +386,16 @@ void EffHists::write_hists() {
   h_dpx->Write();
   h_dpy->Write();
   h_dpz->Write();
+
+  gDirectory->mkdir("probs");
+  gDirectory->cd("probs");
+  for (int ipid=0; ipid < npid_max; ++ipid) {
+    for (int ihist=0; ihist < 7; ++ihist) {
+      h_prob[ipid][ihist]->Write();
+    }
+
+  }
+  gDirectory->cd(root);
 
   gDirectory->mkdir("detvars");
   gDirectory->cd("detvars");

@@ -44,6 +44,7 @@ class EffHists : public FairTask{
 
   double get_comb_prob(prob_func,bool);
   bool check_prob_indiv(prob_func, double, bool);
+  void fill_prob_hists(int, prob_func, double, double);
   bool isTop(int, double[]);
 
  private:
@@ -84,6 +85,15 @@ class EffHists : public FairTask{
 
   static const int nprob_cut = 200;
   std::vector<double> prob_cut; // [nprob_cut]; //[npid_max]; // = {0.5, 0.5, 0.5, 0.5, 0.5}
+
+  double mom_rec;
+  double the_rec;
+  double eoverp;
+  double stt_dedx;
+  double disc_thetaC;
+  double drc_thetaC;
+  double muo_iron;
+  double mvd_dedx;
 
   TEfficiency *eff2d[nprob_cut][npid_max];
   TEfficiency *eff1d_the[nprob_cut][npid_max];
@@ -128,6 +138,8 @@ class EffHists : public FairTask{
   TH2F* h_dpx;
   TH2F* h_dpy;
   TH2F* h_dpz;
+
+  TH2F* h_prob[npid_max][7];
 
   double mom_max;
   double the_max;
