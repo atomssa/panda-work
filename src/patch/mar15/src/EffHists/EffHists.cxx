@@ -78,9 +78,9 @@ InitStatus EffHists::init_tcas() {
 
 void EffHists::init_hists() {
   int nbin = 200;
-  h_dpx = new TH2F("h_dpx", "px_{MC}-px_{REC} vs p_{MC};px_{MC}-px_{REC};p_{MC}",200,-1,1,200,0,mom_max);
-  h_dpy = new TH2F("h_dpy", "py_{MC}-py_{REC} vs p_{MC};py_{MC}-py_{REC};p_{MC}",200,-1,1,200,0,mom_max);
-  h_dpz = new TH2F("h_dpz", "pz_{MC}-pz_{REC} vs p_{MC};pz_{MC}-pz_{REC};p_{MC}",200,-1,1,200,0,mom_max);
+  h_dpx = new TH2F("h_dpx", "px_{MC}-px_{REC} vs p_{MC};px_{MC}-px_{REC};p_{MC}",2000,-1,1,200,0,mom_max);
+  h_dpy = new TH2F("h_dpy", "py_{MC}-py_{REC} vs p_{MC};py_{MC}-py_{REC};p_{MC}",2000,-1,1,200,0,mom_max);
+  h_dpz = new TH2F("h_dpz", "pz_{MC}-pz_{REC} vs p_{MC};pz_{MC}-pz_{REC};p_{MC}",2000,-1,1,200,0,mom_max);
   for (int ipid = 0; ipid < npid_max; ++ipid) {
 
     TString title = Form("%s",s_spc_tex[m_sp].Data());
