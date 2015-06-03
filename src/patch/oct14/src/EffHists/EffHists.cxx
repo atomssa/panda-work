@@ -78,6 +78,9 @@ InitStatus EffHists::init_tcas() {
 
 void EffHists::init_hists() {
   int nbin = 200;
+  h_dpx = new TH2F("h_dpx", "px_{MC}-px_{REC} vs p_{MC};px_{MC}-px_{REC};p_{MC}",200,-1,1,200,0,mom_max);
+  h_dpy = new TH2F("h_dpy", "py_{MC}-py_{REC} vs p_{MC};py_{MC}-py_{REC};p_{MC}",200,-1,1,200,0,mom_max);
+  h_dpz = new TH2F("h_dpz", "pz_{MC}-pz_{REC} vs p_{MC};pz_{MC}-pz_{REC};p_{MC}",200,-1,1,200,0,mom_max);
   for (int ipid = 0; ipid < npid_max; ++ipid) {
 
     TString title = Form("%s",s_spc_tex[m_sp].Data());
@@ -184,13 +187,19 @@ void EffHists::Exec(Option_t* opt) {
   Double_t the_mc = TMath::RadToDeg()*truth->GetMomentum().Theta();
   double mom_diff_min = 1e9;
   int itrk = -1;
+  TVector3 t = truth->GetMomentum();
   for (int ii = 0; ii < ntrk; ++ii) {
     PndPidCandidate *cand = (PndPidCandidate*) m_cand_array->At(ii);
     TVector3 r = cand->GetMomentum();
-    TVector3 t = truth->GetMomentum();
+
+    h_dpx->Fill(r.X()-t.X(), mom_mc);
+    h_dpy->Fill(r.Y()-t.Y(), mom_mc);
+    h_dpz->Fill(r.Z()-t.Z(), mom_mc);
+
     double mom_diff = hypot(hypot(r.X()-t.X(),r.Y()-t.Y()),r.Z()-t.Z());
     if (mom_diff<mom_diff_min) { mom_diff_min = mom_diff; itrk = ii;}
   }
+
   if (itrk == -1 ) {
     return;
   }
@@ -324,6 +333,10 @@ void EffHists::set_prob_cut(int a_pid, double a_cut) {
 void EffHists::write_hists() {
 
   const char* root = gDirectory->GetPath();
+
+  h_dpx->Write();
+  h_dpy->Write();
+  h_dpz->Write();
 
   gDirectory->mkdir("detvars");
   gDirectory->cd("detvars");

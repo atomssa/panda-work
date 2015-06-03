@@ -125,6 +125,9 @@ class EffHists : public FairTask{
   TH2F* h_dirc_th_rec;
   TH2F* h_disc_th_rec;
 
+  TH2F* h_dpx;
+  TH2F* h_dpy;
+  TH2F* h_dpz;
 
   double mom_max;
   double the_max;
