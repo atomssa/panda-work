@@ -91,13 +91,13 @@ void EffHists::init_hists() {
 
   for (int ipid=0; ipid < npid_max; ++ipid) {
     const char *tt = s_pid[ipid];
-    h_prob[ipid][0] = new TH2F(Form("h_prob_comb_%s_vs_mom",tt),Form("p_{COMB}(%s) vs. p_{REC};p_{REC}[GeV/c];p_{COMB}(%s)",tt,tt), 200, 0, 1, 200, 0, mom_max);
-    h_prob[ipid][1] = new TH2F(Form("h_prob_comb_sd_%s_vs_mom",tt),Form("p_{COMB}(%s, Sans dE/dx) vs. p_{REC};p_{REC}[GeV/c];p^{SD}_{COMB}(%s)",tt,tt), 200, 0, 1, 200, 0, mom_max);
-    h_prob[ipid][2] = new TH2F(Form("h_prob_emc_%s_vs_eop",tt),Form("p_{EMC}(%s) vs. E/p; E/p; p_{EMC}(%s)",tt,tt), 200, 0, 1, 200, 0, det_var_max[0]);
-    h_prob[ipid][3] = new TH2F(Form("h_prob_stt_%s_vs_dedx",tt),Form("p_{STT}(%s) vs. dE/dx(STT);dE/dx(STT); p_{STT}(%s)",tt,tt), 200, 0, 1, 200, 0, det_var_max[1]);
-    h_prob[ipid][4] = new TH2F(Form("h_prob_mvd_%s_vs_dedx",tt),Form("p_{MVD}(%s) vs. dE/dx(MVD);dE/dx(MVD); p_{MVD}(%s)",tt,tt), 200, 0, 1, 200, 0, det_var_max[2]);
-    h_prob[ipid][5] = new TH2F(Form("h_prob_drc_%s_vs_thec",tt),Form("p_{DRC}(%s) vs. #theta_{C}(DRC);#theta_{C}(DRC); p_{DRC}(%s)",tt,tt), 200, 0, 1, 200, 0, det_var_max[3]);
-    h_prob[ipid][6] = new TH2F(Form("h_prob_disc_%s_vs_thec",tt),Form("p_{DISC}(%s) vs. #theta_{C}(DISC);#theta_{C}(DISC); p_{DISC}(%s)",tt,tt), 200, 0, 1, 200, 0, det_var_max[4]);
+    h_prob[ipid][0] = new TH2F(Form("h_prob_comb_%s_vs_mom",tt),Form("p_{COMB}(%s) vs. p_{REC};p_{REC}[GeV/c];p_{COMB}(%s)",tt,tt), 200, 0, mom_max, 200, 0, 1);
+    h_prob[ipid][1] = new TH2F(Form("h_prob_comb_sd_%s_vs_mom",tt),Form("p_{COMB}(%s, Sans dE/dx) vs. p_{REC};p_{REC}[GeV/c];p^{SD}_{COMB}(%s)",tt,tt), 200, 0, mom_max, 200, 0, 1);
+    h_prob[ipid][2] = new TH2F(Form("h_prob_emc_%s_vs_eop",tt),Form("p_{EMC}(%s) vs. E/p; E/p; p_{EMC}(%s)",tt,tt), 200, 0, det_var_max[0], 200, 0, 1);
+    h_prob[ipid][3] = new TH2F(Form("h_prob_stt_%s_vs_dedx",tt),Form("p_{STT}(%s) vs. dE/dx(STT);dE/dx(STT); p_{STT}(%s)",tt,tt), 200, 0, det_var_max[1], 200, 0, 1);
+    h_prob[ipid][4] = new TH2F(Form("h_prob_mvd_%s_vs_dedx",tt),Form("p_{MVD}(%s) vs. dE/dx(MVD);dE/dx(MVD); p_{MVD}(%s)",tt,tt), 200, 0, det_var_max[2], 200, 0, 1);
+    h_prob[ipid][5] = new TH2F(Form("h_prob_drc_%s_vs_thec",tt),Form("p_{DRC}(%s) vs. #theta_{C}(DRC);#theta_{C}(DRC); p_{DRC}(%s)",tt,tt), 200, 0, det_var_max[3], 200, 0, 1);
+    h_prob[ipid][6] = new TH2F(Form("h_prob_disc_%s_vs_thec",tt),Form("p_{DISC}(%s) vs. #theta_{C}(DISC);#theta_{C}(DISC); p_{DISC}(%s)",tt,tt), 200, 0, det_var_max[4], 200, 0, 1);
   }
 
   for (int ipid = 0; ipid < npid_max; ++ipid) {
