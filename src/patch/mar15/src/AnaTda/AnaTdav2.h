@@ -12,6 +12,7 @@
 class RhoCandList;
 class TH1F;
 class TH2F;
+class TEfficiency;
 class TVector3;
 class TFile;
 class TLorentzVector;
@@ -40,6 +41,9 @@ class AnaTdav2 : public FairTask{
   void set_eff_file_name(std::string a) {eff_file_name= a;}
   void set_eff_hist_name(std::string a, bool rad) {eff_hist_name= a; eff_hist_rad= rad; }
 
+  void set_pi_eff_file_name(std::string a) {pi_eff_file_name= a;}
+  void set_pi_eff_hist_name(std::string a, bool rad) {pi_eff_hist_name= a; pi_eff_hist_rad= rad; }
+
  private:
   void fill_lists();
   void cleanup_lists() { for (int ii = 0; ii < rcl.size(); ++ii) rcl[ii].Cleanup(); }
@@ -50,9 +54,12 @@ class AnaTdav2 : public FairTask{
 
   void nocut_ref();
   void ep_uniq();
+  void ep_all();
   void pi0_sel();
   void ep_pi0_asso();
+  void ep_pi0_asso_all();
   void kin_excl();
+  void kin_excl_all();
   void kin_fit();
   void fill_bins();
   void write_hists();
@@ -61,6 +68,7 @@ class AnaTdav2 : public FairTask{
   bool check_eid(RhoCandidate*);
   void eid_filter(RhoCandList&, RhoCandList&);
   double get_comb_prob(prob_func func);
+  double eff_weight(const TVector3 &mom);
 
   double dist_chpi_match(RhoCandidate*, RhoCandidate*);
   void charged_pion_filter(RhoCandList&, RhoCandList&, RhoCandList&, RhoCandList&, RhoCandList&, RhoCandList&);
@@ -93,8 +101,9 @@ class AnaTdav2 : public FairTask{
   double mom_antip;
   TVector3 boost_to_cm;
   TVector3 boost_to_lab;
-  TLorentzVector p4pbar, p4targ;
+  TLorentzVector p4pbar, p4targ, p4sys;
   double event_t, event_u;
+  double m_pip_wt, m_pim_wt, m_evt_wt;
   double tmin[3]; //={-0.443789, -1.0, -1.0};
   double tmax[3]; //={0.616486, 0.457248, 0.31538};
 
@@ -102,8 +111,15 @@ class AnaTdav2 : public FairTask{
   TFile *eff_file;
   std::string eff_file_name;
   std::string eff_hist_name;
-  bool eff_hist_rad;
   TH2F* heff_epm;
+  bool eff_hist_rad;
+
+  // pion misid parametrization
+  TFile *pi_eff_file;
+  std::string pi_eff_file_name;
+  std::string pi_eff_hist_name;
+  bool pi_eff_hist_rad;
+  TEfficiency* pi_eff;
 
   static const int nstep = 6;
   TH1F* hmep[nstep];
@@ -140,7 +156,9 @@ class AnaTdav2 : public FairTask{
 	ep, /* all e-p pairs */
 	iep, /* pid'ed e-p pairs, no other cond*/
 	iep_uniq, /* pid'ed e-p pairs, require uniquness, (no other charged track) */
+	iep_all, /* pid'ed e-p pairs, not requireing uniquness, */
 	iep_asso, /* pid'ed e-p pairs, require associated gg pair satisfying selection cuts */
+	iep_asso_all, /* pid'ed e-p pairs, require associated gg pair satisfying selection cuts */
 	iep_excl, /* pid'ed e-p pairs, require exclusivity of pi0-e-p */
 	gg_excl, /* gg pairs, require exclusivity of pi0-e-p */
 	nrcl /*number of entries */
@@ -174,6 +192,7 @@ class AnaTdav2 : public FairTask{
   void print_indices();
   void print_binning(double *, const char*);
   bool calc_true_tu();
+  void calc_evt_wt();
 
   ClassDef(AnaTdav2,1);
 

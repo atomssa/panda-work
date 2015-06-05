@@ -8,6 +8,7 @@
 
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TEfficiency.h"
 #include "TFile.h"
 #include "TRandom.h"
 #include "TVector3.h"
@@ -29,13 +30,19 @@ AnaTdav2::AnaTdav2(const int& _iplab, const int& itype, const int& brem, const i
   boost_to_lab(),
   p4pbar(),
   p4targ(),
+  p4sys(),
   event_t(-9999.),
   event_u(-9999.),
-  tmin{-0.443789, -0.5, -0.5},
+  //tmin{-0.443789, -0.5, -0.5},
+  //tmax{0.616486, 0.457248, 0.31538},
+  tmin{-0.443789, -2.76, -6.50},
   tmax{0.616486, 0.457248, 0.31538},
   eff_file_name("eff/effic_smooth.root"),
   eff_hist_name("eff_ep_em_rad"),
   eff_hist_rad(true),
+  pi_eff_file_name("eff/hadd_out/eff.pi.root"),
+  pi_eff_hist_name("prob_cut_5/eff2d_e_id"),
+  pi_eff_hist_rad(false),
   mcList(),
   apply_pi0evsoa_cut(true),
   lw{{0.11,-0.05,+0.00},{0.12,-0.03,-0.03},{0.15,-0.06,-0.07}},
@@ -90,6 +97,10 @@ void AnaTdav2::init_tcas() {
 void AnaTdav2::init_hists() {
   eff_file = TFile::Open(eff_file_name.c_str());
   heff_epm = (TH2F*) eff_file->Get(eff_hist_name.c_str())->Clone("heff_epm");
+
+  pi_eff_file = TFile::Open(pi_eff_file_name.c_str());
+  pi_eff = (TEfficiency*) pi_eff_file->Get(pi_eff_hist_name.c_str())->Clone("pi_eff");
+
   for (int is = 0; is< nstep; ++is) {
     hmep[is] = new TH1F(Form("hmep_%d",is),Form("hmep_%d",is),200,0,5);
     hnep[is] = new TH1F(Form("hnep_%d",is),Form("hnep_%d",is),6,-0.5,5.5);
@@ -149,6 +160,7 @@ void AnaTdav2::beam_cond(){
 
   p4pbar.SetPxPyPzE(0,0,mom_antip,TMath::Hypot(mass_prot,mom_antip));
   p4targ.SetPxPyPzE(0,0,0,mass_prot);
+  p4sys = p4pbar + p4targ;
 
   // Equal subdivisions in costh_cm, boost to lab for th bins
   TLorentzVector pi0;
@@ -195,7 +207,7 @@ InitStatus AnaTdav2::Init() {
 void AnaTdav2::fill_mtot(RhoCandList& _ep, RhoCandList& _gg, TH1F* dest) {
   for (int jep = 0; jep < _ep.GetLength(); ++jep)
     for (int jgg = 0; jgg < _gg.GetLength(); ++jgg)
-      dest->Fill(m(_gg[jgg], _ep[jep]));
+      dest->Fill(m(_gg[jgg], _ep[jep]), m_evt_wt);
 }
 
 void AnaTdav2::fill_dth_dph_cm(RhoCandList& _ep, RhoCandList& _gg, TH2F* dest) {
@@ -208,7 +220,7 @@ void AnaTdav2::fill_dth_dph_cm(RhoCandList& _ep, RhoCandList& _gg, TH2F* dest) {
 }
 
 void AnaTdav2::fill_pair_mass(RhoCandList& org, TH1F* dest) {
-  for (int j = 0; j < org.GetLength(); ++j) dest->Fill(org[j]->M());
+  for (int j = 0; j < org.GetLength(); ++j) dest->Fill(org[j]->M(),m_evt_wt);
 }
 
 void AnaTdav2::fill_count_hists(int _gg, int _ep, int ihist) {
@@ -318,6 +330,15 @@ void AnaTdav2::eid_filter(RhoCandList&out, RhoCandList&in) {
   }
 }
 
+double AnaTdav2::eff_weight(const TVector3 &mom) {
+  int bx = pi_eff->GetTotalHistogram()->GetXaxis()->FindBin(mom.Mag());
+  int by = pi_eff_hist_rad?
+    pi_eff->GetTotalHistogram()->GetXaxis()->FindBin(mom.Theta()*TMath::RadToDeg()):
+    pi_eff->GetTotalHistogram()->GetXaxis()->FindBin(mom.Theta());
+  int gb = pi_eff->GetGlobalBin(bx,by);
+  return pi_eff->GetEfficiency(gb);
+}
+
 //Signal
 //Track 0 (PDG:88888) has mother -1 and daughter(s) 1  2
 //Track 1 (PDG:443) has mother 0 and daughter(s) 3  4
@@ -369,6 +390,27 @@ bool AnaTdav2::calc_true_tu() {
   return false;
 }
 
+void AnaTdav2::calc_evt_wt() {
+  if (bg_mc) {
+    bool pip_found = false, pim_found = false;
+    double pip_wt = 0.0, pim_wt = 0.0;
+    for (int j=0;j<mcList.GetLength();++j) {
+      if (mcList[j]->PdgCode()==211&&!pip_found) {
+	m_pip_wt = eff_weight(mcList[j]->GetMomentum());
+	pip_found = true;
+      }
+      if (mcList[j]->PdgCode()==-211&&!pim_found) {
+	m_pim_wt = eff_weight(mcList[j]->GetMomentum());
+	pim_found = true;
+      }
+      if (pip_found&&pim_found) break;
+    }
+    m_evt_wt = m_pip_wt*m_pim_wt;
+  } else {
+    m_evt_wt = 1.0;
+  }
+}
+
 void AnaTdav2::print_mc_list() {
   cout << "mcList.Length() = " << mcList.GetLength() << endl;
   int pi0id = -1;
@@ -402,18 +444,18 @@ void AnaTdav2::fill_lists() {
   fAna->FillList(rcl[g], "Neutral");
 
   if (bg_mc) {
-    //rcl[p].Cleanup();
-    //rcl[e].Cleanup();
-    //fAna->FillList(rcl[p], (brem_corr?"BremPionAllPlus":"PionAllPlus"));
-    //fAna->FillList(rcl[e], (brem_corr?"BremPionAllMinus":"PionAllMinus"));
-
     fAna->FillList(rcl[pip], "PionAllPlus");
     fAna->FillList(rcl[pim], "PionAllMinus");
+    // all pions accepted as identified, but they will be wieghted when filling with the corresponding
+    // product of efficiency of the two tracks
+    fAna->FillList(rcl[ip], (brem_corr?"BremElectronAllPlus":"ElectronAllPlus"));
+    fAna->FillList(rcl[ie], (brem_corr?"BremElectronAllMinus":"ElectronAllMinus"));
+
     //fAna->FillList(rcl[ip], (brem_corr?"BremElectronVeryTightPlus":"ElectronAllPlus"), "PidAlgoEmcBayes");
     //fAna->FillList(rcl[ie], (brem_corr?"BremElectronVeryTightMinus":"ElectronAllMinus"), "PidAlgoEmcBayes");
     //fAna->FillList(rcl[ip], (brem_corr?"BremElectronAllPlus":"ElectronAllPlus"));
     //fAna->FillList(rcl[ie], (brem_corr?"BremElectronAllMinus":"ElectronAllMinus"));
-    charged_pion_filter(rcl[ip], rcl[ie], rcl[pip], rcl[pim], rcl[p], rcl[e]);
+    //charged_pion_filter(rcl[ip], rcl[ie], rcl[pip], rcl[pim], rcl[p], rcl[e]);
   } else {
     eid_filter(rcl[ip],rcl[p]);
     eid_filter(rcl[ie],rcl[e]);
@@ -447,6 +489,17 @@ void AnaTdav2::ep_uniq() {
   }
   fill_pair_mass(rcl[iep_uniq], hmep[2]);
   fill_count_hists(gg,iep_uniq,2);
+}
+
+/**
+ * This alternative analysis combines all reconstructed pairs and leaves
+ * it to later stages to select the best matching pi0-jpsi pair or fill all
+ * of them with a weight
+ */
+void AnaTdav2::ep_all() {
+  rcl[iep_uniq].Combine(rcl[ie],rcl[ip]);
+  fill_pair_mass(rcl[iep_uniq], hmep[2]);
+  fill_count_hists(gg,iep_all,2);
 }
 
 bool AnaTdav2::oa_vs_avg_cut(const double& _oa, const double &_avg){
@@ -491,6 +544,22 @@ void AnaTdav2::ep_pi0_asso() {
 }
 
 /**
+ * Looks in the event if there is an associated gg pair which
+ * passes the pi0 selection cuts (loose cuts at this point). Here
+ * the assumption of uniquness of ep pair is not made. All possible
+ * pairs are kept
+ */
+void AnaTdav2::ep_pi0_asso_all() {
+  for (int i = 0; i < rcl[iep_all].GetLength(); ++i) {
+    if (rcl[gg_sel].GetLength()>0) {
+      rcl[iep_asso_all].Append(rcl[iep]);
+    }
+  }
+  fill_pair_mass(rcl[iep_asso_all], hmep[3]);
+  fill_count_hists(gg_sel,iep_asso_all,4);
+}
+
+/**
  * After applying kinematic cuts, (dPhi, dTh and mTot), checks that there
  * is only one pi0 left in the event. This is to insure exclusivity. The
  * unique pi0 is appended to the exgg, and the e-p pair is filled to exep
@@ -528,6 +597,57 @@ void AnaTdav2::kin_excl() {
       rcl[gg_excl].Append(rcl[gg_sel][jgg_most_btb]);
     }
   }
+  fill_dth_dph_cm(rcl[iep_excl],rcl[gg_excl], hcmoa);
+  fill_mtot(rcl[iep_excl],rcl[gg_excl], hmtot);
+  fill_pair_mass(rcl[iep_excl], hmep[4]);
+  fill_count_hists(gg_excl,iep_excl,3);
+}
+
+
+/**
+ * Select the most back to back and the mclosest to sqrt(s) pair
+ * Check that it passes the cut windows on dTh and mtot
+ */
+void AnaTdav2::kin_excl_all() {
+  double _dth_dph_cm_min = 1e9;
+  int jgg_most_btb = -1;
+  int jep_most_btb = -1;
+
+  double _dmtot_min = 1e9;
+  int jgg_dmtot_best = -1;
+  int jep_dmtot_best = -1;
+
+  for (int jep = 0; jep < rcl[iep_asso_all].GetLength(); ++jep) {
+    int ngg_ok=0, jgg_ok;
+    // count gg_sel's that satisfy the kinematic and exclusivity cuts
+    for (int jgg = 0; jgg < rcl[gg_sel].GetLength(); ++jgg) {
+      double _mtot = m(rcl[gg_sel][jgg], rcl[iep_asso][jep]);
+      double _dmtot = _mtot - p4sys.M();
+      double _dth_cm=0, _dph_cm=0;
+      dth_dph_cm(rcl[gg_sel][jgg], rcl[iep_asso][jep], _dth_cm, _dph_cm);
+      double _dth_dph_cm = hypot((_dth_cm-TMath::Pi())/dth_sigma, (_dph_cm-TMath::Pi())/dph_sigma);
+      if (_dth_dph_cm<_dth_dph_cm_min) {
+	_dth_dph_cm_min = _dth_dph_cm;
+	jgg_most_btb = jgg;
+	jep_most_btb = jep;
+      }
+      if (_dmtot<_dmtot_min) {
+	_dmtot_min = _dmtot;
+	jgg_dmtot_best = jgg;
+	jep_dmtot_best = jep;
+      }
+    }
+  }
+
+  if (jgg_most_btb!=jgg_dmtot_best||
+      jep_most_btb!=jep_dmtot_best
+      ) {
+    cout << "most btb and best mtot do not agree!" << endl;
+  }
+
+  rcl[iep_excl].Append(rcl[iep_asso][jep_most_btb]);
+  rcl[gg_excl].Append(rcl[gg_sel][jgg_most_btb]);
+
   fill_dth_dph_cm(rcl[iep_excl],rcl[gg_excl], hcmoa);
   fill_mtot(rcl[iep_excl],rcl[gg_excl], hmtot);
   fill_pair_mass(rcl[iep_excl], hmep[4]);
@@ -627,14 +747,26 @@ void AnaTdav2::Exec(Option_t* opt) {
   fill_lists();
 
   if (!calc_true_tu()) return;
+  calc_evt_wt();
 
   nocut_ref();
-  ep_uniq();
-  pi0_sel();
-  ep_pi0_asso();
-  kin_excl();
-  kin_fit();
-  fill_bins();
+
+  bool old = false;
+  if (old) {
+    ep_uniq();
+    pi0_sel();
+    ep_pi0_asso();
+    kin_excl();
+    kin_fit();
+    fill_bins();
+  } else {
+    pi0_sel();
+    ep_pi0_asso_all();
+    kin_excl_all();
+    kin_fit();
+    fill_bins();
+  }
+
 }
 
 void AnaTdav2::FinishTask() {
@@ -721,7 +853,7 @@ bool AnaTdav2::bayes_pid(RhoCandidate* cand) {
   m_prob_stt = (PndPidProbability*) m_stt_array->At(itrk);
   m_prob_emcb = (PndPidProbability*) m_emcb_array->At(itrk);
   double prob_comb = get_comb_prob(&PndPidProbability::GetElectronPidProb);
-  return prob_comb>0.9;
+  return prob_comb>0.5;
 }
 
 double AnaTdav2::get_comb_prob(prob_func func) {
