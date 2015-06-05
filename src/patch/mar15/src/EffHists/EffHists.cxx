@@ -220,9 +220,10 @@ void EffHists::Exec(Option_t* opt) {
     h_dpy->Fill(dpy, mom_mc);
     h_dpz->Fill(dpz, mom_mc);
 
+    double brem_factor = m_sp==iposit||m_sp==ielec?2.0:1.0;
     if ((dpx<dpx_min[imom]||dpx>dpx_max[imom])||
 	(dpy<dpy_min[imom]||dpy>dpy_max[imom])||
-	(dpz<dpz_min[imom]||dpz>dpz_max[imom])) {
+	(dpz<brem_factor*dpz_min[imom]||dpz>dpz_max[imom])) {
       continue;
     }
 
