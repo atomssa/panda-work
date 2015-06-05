@@ -639,11 +639,15 @@ void AnaTdav2::kin_excl_all() {
     }
   }
 
+  // if no pairs, nothing to do
+  if (jgg_most_btb<0||jep_most_btb<0) return;
+
   if (jgg_most_btb!=jgg_dmtot_best||
       jep_most_btb!=jep_dmtot_best
       ) {
     cout << "most btb and best mtot do not agree!" << endl;
   }
+
 
   rcl[iep_excl].Append(rcl[iep_asso][jep_most_btb]);
   rcl[gg_excl].Append(rcl[gg_sel][jgg_most_btb]);
