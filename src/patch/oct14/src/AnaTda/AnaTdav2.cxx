@@ -8,6 +8,7 @@
 
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TF1.h"
 #include "TEfficiency.h"
 #include "TFile.h"
 #include "TRandom.h"
@@ -94,12 +95,41 @@ void AnaTdav2::init_tcas() {
   m_emcb_array = init_tca( "PidAlgoEmcBayes");
 }
 
+double _pi_eff_func(double *x, double *p) {
+  double xx=x[0];
+  double f1 = p[0]+  p[2]*TMath::Sin(xx*p[1]*1.0)+   p[3]*TMath::Sin(xx*p[1]*2.0)+  p[4]*TMath::Cos(xx*p[1]*1.0) + p[5]*TMath::Cos(xx*p[1]*2.0);
+  double t1 = f1/(p[6]+(p[7]*TMath::Power(xx,p[8])));
+  double p2 = p[9]+  p[10]*x[0]+  p[11]*x[0]*x[0];
+  double t2 = p2;
+  return p[12]+t1+t2;
+}
+
 void AnaTdav2::init_hists() {
   eff_file = TFile::Open(eff_file_name.c_str());
+
   heff_epm = (TH2F*) eff_file->Get(eff_hist_name.c_str())->Clone("heff_epm");
 
   pi_eff_file = TFile::Open(pi_eff_file_name.c_str());
-  pi_eff = (TEfficiency*) pi_eff_file->Get(pi_eff_hist_name.c_str())->Clone("pi_eff");
+
+  //pi_eff = (TEfficiency*) pi_eff_file->Get(pi_eff_hist_name.c_str())->Clone("pi_eff");
+  pi_eff = smooth_eff1d((TEfficiency*) pi_eff_file->Get(pi_eff_hist_name.c_str())->Clone("pi_eff"));
+  if (pi_eff->GetDimension()==1) {
+    double pars[13] = { 6.35356e+00, 1.0, 4.13113e+00, -4.43669e+00,
+		      0.1, 0.01, 0.1, 9.64513e+03, 1.22279e+00,
+		      4.66147e-04, 2.96494e-05, -6.21090e-06, -3.23049e-06 };
+    pi_eff_func = new TF1("pi_eff_func",_pi_eff_func,0.0001,10,13);
+    for (int ii=0; ii < 13; ++ii) {
+      if (ii==9||ii==10||ii==11)
+	pi_eff_func->FixParameter(ii,pars[ii]);
+      else
+	pi_eff_func->SetParameter(ii,pars[ii]);
+    }
+    pi_eff->Fit(pi_eff_func,"+RME");
+  }
+
+  //pi_eff = (TEfficiency*) pi_eff_file->Get(pi_eff_hist_name.c_str())->Clone("pi_eff");
+  //pi_eff = smooth_eff2d((TEfficiency*)pi_eff_file->Get(pi_eff_hist_name.c_str())->Clone("pi_eff"),1000);
+  //pi_eff = smooth_eff2d(rebin2d((TEfficiency*)pi_eff_file->Get(pi_eff_hist_name.c_str())->Clone("pi_eff"), 5),1000);
 
   for (int is = 0; is< nstep; ++is) {
     hmep[is] = new TH1F(Form("hmep_%d",is),Form("hmep_%d",is),200,0,5);
@@ -331,11 +361,25 @@ void AnaTdav2::eid_filter(RhoCandList&out, RhoCandList&in) {
 }
 
 double AnaTdav2::eff_weight(const TVector3 &mom) {
-  int bx = pi_eff->GetTotalHistogram()->GetXaxis()->FindBin(mom.Mag());
-  int by = pi_eff_hist_rad?
-    pi_eff->GetTotalHistogram()->GetXaxis()->FindBin(mom.Theta()*TMath::RadToDeg()):
-    pi_eff->GetTotalHistogram()->GetXaxis()->FindBin(mom.Theta());
-  int gb = pi_eff->GetGlobalBin(bx,by);
+  int gb = 0;
+  if (pi_eff->GetDimension()==2) {
+    int bx = pi_eff->GetTotalHistogram()->GetXaxis()->FindBin(mom.Mag());
+    int by = pi_eff_hist_rad?
+      pi_eff->GetTotalHistogram()->GetXaxis()->FindBin(mom.Theta()*TMath::RadToDeg()):
+      pi_eff->GetTotalHistogram()->GetXaxis()->FindBin(mom.Theta());
+    gb = pi_eff->GetGlobalBin(bx,by);
+  } else {
+    if (pi_eff_func) {
+      if (mom.Mag()<0.01)
+	return pi_eff_func->Eval(0.01);
+      if (mom.Mag()>10)
+	return pi_eff_func->Eval(10);
+      else
+	return pi_eff_func->Eval(mom.Mag());
+    }
+    int bx = pi_eff->GetTotalHistogram()->GetXaxis()->FindBin(mom.Mag());
+    gb = pi_eff->GetGlobalBin(bx);
+  }
   return pi_eff->GetEfficiency(gb);
 }
 
@@ -406,6 +450,7 @@ void AnaTdav2::calc_evt_wt() {
       if (pip_found&&pim_found) break;
     }
     m_evt_wt = m_pip_wt*m_pim_wt;
+    //m_evt_wt = 1.0; // debug tmp
   } else {
     m_evt_wt = 1.0;
   }
@@ -497,8 +542,8 @@ void AnaTdav2::ep_uniq() {
  * of them with a weight
  */
 void AnaTdav2::ep_all() {
-  rcl[iep_uniq].Combine(rcl[ie],rcl[ip]);
-  fill_pair_mass(rcl[iep_uniq], hmep[2]);
+  rcl[iep_all].Combine(rcl[ie],rcl[ip]);
+  fill_pair_mass(rcl[iep_all], hmep[2]);
   fill_count_hists(gg,iep_all,2);
 }
 
@@ -550,10 +595,8 @@ void AnaTdav2::ep_pi0_asso() {
  * pairs are kept
  */
 void AnaTdav2::ep_pi0_asso_all() {
-  for (int i = 0; i < rcl[iep_all].GetLength(); ++i) {
-    if (rcl[gg_sel].GetLength()>0) {
-      rcl[iep_asso_all].Append(rcl[iep]);
-    }
+  if (rcl[gg_sel].GetLength()>0) {
+    rcl[iep_asso_all].Append(rcl[iep_all]);
   }
   fill_pair_mass(rcl[iep_asso_all], hmep[3]);
   fill_count_hists(gg_sel,iep_asso_all,4);
@@ -621,10 +664,10 @@ void AnaTdav2::kin_excl_all() {
     int ngg_ok=0, jgg_ok;
     // count gg_sel's that satisfy the kinematic and exclusivity cuts
     for (int jgg = 0; jgg < rcl[gg_sel].GetLength(); ++jgg) {
-      double _mtot = m(rcl[gg_sel][jgg], rcl[iep_asso][jep]);
+      double _mtot = m(rcl[gg_sel][jgg], rcl[iep_asso_all][jep]);
       double _dmtot = _mtot - p4sys.M();
       double _dth_cm=0, _dph_cm=0;
-      dth_dph_cm(rcl[gg_sel][jgg], rcl[iep_asso][jep], _dth_cm, _dph_cm);
+      dth_dph_cm(rcl[gg_sel][jgg], rcl[iep_asso_all][jep], _dth_cm, _dph_cm);
       double _dth_dph_cm = hypot((_dth_cm-TMath::Pi())/dth_sigma, (_dph_cm-TMath::Pi())/dph_sigma);
       if (_dth_dph_cm<_dth_dph_cm_min) {
 	_dth_dph_cm_min = _dth_dph_cm;
@@ -642,14 +685,16 @@ void AnaTdav2::kin_excl_all() {
   // if no pairs, nothing to do
   if (jgg_most_btb<0||jep_most_btb<0) return;
 
-  if (jgg_most_btb!=jgg_dmtot_best||
-      jep_most_btb!=jep_dmtot_best
-      ) {
-    cout << "most btb and best mtot do not agree!" << endl;
-  }
+  //static int noagree = 0;
+  //if (jgg_most_btb!=jgg_dmtot_best||
+  //    jep_most_btb!=jep_dmtot_best
+  //    ) {
+  //  noagree++;
+  //} else {
+  //  cout << "Evt" << nevt << "most_btb and best_mtot agree!" << endl;
+  //}
 
-
-  rcl[iep_excl].Append(rcl[iep_asso][jep_most_btb]);
+  rcl[iep_excl].Append(rcl[iep_asso_all][jep_most_btb]);
   rcl[gg_excl].Append(rcl[gg_sel][jgg_most_btb]);
 
   fill_dth_dph_cm(rcl[iep_excl],rcl[gg_excl], hcmoa);
@@ -764,6 +809,7 @@ void AnaTdav2::Exec(Option_t* opt) {
     kin_fit();
     fill_bins();
   } else {
+    ep_all();
     pi0_sel();
     ep_pi0_asso_all();
     kin_excl_all();
@@ -781,6 +827,9 @@ void AnaTdav2::FinishTask() {
 
 void AnaTdav2::write_hists() {
   const char *root_dir = gDirectory->GetPath();
+
+  pi_eff->Write();
+  heff_epm->Write();
 
   for (int is = 0; is< nstep; ++is) {
     hmep[is]->Write();
@@ -870,4 +919,69 @@ double AnaTdav2::get_comb_prob(prob_func func) {
     *(prob_mvd/(1-prob_mvd))*(prob_stt/(1-prob_stt))
     *(prob_emc/(1-prob_emc));
   return xx/(xx+1);
+}
+
+TEfficiency* AnaTdav2::rebin2d(TEfficiency *eff, int rebin) {
+  assert(eff->GetDimension()==2);
+  TEfficiency *tmp = (TEfficiency*) eff->Clone(Form("%s_rebinned",eff->GetName()));
+  tmp->SetName(Form("%s (Rebinned, %d)", eff->GetName(), rebin));
+  if (rebin<2) return eff;
+  TH2F* tmpN = (TH2F*)tmp->GetPassedHistogram();
+  TH2F* tmpD = (TH2F*)tmp->GetTotalHistogram();
+  tmpN->RebinX(rebin);
+  tmpN->RebinY(rebin);
+  tmpD->RebinX(rebin);
+  tmpD->RebinY(rebin);
+  TEfficiency *retval = new TEfficiency(*tmpN,*tmpD);
+  retval->SetTitle(tmp->GetTitle());
+  return retval;
+}
+
+TH2F* AnaTdav2::smooth_hist2d(TH2F* h, int nbins= 400) {
+  int nbinx = h->GetXaxis()->GetNbins();
+  double xmax = h->GetXaxis()->GetBinUpEdge(nbinx);
+  int nbiny = h->GetYaxis()->GetNbins();
+  double ymax = h->GetYaxis()->GetBinUpEdge(nbiny);
+  TH2F *smooth = new TH2F(Form("%s_smooth",h->GetName()), Form("%s (smoothed)",h->GetTitle()), nbins, 0, xmax, nbins, 0, ymax);
+  cout << "xmax= " << xmax << " ymax= " << ymax << endl;
+  smooth->GetXaxis()->SetTitle(h->GetXaxis()->GetTitle());
+  smooth->GetYaxis()->SetTitle(h->GetYaxis()->GetTitle());
+  TH1F *smoothx = (TH1F*) smooth->ProjectionX();
+  TH1F *smoothy = (TH1F*) smooth->ProjectionY();
+  for (int i = 1; i <= nbins; i++) {
+    for (int j = 1; j <= nbins; j++) {
+      double xx = smoothx->GetBinCenter(i);
+      double yy = smoothy->GetBinCenter(j);
+      double eff= h->Interpolate(xx,yy);
+      smooth->SetBinContent(i,j,eff);
+    }
+  }
+  return smooth;
+}
+
+TEfficiency* AnaTdav2::smooth_eff2d(TEfficiency *eff, int nbins=400)  {
+  cout << "Smoothing 2d Eff" << endl;
+  assert(eff->GetDimension()==2);
+  TH2F* num = smooth_hist2d((TH2F*)eff->GetPassedHistogram(),nbins);
+  TH2F* den = smooth_hist2d((TH2F*)eff->GetTotalHistogram(),nbins);
+  TEfficiency *smooth = new TEfficiency(*num,*den);
+  smooth->SetTitle(eff->GetTitle());
+  cout << "Done smoothing 2d Eff" << endl;
+  return smooth;
+}
+
+TH1F* AnaTdav2::smooth_hist1d(TH1F* h) {
+  TH1F* hret = (TH1F*)h->Clone(Form("%s_smooth1d", h->GetName()));
+  hret->SetTitle(h->GetTitle());
+  hret->Smooth(10);
+  return hret;
+}
+
+TEfficiency* AnaTdav2::smooth_eff1d(TEfficiency *eff)  {
+  assert(eff->GetDimension()==1);
+  TH1F* num = smooth_hist1d((TH1F*)eff->GetPassedHistogram());
+  TH1F* den = smooth_hist1d((TH1F*)eff->GetTotalHistogram());
+  TEfficiency *smooth = new TEfficiency(*num,*den);
+  smooth->SetTitle(Form("%s(1d Smoothed)", eff->GetTitle()));
+  return smooth;
 }

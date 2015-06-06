@@ -12,6 +12,7 @@
 class RhoCandList;
 class TH1F;
 class TH2F;
+class TF1;
 class TEfficiency;
 class TVector3;
 class TFile;
@@ -70,6 +71,15 @@ class AnaTdav2 : public FairTask{
   double get_comb_prob(prob_func func);
   double eff_weight(const TVector3 &mom);
 
+  //double _pi_eff_func(double *x, double *p);
+
+  TH2F* smooth_hist2d(TH2F* , int);
+  TEfficiency* smooth_eff2d(TEfficiency *,int);
+
+  TH1F* smooth_hist1d(TH1F*);
+  TEfficiency* smooth_eff1d(TEfficiency *);
+  TEfficiency* rebin2d(TEfficiency *, int);
+
   double dist_chpi_match(RhoCandidate*, RhoCandidate*);
   void charged_pion_filter(RhoCandList&, RhoCandList&, RhoCandList&, RhoCandList&, RhoCandList&, RhoCandList&);
 
@@ -120,6 +130,7 @@ class AnaTdav2 : public FairTask{
   std::string pi_eff_hist_name;
   bool pi_eff_hist_rad;
   TEfficiency* pi_eff;
+  TF1* pi_eff_func;
 
   static const int nstep = 6;
   TH1F* hmep[nstep];
