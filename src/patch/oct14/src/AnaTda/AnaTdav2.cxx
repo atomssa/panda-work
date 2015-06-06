@@ -111,12 +111,17 @@ void AnaTdav2::init_hists() {
 
   pi_eff_file = TFile::Open(pi_eff_file_name.c_str());
 
-  //pi_eff = (TEfficiency*) pi_eff_file->Get(pi_eff_hist_name.c_str())->Clone("pi_eff");
-  pi_eff = smooth_eff1d((TEfficiency*) pi_eff_file->Get(pi_eff_hist_name.c_str())->Clone("pi_eff"));
-  if (pi_eff->GetDimension()==1) {
+  TEfficiency *tmp = (TEfficiency*) pi_eff_file->Get(pi_eff_hist_name.c_str());
+  if (tmp->GetDimension()==2) {
+    //pi_eff = smooth_eff2d((TEfficiency*)pi_eff_file->Get(pi_eff_hist_name.c_str())->Clone("pi_eff"),1000);
+    //pi_eff = smooth_eff2d(rebin2d((TEfficiency*)pi_eff_file->Get(pi_eff_hist_name.c_str())->Clone("pi_eff"), 5),1000);
+    pi_eff = (TEfficiency*) pi_eff_file->Get(pi_eff_hist_name.c_str())->Clone("pi_eff2d");
+  } else {
+    //pi_eff = (TEfficiency*) pi_eff_file->Get(pi_eff_hist_name.c_str())->Clone("pi_eff");
+    pi_eff = smooth_eff1d((TEfficiency*) pi_eff_file->Get(pi_eff_hist_name.c_str())->Clone("pi_eff1d"));
     double pars[13] = { 6.35356e+00, 1.0, 4.13113e+00, -4.43669e+00,
-		      0.1, 0.01, 0.1, 9.64513e+03, 1.22279e+00,
-		      4.66147e-04, 2.96494e-05, -6.21090e-06, -3.23049e-06 };
+			0.1, 0.01, 0.1, 9.64513e+03, 1.22279e+00,
+			4.66147e-04, 2.96494e-05, -6.21090e-06, -3.23049e-06 };
     pi_eff_func = new TF1("pi_eff_func",_pi_eff_func,0.0001,10,13);
     for (int ii=0; ii < 13; ++ii) {
       if (ii==9||ii==10||ii==11)
@@ -126,10 +131,6 @@ void AnaTdav2::init_hists() {
     }
     pi_eff->Fit(pi_eff_func,"+RME");
   }
-
-  //pi_eff = (TEfficiency*) pi_eff_file->Get(pi_eff_hist_name.c_str())->Clone("pi_eff");
-  //pi_eff = smooth_eff2d((TEfficiency*)pi_eff_file->Get(pi_eff_hist_name.c_str())->Clone("pi_eff"),1000);
-  //pi_eff = smooth_eff2d(rebin2d((TEfficiency*)pi_eff_file->Get(pi_eff_hist_name.c_str())->Clone("pi_eff"), 5),1000);
 
   for (int is = 0; is< nstep; ++is) {
     hmep[is] = new TH1F(Form("hmep_%d",is),Form("hmep_%d",is),200,0,5);
