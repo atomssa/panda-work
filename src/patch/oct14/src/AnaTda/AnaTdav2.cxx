@@ -172,6 +172,8 @@ void AnaTdav2::init_hists() {
   htrupi0thcm = new TH1F("htrupi0thcm", "htrupi0thch", 200, 0., TMath::Pi());
   htrupi0costhcm = new TH1F("htrupi0costhcm", "htrupi0costhcm", 220, -1.1, 1.1);
   htrupi0thlab = new TH1F("htrupi0thlab", "htrupi0thlab", 200, 0., TMath::Pi());
+
+  hnevt =  new TH1F("hnevt","hnevt", 10,0,10);
 }
 
 void AnaTdav2::beam_cond(){
@@ -371,8 +373,8 @@ double AnaTdav2::eff_weight(const TVector3 &mom) {
     gb = pi_eff->GetGlobalBin(bx,by);
   } else {
     if (pi_eff_func) {
-      if (mom.Mag()<0.01)
-	return pi_eff_func->Eval(0.01);
+      if (mom.Mag()<0.1)
+	return pi_eff_func->Eval(0.1);
       if (mom.Mag()>10)
 	return pi_eff_func->Eval(10);
       else
@@ -408,17 +410,25 @@ bool AnaTdav2::calc_true_tu() {
 	event_u = u_gg(mcList[j]);
 	// Apply "true" t and u cuts here. For the higher energies, it doesn't make
 	// Sense to look at the whole range in t and u and gives wrong impression in S/B comparisons
-	if ( (tmin[iplab] < event_t and event_t < tmax[iplab]) or
-	     (tmin[iplab] < event_u and event_u < tmax[iplab]) ) {
-	  httrumc->Fill(event_t);
-	  hutrumc->Fill(event_u);
-	  htrupi0thcm->Fill(pi0theta_cm(mcList[j]));
-	  htrupi0costhcm->Fill(pi0cost_cm(mcList[j]));
-	  htrupi0thlab->Fill(mcList[j]->P4().Theta());
-	  return true;
-	} else {
-	  return false;
-	}
+	//if ( (tmin[iplab] < event_t and event_t < tmax[iplab]) or
+	//     (tmin[iplab] < event_u and event_u < tmax[iplab]) ) {
+	//  httrumc->Fill(event_t);
+	//  hutrumc->Fill(event_u);
+	//  htrupi0thcm->Fill(pi0theta_cm(mcList[j]));
+	//  htrupi0costhcm->Fill(pi0cost_cm(mcList[j]));
+	//  htrupi0thlab->Fill(mcList[j]->P4().Theta());
+	//  return true;
+	//} else {
+	//  return false;
+	//}
+
+	httrumc->Fill(event_t);
+	hutrumc->Fill(event_u);
+	htrupi0thcm->Fill(pi0theta_cm(mcList[j]));
+	htrupi0costhcm->Fill(pi0cost_cm(mcList[j]));
+	htrupi0thlab->Fill(mcList[j]->P4().Theta());
+	return true;
+
 	//if (bg_mc) {
 	//  httrumc->Fill(event_t);
 	//  hutrumc->Fill(event_u);
@@ -451,7 +461,7 @@ void AnaTdav2::calc_evt_wt() {
       if (pip_found&&pim_found) break;
     }
     m_evt_wt = m_pip_wt*m_pim_wt;
-    //m_evt_wt = 1.0; // debug tmp
+    m_evt_wt = 1.0; // debug tmp
   } else {
     m_evt_wt = 1.0;
   }
@@ -795,8 +805,10 @@ void AnaTdav2::Exec(Option_t* opt) {
   fAna->GetEvent();
   nevt++;
   fill_lists();
-
+  hnevt->Fill(0);
   if (!calc_true_tu()) return;
+  hnevt->Fill(1);
+  //  calc_true_tu();
   calc_evt_wt();
 
   nocut_ref();
@@ -821,13 +833,16 @@ void AnaTdav2::Exec(Option_t* opt) {
 }
 
 void AnaTdav2::FinishTask() {
-  cout << "AnaTdav2::Exec" << endl;
+  cout << "AnaTdav2::FinishTask" << endl;
+  cout << "Total #Evt= " << nevt << endl;
   fAna->Reset();
   write_hists();
 }
 
 void AnaTdav2::write_hists() {
   const char *root_dir = gDirectory->GetPath();
+
+  hnevt->Write();
 
   pi_eff->Write();
   heff_epm->Write();

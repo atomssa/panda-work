@@ -133,6 +133,7 @@ class AnaTdav2 : public FairTask{
   TF1* pi_eff_func;
 
   static const int nstep = 6;
+  TH1F* hnevt;
   TH1F* hmep[nstep];
   TH1F* hnep[nstep];
   TH1F* hngg[nstep];
