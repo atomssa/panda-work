@@ -12,7 +12,7 @@ void anav2(int iplab = 0, int itype = 0, int brem = 1, int fid=0, int nevts = 0)
   //TString inPidFile = Form("output/.scrut14/pid/pbar_p_%s_pi0_%d.root", tt[itype], plab[iplab], fid);
   //TString inParFile = Form("output/.scrut14/par/pbar_p_%s_pi0_%d.root", tt[itype], plab[iplab], fid);
 
-  const char *tt[2] = {"pi0pipm","pi0jpsi"};
+  const char *tt[2] = {"pi0pipm_dpm","pi0jpsi"};
   const char *cbrem[2] = {"raw","brem"};
   const char *dir = Form("/vol0/panda/work/jpsi_pi0/grid.out/tda/%s/runall.%d.%d", tt[itype], iplab, fid);
   TString inPidFile = Form("%s/pid_complete.root",dir);
@@ -38,8 +38,16 @@ void anav2(int iplab = 0, int itype = 0, int brem = 1, int fid=0, int nevts = 0)
 
   AnaTdav2 *atda = new AnaTdav2(iplab, itype, brem, eid_param);
   atda->set_verbosity(0);
+
   atda->set_eff_file_name("eff/epem.root");
   atda->set_eff_hist_name("heffelec", false);
+
+  atda->set_pi_eff_file_name("eff/hadd_out/hadd.pi.root");
+  //atda->set_pi_eff_hist_name("prob_cut_5/eff2d_e_id", false);
+
+  atda->set_eid_prob_min(0.9);
+  atda->set_pi_eff_hist_name("prob_cut_9/eff1d_mom_e_id", false);
+
   atda->do_apply_pi0evsoa_cut(false);
   atda->do_apply_pi0m_cut(true);
   atda->do_apply_mtot_cut(false);

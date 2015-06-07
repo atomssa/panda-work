@@ -34,6 +34,9 @@
 *.out
 *.app
 
+# core_dump
+core_dump_*
+
 #latex
 *.aux
 *.nav
