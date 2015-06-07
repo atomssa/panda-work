@@ -23,8 +23,8 @@ Mpi0_sq = Mpi0*Mpi0
 Mjpsi = 3.097
 Mjpsi2 = Mjpsi*Mjpsi
 fpi = 0.093 # GeV
-fpsi = 0.413 #GeV
-#fpsi = 0.383 #GeV
+#fpsi = 0.413 #GeV
+fpsi = 0.383 #GeV
 fN = 0.005 #GeV^2
 gpiNN = 13.21
 

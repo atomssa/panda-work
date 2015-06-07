@@ -533,6 +533,8 @@ void fig_gen_dists() {
 
 }
 
+
+
 void fig_ana() {
 
   const int nstep = 5;
@@ -587,7 +589,6 @@ void fig_ana() {
     fbg[iplab] = TFile::Open(Form("new_test/anav2_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
 
     for (int istep=0; istep<nstep; ++istep) {
-
       hmfg[iplab][istep] = (TH1F*) fsig[iplab]->Get(Form("hmep_%d",istep))->Clone(Form("hmep_fg_p%d_s%d",iplab,istep));
       hmsg[iplab][istep] = (TH1F*) fsig[iplab]->Get(Form("hmep_%d",istep))->Clone(Form("hmep_sig_p%d_s%d",iplab,istep));
       hmbg[iplab][istep] = (TH1F*) fbg[iplab]->Get(Form("hmep_%d",istep))->Clone(Form("hmep_bg_p%d_s%d",iplab,istep));
@@ -597,21 +598,11 @@ void fig_ana() {
 	immin = hmsg[iplab][istep]->GetXaxis()->FindBin(mmin);
 	immax = hmsg[iplab][istep]->GetXaxis()->FindBin(mmax);
       }
-
-      // Hackery to combine the pid steps for SIG and BG
-      if (istep==0) {
-	yield_sig[iplab][istep] = hmsg[iplab][istep]->Integral(immin, immax);
-	yield_bg[iplab][istep] = hmbg[iplab][istep]->Integral(immin, immax);
-	eff_sig[iplab][istep] = istep==0?100.:100*yield_sig[iplab][istep]/yield_sig[iplab][0];
-	eff_bg[iplab][istep] = istep==0?100.:100*yield_bg[iplab][istep]/yield_bg[iplab][0];
-	stob[iplab][istep] = yield_sig[iplab][istep]/yield_bg[iplab][istep];
-      } else if (istep>1) {
-	yield_sig[iplab][istep-1] = hmsg[iplab][istep]->Integral(immin, immax);
-	yield_bg[iplab][istep-1] = hmbg[iplab][istep]->Integral(immin, immax);
-	eff_sig[iplab][istep-1] = istep==0?100.:100*yield_sig[iplab][istep-1]/yield_sig[iplab][0];
-	eff_bg[iplab][istep-1] = istep==0?100.:100*yield_bg[iplab][istep-1]/yield_bg[iplab][0];
-	stob[iplab][istep-1] = yield_sig[iplab][istep-1]/yield_bg[iplab][istep-1];
-      }
+      yield_sig[iplab][istep] = hmsg[iplab][istep]->Integral(immin, immax);
+      yield_bg[iplab][istep] = hmbg[iplab][istep]->Integral(immin, immax);
+      eff_sig[iplab][istep] = istep==0?100.:100*yield_sig[iplab][istep]/yield_sig[iplab][0];
+      eff_bg[iplab][istep] = istep==0?100.:100*yield_bg[iplab][istep]/yield_bg[iplab][0];
+      stob[iplab][istep] = yield_sig[iplab][istep]/yield_bg[iplab][istep];
 
       set_style(hmfg[iplab][istep], 1, 2, true);
       set_style(hmsg[iplab][istep], 2, 2, true);
@@ -620,7 +611,6 @@ void fig_ana() {
       hmfg[iplab][istep]->GetXaxis()->SetRangeUser(0,4.0);
       hmsg[iplab][istep]->GetXaxis()->SetRangeUser(0,4.0);
       hmbg[iplab][istep]->GetXaxis()->SetRangeUser(0,4.0);
-
     }
 
     tc_mep_all_steps[iplab] = new TCanvas(Form("tc_mep_all_steps_p%d",iplab),Form("tc_mep_all_steps_p%d",iplab));
@@ -629,17 +619,17 @@ void fig_ana() {
       tc_mep_steps[iplab][istep] = new TCanvas(Form("tc_mep_steps_p%d_s%d",iplab,istep),Form("tc_mep_steps_p%d_s%d",iplab,istep));
       draw_fg_sig_bg(tc_mep_all_steps[iplab], istep+1, hmfg[iplab][istep], hmsg[iplab][istep], hmbg[iplab][istep], true);
       draw_fg_sig_bg(tc_mep_steps[iplab][istep], 0, hmfg[iplab][istep], hmsg[iplab][istep], hmbg[iplab][istep], true);
-      //tc_mep_steps[iplab][istep]->Print(Form("figs/2015.06.08/%s.pdf",tc_mep_steps[iplab][istep]->GetName()));
+      tc_mep_steps[iplab][istep]->Print(Form("figs/2015.06.08/%s.pdf",tc_mep_steps[iplab][istep]->GetName()));
     }
-    //tc_mep_all_steps[iplab]->Print(Form("figs/2015.06.08/%s.pdf",tc_mep_all_steps[iplab]->GetName()));
+    tc_mep_all_steps[iplab]->Print(Form("figs/2015.06.08/%s.pdf",tc_mep_all_steps[iplab]->GetName()));
 
     tmg_yield[iplab] = new TMultiGraph(Form("tmg_yield_p%d",iplab),Form("tmg_yield_p%d",iplab));
-    tg_sig_yield[iplab] = new TGraph(nstep-1,x,yield_sig[iplab]);
+    tg_sig_yield[iplab] = new TGraph(nstep,x,yield_sig[iplab]);
     set_style(tg_sig_yield[iplab], 1, 20, 3);
     //set_style(tg_sig_yield[iplab], iplab==0?1:(iplab==1?2:4), 20, 1);
     tg_sig_yield[iplab]->SetMinimum(0);
     tmg_yield[iplab]->Add(tg_sig_yield[iplab],"p");
-    tg_bg_yield[iplab] = new TGraph(nstep-1,x,yield_bg[iplab]);
+    tg_bg_yield[iplab] = new TGraph(nstep,x,yield_bg[iplab]);
     //set_style(tg_bg_yield[iplab], iplab==0?1:(iplab==1?2:4), 24, 1);
     set_style(tg_bg_yield[iplab], 1, 24, 3);
     tg_bg_yield[iplab]->SetMinimum(0);
@@ -653,25 +643,23 @@ void fig_ana() {
     }
 
     tmg_eff[iplab] = new TMultiGraph(Form("tmg_eff_p%d",iplab),Form("tmg_eff_p%d",iplab));
-    tg_sig_eff[iplab] = new TGraph(nstep-1,x,eff_sig[iplab]);
+    tg_sig_eff[iplab] = new TGraph(nstep,x,eff_sig[iplab]);
     //set_style(tg_sig_eff[iplab], iplab==0?1:(iplab==1?2:4), 20, 1);
     set_style(tg_sig_eff[iplab], 1, 20, 2);
     tg_sig_eff[iplab]->SetMinimum(0);
     tmg_eff[iplab]->Add(tg_sig_eff[iplab],"p");
-    tg_bg_eff[iplab] = new TGraph(nstep-1,x,eff_bg[iplab]);
+    tg_bg_eff[iplab] = new TGraph(nstep,x,eff_bg[iplab]);
     //set_style(tg_bg_eff[iplab], iplab==0?1:(iplab==1?2:4), 24, 1);
     set_style(tg_bg_eff[iplab], 1, 24, 2);
     tg_bg_eff[iplab]->SetMinimum(0);
     tmg_eff[iplab]->Add(tg_bg_eff[iplab],"p");
 
-    tg_stob[iplab] = new TGraph(nstep-1,x,stob[iplab]);
+    tg_stob[iplab] = new TGraph(nstep,x,stob[iplab]);
     //set_style(tg_stob[iplab], iplab==0?1:(iplab==1?2:4), 20, 1);
     set_style(tg_stob[iplab], 1, 20, 3);
     tg_stob[iplab]->SetMinimum(0);
 
   }
-
-  const char* bin_label[5] = {"EID(BG)","EID(SIG)","& N_{e^{+}e^{-}}=1  ","N_{#pi^{0}}>0","BtoB"};
 
   TCanvas *yield_step = new TCanvas("yield_step","yield_step",1800,1000);
   TPad *pad_yield[nplab];
@@ -689,34 +677,23 @@ void fig_ana() {
     if (iplab==0) {pad_yield[iplab]->SetRightMargin(epsilon); pad_yield[iplab]->SetLeftMargin(0.2);}
     if (iplab==1) {pad_yield[iplab]->SetLeftMargin(epsilon); pad_yield[iplab]->SetRightMargin(epsilon); }
     if (iplab==2) {pad_yield[iplab]->SetLeftMargin(epsilon); pad_yield[iplab]->SetRightMargin(0.1);}
-    pad_yield[iplab]->SetTopMargin(0.05);
-    pad_yield[iplab]->SetBottomMargin(0.15);
     pad_yield[iplab]->SetTicks(0,1);
     pad_yield[iplab]->cd();
     tmg_yield[iplab]->Draw("a");
     hdummy_yield[iplab] = tmg_yield[iplab]->GetHistogram();
-    for (int ibin=0; ibin<5; ++ibin){
-      int iibin = 0;
-      if (ibin==0) iibin = 5;
-      else if (ibin==1) iibin = 32;
-      else if (ibin==2) iibin = 39;
-      else iibin = 36+(ibin-2)*30;
-      hdummy_yield[iplab]->GetXaxis()->SetBinLabel(iibin, bin_label[ibin]);
-    }
     hdummy_yield[iplab]->SetLabelSize(0.05,"Y");
-    hdummy_yield[iplab]->SetLabelSize(iplab==0?0.065:0.08,"X");
+    hdummy_yield[iplab]->SetLabelSize(0.05,"X");
     hdummy_yield[iplab]->SetLabelOffset(0.005,"Y");
     hdummy_yield[iplab]->SetTitleSize(0.06,"Y");
     hdummy_yield[iplab]->SetTitleOffset(1.7,"Y");
-    hdummy_yield[iplab]->SetTitle(";;counts in 2.96<M_{e^{+}e^{-}}[GeV/c^{2}]<3.22");
+    hdummy_yield[iplab]->SetTitle(";step number;counts in 2.96<M_{e^{+}e^{-}}[GeV/c^{2}]<3.22");
     hdummy_yield[iplab]->SetMinimum(0);
     hdummy_yield[iplab]->SetMaximum(max_yield*1.1);
     tl[0][iplab]->DrawLatex(iplab==0?0.35:(iplab==1?0.25:0.15),0.8,iplab==0?Form("p^{LAB}_{#bar{p}} = %5.3f GeV/c",plab[iplab]):Form("p^{LAB}_{#bar{p}} = %3.1f GeV/c",plab[iplab]));
     tl[1][iplab]->DrawLatex(iplab==0?0.40:(iplab==1?0.35:0.25),0.75,Form("(%3.2f<|u|<%3.2f)",tmin[iplab],tmax[iplab]));
     if (iplab==2) leg[0]->Draw();
   }
-  //yield_step->Print("figs/2015.06.08/yield_vs_steps.pdf");
-  yield_step->Print("yield_vs_steps.pdf");
+  yield_step->Print("figs/2015.06.08/yield_vs_steps.pdf");
 
   TCanvas *eff_step = new TCanvas("eff_step","eff_step");
   TPad *pad_eff[nplab];
@@ -748,31 +725,22 @@ void fig_ana() {
     tl[1][iplab]->DrawLatex(iplab==0?0.40:(iplab==1?0.35:0.25),0.18,Form("(%3.2f<|u|<%3.2f)",tmin[iplab],tmax[iplab]));
     if (iplab==2) leg[1]->Draw();
   }
-  //eff_step->Print("figs/2015.06.08/eff_vs_steps.pdf");
+  eff_step->Print("figs/2015.06.08/eff_vs_steps.pdf");
 
   TCanvas *stob_step = new TCanvas("stob_step","stob_step",2200,1000);
   stob_step->Divide(3,1);
   TH1F *hdummy_stob[nplab];
   for (int iplab=0; iplab<nplab; ++iplab) {
     stob_step->cd(1+iplab);
-    gPad->SetTopMargin(0.05);
-    gPad->SetBottomMargin(0.15);
     tg_stob[iplab]->Draw("ap");
     hdummy_stob[iplab] = tg_stob[iplab]->GetHistogram();
-    for (int ibin=0; ibin<5; ++ibin){
-      int iibin = 0;
-      if (ibin==0) iibin = 5;
-      else if (ibin==1) iibin = 32;
-      else if (ibin==2) iibin = 39;
-      else iibin = 36+(ibin-2)*30;
-      hdummy_stob[iplab]->GetXaxis()->SetBinLabel(iibin, bin_label[ibin]);
-    }
+    hdummy_stob[iplab] = tg_stob[iplab]->GetHistogram();
     hdummy_stob[iplab]->SetLabelSize(0.05,"Y");
-    hdummy_stob[iplab]->SetLabelSize(0.07,"X");
+    hdummy_stob[iplab]->SetLabelSize(0.05,"X");
     hdummy_stob[iplab]->SetLabelOffset(0.005,"Y");
     hdummy_stob[iplab]->SetTitleSize(0.06,"Y");
     hdummy_stob[iplab]->SetTitleOffset(1.1,"Y");
-    hdummy_stob[iplab]->SetTitle(";;");
+    hdummy_stob[iplab]->SetTitle(";step number;signal to background");
     hdummy_stob[iplab]->SetMinimum(0);
     //hdummy_stob[iplab]->SetMaximum(105);
     tl[2][iplab]->DrawLatex(0.25,0.8,iplab==0?Form("p^{LAB}_{#bar{p}} = %5.3f GeV/c",plab[iplab]):Form("p^{LAB}_{#bar{p}} = %3.1f GeV/c",plab[iplab]));
@@ -780,8 +748,8 @@ void fig_ana() {
     tl[3][iplab]->DrawLatex(0.25,0.69,"Signal/Background");
     //if (iplab==0) leg[2]->Draw();
   }
-  //stob_step->Print("figs/2015.06.08/stob_vs_steps.pdf");
-  //stob_step->Print("stob_vs_steps.pdf");
+
+  stob_step->Print("figs/2015.06.08/stob_vs_steps.pdf");
 }
 
 Double_t background2(Double_t *x, Double_t *par) {
@@ -799,6 +767,7 @@ Double_t gaussianPeak(Double_t *x, Double_t *par) {
   return binw*par[0] * TMath::Exp(-exp*exp/2.)/par[2]/sqrt_2pi;
 }
 
+
 Double_t fitFunctionPol2(Double_t *x, Double_t *par) {
   //return background(x,par) + langaufun(x,&par[3]);
   return background2(x,par) + gaussianPeak(x,&par[3]);
@@ -809,47 +778,20 @@ Double_t fitFunctionPol3(Double_t *x, Double_t *par) {
   return background3(x,par) + gaussianPeak(x,&par[4]);
 }
 
-void get_vector( vector<double> &v, TVectorD* vv) {
-  cout << "FUCKING ROOTERIE. GO FIGURE! Getting vector<double> from TVectorD" << endl;
-  if (vv!=0) {
-    vv->Print();
-    int nelt = vv->GetNoElements();
-    cout << "NoElements= " << nelt << endl;
-    for (int ielt=0; ielt < nelt; ++ielt) {
-      TVectorD vvv = vv[0];
-      double elt = vvv[ielt];
-      cout << "elt." << ielt << " = " << elt << endl;
-      v.push_back(elt);
-    }
-  } else {
-    cout << "vector object is null" <<endl;
-  }
-}
-
 void fig_ana2() {
-
-  gStyle->SetOptStat(0);
-  gStyle->SetPadLeftMargin(0.13);
-  gStyle->SetPadBottomMargin(0.13);
-  //gStyle->SetTitleOffset(0.0,"X");
-  gStyle->SetTitleFontSize(0.08);
-  gStyle->SetTitleFont(62);
-  //gStyle->SetTitleAlign(33);
-  TGaxis::SetMaxDigits(3);
 
   // Prepare to fit...
   const int ntu = 2;
+  const int ntbin = 12;
   const char* toru[2] = {"t","u"};
 
-  bool pol3 = true;
+  bool pol3 = false;
 
-  //double mmin = 2.0, mmax = 5.0;
-  double mmin = 2.9, mmax = 3.3; //-> 3sigma
+  double mmin = 2.0, mmax = 5.0;
+  //double mmin = 2.9, mmax = 3.3; //-> 3sigma
   //double mmin = 2.8, mmax = 3.3;
   //double mmin = 2.0, mmax = 4.0;
   int immin = 0, immax = 0;
-
-  const int ntbin_max = 20;
 
   TGraph *tg_sig_eff[nplab], *tg_bg_eff[nplab];
   TGraph *tg_sig_yield[nplab], *tg_bg_yield[nplab];
@@ -857,9 +799,10 @@ void fig_ana2() {
 
   TCanvas *tc_mep_tbins[ntu][nplab];
 
-  TH1F* hmsg_tu[ntu][nplab][ntbin_max], *hmbg_tu[ntu][nplab][ntbin_max], *hmfg_tu[ntu][nplab][ntbin_max];
-  //TH1F* hmsg_tu_nofit[ntu][nplab][ntbin_max], *hmbg_tu_nofit[ntu][nplab][ntbin_max], *hmfg_tu_nofit[ntu][nplab][ntbin_max]; // DIRTY
-  TF1* fmsg_tu[ntu][nplab][ntbin_max], *fmbg_tu[ntu][nplab][ntbin_max], *fmfg_tu[ntu][nplab][ntbin_max];
+  TFile *fsig[nplab], *fbg[nplab];
+  TH1F* hmsg_tu[ntu][nplab][ntbin], *hmbg_tu[ntu][nplab][ntbin], *hmfg_tu[ntu][nplab][ntbin];
+  //TH1F* hmsg_tu_nofit[ntu][nplab][ntbin], *hmbg_tu_nofit[ntu][nplab][ntbin], *hmfg_tu_nofit[ntu][nplab][ntbin]; // DIRTY
+  TF1* fmsg_tu[ntu][nplab][ntbin], *fmbg_tu[ntu][nplab][ntbin], *fmfg_tu[ntu][nplab][ntbin];
 
   TLatex *tl[10][nplab];
   for (int ii = 0; ii < 10; ++ii) {
@@ -871,26 +814,27 @@ void fig_ana2() {
     }
   }
 
+  double t[ntbin]= {0.0}, t_er[ntbin] = {0.};
+  double t_cnt[ntbin]= {0.0};
+  for (int itbin = 0; itbin < ntbin; ++itbin) {
+    t[itbin] = -0.45+0.1*itbin;
+    t_cnt[itbin] = t[itbin]+0.01;
+  }
+
   int mar[2] = {20,21};
   int mar_cnt[2] = {24,25};
   int col[3] = {1,2,4};
-  double tvalid[ntu][nplab][ntbin_max]={{{0.0}}};
-  double yield[ntu][nplab][ntbin_max]={{{0.0}}};
-  double yield_er[ntu][nplab][ntbin_max]={{{0.0}}};
-  double yield_cnt[ntu][nplab][ntbin_max]={{{0.0}}};
-  double yield_cnt_er[ntu][nplab][ntbin_max]={{{0.0}}};
-
-  double yield_bg[ntu][nplab][ntbin_max]=={{{0.0}}};
-  double stob[ntu][nplab][ntbin_max]=={{{0.0}}};
-  double stob_er[ntu][nplab][ntbin_max]=={{{0.0}}};
-
+  double tvalid[ntu][nplab][ntbin]={{{0.0}}};
+  double yield[ntu][nplab][ntbin]={{{0.0}}};
+  double yield_er[ntu][nplab][ntbin]={{{0.0}}};
+  double yield_cnt[ntu][nplab][ntbin]={{{0.0}}};
+  double yield_cnt_er[ntu][nplab][ntbin]={{{0.0}}};
   int nptok[ntu][nplab] = {{0}};
-  double chi2ndf[ntu][nplab][ntbin_max]={{{0.0}}};
-  double prob[ntu][nplab][ntbin_max]={{{0.0}}};
+  double chi2ndf[ntu][nplab][ntbin]={{{0.0}}};
+  double prob[ntu][nplab][ntbin]={{{0.0}}};
 
   TGraphErrors *tg_yield[ntu][nplab];
   TGraphErrors *tg_yield_cnt[ntu][nplab];
-  TGraphErrors *tg_stob[ntu][nplab];
   TGraph *tg_chi2ndf[ntu][nplab];
   TGraph *tg_prob[ntu][nplab];
 
@@ -898,10 +842,8 @@ void fig_ana2() {
   TMultiGraph *tmg_yield_pbp[ntu][nplab];
   TMultiGraph *tmg_yield_cnt[ntu];
   TMultiGraph *tmg_yield_cnt_pbp[ntu][nplab];
-  TMultiGraph *tmg_stob_pbp[ntu][nplab];
   TMultiGraph *tmg_chi2ndf[ntu];
   TMultiGraph *tmg_prob[ntu];
-
   for (int itu = 0; itu < ntu; ++itu) {
     tmg_yield[itu] = new TMultiGraph(Form("tmg_yield_%s",toru[itu]),Form("tmg_yield_%s",toru[itu]));
     tmg_yield_cnt[itu] = new TMultiGraph(Form("tmg_yield_cnt_%s",toru[itu]),Form("tmg_yield_cnt_%s",toru[itu]));
@@ -910,159 +852,85 @@ void fig_ana2() {
     for (int iplab = 0; iplab < nplab; ++iplab) {
       tmg_yield_pbp[itu][iplab] = new TMultiGraph(Form("tmg_yield_pbp%s_t%d",toru[itu],iplab),Form("tmg_yield_pbp%s_p%d",toru[itu],iplab));
       tmg_yield_cnt_pbp[itu][iplab] = new TMultiGraph(Form("tmg_yield_cnt_pbp%s_p%d",toru[itu],iplab),Form("tmg_yield_cnt_pbp%s_p%d",toru[itu],plab));
-      tmg_stob_pbp[itu][iplab] = new TMultiGraph(Form("tmg_stob_pbp%s_t%d",toru[itu],iplab),Form("tmg_stob_pbp%s_p%d",toru[itu],iplab));
     }
   }
-
-  TCanvas *tctmp = new TCanvas("tctmp","tctmp");
 
   TLine *tline = new TLine();
   tline->SetLineColor(4);
   tline->SetLineWidth(2);
-  int _ntbin[nplab] = {0};
-  double t[nplab][ntbin_max] = {{0.0}}, t_er[ntbin_max] = {0.};
-  double t_cnt[nplab][ntbin_max]= {{0.0}};
-
-  TFile *fsig[nplab], *fbg[nplab];
-
-  TLegend *legend[nplab];
-  for (int iplab=0; iplab < nplab; ++iplab) {
-    legend[iplab] = new TLegend(0.2,0.6,0.8,0.78);
-    legend[iplab]->SetFillStyle(0);
-    legend[iplab]->SetBorderSize(0);
-    legend[iplab]->SetTextSize(0.08);
-  }
-
   for (int iplab=0; iplab<nplab; ++iplab) {
-
     fsig[iplab] = TFile::Open(Form("new_test/anav2_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
     fbg[iplab] = TFile::Open(Form("new_test/anav2_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
-
-    vector<double> tu_bins;
-    TVectorD *vv =  (TVectorT<double>*)fsig[iplab]->Get("tu_binning");
-    get_vector(tu_bins,vv);
-    cout << "tu_binningsize= " << tu_bins.size() << endl;
-    const int ntbin = tu_bins.size()>0?tu_bins.size()-1:12;
-    _ntbin[iplab] = ntbin;
-
-    if (tu_bins.size()==0) {
-      for (int itbin = 0; itbin < ntbin; ++itbin) {
-	t[iplab][itbin] = -0.45+0.1*itbin;
-	t_cnt[iplab][itbin] = t[iplab][itbin]+0.01;
-      }
-    } else {
-      for (int itbin=0; itbin < ntbin; ++itbin) {
-	t[iplab][itbin] = (tu_bins[itbin+1]+tu_bins[itbin])/2.0;
-	t_cnt[iplab][itbin] = t[iplab][itbin]+0.01;
-      }
-    }
-
     for (int itu = 0; itu < ntu; ++itu) {
-      tc_mep_tbins[itu][iplab] = new TCanvas(Form("fitted_mep_%sbins_p%d",toru[itu],iplab),Form("fitted_mep_%sbins_p%d",toru[itu],iplab),1800,1000);
-      tc_mep_tbins[itu][iplab]->Divide(3,3);
+      tc_mep_tbins[itu][iplab] = new TCanvas(Form("fitted_mep_%sbins_p%d",toru[itu],iplab),Form("fitted_mep_%sbins_p%d",toru[itu],iplab));
+      tc_mep_tbins[itu][iplab]->Divide(3,4);
       for (int itbin=0; itbin<ntbin; ++itbin) {
-
-	double tbin_width = tu_bins[itbin+1] - tu_bins[itbin];
 
 	hmfg_tu[itu][iplab][itbin] = (TH1F*) fsig[iplab]->Get(Form("tu_bins/hmep%s%d",toru[itu],itbin))->Clone(Form("hmep_fg_p%d_%s%db",iplab,toru[itu],itbin));
 	hmsg_tu[itu][iplab][itbin] = (TH1F*) fsig[iplab]->Get(Form("tu_bins/hmep%s%d",toru[itu],itbin))->Clone(Form("hmep_sig_p%d_%s%d",iplab,toru[itu],itbin));
 	hmbg_tu[itu][iplab][itbin] = (TH1F*) fbg[iplab]->Get(Form("tu_bins/hmep%s%d",toru[itu],itbin))->Clone(Form("hmep_bg_p%d_%s%d",iplab,toru[itu],itbin));
 	hmfg_tu[itu][iplab][itbin]->Add(hmbg_tu[itu][iplab][itbin]);
-	hmfg_tu[itu][iplab][itbin]->SetTitle(	Form("%4.2f < t < %4.2f;M_{inv}", tu_bins[itbin], tu_bins[itbin+1]));
+	hmfg_tu[itu][iplab][itbin]->SetTitle(";M_{inv}[GeV/c^{2}]");
 
 	// Do counting before rebin, for more precise control
-	immin = hmsg_tu[itu][iplab][itbin]->GetXaxis()->FindBin(mmin);
-	immax = hmsg_tu[itu][iplab][itbin]->GetXaxis()->FindBin(mmax);
+	immin = hmfg_tu[itu][iplab][itbin]->GetXaxis()->FindBin(mmin);
+	immax = hmfg_tu[itu][iplab][itbin]->GetXaxis()->FindBin(mmax);
 	double integral = hmsg_tu[itu][iplab][itbin]->Integral(immin, immax);
 	yield_cnt[itu][iplab][itbin] = integral;
 	yield_cnt_er[itu][iplab][itbin] = TMath::Sqrt(integral);
-	double integral_bg = hmbg_tu[itu][iplab][itbin]->Integral(immin, immax);
-	yield_bg[itu][iplab][itbin] = integral_bg;
 
 	set_style_ana(hmfg_tu[itu][iplab][itbin], 1, 4, true);
 	set_style_ana(hmsg_tu[itu][iplab][itbin], 2, 4, true);
 	set_style_ana(hmbg_tu[itu][iplab][itbin], 4, 4, true);
 
-	hmfg_tu[itu][iplab][itbin]->GetXaxis()->SetRangeUser(1.3,4.5);
-	hmsg_tu[itu][iplab][itbin]->GetXaxis()->SetRangeUser(1.3,4.5);
-	hmbg_tu[itu][iplab][itbin]->GetXaxis()->SetRangeUser(1.3,4.5);
+	hmfg_tu[itu][iplab][itbin]->GetXaxis()->SetRangeUser(1.3,4.0);
+	hmsg_tu[itu][iplab][itbin]->GetXaxis()->SetRangeUser(1.3,4.0);
+	hmbg_tu[itu][iplab][itbin]->GetXaxis()->SetRangeUser(1.3,4.0);
 
 	binw = hmfg_tu[itu][iplab][itbin]->GetBinWidth(3);
-
-	tctmp->cd();
+	tc_mep_tbins[itu][iplab]->cd(itbin+1);
 	// Define and setup fit function
-	double fitmin = 2.3;
-	double fitmax = 3.8;
+	//fmfg_tu[itu][iplab][itbin] = new TF1(Form("fmep_fg_p%d_%s%db",iplab,toru[itu],itbin),fitFunction,1.5,3.8,7);
 	if (pol3) {
-	  fmfg_tu[itu][iplab][itbin] = new TF1(Form("fmep_fg_p%d_%s%db",iplab,toru[itu],itbin),fitFunctionPol3,fitmin,fitmax,7);
+	  fmfg_tu[itu][iplab][itbin] = new TF1(Form("fmep_fg_p%d_%s%db",iplab,toru[itu],itbin),fitFunctionPol3,2.3,3.8,7);
 	  fmfg_tu[itu][iplab][itbin]->SetParameters(1,1,1,1,100,3.1,0.1);
 	  fmfg_tu[itu][iplab][itbin]->SetParLimits(5,3.0,3.2);
 	  fmfg_tu[itu][iplab][itbin]->SetParLimits(6,0.05,0.3);
-	  fmbg_tu[itu][iplab][itbin] = new TF1(Form("fmep_bg_p%d_%s%db",iplab,toru[itu],itbin),background3,fitmin,fitmax,4);
-	  fmsg_tu[itu][iplab][itbin] = new TF1(Form("fmep_sg_p%d_%s%db",iplab,toru[itu],itbin),gaussianPeak,fitmin,fitmax,3);
 	} else {
-	  fmfg_tu[itu][iplab][itbin] = new TF1(Form("fmep_fg_p%d_%s%db",iplab,toru[itu],itbin),fitFunctionPol2,fitmin,fitmax,6);
+	  fmfg_tu[itu][iplab][itbin] = new TF1(Form("fmep_fg_p%d_%s%db",iplab,toru[itu],itbin),fitFunctionPol2,2.3,3.8,6);
 	  fmfg_tu[itu][iplab][itbin]->SetParameters(1,1,1,100,3.1,0.1);
 	  fmfg_tu[itu][iplab][itbin]->SetParLimits(4,3.0,3.2);
 	  fmfg_tu[itu][iplab][itbin]->SetParLimits(5,0.05,0.1);
-	  fmbg_tu[itu][iplab][itbin] = new TF1(Form("fmep_bg_p%d_%s%db",iplab,toru[itu],itbin),background2,fitmin,fitmax,3);
-	  fmsg_tu[itu][iplab][itbin] = new TF1(Form("fmep_sg_p%d_%s%db",iplab,toru[itu],itbin),gaussianPeak,fitmin,fitmax,3);
 	}
 	fmfg_tu[itu][iplab][itbin]->SetNpx(500);
 	fmfg_tu[itu][iplab][itbin]->SetLineWidth(2);
 	fmfg_tu[itu][iplab][itbin]->SetLineColor(kCyan);
-	fmbg_tu[itu][iplab][itbin]->SetLineColor(kBlack);
-	fmsg_tu[itu][iplab][itbin]->SetLineColor(kBlue);
 
-	if (integral>15) {
+
+	if (integral>30000005) {
 	  hmfg_tu[itu][iplab][itbin]->Fit(Form("fmep_fg_p%d_%s%db",iplab,toru[itu],itbin),"0Q");
 	  fmfg_tu[itu][iplab][itbin]->SetParameter(pol3?4:3, fmfg_tu[itu][iplab][itbin]->GetParameter(pol3?4:3));
 	  hmfg_tu[itu][iplab][itbin]->Fit(Form("fmep_fg_p%d_%s%db",iplab,toru[itu],itbin), "Q+R", "ep");
 	  cout << "par4 = " << fmfg_tu[itu][iplab][itbin]->GetParameter(pol3?4:3) << endl;
 	  yield[itu][iplab][nptok[itu][iplab]] = fmfg_tu[itu][iplab][itbin]->GetParameter(pol3?4:3);
 	  yield_er[itu][iplab][nptok[itu][iplab]] = fmfg_tu[itu][iplab][itbin]->GetParError(pol3?4:3);
-	  tvalid[itu][iplab][nptok[itu][iplab]] = t[iplab][itbin];
-
-	  for (int ipar=0; ipar<(pol3?4:3); ++ipar) fmbg_tu[itu][iplab][itbin]->SetParameter(ipar, fmfg_tu[itu][iplab][itbin]->GetParameter(ipar));
-	  for (int ipar=(pol3?4:3); ipar<(pol3?7:6); ++ipar) fmsg_tu[itu][iplab][itbin]->SetParameter(ipar-(pol3?4:3), fmfg_tu[itu][iplab][itbin]->GetParameter(ipar));
-
-	  stob[itu][iplab][nptok[itu][iplab]] = yield[itu][iplab][nptok[itu][iplab]]/yield_bg[itu][iplab][itbin];
-	  double rel_er_num = yield_er[itu][iplab][nptok[itu][iplab]]/yield[itu][iplab][nptok[itu][iplab]];
-	  double rel_er_den = sqrt(yield_bg[itu][iplab][nptok[itu][iplab]])/yield_bg[itu][iplab][nptok[itu][iplab]];
-	  double rel_er = TMath::Hypot(rel_er_num, rel_er_den);
-	  //stob_er[itu][iplab][nptok[itu][iplab]] = rel_er * stob[itu][iplab][nptok[itu][iplab]];
-	  stob_er[itu][iplab][nptok[itu][iplab]] = 0.0; //rel_er * stob[itu][iplab][nptok[itu][iplab]];
-
-	  yield[itu][iplab][nptok[itu][iplab]] /= tbin_width;
-	  yield_er[itu][iplab][nptok[itu][iplab]] /= tbin_width;
-
+	  tvalid[itu][iplab][nptok[itu][iplab]] = t[itbin];
 	  nptok[itu][iplab]++;
-	}
-
-	yield_cnt[itu][iplab][itbin] /= tbin_width;
-	yield_cnt_er[itu][iplab][itbin] /= tbin_width;
-
-	if (itbin<9) { // Drawing only here. we have 3x3
-	  tc_mep_tbins[itu][iplab]->cd(itbin+1);
+	} else {
 	  hmfg_tu[itu][iplab][itbin]->Draw();
-	  hmfg_tu[itu][iplab][itbin]->SetMinimum(0);
-	  hmfg_tu[itu][iplab][itbin]->SetMaximum(fmfg_tu[itu][iplab][itbin]->GetMaximum()*1.1);
-	  hmsg_tu[itu][iplab][itbin]->SetLineStyle(9);
-	  hmbg_tu[itu][iplab][itbin]->SetLineStyle(9);
-	  //hmsg_tu[itu][iplab][itbin]->Draw("hist,same");
-	  hmbg_tu[itu][iplab][itbin]->Draw("hist,same");
-
-	  fmbg_tu[itu][iplab][itbin]->Draw("same");
-	  fmsg_tu[itu][iplab][itbin]->Draw("same");
-
-	  chi2ndf[itu][iplab][itbin] = fmfg_tu[itu][iplab][itbin]->GetChisquare(); //fmfg_tu[itu][iplab][itbin]->GetNDF();
-	  prob[itu][iplab][itbin] = fmfg_tu[itu][iplab][itbin]->GetProb();
-	  tl[0][iplab]->DrawLatex(0.15,0.7,Form("%s",hmsg_tu[itu][iplab][itbin]->GetTitle()));
-
-	  //tline->DrawLine(mmin,0,mmin,0.75*hmfg_tu[itu][iplab][itbin]->GetMaximum());
-	  //tline->DrawLine(mmax,0,mmax,0.75*hmfg_tu[itu][iplab][itbin]->GetMaximum());
-
 	}
+
+	//hmsg_tu[itu][iplab][itbin]->SetLineStyle(9);
+	//hmbg_tu[itu][iplab][itbin]->SetLineStyle(9);
+	//hmsg_tu[itu][iplab][itbin]->Draw("hist,same");
+	//hmbg_tu[itu][iplab][itbin]->Draw("hist,same");
+
+	chi2ndf[itu][iplab][itbin] = fmfg_tu[itu][iplab][itbin]->GetChisquare(); //fmfg_tu[itu][iplab][itbin]->GetNDF();
+	prob[itu][iplab][itbin] = fmfg_tu[itu][iplab][itbin]->GetProb();
+	tl[0][iplab]->DrawLatex(0.15,0.7,Form("%s",hmsg_tu[itu][iplab][itbin]->GetTitle()));
+
+	//tline->DrawLine(mmin,0,mmin,0.75*hmfg_tu[itu][iplab][itbin]->GetMaximum());
+	//tline->DrawLine(mmax,0,mmax,0.75*hmfg_tu[itu][iplab][itbin]->GetMaximum());
       }
 
       tc_mep_tbins[itu][iplab]->Print(Form("figs/2015.06.08/%s.pdf",tc_mep_tbins[itu][iplab]->GetName()));
@@ -1076,7 +944,7 @@ void fig_ana2() {
       tmg_yield[itu]->Add(tg_yield[itu][iplab],"p");
       tmg_yield_pbp[itu][iplab]->Add(tg_yield[itu][iplab],"p");
 
-      tg_yield_cnt[itu][iplab] = new TGraphErrors(ntbin-1,t_cnt[iplab],yield_cnt[itu][iplab],t_er,yield_cnt_er[itu][iplab]);
+      tg_yield_cnt[itu][iplab] = new TGraphErrors(ntbin-1,t_cnt,yield_cnt[itu][iplab],t_er,yield_cnt_er[itu][iplab]);
       tg_yield_cnt[itu][iplab]->SetMarkerStyle(mar_cnt[itu]);
       tg_yield_cnt[itu][iplab]->SetMarkerSize(1);
       tg_yield_cnt[itu][iplab]->SetMarkerColor(col[iplab]);
@@ -1086,26 +954,14 @@ void fig_ana2() {
       tmg_yield_cnt[itu]->Add(tg_yield[itu][iplab],"p");
       tmg_yield_cnt_pbp[itu][iplab]->Add(tg_yield_cnt[itu][iplab],"p");
       tmg_yield_cnt_pbp[itu][iplab]->Add(tg_yield[itu][iplab],"p");
-      if (itu==0) {
-	legend[iplab]->AddEntry(tg_yield[itu][iplab],"Fit (fg. histo)","pl");
-	legend[iplab]->AddEntry(tg_yield_cnt[itu][iplab],"Count (sig. histo)","pl");
-      }
 
-      tg_stob[itu][iplab] = new TGraphErrors(ntbin-1,tvalid[itu][iplab],stob[itu][iplab],t_er,stob_er[itu][iplab]);
-      tg_stob[itu][iplab]->SetMarkerStyle(21);
-      tg_stob[itu][iplab]->SetMarkerSize(1);
-      tg_stob[itu][iplab]->SetMarkerColor(col[iplab]);
-      tg_stob[itu][iplab]->SetLineColor(col[iplab]);
-      tg_stob[itu][iplab]->SetLineWidth(2);
-      tmg_stob_pbp[itu][iplab]->Add(tg_stob[itu][iplab],"p");
-
-      tg_chi2ndf[itu][iplab] = new TGraph(ntbin-1,t[iplab],chi2ndf[itu][iplab]);
+      tg_chi2ndf[itu][iplab] = new TGraph(ntbin-1,t,chi2ndf[itu][iplab]);
       tg_chi2ndf[itu][iplab]->SetMarkerStyle(mar[itu]);
       tg_chi2ndf[itu][iplab]->SetMarkerSize(1);
       tg_chi2ndf[itu][iplab]->SetMarkerColor(col[iplab]);
       tmg_chi2ndf[itu]->Add(tg_chi2ndf[itu][iplab],"p");
 
-      tg_prob[itu][iplab] = new TGraph(ntbin-1,t[iplab],prob[itu][iplab]);
+      tg_prob[itu][iplab] = new TGraph(ntbin-1,t,prob[itu][iplab]);
       tg_prob[itu][iplab]->SetMarkerStyle(mar[itu]);
       tg_prob[itu][iplab]->SetMarkerSize(1);
       tg_prob[itu][iplab]->SetMarkerColor(col[iplab]);
@@ -1113,16 +969,10 @@ void fig_ana2() {
     }
   }
 
-  tctmp->Close();
-
   TCanvas *tc_yield_pbp[ntu];
   TCanvas *tc_yield_cnt_pbp[ntu];
-  TCanvas *tc_stob_pbp[ntu];
   TCanvas *tc_chi2ndf[ntu];
   TCanvas *tc_prob[ntu];
-
-  TPad *pad_stob[ntu][nplab];
-  TH1F *hdummy_stob[ntu][nplab];
 
   TPad *pad_yield[ntu][nplab];
   TH1F *hdummy_yield[ntu][nplab];
@@ -1134,7 +984,7 @@ void fig_ana2() {
   for (int itu = 0; itu < ntu; ++itu) {
     for (int iplab = 0; iplab < nplab; ++iplab) {
       double gr_max = 0;
-      for (int itbin = 0; itbin < _ntbin[iplab]; ++itbin) {
+      for (int itbin = 0; itbin < ntbin; ++itbin) {
 	double top = yield_cnt[itu][iplab][itbin]+yield_cnt_er[itu][iplab][itbin];
 	if (top > gr_max) { gr_max = top; }
       }
@@ -1142,62 +992,7 @@ void fig_ana2() {
     }
   }
 
-  double max_stob[ntu] = {0.0};
-  for (int itu = 0; itu < ntu; ++itu) {
-    for (int iplab = 0; iplab < nplab; ++iplab) {
-      double gr_max = 0;
-      for (int itbin = 0; itbin < _ntbin[iplab]; ++itbin) {
-	//double top = stob[itu][iplab][itbin]+stob_er[itu][iplab][itbin];
-	double top = stob[itu][iplab][itbin];
-	if (top > gr_max) { gr_max = top; }
-      }
-      if(gr_max  > max_stob[itu]) max_stob[itu] = gr_max;
-    }
-  }
-
-
-  for (int itu = 0; itu < ntu; ++itu) {
-
-    tc_stob_pbp[itu] = new TCanvas(Form("stob_pbp%s",toru[itu]),Form("stob_pbp%s",toru[itu]));
-    tc_stob_pbp[itu]->Divide(3,1);
-    for (int iplab = 0; iplab < nplab; ++iplab) {
-
-      //double xl = (iplab==0?0:0.1)+iplab*0.3;
-      //double xh = 0.1+(iplab+1)*0.3+(iplab==1?0.001:0.0);
-      //pad_stob[itu][iplab] = new TPad(Form("pad_stob_%s_%d",toru[itu],iplab),Form("pad_stob_%s_%d",toru[itu],iplab),xl,0.0,xh,1.0);
-      //tc_stob_pbp[itu]->cd(0);
-      //pad_stob[itu][iplab]->Draw();
-      //double epsilon=1e-9;
-      //if (iplab==0) {pad_stob[itu][iplab]->SetRightMargin(epsilon); pad_stob[itu][iplab]->SetLeftMargin(0.2);}
-      //if (iplab==1) {pad_stob[itu][iplab]->SetLeftMargin(epsilon);  pad_stob[itu][iplab]->SetRightMargin(epsilon); }
-      //if (iplab==2) {pad_stob[itu][iplab]->SetLeftMargin(epsilon);  pad_stob[itu][iplab]->SetRightMargin(0.1);}
-      //pad_stob[itu][iplab]->SetTicks(0,1);
-      //pad_stob[itu][iplab]->cd();
-      //tmg_stob_pbp[itu][iplab]->Draw("a");
-      //hdummy_stob[itu][iplab] = (TH1F*)tmg_stob_pbp[itu][iplab]->GetHistogram();
-      //set_style(hdummy_stob[itu][iplab]);
-      //hdummy_stob[itu][iplab]->SetLabelSize(0.065,"Y");
-      //hdummy_stob[itu][iplab]->SetLabelSize(0.065,"X");
-      //hdummy_stob[itu][iplab]->SetLabelOffset(0.005,"Y");
-      //hdummy_stob[itu][iplab]->SetTitleSize(0.06,"X");
-      //hdummy_stob[itu][iplab]->SetTitleSize(0.06,"Y");
-      //hdummy_stob[itu][iplab]->SetTitleOffset(1.5,"Y");
-      //hdummy_stob[itu][iplab]->SetTitle(Form(";%s[GeV^{2}];Signal/Background",(itu==0?"t":"u")));
-      //hdummy_stob[itu][iplab]->SetMinimum(0);
-      //hdummy_stob[itu][iplab]->SetMaximum(max_stob[itu]*1.2);
-
-      tc_stob_pbp[itu]->cd(iplab+1);
-      tmg_stob_pbp[itu][iplab]->Draw("a");
-      hdummy_stob[itu][iplab] = (TH1F*)tmg_stob_pbp[itu][iplab]->GetHistogram();
-      set_style(hdummy_stob[itu][iplab]);
-      tmg_stob_pbp[itu][iplab]->SetMinimum(0.0);
-      tmg_stob_pbp[itu][iplab]->SetMaximum(iplab==0?5:(iplab==1?35:200));
-      hdummy_stob[itu][iplab]->SetTitle(Form(";%s[GeV^{2}];Signal/Background",(itu==0?"t":"u")));
-
-      tl[1][iplab]->DrawLatex((iplab==0?0.2:0.15),0.8,iplab==0?Form("p^{LAB}_{#bar{p}} = %5.3f GeV/c",plab[iplab]):Form("p^{LAB}_{#bar{p}} = %3.1f GeV/c",plab[iplab]));
-
-    }
-    tc_stob_pbp[itu]->Print(Form("figs/2015.06.08/%s.pdf",tc_stob_pbp[itu]->GetName()));
+  for (int itu = 0; itu < 1; ++itu) {
 
     tc_yield_pbp[itu] = new TCanvas(Form("fitted_yield_pbp%s",toru[itu]),Form("fitted_yield_pbp%s",toru[itu]));
     tc_yield_pbp[itu]->Divide(3,1);
@@ -1221,9 +1016,9 @@ void fig_ana2() {
       hdummy_yield[itu][iplab]->SetTitleSize(0.06,"X");
       hdummy_yield[itu][iplab]->SetTitleSize(0.06,"Y");
       hdummy_yield[itu][iplab]->SetTitleOffset(1.5,"Y");
-      hdummy_yield[itu][iplab]->SetTitle(Form(";%s[GeV^{2}];dN_{J/#psi}/d%s[GeV^{-2}]",(itu==0?"t":"u"),(itu==0?"t":"u")));
+      hdummy_yield[itu][iplab]->SetTitle(";t[GeV^{2}];yield");
       hdummy_yield[itu][iplab]->SetMinimum(0);
-      hdummy_yield[itu][iplab]->SetMaximum(max_yield[itu]*1.2);
+      hdummy_yield[itu][iplab]->SetMaximum(max_yield[itu]*1.1);
       tmg_yield_pbp[itu][iplab]->SetMinimum(0.0);
       tl[1][iplab]->DrawLatex((iplab==0?0.2:0.15),0.8,iplab==0?Form("p^{LAB}_{#bar{p}} = %5.3f GeV/c",plab[iplab]):Form("p^{LAB}_{#bar{p}} = %3.1f GeV/c",plab[iplab]));
     }
@@ -1252,15 +1047,12 @@ void fig_ana2() {
       hdummy_yield_cnt[itu][iplab]->SetTitleSize(0.06,"X");
       hdummy_yield_cnt[itu][iplab]->SetTitleSize(0.06,"Y");
       hdummy_yield_cnt[itu][iplab]->SetTitleOffset(1.5,"Y");
-      hdummy_yield_cnt[itu][iplab]->SetTitle(Form(";%s[GeV^{2}];dN_{J/#psi}/d%s[GeV^{-2}]",(itu==0?"t":"u"),(itu==0?"t":"u")));
+      hdummy_yield_cnt[itu][iplab]->SetTitle(";t[GeV^{2}];yield");
       hdummy_yield_cnt[itu][iplab]->SetMinimum(0);
-      hdummy_yield_cnt[itu][iplab]->SetMaximum(max_yield[itu]*1.2);
+      hdummy_yield_cnt[itu][iplab]->SetMaximum(max_yield[itu]*1.1);
 
       tmg_yield_cnt_pbp[itu][iplab]->SetMinimum(0.0);
       tl[1][iplab]->DrawLatex(iplab==0?0.2:0.15,0.8,iplab==0?Form("p^{LAB}_{#bar{p}} = %5.3f GeV/c",plab[iplab]):Form("p^{LAB}_{#bar{p}} = %3.1f GeV/c",plab[iplab]));
-
-      legend[iplab]->Draw();
-
     }
     tc_yield_cnt_pbp[itu]->Print(Form("figs/2015.06.08/%s.pdf",tc_yield_cnt_pbp[itu]->GetName()));
     //tc_yield_cnt_pbp[itu] = new TCanvas(Form("fitted_yield_cnt_pbp%s",toru[itu]),Form("fitted_yield_cnt_pbp%s",toru[itu]));
@@ -1452,7 +1244,7 @@ void fig_bg_xsect() {
   }
 }
 
-void figs(int _page) {
+void _figs(int _page) {
   gStyle->SetOptStat(0);
   gStyle->SetPadLeftMargin(0.13);
   gStyle->SetPadBottomMargin(0.13);
