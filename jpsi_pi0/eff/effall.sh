@@ -24,20 +24,38 @@ function tag_end_t {
 }
 
 batch=$1
-if [[ $batch == 0 || $batch == 1 ]]; then
-    n=499
+if [[ $batch == 0 || $batch == 1 || $batch == 2 || $batch == 3 ]]; then
+    if [[ $2 == "" || $3 == "" ]]; then
+	s=0
+	e=0
+    else
+	s=$2
+	e=$3
+    fi
 else
-    n=100
+    s=0
+    e=0
 fi
 
-ifile=$2
-for ifile in `seq 0 $n`;
-do
-    tag=batch${batch}_file${ifile}
-    logfile=logs/${tag}.log
-    echo "doing analysis for $tag, logfile: $logfile"
-    tag_start_t $tag
-    root -l -b -q -w effhists.C\($batch,$ifile\) >> $logfile 2>&1
-    tag_end_t $tag
-done
+if [[ $e == 0 ]]; then
+    for ifile in `more lists/batch.${batch}.list`;
+    do
+	tag=batch${batch}_file${ifile}
+	logfile=logs/${tag}.log
+	echo "doing analysis for $tag, logfile: $logfile"
+	tag_start_t $tag
+	root -l -b -q -w effhists.C\($batch,$ifile\) >> $logfile 2>&1
+	tag_end_t $tag
+    done
+else
+    for ifile in `seq $s $e`;
+    do
+	tag=batch${batch}_file${ifile}
+	logfile=logs/${tag}.log
+	echo "doing analysis for $tag, logfile: $logfile"
+	tag_start_t $tag
+	root -l -b -q -w effhists.C\($batch,$ifile\) >> $logfile 2>&1
+	tag_end_t $tag
+    done
+fi
 

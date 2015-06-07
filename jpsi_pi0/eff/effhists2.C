@@ -1,4 +1,4 @@
-void effhists(int batch, int ifile) {
+void effhists2(int batch, int ifile) {
   // 0 -> /projet/panda/Ermias/tda/pim_flat
   // 1 -> /projet/panda/Ermias/tda/pip_flat
   // 2 -> /projet/panda/Ermias/tda/elec_flat
@@ -7,39 +7,20 @@ void effhists(int batch, int ifile) {
   //int eid_param = 1;
   int sp;
   TString basedir;
-  bool vol0 = false;
   switch(batch) {
   case 0:
     sp = EffHists::ipionm;
-    vol0 = ifile>=200&&ifile<=299; //||ifile>=500&&ifile<=699;
-    basedir = vol0?"/vol0/panda/work/jpsi_pi0/grid.out/tda/pim_flat":"/projet/panda/Ermias/tda/pim_flat";
+    basedir = "/projet/panda/Ermias/jacek/piminus";
     break;
   case 1:
     sp = EffHists::ipionp;
-    vol0 = ifile>=200&&ifile<=299; //||ifile>=500&&ifile<=699;
-    basedir = vol0?"/vol0/panda/work/jpsi_pi0/grid.out/tda/pip_flat":"/projet/panda/Ermias/tda/pip_flat";
+    basedir = "/projet/panda/Ermias/jacek/piplus";
     break;
   case 2:
     sp = EffHists::ielec;
-    basedir = vol0?"/vol0/panda/work/jpsi_pi0/grid.out/tda/elec_flat":"/projet/panda/Ermias/tda/elec_flat";
-    break;
-  case 3:
-    sp = EffHists::iposit;
-    basedir = vol0?"/vol0/panda/work/jpsi_pi0/grid.out/tda/posit_flat":"/projet/panda/Ermias/tda/posit_flat";
-    break;
-  case 4:
-    sp = EffHists::ipionm;
-    basedir = "/projet/panda/Ermias/jacek/piminus";
-    break;
-  case 5:
-    sp = EffHists::ipionp;
-    basedir = "/projet/panda/Ermias/jacek/piplus";
-    break;
-  case 6:
-    sp = EffHists::ielec;
     basedir = "/projet/panda/Ermias/jacek/elec";
     break;
-  case 7:
+  case 3:
     sp = EffHists::iposit;
     basedir = "/projet/panda/Ermias/jacek/posit";
     break;
