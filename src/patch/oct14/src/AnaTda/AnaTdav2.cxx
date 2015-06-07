@@ -482,6 +482,7 @@ void AnaTdav2::calc_evt_wt() {
   } else {
     m_evt_wt = 1.0;
   }
+  hwt->Fill(m_evt_wt);
 }
 
 void AnaTdav2::print_mc_list() {
