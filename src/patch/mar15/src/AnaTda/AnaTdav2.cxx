@@ -13,6 +13,7 @@
 #include "TFile.h"
 #include "TRandom.h"
 #include "TVector3.h"
+#include "TVectorD.h"
 #include "TLorentzVector.h"
 #include "TClonesArray.h"
 
@@ -38,12 +39,15 @@ AnaTdav2::AnaTdav2(const int& _iplab, const int& itype, const int& brem, const i
   //tmax{0.616486, 0.457248, 0.31538},
   tmin{-0.443789, -2.76, -6.50},
   tmax{0.616486, 0.457248, 0.31538},
+  nevt_sim_bg{81874.0, 224120.0, 189015.0},
+  nevt_xsect_bg{4.0e11, 1e11, 1e9},
   eff_file_name("eff/effic_smooth.root"),
   eff_hist_name("eff_ep_em_rad"),
   eff_hist_rad(true),
   pi_eff_file_name("eff/hadd_out/eff.pi.root"),
   pi_eff_hist_name("prob_cut_5/eff2d_e_id"),
   pi_eff_hist_rad(false),
+  eid_prob_min(0.5),
   mcList(),
   apply_pi0evsoa_cut(true),
   lw{{0.11,-0.05,+0.00},{0.12,-0.03,-0.03},{0.15,-0.06,-0.07}},
@@ -100,8 +104,8 @@ double _pi_eff_func(double *x, double *p) {
   double f1 = p[0]+  p[2]*TMath::Sin(xx*p[1]*1.0)+   p[3]*TMath::Sin(xx*p[1]*2.0)+  p[4]*TMath::Cos(xx*p[1]*1.0) + p[5]*TMath::Cos(xx*p[1]*2.0);
   double t1 = f1/(p[6]+(p[7]*TMath::Power(xx,p[8])));
   double p2 = p[9]+  p[10]*x[0]+  p[11]*x[0]*x[0];
-  double t2 = p2;
-  return p[12]+t1+t2;
+  double t2 = p[12]*p2;
+  return p[13]+t1+t2;
 }
 
 void AnaTdav2::init_hists() {
@@ -119,11 +123,11 @@ void AnaTdav2::init_hists() {
   } else {
     //pi_eff = (TEfficiency*) pi_eff_file->Get(pi_eff_hist_name.c_str())->Clone("pi_eff");
     pi_eff = smooth_eff1d((TEfficiency*) pi_eff_file->Get(pi_eff_hist_name.c_str())->Clone("pi_eff1d"));
-    double pars[13] = { 6.35356e+00, 1.0, 4.13113e+00, -4.43669e+00,
+    double pars[14] = { 6.35356e+00, 1.0, 4.13113e+00, -4.43669e+00,
 			0.1, 0.01, 0.1, 9.64513e+03, 1.22279e+00,
-			4.66147e-04, 2.96494e-05, -6.21090e-06, -3.23049e-06 };
-    pi_eff_func = new TF1("pi_eff_func",_pi_eff_func,0.0001,10,13);
-    for (int ii=0; ii < 13; ++ii) {
+			4.66147e-04, 2.96494e-05, -6.21090e-06, 1.0, -3.23049e-06 };
+    pi_eff_func = new TF1("pi_eff_func",_pi_eff_func,0.0001,10,14);
+    for (int ii=0; ii < 14; ++ii) {
       if (ii==9||ii==10||ii==11)
 	pi_eff_func->FixParameter(ii,pars[ii]);
       else
@@ -131,6 +135,7 @@ void AnaTdav2::init_hists() {
     }
     pi_eff->Fit(pi_eff_func,"+RME");
   }
+  hwt = new TH1F("hwt", "event by event weight distribution", 2000,0,100);
 
   for (int is = 0; is< nstep; ++is) {
     hmep[is] = new TH1F(Form("hmep_%d",is),Form("hmep_%d",is),200,0,5);
@@ -139,11 +144,11 @@ void AnaTdav2::init_hists() {
   }
   hpi0th = new TH1F("hpi0th", "hpi0th", 200, 0, TMath::Pi());
   hpi0cost_cm = new TH1F("hpi0cost_cm", "hpi0cost_cm", 200, -1., 1.);
-  for (int ib=0; ib<nbinth; ++ib) {
-    hmep_pi0cost_cm[ib] = new TH1F(Form("hmep_pi0cost_cm_%d", ib), Form("hmep_pi0cost_cm_%d", ib), 200, 0, 5);
-    hmep_pi0th[ib] = new TH1F(Form("hmep_pi0th_%d", ib), Form("hmep_pi0th_%d", ib), 200, 0, 5);
-    hmept[ib] = new TH1F(Form("hmept%d", ib), Form("%3.1f < t < %3.1f;M_{inv}", tu_binning[ib], tu_binning[ib+1]), 200, 0, 5);
-    hmepu[ib] = new TH1F(Form("hmepu%d", ib), Form("%3.1f < u < %3.1f;M_{inv}", tu_binning[ib], tu_binning[ib+1]), 200, 0, 5);
+  for (int ib=0; ib<tu_binning.size()-1; ++ib) {
+    hmep_pi0cost_cm.push_back( new TH1F(Form("hmep_pi0cost_cm_%d", ib), Form("hmep_pi0cost_cm_%d", ib), 200, 0, 5));
+    hmep_pi0th.push_back( new TH1F(Form("hmep_pi0th_%d", ib), Form("hmep_pi0th_%d", ib), 200, 0, 5));
+    hmept.push_back(new TH1F(Form("hmept%d", ib), Form("%3.1f < t < %3.1f;M_{inv}", tu_binning[ib], tu_binning[ib+1]), 200, 0, 5));
+    hmepu.push_back(new TH1F(Form("hmepu%d", ib), Form("%3.1f < u < %3.1f;M_{inv}", tu_binning[ib], tu_binning[ib+1]), 200, 0, 5));
   }
   hmtot = new TH1F("hmtot", "hmtot", 200, 0, 8);
   hcmoa = new TH2F("hcmoa", "hcmoa", 200, 0, 2*TMath::Pi(), 200, 0, 2*TMath::Pi());
@@ -174,6 +179,8 @@ void AnaTdav2::init_hists() {
   htrupi0thlab = new TH1F("htrupi0thlab", "htrupi0thlab", 200, 0., TMath::Pi());
 
   hnevt =  new TH1F("hnevt","hnevt", 10,0,10);
+  hnevt->SetBinContent(3, nevt_sim_bg[iplab]);
+  hnevt->SetBinContent(4, nevt_xsect_bg[iplab]);
 }
 
 void AnaTdav2::beam_cond(){
@@ -195,37 +202,47 @@ void AnaTdav2::beam_cond(){
   p4targ.SetPxPyPzE(0,0,0,mass_prot);
   p4sys = p4pbar + p4targ;
 
+  double start[3] = {-0.45, -2.0, -5.0};
+  double delta[3] = {0.1, 0.2, 0.5};
+
+  cout << "double range[iplab=" << iplab << "][]= {";
+  for (int i=0; i<15; ++i) {
+    double xx = start[iplab] + delta[iplab]*i;
+    if (xx>tmax[iplab]) {
+      cout << tmax[iplab] << " }; // n=" << i << endl;;
+      tu_binning.push_back(tmax[iplab]);
+      break;
+    } else {
+      tu_binning.push_back(xx);
+      cout << xx << ",";
+    }
+  }
+  print_binning(tu_binning, "tu_binning");
+
   // Equal subdivisions in costh_cm, boost to lab for th bins
   TLorentzVector pi0;
   TVector3 u;
-  for (int ii = 0; ii < nbinth+1; ++ii) {
-    pi0cost_cm_binning[ii] = -1.0 + ( 2.0*ii/nbinth );
+  for (int ii = 0; ii < tu_binning.size(); ++ii) {
+    pi0cost_cm_binning.push_back(-1.0 + ( 2.0*ii/(tu_binning.size()-1) ));
+  }
+
+  for (int ii = pi0cost_cm_binning.size()-1; ii >=0; --ii) {
     u.SetMagThetaPhi(1,TMath::ACos(pi0cost_cm_binning[ii]),0);
     pi0.SetPxPyPzE(u.Px(),u.Py(),u.Pz(),TMath::Hypot(0.1349766,1.0));
     pi0.Boost(boost_to_lab);
-    pi0th_binning[nbinth-ii] = pi0.Theta();
+    pi0th_binning.push_back( pi0.Theta());
   }
-  pi0th_binning[nbinth]+=0.0001; // safety for numerical error
+  pi0th_binning[0]-=0.0001; // safety for numerical error
+  pi0th_binning[tu_binning.size()-1]+=0.0001; // safety for numerical error
   print_binning(pi0cost_cm_binning,"pi0cost_cm_binning");
   print_binning(pi0th_binning,"pi0th_binning");
 
-  // t and u binnings. This is the tricky part.
-  // Use bins of 0.05 on either side of 0, and use partial bin for the outermost ones
-  // for iplab==0 (5.513 GeV/c), go from -0.443789(@90deg) in steps of del=0.05
-  // for iplab==1 (8 GeV/c), go from -0.5(@??deg)by bins of del=0.1
-  // for iplab==2 (8 GeV/c), go from -0.5(@??deg)by bins of del=0.1
-  const double step = iplab==0?0.1:0.1;
-  const double start = iplab==0?tmin[iplab]:-0.5;
-  for (int ibin=0; ibin<nbinth+1; ++ibin) {
-    tu_binning[ibin] = start + (step*ibin);
-  }
-  print_binning(tu_binning, "tu_binning");
 }
 
-void AnaTdav2::print_binning(double *b, const char* n) {
+void AnaTdav2::print_binning(const vector<double> &b, const char* n) {
   cout << n << ": {";
-  for (int ii = 0; ii < nbinth+1; ++ii) cout << b[ii] << ", ";
-  cout << "}" << endl;
+  for (int ii = 0; ii < b.size(); ++ii) cout << b[ii] << (ii==b.size()-1?"":", ");
+  cout << "}; nbins= //" << b.size()-1 << endl;
 }
 
 InitStatus AnaTdav2::Init() {
@@ -460,8 +477,8 @@ void AnaTdav2::calc_evt_wt() {
       }
       if (pip_found&&pim_found) break;
     }
-    m_evt_wt = m_pip_wt*m_pim_wt;
-    m_evt_wt = 1.0; // debug tmp
+    m_evt_wt = nevt_xsect_bg[iplab]*m_pip_wt*m_pim_wt/nevt_sim_bg[iplab];
+    //m_evt_wt = 1.0; // debug tmp
   } else {
     m_evt_wt = 1.0;
   }
@@ -519,15 +536,21 @@ void AnaTdav2::fill_lists() {
 }
 
 void AnaTdav2::nocut_ref() {
+  double tmp_eid_wt = m_evt_wt*nevt_sim_bg[iplab]/nevt_xsect_bg[iplab];
+  if (bg_mc) m_evt_wt = nevt_xsect_bg[iplab]/nevt_sim_bg[iplab];
   rcl[gg].Combine(rcl[g],rcl[g]);
   rcl[ep].Combine(rcl[e],rcl[p]);
   fill_pair_mass(rcl[ep], hmep[0]);
   fill_count_hists(gg,ep,0);
-  if (bg_mc) {
-    rcl[iep].Combine(rcl[e],rcl[p]);
-  } else {
-    rcl[iep].Combine(rcl[ie],rcl[ip]);
-  }
+  if (bg_mc) m_evt_wt *= tmp_eid_wt;
+
+  //if (bg_mc) {
+  //  rcl[iep].Combine(rcl[e],rcl[p]);
+  //} else {
+  //  rcl[iep].Combine(rcl[ie],rcl[ip]);
+  //}
+  rcl[iep].Combine(rcl[ie],rcl[ip]);
+
   fill_pair_mass(rcl[iep], hmep[1]);
   fill_count_hists(gg,iep,1);
 }
@@ -657,7 +680,6 @@ void AnaTdav2::kin_excl() {
   fill_count_hists(gg_excl,iep_excl,3);
 }
 
-
 /**
  * Select the most back to back and the mclosest to sqrt(s) pair
  * Check that it passes the cut windows on dTh and mtot
@@ -752,8 +774,8 @@ double AnaTdav2::pi0theta_cm(RhoCandidate* pi0) {
   return p4gg.Theta();
 }
 
-int AnaTdav2::find_bin(double val, double *binning) {
-  for (int ii = 0; ii < nbinth; ++ii) {
+int AnaTdav2::find_bin(double val, const vector<double> &binning) {
+  for (int ii = 0; ii < binning.size()-1; ++ii) {
     if (binning[ii] < val and
 	val < binning[ii+1]) {
       return ii;
@@ -842,7 +864,26 @@ void AnaTdav2::FinishTask() {
 void AnaTdav2::write_hists() {
   const char *root_dir = gDirectory->GetPath();
 
+  TVectorD v(tu_binning.size());
+  for (int ib=0; ib < tu_binning.size(); ++ib) {
+    v[ib] = tu_binning[ib];
+  }
+  v.Write("tu_binning");
+
+  TVectorD vv(tu_binning.size());
+  for (int ib=0; ib < tu_binning.size(); ++ib) {
+    vv[ib] = pi0th_binning[ib];
+  }
+  vv.Write("pi0th_binning");
+
+  TVectorD vvv(tu_binning.size());
+  for (int ib=0; ib < tu_binning.size(); ++ib) {
+    vvv[ib] = pi0cost_cm_binning[ib];
+  }
+  vvv.Write("pi0cost_cm_binning");
+
   hnevt->Write();
+  hwt->Write();
 
   pi_eff->Write();
   heff_epm->Write();
@@ -864,7 +905,7 @@ void AnaTdav2::write_hists() {
   gDirectory->mkdir("pi0cost_cm_bins");
   gDirectory->cd("pi0cost_cm_bins");
   hpi0cost_cm->Write();
-  for (int ib=0; ib<nbinth; ++ib) {
+  for (int ib=0; ib<tu_binning.size()-1; ++ib) {
     hmep_pi0cost_cm[ib]->Write();
   }
   gDirectory->cd(root_dir);
@@ -872,7 +913,7 @@ void AnaTdav2::write_hists() {
   gDirectory->mkdir("pi0th_bins");
   gDirectory->cd("pi0th_bins");
   hpi0th->Write();
-  for (int ib=0; ib<nbinth; ++ib) {
+  for (int ib=0; ib<tu_binning.size()-1; ++ib) {
     hmep_pi0th[ib]->Write();
   }
   gDirectory->cd(root_dir);
@@ -880,7 +921,7 @@ void AnaTdav2::write_hists() {
   gDirectory->mkdir("tu_bins");
   gDirectory->cd("tu_bins");
   hpi0th->Write();
-  for (int ib=0; ib<nbinth; ++ib) {
+  for (int ib=0; ib<tu_binning.size()-1; ++ib) {
     hmept[ib]->Write();
     hmepu[ib]->Write();
   }
@@ -922,7 +963,7 @@ bool AnaTdav2::bayes_pid(RhoCandidate* cand) {
   m_prob_stt = (PndPidProbability*) m_stt_array->At(itrk);
   m_prob_emcb = (PndPidProbability*) m_emcb_array->At(itrk);
   double prob_comb = get_comb_prob(&PndPidProbability::GetElectronPidProb);
-  return prob_comb>0.5;
+  return prob_comb>eid_prob_min;
 }
 
 double AnaTdav2::get_comb_prob(prob_func func) {

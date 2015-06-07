@@ -45,6 +45,8 @@ class AnaTdav2 : public FairTask{
   void set_pi_eff_file_name(std::string a) {pi_eff_file_name= a;}
   void set_pi_eff_hist_name(std::string a, bool rad) {pi_eff_hist_name= a; pi_eff_hist_rad= rad; }
 
+  void set_eid_prob_min(double pmin) {eid_prob_min = pmin;}
+
  private:
   void fill_lists();
   void cleanup_lists() { for (int ii = 0; ii < rcl.size(); ++ii) rcl[ii].Cleanup(); }
@@ -116,6 +118,8 @@ class AnaTdav2 : public FairTask{
   double m_pip_wt, m_pim_wt, m_evt_wt;
   double tmin[3]; //={-0.443789, -1.0, -1.0};
   double tmax[3]; //={0.616486, 0.457248, 0.31538};
+  double nevt_sim_bg[3]; // number of simulated events for x-sect normalization
+  double nevt_xsect_bg[3]; // number of simulated events for x-sect normalization
 
   // Efficiency parametrizations
   TFile *eff_file;
@@ -132,21 +136,27 @@ class AnaTdav2 : public FairTask{
   TEfficiency* pi_eff;
   TF1* pi_eff_func;
 
+  double eid_prob_min;
+
   static const int nstep = 6;
   TH1F* hnevt;
+  TH1F* hwt;
   TH1F* hmep[nstep];
   TH1F* hnep[nstep];
   TH1F* hngg[nstep];
   TH1F* hpi0cost_cm;
   TH1F* hpi0th;
-  static const int nbinth = 12;
-  double tu_binning[nbinth+1];
-  double pi0th_binning[nbinth+1];
-  double pi0cost_cm_binning[nbinth+1];
-  TH1F* hmep_pi0cost_cm[nbinth];
-  TH1F* hmep_pi0th[nbinth];
-  TH1F* hmept[nbinth];
-  TH1F* hmepu[nbinth];
+
+  //static const int nbinth = 12;
+  std::vector<double> tu_binning;
+  std::vector<double> pi0th_binning;
+  std::vector<double> pi0cost_cm_binning;
+
+  std::vector<TH1F*> hmep_pi0cost_cm;
+  std::vector<TH1F*> hmep_pi0th;
+  std::vector<TH1F*> hmept;
+  std::vector<TH1F*> hmepu;
+
   TH1F* hmtot;
   TH2F* hcmoa;
   TH1F* htrecgg, *hurecgg, *htrecep, *hurecep;
@@ -188,7 +198,7 @@ class AnaTdav2 : public FairTask{
   double u_gg(RhoCandidate *_gg) { return (_gg->P4()-p4targ).M2(); }
   double u_ep(RhoCandidate *_ep) { return (_ep->P4()-p4pbar).M2(); }
 
-  int find_bin(double val, double *binning);
+  int find_bin(double val, const std::vector<double>& binning);
   //int t_bin(RhoCandidate*);
   //int u_bin(RhoCandidate*);
   //int pi0th_bin(RhoCandidate*);
@@ -202,7 +212,7 @@ class AnaTdav2 : public FairTask{
   void fill_pair_mass(RhoCandList&, TH1F*);
   void fill_count_hists(int, int, int);
   void print_indices();
-  void print_binning(double *, const char*);
+  void print_binning(const std::vector<double>&, const char*);
   bool calc_true_tu();
   void calc_evt_wt();
 
