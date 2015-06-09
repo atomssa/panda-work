@@ -12,6 +12,8 @@
 #include "TBox.h"
 #include "TStyle.h"
 #include "TGAxis.h"
+#include "TArrow.h"
+#include "TLine.h"
 
 #include <iostream>
 
@@ -196,7 +198,11 @@ void dist() {
 
   TFile *fpim = TFile::Open("hadd_out/hadd.pi.root");
   TFile *felec = TFile::Open("hadd_out/hadd.e.root");
+  double avg_pim_90[np], avg_elec_90[np];
+  double avg_pim_70[np], avg_elec_70[np];
+  double avg_pim_min, avg_elec_min;
 
+  TArrow *ta[2];
   bool twod = true;
   double xx[np][100] = {{0.}}, yy[np][100] = {{0.}};
   int npt = 27;
@@ -216,12 +222,23 @@ void dist() {
       }
       xx[ip][ipc] = avg_pim;
       yy[ip][ipc] = avg_elec;
+      cout << "ip = " << ip << "ipc+1 = " << ipc+1 << endl;
+      cout << "Drawing arrow" << endl;
+      if (((ipc+1)==9)) {
+	avg_pim_90[ip] = avg_pim;
+	avg_elec_90[ip] = avg_elec;
+      }
+      if (((ipc+1)==7)) {
+	avg_pim_70[ip] = avg_pim;
+	avg_elec_70[ip] = avg_elec;
+      }
     }
+
   }
 
   TLegend *tleg = new TLegend(0.45,0.2,0.89,0.5);
   tleg->SetBorderSize(0);
-  TMultiGraph *tmg = new TMultiGraph("roc","ROC curve; #varepsilon(#pi^{#pm}); #varepsilon(e^{#pm})");
+  TMultiGraph *tmg = new TMultiGraph("roc","; #varepsilon(#pi^{#pm}); #varepsilon(e^{#pm})");
   TGraph *tg[3];
   for (int ip=0; ip < np; ++ip) {
     tg[ip] = new TGraph(npt,xx[ip],yy[ip]);
@@ -235,8 +252,37 @@ void dist() {
   tc_roc->cd();
   tmg->Draw("a");
   gPad->Update();
+  avg_pim_min = tg[0]->GetHistogram()->GetXaxis()->GetXmin();
+  avg_elec_min = tg[0]->GetHistogram()->GetYaxis()->GetXmin();
+
   set_style(tmg->GetHistogram(),0);
   tleg->Draw();
+
+  TLegend *tleg2 = new TLegend(0.45,0.5,0.89,0.65);
+  tleg2->SetBorderSize(0);
+  tleg2->SetTextSize(0.05);
+
+  ta[0] = new TArrow();
+  ta[0]->SetLineWidth(2);
+  ta[0]->SetLineStyle(9);
+  for (int ip=np-1; ip >=0; --ip) {
+    ta[0]->SetLineColor(col[ip]);
+    ta[0]->DrawArrow(avg_pim_90[ip], avg_elec_90[ip], avg_pim_min, avg_elec_90[ip], 0.03, ">");
+    ta[0]->DrawArrow(avg_pim_90[ip], avg_elec_90[ip], avg_pim_90[ip], avg_elec_min, 0.03, ">");
+  }
+  tleg2->AddEntry(ta[0], Form("prob_{comb}>90%%"), "l" );
+
+  ta[1] = new TArrow();
+  ta[1]->SetLineWidth(2);
+  ta[1]->SetLineStyle(6);
+  for (int ip=np-1; ip >= 0; --ip) {
+    ta[1]->SetLineColor(col[ip]);
+    ta[1]->DrawArrow(avg_pim_70[ip], avg_elec_70[ip], avg_pim_min, avg_elec_70[ip], 0.03, ">");
+    ta[1]->DrawArrow(avg_pim_70[ip], avg_elec_70[ip], avg_pim_70[ip], avg_elec_min, 0.03, ">");
+  }
+  tleg2->AddEntry(ta[1], Form("prob_{comb}>70%%"), "l" );
+
+  tleg2->Draw();
   tc_roc->Print("roc.pdf");
 
 }

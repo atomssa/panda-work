@@ -24,7 +24,7 @@ void all(){
   //TFile *fsim= TFile::Open("new_test/anav2_jpsi_brem_plab5.5.root");
   //TFile *fbg= TFile::Open("new_test/anav2_pip_pim_brem_plab5.5.root");
 
-  TFile *fsim= TFile::Open("new_test/anav2_jpsi_brem_plab8.0.root");
+  TFile *fsim= TFile::Open("new_test/anav2_jpsi_brem_plab12.0.root");
   TFile *fbg= TFile::Open("new_test/anav2_pip_pim_brem_plab12.0.root");
 
   TLegend *tl = new TLegend(0.35,0.5,0.85,0.9);
@@ -46,9 +46,10 @@ void all(){
     tc_vert->cd(1+ii);
     hmep[ii][0]->Draw();
     hmep[ii][0]->SetTitle("");
-    hmep[ii][0]->GetYaxis()->SetTitle("counts");
+    if (ii==0) hmep[ii][0]->SetTitle("Signal;M_{e^{+}e^{-}}[GeV/c];counts");
+    if (ii==1)hmep[ii][0]->SetTitle("Background;M_{#pi^{+}#pi^{-}}[GeV/c];counts");
     hmep[ii][0]->SetLineColor(1);
-    if (ii==0) tl->AddEntry(hmep[ii][0],"All pairs (5x10^{-7} for bg)");
+    if (ii==0) tl->AddEntry(hmep[ii][0],"All pairs (x 3x10^{-7} for bg)");
     hmep[ii][1]->SetLineColor(2);
     hmep[ii][1]->Draw("same");
     if (ii==0) tl->AddEntry(hmep[ii][1],"Pairs after eid (wt for bg)");
@@ -62,7 +63,7 @@ void all(){
     if (ii==1) {
       //gPad->SetLogy();
       //hmep[ii][0]->SetMinimum(10);
-      hmep[ii][0]->Scale(0.5e-6);
+      hmep[ii][0]->Scale(3e-7);
     }
   }
 

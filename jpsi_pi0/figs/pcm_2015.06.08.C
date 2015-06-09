@@ -967,6 +967,7 @@ void fig_ana2() {
 	hmfg_tu[itu][iplab][itbin] = (TH1F*) fsig[iplab]->Get(Form("tu_bins/hmep%s%d",toru[itu],itbin))->Clone(Form("hmep_fg_p%d_%s%db",iplab,toru[itu],itbin));
 	hmsg_tu[itu][iplab][itbin] = (TH1F*) fsig[iplab]->Get(Form("tu_bins/hmep%s%d",toru[itu],itbin))->Clone(Form("hmep_sig_p%d_%s%d",iplab,toru[itu],itbin));
 	hmbg_tu[itu][iplab][itbin] = (TH1F*) fbg[iplab]->Get(Form("tu_bins/hmep%s%d",toru[itu],itbin))->Clone(Form("hmep_bg_p%d_%s%d",iplab,toru[itu],itbin));
+	if (iplab==2) hmbg_tu[itu][iplab][itbin]->Scale(10);
 	hmfg_tu[itu][iplab][itbin]->Add(hmbg_tu[itu][iplab][itbin]);
 	hmfg_tu[itu][iplab][itbin]->SetTitle(	Form("%4.2f < t < %4.2f;M_{inv}", tu_bins[itbin], tu_bins[itbin+1]));
 
@@ -1191,9 +1192,13 @@ void fig_ana2() {
       hdummy_stob[itu][iplab] = (TH1F*)tmg_stob_pbp[itu][iplab]->GetHistogram();
       set_style(hdummy_stob[itu][iplab]);
       tmg_stob_pbp[itu][iplab]->SetMinimum(0.0);
-      tmg_stob_pbp[itu][iplab]->SetMaximum(iplab==0?5:(iplab==1?35:200));
+      //tmg_stob_pbp[itu][iplab]->SetMaximum(iplab==0?18:(iplab==1?200:1200));
+      tmg_stob_pbp[itu][iplab]->SetMaximum(iplab==0?6.5:(iplab==1?60:350));
       hdummy_stob[itu][iplab]->SetTitle(Form(";%s[GeV^{2}];Signal/Background",(itu==0?"t":"u")));
-
+      hdummy_stob[itu][iplab]->SetNdivisions(605);
+      double epsilon = 1e-9;
+      TPad *_pad = (TPad*) tc_stob_pbp[itu]->GetPad(iplab);
+      _pad->SetRightMargin(epsilon);
       tl[1][iplab]->DrawLatex((iplab==0?0.2:0.15),0.8,iplab==0?Form("p^{LAB}_{#bar{p}} = %5.3f GeV/c",plab[iplab]):Form("p^{LAB}_{#bar{p}} = %3.1f GeV/c",plab[iplab]));
 
     }
@@ -1223,7 +1228,7 @@ void fig_ana2() {
       hdummy_yield[itu][iplab]->SetTitleOffset(1.5,"Y");
       hdummy_yield[itu][iplab]->SetTitle(Form(";%s[GeV^{2}];dN_{J/#psi}/d%s[GeV^{-2}]",(itu==0?"t":"u"),(itu==0?"t":"u")));
       hdummy_yield[itu][iplab]->SetMinimum(0);
-      hdummy_yield[itu][iplab]->SetMaximum(max_yield[itu]*1.2);
+      hdummy_yield[itu][iplab]->SetMaximum((max_yield[0]>max_yield[1]?max_yield[0]:max_yield[1])*1.4);
       tmg_yield_pbp[itu][iplab]->SetMinimum(0.0);
       tl[1][iplab]->DrawLatex((iplab==0?0.2:0.15),0.8,iplab==0?Form("p^{LAB}_{#bar{p}} = %5.3f GeV/c",plab[iplab]):Form("p^{LAB}_{#bar{p}} = %3.1f GeV/c",plab[iplab]));
     }
@@ -1254,7 +1259,7 @@ void fig_ana2() {
       hdummy_yield_cnt[itu][iplab]->SetTitleOffset(1.5,"Y");
       hdummy_yield_cnt[itu][iplab]->SetTitle(Form(";%s[GeV^{2}];dN_{J/#psi}/d%s[GeV^{-2}]",(itu==0?"t":"u"),(itu==0?"t":"u")));
       hdummy_yield_cnt[itu][iplab]->SetMinimum(0);
-      hdummy_yield_cnt[itu][iplab]->SetMaximum(max_yield[itu]*1.2);
+      hdummy_yield_cnt[itu][iplab]->SetMaximum((max_yield[0]>max_yield[1]?max_yield[0]:max_yield[1])*1.4);
 
       tmg_yield_cnt_pbp[itu][iplab]->SetMinimum(0.0);
       tl[1][iplab]->DrawLatex(iplab==0?0.2:0.15,0.8,iplab==0?Form("p^{LAB}_{#bar{p}} = %5.3f GeV/c",plab[iplab]):Form("p^{LAB}_{#bar{p}} = %3.1f GeV/c",plab[iplab]));
