@@ -154,8 +154,8 @@ void fig_kin_cuts() {
 //void fig_kin_cuts2() {
 //  TFile *fsig[nplab], *fbg[nplab];
 //  for (int iplab = 0; iplab < nplab; ++iplab) {
-//    fsig[iplab] = TFile::Open(Form("new_test/anav2_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
-//    fbg[iplab] = TFile::Open(Form("new_test/anav2_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
+//    fsig[iplab] = TFile::Open(Form("hists/pcm.jul.2015/anav2_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
+//    fbg[iplab] = TFile::Open(Form("hists/pcm.jul.2015/anav2_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
 //    for (int istep = 0; istep < nstep; ++istep) {
 //      sig_nep[iplab][istep] = (TH1F*) fsig[iplab]->Get(Form("hnep_%d",istep))->Clone(Form("sig_hnep_s%d_p%d",istep,iplab));
 //      bg_nep[iplab][istep] = (TH1F*) fbg[iplab]->Get(Form("hnep_%d",istep))->Clone(Form("bg_hnep_s%d_p%d",istep,iplab));
@@ -169,8 +169,8 @@ void fig_npair() {
   TH1F* bg_nep[nplab][nstep], *bg_ngg[nplab][nstep];
   TFile *fsig[nplab], *fbg[nplab];
   for (int iplab = 0; iplab < nplab; ++iplab) {
-    fsig[iplab] = TFile::Open(Form("new_test/anav2_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
-    fbg[iplab] = TFile::Open(Form("new_test/anav2_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
+    fsig[iplab] = TFile::Open(Form("hists/pcm.jul.2015/anav2_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
+    fbg[iplab] = TFile::Open(Form("hists/pcm.jul.2015/anav2_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
     for (int istep = 0; istep < nstep; ++istep) {
       sig_nep[iplab][istep] = (TH1F*) fsig[iplab]->Get(Form("hnep_%d",istep))->Clone(Form("sig_hnep_s%d_p%d",istep,iplab));
       bg_nep[iplab][istep] = (TH1F*) fbg[iplab]->Get(Form("hnep_%d",istep))->Clone(Form("bg_hnep_s%d_p%d",istep,iplab));
@@ -413,8 +413,8 @@ void fig_gen_dists() {
 
   TLatex *tl[6][nplab];
   for (int iplab=0; iplab<nplab; ++iplab) {
-    fsig[iplab] = TFile::Open(Form("new_test/anav2_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
-    fbg[iplab] = TFile::Open(Form("new_test/anav2_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
+    fsig[iplab] = TFile::Open(Form("hists/pcm.jul.2015/anav2_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
+    fbg[iplab] = TFile::Open(Form("hists/pcm.jul.2015/anav2_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
     h_ttrue_sig[iplab] = (TH1F*) fsig[iplab]->Get("tu/httrumc")->Clone(Form("httruemc_sig_p%d",iplab));
     h_ttrue_bg[iplab] = (TH1F*) fbg[iplab]->Get("tu/httrumc")->Clone(Form("httruemc_bg_p%d",iplab));
     h_trec_sig[iplab] = (TH1F*) fsig[iplab]->Get("tu/htrecgg")->Clone(Form("htrecgg_sig_p%d",iplab));
@@ -583,8 +583,8 @@ void fig_ana() {
   }
 
   for (int iplab=0; iplab<nplab; ++iplab) {
-    fsig[iplab] = TFile::Open(Form("new_test/anav2_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
-    fbg[iplab] = TFile::Open(Form("new_test/anav2_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
+    fsig[iplab] = TFile::Open(Form("hists/pcm.jul.2015/anav2_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
+    fbg[iplab] = TFile::Open(Form("hists/pcm.jul.2015/anav2_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
 
     for (int istep=0; istep<nstep; ++istep) {
 
@@ -935,8 +935,8 @@ void fig_ana2() {
 
   for (int iplab=0; iplab<nplab; ++iplab) {
 
-    fsig[iplab] = TFile::Open(Form("new_test/anav2_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
-    fbg[iplab] = TFile::Open(Form("new_test/anav2_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
+    fsig[iplab] = TFile::Open(Form("hists/pcm.jul.2015/anav2_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
+    fbg[iplab] = TFile::Open(Form("hists/pcm.jul.2015/anav2_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
 
     vector<double> tu_bins;
     TVectorD *vv =  (TVectorT<double>*)fsig[iplab]->Get("tu_binning");

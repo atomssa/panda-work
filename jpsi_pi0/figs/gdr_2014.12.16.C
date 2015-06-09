@@ -91,7 +91,7 @@ void fig_kin_cuts() {
   TLegend *tl = new TLegend(0.15,0.7,0.6,0.85);
   tl->SetTextSize(0.06);
   for (int iplab = 0; iplab < nplab; ++iplab) {
-    fsig[iplab] = TFile::Open(Form("test/ana/ana_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
+    fsig[iplab] = TFile::Open(Form("hists/pcm.dec.2014/ana/ana_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
     cmdth_vs_mmtot_true_sig[iplab] = (TH2F*) fsig[iplab]->Get("full_sys/h_dth_vs_mass_gg_epair_truepi0jpsi_rec")->Clone(Form("cmdth_vs_mtot_true_sig_iplab%d",iplab));
     cmdth_vs_cmdph_true_sig[iplab] = (TH2F*) fsig[iplab]->Get("full_sys/h_dth_vs_dph_gg_epair_truepi0jpsi_rec")->Clone(Form("cmdth_vs_cmdph_true_sig_iplab%d",iplab));
     //set_style(cmdth_vs_mmtot_true_sig[iplab]);
@@ -103,7 +103,7 @@ void fig_kin_cuts() {
     set_style(cmdph_sig[iplab],1);
     set_style(mmtot_sig[iplab],1);
 
-    fbg[iplab] = TFile::Open(Form("test/ana/ana_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
+    fbg[iplab] = TFile::Open(Form("hists/pcm.dec.2014/ana/ana_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
     cmdth_vs_mmtot_true_bg[iplab] = (TH2F*) fbg[iplab]->Get("full_sys/h_dth_vs_mass_gg_epair_truepi0jpsi_rec")->Clone(Form("cmdth_vs_mtot_true_bg_iplab%d",iplab));
     cmdth_vs_cmdph_true_bg[iplab] = (TH2F*) fbg[iplab]->Get("full_sys/h_dth_vs_dph_gg_epair_truepi0jpsi_rec")->Clone(Form("cmdth_vs_cmdph_true_bg_iplab%d",iplab));
     //set_style(cmdth_vs_mmtot_true_bg[iplab]);
@@ -154,8 +154,8 @@ void fig_kin_cuts() {
 //void fig_kin_cuts2() {
 //  TFile *fsig[nplab], *fbg[nplab];
 //  for (int iplab = 0; iplab < nplab; ++iplab) {
-//    fsig[iplab] = TFile::Open(Form("test/anav2_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
-//    fbg[iplab] = TFile::Open(Form("test/anav2_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
+//    fsig[iplab] = TFile::Open(Form("hists/pcm.dec.2014/anav2_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
+//    fbg[iplab] = TFile::Open(Form("hists/pcm.dec.2014/anav2_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
 //    for (int istep = 0; istep < nstep; ++istep) {
 //      sig_nep[iplab][istep] = (TH1F*) fsig[iplab]->Get(Form("hnep_%d",istep))->Clone(Form("sig_hnep_s%d_p%d",istep,iplab));
 //      bg_nep[iplab][istep] = (TH1F*) fbg[iplab]->Get(Form("hnep_%d",istep))->Clone(Form("bg_hnep_s%d_p%d",istep,iplab));
@@ -169,8 +169,8 @@ void fig_npair() {
   TH1F* bg_nep[nplab][nstep], *bg_ngg[nplab][nstep];
   TFile *fsig[nplab], *fbg[nplab];
   for (int iplab = 0; iplab < nplab; ++iplab) {
-    fsig[iplab] = TFile::Open(Form("test/anav2_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
-    fbg[iplab] = TFile::Open(Form("test/anav2_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
+    fsig[iplab] = TFile::Open(Form("hists/pcm.dec.2014/anav2_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
+    fbg[iplab] = TFile::Open(Form("hists/pcm.dec.2014/anav2_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
     for (int istep = 0; istep < nstep; ++istep) {
       sig_nep[iplab][istep] = (TH1F*) fsig[iplab]->Get(Form("hnep_%d",istep))->Clone(Form("sig_hnep_s%d_p%d",istep,iplab));
       bg_nep[iplab][istep] = (TH1F*) fbg[iplab]->Get(Form("hnep_%d",istep))->Clone(Form("bg_hnep_s%d_p%d",istep,iplab));
@@ -264,8 +264,8 @@ void fig_pi0cut() {
       tl[i][iplab]->SetTextSize(((i==2)?1.4:(i<4?1.5:1.2))*tl[i][iplab]->GetTextSize());
     }
 
-    fsig[iplab] = TFile::Open(Form("test/ana/ana_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
-    fbg[iplab] = TFile::Open(Form("test/ana/ana_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
+    fsig[iplab] = TFile::Open(Form("hists/pcm.dec.2014/ana/ana_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
+    fbg[iplab] = TFile::Open(Form("hists/pcm.dec.2014/ana/ana_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"),plab[iplab]));
     sig_avg_true_mc[iplab]= (TH2F*) fsig[iplab]->Get("gg/h_oa_gg_avg_e_g_truepi0_mc")->Clone(Form("sig_avg_true_mc_p%d", iplab));
     sig_avg_true_rec[iplab]= (TH2F*) fsig[iplab]->Get("gg/h_oa_gg_avg_e_g_truepi0_rec")->Clone(Form("sig_avg_true_rec_p%d", iplab));
     sig_avg_all_rec[iplab]= (TH2F*) fsig[iplab]->Get("gg/h_oa_gg_avg_e_g_all_rec")->Clone(Form("sig_avg_all_rec_p%d", iplab));
@@ -413,8 +413,8 @@ void fig_gen_dists() {
 
   TLatex *tl[6][nplab];
   for (int iplab=0; iplab<nplab; ++iplab) {
-    fsig[iplab] = TFile::Open(Form("test/anav2_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
-    fbg[iplab] = TFile::Open(Form("test/anav2_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
+    fsig[iplab] = TFile::Open(Form("hists/pcm.dec.2014/anav2_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
+    fbg[iplab] = TFile::Open(Form("hists/pcm.dec.2014/anav2_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
     h_ttrue_sig[iplab] = (TH1F*) fsig[iplab]->Get("tu/httrumc")->Clone(Form("httruemc_sig_p%d",iplab));
     h_ttrue_bg[iplab] = (TH1F*) fbg[iplab]->Get("tu/httrumc")->Clone(Form("httruemc_bg_p%d",iplab));
     h_trec_sig[iplab] = (TH1F*) fsig[iplab]->Get("tu/htrecgg")->Clone(Form("htrecgg_sig_p%d",iplab));
@@ -583,8 +583,8 @@ void fig_ana() {
   }
 
   for (int iplab=0; iplab<nplab; ++iplab) {
-    fsig[iplab] = TFile::Open(Form("test/anav2_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
-    fbg[iplab] = TFile::Open(Form("test/anav2_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
+    fsig[iplab] = TFile::Open(Form("hists/pcm.dec.2014/anav2_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
+    fbg[iplab] = TFile::Open(Form("hists/pcm.dec.2014/anav2_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
 
     for (int istep=0; istep<nstep; ++istep) {
 
@@ -891,8 +891,8 @@ void fig_ana2() {
   tline->SetLineColor(4);
   tline->SetLineWidth(2);
   for (int iplab=0; iplab<nplab; ++iplab) {
-    fsig[iplab] = TFile::Open(Form("test/anav2_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
-    fbg[iplab] = TFile::Open(Form("test/anav2_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
+    fsig[iplab] = TFile::Open(Form("hists/pcm.dec.2014/anav2_jpsi_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
+    fbg[iplab] = TFile::Open(Form("hists/pcm.dec.2014/anav2_pip_pim_%s_plab%3.1f.root",(ibrem==0?"raw":"brem"), plab[iplab]));
     for (int itu = 0; itu < ntu; ++itu) {
       tc_mep_tbins[itu][iplab] = new TCanvas(Form("fitted_mep_%sbins_p%d",toru[itu],iplab),Form("fitted_mep_%sbins_p%d",toru[itu],iplab));
       tc_mep_tbins[itu][iplab]->Divide(3,4);
