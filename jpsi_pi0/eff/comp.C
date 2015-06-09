@@ -47,7 +47,7 @@ TEfficiency* rebin2d(TFile *f, int rebin, const char *name) {
   return retval;
 }
 
-TH2F* smooth_hist2d(TH2F* h, int nbins= 1000) {
+TH2F* smooth_hist2d(TH2F* h, int nbins= 400) {
   int nbinx = h->GetXaxis()->GetNbins();
   double xmax = h->GetXaxis()->GetBinUpEdge(nbinx);
   int nbiny = h->GetYaxis()->GetNbins();
@@ -93,6 +93,8 @@ TEfficiency* slice_eff2d(TEfficiency *eff, int min, int max)  {
 
 void comp(int ipc, bool indiv = false){
 
+  TGaxis::SetMaxDigits(3);
+
   //TFile *fpi = TFile::Open("effhists_pim_flat_200.root");
   //TFile *fe = TFile::Open("effhists_elec_flat_0x10.root");
   TFile *fpi = TFile::Open("hadd_out/hadd.pi.root");
@@ -107,8 +109,8 @@ void comp(int ipc, bool indiv = false){
   pi_sd_indiv->SetLineColor(2);
   pi_sd_indiv->SetMarkerColor(2);
 
-  TEfficiency *pi_2d = smooth_eff2d(rebin2d(fpi, 5, Form("prob_cut_%d/eff2d_e_id",ipc)));
-  //TEfficiency *pi_2d = rebin2d(fpi, 2, Form("prob_cut_%d/eff2d_e_id_sd",ipc));
+  //TEfficiency *pi_2d = smooth_eff2d(rebin2d(fpi, 5, Form("prob_cut_%d/eff2d_e_id",ipc)));
+  TEfficiency *pi_2d = rebin2d(fpi, 2, Form("prob_cut_%d/eff2d_e_id",ipc));
   TEfficiency *pi_sd_2d = smooth_eff2d(rebin2d(fpi, 1, Form("prob_cut_%d/eff2d_e_id_sd",ipc)));
   TEfficiency *pi_indiv_2d = smooth_eff2d(rebin2d(fpi, 1, Form("prob_cut_%d/eff2d_e_id_indiv",ipc)));
   TEfficiency *pi_sd_indiv_2d = smooth_eff2d(rebin2d(fpi, 1, Form("prob_cut_%d/eff2d_e_id_sd_indiv",ipc)));
@@ -131,7 +133,8 @@ void comp(int ipc, bool indiv = false){
   e_sd_indiv->SetLineColor(2);
   e_sd_indiv->SetMarkerColor(2);
 
-  TEfficiency *e_2d = smooth_eff2d(rebin2d(fe, 1, Form("prob_cut_%d/eff2d_e_id",ipc)));
+  //TEfficiency *e_2d = smooth_eff2d(rebin2d(fe, 1, Form("prob_cut_%d/eff2d_e_id",ipc)));
+  TEfficiency *e_2d = rebin2d(fe, 1, Form("prob_cut_%d/eff2d_e_id",ipc));
   TEfficiency *e_sd_2d = smooth_eff2d(rebin2d(fe, 1, Form("prob_cut_%d/eff2d_e_id_sd",ipc)));
   TEfficiency *e_indiv_2d = smooth_eff2d(rebin2d(fe, 1, Form("prob_cut_%d/eff2d_e_id_indiv",ipc)));
   TEfficiency *e_sd_indiv_2d = smooth_eff2d(rebin2d(fe, 1, Form("prob_cut_%d/eff2d_e_id_sd_indiv",ipc)));
