@@ -45,8 +45,8 @@ void anav2(int iplab = 0, int itype = 0, int brem = 1, int fid=0, int nevts = 0)
   atda->set_pi_eff_file_name("eff/hadd_out/hadd.pi.root");
   //atda->set_pi_eff_hist_name("prob_cut_5/eff2d_e_id", false);
 
-  atda->set_eid_prob_min(0.9);
-  atda->set_pi_eff_hist_name("prob_cut_9/eff1d_mom_e_id", false);
+  atda->set_eid_prob_min(0.8);
+  atda->set_pi_eff_hist_name("prob_cut_8/eff1d_mom_e_id", false);
 
   atda->do_apply_pi0evsoa_cut(false);
   atda->do_apply_pi0m_cut(true);
