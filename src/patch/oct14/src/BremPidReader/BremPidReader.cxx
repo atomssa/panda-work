@@ -906,6 +906,16 @@ void BremPidReader::print_cands() {
     //  cout << bump->GetMcIndex(i) << (i<(mcsize-1)?", ": "");
     //}
     //cout << ")";
+
+    int digisize = bump->DigiList().size();
+    cout << " NDigi= " << digisize << "(";
+    for (int i=0; i<digisize; ++i) {
+      //cout << ((PndEmcDigi*)fDigiArray->At(clust->DigiList()[i]))->GetTrackId() << (i<(digisize-1)?", ": "");
+      cout << bump->DigiList()[i] << (i<(digisize-1)?", ": "");
+    }
+    cout << ")";
+    cout << endl;
+
     cout << endl;
   }
 
