@@ -61,7 +61,10 @@ class BremPidReader: public FairTask
 
 	void fill_bump_list(std::vector<std::vector<int> >&);
 	void brem_matching(std::vector<std::vector<int> >&, std::vector<std::vector<int> >&, std::vector<int>&, std::vector<int>&, std::vector<int>&, std::vector<int>&);
+
 	void find_ancestory(const int&, std::vector<int>&);
+	void find_contributors(PndEmcBump *bump, std::vector<int>&);
+	void mc_match_bumps_main_contrib(std::vector<PndEmcBump*>, std::vector<int>&);
 	//void get_mc_brem_photons(const int&, std::vector<double>&, std::vector<double>&, std::vector<double>&,
 	//			 std::vector<double>&, std::vector<double>&, std::vector<std::vector<int> >&);
 	//double GetSepPhotonE_fromBumps(PndPidCandidate*, double&, double&, std::vector<int>&,

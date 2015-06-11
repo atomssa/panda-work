@@ -46,7 +46,9 @@
 using namespace std;
 
 BremPidReader::BremPidReader(int ibinsize):
-  iBinSize(ibinsize), fClusterArray(0), fPhiBumpArray(), fBumpArray(0), fChargedCandidateArray(0), fNeutralCandidateArray(0), fBremCorrected4MomArray(0),fRecMomOfEle(0), fRecThetaOfEle(0), fRecPhiOfEle(0), fCharge(0), fPersistance(kTRUE)
+  iBinSize(ibinsize), fClusterArray(0), fPhiBumpArray(), fBumpArray(0),
+  fChargedCandidateArray(0), fNeutralCandidateArray(0), fBremCorrected4MomArray(0),
+  fRecMomOfEle(0), fRecThetaOfEle(0), fRecPhiOfEle(0), fCharge(0), fPersistance(kTRUE)
 {
   output_name = "bremcorr.root";
   nEvt = 0;
@@ -260,6 +262,10 @@ void BremPidReader::Exec(Option_t* opt)
   if (verb>0||(nEvt%1000==0))
     cout << "==== New Event " << nEvt << " ===== " << endl;
 
+  print_cands();
+
+  return;
+
   nChCand = fChargedCandidateArray->GetEntriesFast();
   nNeutCand = fNeutralCandidateArray->GetEntriesFast();
   nMcTrack = fMcArray->GetEntriesFast();
@@ -451,23 +457,84 @@ void BremPidReader::brem_matching(vector<vector<int> >& _sb_tree, vector<vector<
   }
 }
 
+/**
+ * @breif MCTrack-Bump association based on main-contributor ordering
+ * Function that associates a list of PndMCTrack with a list of PndEmcBump in decreasing order of contribution
+ * Ie. The MC track whose descendents contribute the most to a given bump will be assoicated to the bump
+ * An MC track is a contributor to a bump if it is part of the MC tracks that gnenerated one of the "points"
+ * that ultimately made it into the bump
+ * The best matching MC track id is set to the MCTruth of the Bump.
+ * If none of the MC tracks in the list
+ * contribute to a given Bump, its MCTruth is set to (some-crazy-number) to communicate with caller that
+ * no match has been found. In the same way,
+ * @param vector<PndEmcBump*> bump_list : list of bumps to be associated
+ * @param vector<int> mc_list : list of MCTracks to be associated
+ */
+void BremPidReader::mc_match_bumps_main_contrib(vector<PndEmcBump*> bump_list, vector<int>& mc_list) {
+  vector<vector<int> > ancestory;
+  for (int imc=0; imc < mc_list.size(); ++imc) {
+    vector<int> a;
+    find_ancestory(mc_list[imc], a);
+    ancestory.push_back(a);
+  }
+  vector<vector<int> > contributors;
+  for (int ibump=0; ibump < bump_list.size(); ++ibump) {
+    vector<int> a;
+    find_contributors(bump_list[ibump], a);
+    contributors.push_back(a);
+  }
+  vector< pair<int, pair<int,int> > > score(bump_list.size()*mc_list.size());
+  for (int imc = 0; imc < mc_list.size(); ++imc) {
+    for (int ibump = 0; ibump < bump_list.size(); ++ibump) {
+      vector<int> intersn;
+      set_intersection(ancestory[imc].begin(),ancestory[imc].end(),
+		       contributors[ibump].begin(),contributors[ibump].end(),
+		       back_inserter(intersn));
+      score.push_back( make_pair(intersn.size(), make_pair(ibump,imc)) );
+    }
+  }
+  vector<bool> matched_bump(bump_list.size(), false);
+  vector<bool> matched_mc(mc_list.size(), false);
+  sort(score.begin(),score.end(),bpr_comp_pair);
+  for (int ii = 0; ii < score.size(); ++ii) {
+    int ibump = score[ii].second.first;
+    int imc = score[ii].second.second;
+    if (matched_bump[ibump]||matched_mc[imc]) continue;
+    //if (score[ii].first) break;
+    //bump_list[ibump]->SetMCTruth(mc_list[imc]);
+    matched_bump[ibump] = true;
+    matched_mc[imc] = true;
+  }
+}
+
+void BremPidReader::find_contributors(PndEmcBump *bump, vector<int>& tree) {
+  vector<int> tmp;
+  int digisize = bump->DigiList().size();
+  for (int id=0; id<digisize; ++id) {
+    PndEmcDigi *digi = (PndEmcDigi*) fDigiArray->At(bump->DigiList()[id]);
+    PndEmcHit *hit = (PndEmcHit*) fHitArray->At(digi->GetHitIndex());
+    int mcsize = hit->GetMcList().size();
+    for (int imc=0; imc<mcsize; ++imc) {
+      tmp.push_back(hit->GetMcList()[imc]);
+    }
+  }
+  sort(tmp.begin(),tmp.end());
+}
+
 void BremPidReader::find_ancestory(const int& mcidx, vector<int>& tree) {
-
-  std::vector<int> fMotherIds;
-  for (int iMcTrack = 0; iMcTrack<nMcTrack; ++iMcTrack)
-    fMotherIds.push_back(((PndMCTrack *) fMcArray->At(iMcTrack))->GetMotherID());
-
-  vector<int> added(nMcTrack,0);
-  added[mcidx] = 1;
+  vector<bool> added(nMcTrack,false);
+  added[mcidx] = true;
   for (int ii = mcidx+1; ii < nMcTrack; ++ii) {
-    int tmp_mid = fMotherIds[ii];
-    while(added[tmp_mid]==0) {
-      tmp_mid = fMotherIds[tmp_mid];
+    PndMCTrack* mctrk = (PndMCTrack *) fMcArray->At(ii);
+    int tmp_mid = mctrk->GetMotherID();
+    while(!added[tmp_mid]) {
+      PndMCTrack* tmp_mctrk = (PndMCTrack *) fMcArray->At(tmp_mid);
+      tmp_mid = tmp_mctrk->GetMotherID();
       if (tmp_mid<mcidx) break;
     }
     if (tmp_mid>=mcidx) {
       tree.push_back(ii);
-      added[ii] = 1;
+      added[ii] = true;
     }
   }
 }
