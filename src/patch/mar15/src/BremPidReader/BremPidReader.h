@@ -62,6 +62,7 @@ class BremPidReader: public FairTask
 	void fill_bump_list(std::vector<std::vector<int> >&);
 	void brem_matching(std::vector<std::vector<int> >&, std::vector<std::vector<int> >&, std::vector<int>&, std::vector<int>&, std::vector<int>&, std::vector<int>&);
 
+	bool split_detector();
 	void find_ancestory(const int&, std::vector<int>&);
 	void find_contributors(PndEmcBump *bump, std::vector<int>&);
 	void mc_match_bumps_main_contrib(std::vector<PndEmcBump*>, std::vector<int>&);

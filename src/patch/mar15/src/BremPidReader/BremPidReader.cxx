@@ -254,6 +254,7 @@ InitStatus BremPidReader::Init() {
   return kSUCCESS;
 }
 
+
 void BremPidReader::Exec(Option_t* opt)
 {
 
@@ -262,8 +263,9 @@ void BremPidReader::Exec(Option_t* opt)
   if (verb>0||(nEvt%1000==0))
     cout << "==== New Event " << nEvt << " ===== " << endl;
 
-  print_cands();
-
+  if (split_detector())
+    print_cands();
+  ++nEvt;
   return;
 
   nChCand = fChargedCandidateArray->GetEntriesFast();
@@ -831,6 +833,18 @@ void BremPidReader::print_mc() {
   }
 }
 
+bool BremPidReader::split_detector() {
+  int nbump = fBumpArray->GetEntriesFast();
+  for (int ibump=0; ibump<nbump; ++ibump) {
+    PndEmcBump *bumpi = (PndEmcBump*) fBumpArray->At(ibump);
+    for (int jbump=ibump+1; jbump<nbump; ++jbump) {
+      PndEmcBump *bumpj = (PndEmcBump*) fBumpArray->At(jbump);
+      if (bumpi->GetClusterIndex()==bumpj->GetClusterIndex()) return true;
+    }
+  }
+  return false;
+}
+
 void BremPidReader::print_cands() {
 
   int clustId = -1;
@@ -868,17 +882,17 @@ void BremPidReader::print_cands() {
   cout << "------ nClust= " << nClust << " -------" << endl;
   for (int ii = 0; ii < nClust; ++ii) {
     PndEmcCluster *clust = (PndEmcCluster*) fClusterArray->At(ii);
-
-    //int mcsize = clust->GetMcSize();
-    //cout << " McSize= " << mcsize << " McList: (";
-    //for (int i=0; i<mcsize; ++i) {
-    //  cout << clust->GetMcIndex(i) << (i<(mcsize-1)?", ": "");
-    //}
-    //cout << ")";
+    cout << "ClustId = " << ii;
     cout << " Ang=(" << clust->position().Theta()*TMath::RadToDeg();
     cout << ", " << clust->position().Phi()*TMath::RadToDeg() << ") ";
-
     cout << " E= " << clust->energy();
+
+    int mcsize = clust->GetMcSize();
+    cout << " McSize= " << mcsize << " McList: (";
+    for (int i=0; i<mcsize; ++i) {
+      cout << clust->GetMcIndex(i) << (i<(mcsize-1)?", ": "");
+    }
+    cout << ")";
 
     int digisize = clust->DigiList().size();
     cout << " Digi= " << digisize << "(";
@@ -900,12 +914,12 @@ void BremPidReader::print_cands() {
     cout << ", " << bump->position().Phi()*TMath::RadToDeg() << ") ";
     cout << " E= " << bump->energy();
 
-    //int mcsize = bump->GetMcSize();
-    //cout << " McSize= " << mcsize << " McList: (";
-    //for (int i=0; i<mcsize; ++i) {
-    //  cout << bump->GetMcIndex(i) << (i<(mcsize-1)?", ": "");
-    //}
-    //cout << ")";
+    int mcsize = bump->GetMcSize();
+    cout << " McSize= " << mcsize << " McList: (";
+    for (int i=0; i<mcsize; ++i) {
+      cout << bump->GetMcIndex(i) << (i<(mcsize-1)?", ": "");
+    }
+    cout << ")";
 
     int digisize = bump->DigiList().size();
     cout << " NDigi= " << digisize << "(";
@@ -916,7 +930,6 @@ void BremPidReader::print_cands() {
     cout << ")";
     cout << endl;
 
-    cout << endl;
   }
 
   int nDigi = fDigiArray->GetEntriesFast();
