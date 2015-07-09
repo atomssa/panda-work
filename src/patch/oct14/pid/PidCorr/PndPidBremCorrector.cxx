@@ -161,7 +161,19 @@ double PndPidBremCorrector::GetSepPhotonE(PndPidCandidate *ChargedCand, std::vec
       const Float_t PhotonEnergySep = PhotonBump->GetEnergyCorrected();
 
       const Int_t iSepBump = PhotonBump->GetClusterIndex();
-      if ( iSepBump == iTrkEmcIdx ) continue;
+
+      // Exclude bumps that have the same EmcIdx with *any* track
+      const int ncand = fChargedCandidateArray->GetEntriesFast();
+      bool is_asso = false;
+      for (int icand=0; icand<ncand; ++icand) {
+	PndPidCandidate* tmpChargedCand = (PndPidCandidate*) fChargedCandidateArray->At(icand);
+	int tmpiTrkEmcIdx = tmpChargedCand->GetEmcIndex();
+	if ( iSepBump == tmpiTrkEmcIdx ) {
+	  is_asso = true;
+	  break;
+	}
+      }
+      if (is_asso) continue;
 
       const Double_t PhotonThetaSep = PhotonBump->position().Theta()*TMath::RadToDeg();
       const Double_t PhotonPhiSep = PhotonBump->position().Phi()*TMath::RadToDeg();

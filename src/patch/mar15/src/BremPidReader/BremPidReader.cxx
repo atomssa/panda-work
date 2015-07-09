@@ -76,7 +76,7 @@ InitStatus BremPidReader::Init() {
   fMCHeader = dynamic_cast<FairMCEventHeader*>(ioman->GetObjectFromInTree("MCEventHeader."));
   if ( ! fMCHeader ) {
     cout << "-W- BremPidReader::Init: "
-	 << "No fMCHeader array!" << endl;
+  	 << "No fMCHeader array!" << endl;
     return kERROR;
   }
 
@@ -87,14 +87,14 @@ InitStatus BremPidReader::Init() {
     return kERROR;
   }
 
-//  const char* tca_name = (iBinSize==0?"EmcPhiBump":Form("EmcPhiBump%d",iBinSize));
-//  cout << "BremPidReader::Init: using tca " << tca_name << " as phibump data source" << endl;
-//  fPhiBumpArray = dynamic_cast<TClonesArray *> (ioman->GetObject(tca_name));
-//  if ( ! fPhiBumpArray ) {
-//    cout << "-W- PndEmcMakePhiBump::Init: "
-//	 << "No " << tca_name << " array!" << endl;
-//    return kERROR;
-//  }
+  //const char* tca_name = (iBinSize==0?"EmcPhiBump":Form("EmcPhiBump%d",iBinSize));
+  //cout << "BremPidReader::Init: using tca " << tca_name << " as phibump data source" << endl;
+  //fPhiBumpArray = dynamic_cast<TClonesArray *> (ioman->GetObject(tca_name));
+  //if ( ! fPhiBumpArray ) {
+  //  cout << "-W- PndEmcMakePhiBump::Init: "
+  //	 << "No " << tca_name << " array!" << endl;
+  //  return kERROR;
+  //}
 
   for (int ibs=0; ibs<nbs; ++ibs) {
     const char* tca_name = (ibs==0?"EmcPhiBump":Form("EmcPhiBump%d",ibs));
@@ -263,10 +263,10 @@ void BremPidReader::Exec(Option_t* opt)
   if (verb>0||(nEvt%1000==0))
     cout << "==== New Event " << nEvt << " ===== " << endl;
 
-  if (split_detector())
-    print_cands();
-  ++nEvt;
-  return;
+  //if (split_detector())
+  //  print_cands();
+  //++nEvt;
+  //return;
 
   nChCand = fChargedCandidateArray->GetEntriesFast();
   nNeutCand = fNeutralCandidateArray->GetEntriesFast();
@@ -637,7 +637,19 @@ GetSepPhotonE_fromBumps(PndPidCandidate *ChargedCand, double &esep, double &esep
 	const Float_t PhotonEnergySep = PhotonBump->GetEnergyCorrected();
 
 	const Int_t iSepClust = PhotonBump->GetClusterIndex();
-	if ( iSepClust == iTrkEmcIdx ) continue;
+
+	// Exclude bumps that have the same EmcIdx with *any* track
+	const int ncand = fChargedCandidateArray->GetEntriesFast();
+	bool is_asso = false;
+	for (int icand=0; icand<ncand; ++icand) {
+	  PndPidCandidate* tmpChargedCand = (PndPidCandidate*) fChargedCandidateArray->At(icand);
+	  int tmpiTrkEmcIdx = tmpChargedCand->GetEmcIndex();
+	  if ( iSepClust == tmpiTrkEmcIdx ) {
+	    is_asso = true;
+	    break;
+	  }
+	}
+	if (is_asso) continue;
 
 	PndEmcCluster *PhotonCluster = (PndEmcCluster*) fClusterArray->At(iSepClust);
 
@@ -886,6 +898,7 @@ void BremPidReader::print_cands() {
     cout << " Ang=(" << clust->position().Theta()*TMath::RadToDeg();
     cout << ", " << clust->position().Phi()*TMath::RadToDeg() << ") ";
     cout << " E= " << clust->energy();
+    cout << " Nbump= " << clust->NBumps();
 
     int mcsize = clust->GetMcSize();
     cout << " McSize= " << mcsize << " McList: (";
@@ -925,7 +938,7 @@ void BremPidReader::print_cands() {
     cout << " NDigi= " << digisize << "(";
     for (int i=0; i<digisize; ++i) {
       //cout << ((PndEmcDigi*)fDigiArray->At(clust->DigiList()[i]))->GetTrackId() << (i<(digisize-1)?", ": "");
-      cout << bump->DigiList()[i] << (i<(digisize-1)?", ": "");
+      cout << bump->DigiList()[i] << (i<(digisize-1)?", ": ")");
     }
     cout << ")";
     cout << endl;
