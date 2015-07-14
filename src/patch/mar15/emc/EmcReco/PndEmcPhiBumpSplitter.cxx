@@ -202,21 +202,23 @@ void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
     vPhiList.push_back(0);
     std::rotate(vPhiList.begin(),vPhiList.begin()+(vPhiList.size()-1),vPhiList.end());
 
-    // Loop through deposited energy vector and classify bins
-    std::vector<int> Type;
+    // Loop through deposited energy vector and identify "valley" type bins => -_- and calculate wieghts to split energy
+    std::vector<int> ValleyType;
     std::vector<double> Weight;
+    double _Weight = 0;
     Weight.push_back(0);
-    Type.push_back(-3);
+    ValleyType.push_back(-3);
     for (Int_t n_sel = 1; n_sel < vDepoEnergyList.size()-1; n_sel++)
       {
-	if (vDepoEnergyList.at(n_sel-1) < vDepoEnergyList.at(n_sel) && vDepoEnergyList.at(n_sel) < vDepoEnergyList.at(n_sel+1) ) Type.push_back(1);
-	else if(vDepoEnergyList.at(n_sel-1) < vDepoEnergyList.at(n_sel) && vDepoEnergyList.at(n_sel) > vDepoEnergyList.at(n_sel+1) )
-	  {
-	    Type.push_back(0);
-	    Weight.push_back(vDepoEnergyList.at(n_sel));
-	  }
-	else if(vDepoEnergyList.at(n_sel-1) > vDepoEnergyList.at(n_sel) && vDepoEnergyList.at(n_sel) > vDepoEnergyList.at(n_sel+1) ) Type.push_back(-1);
-	else if(vDepoEnergyList.at(n_sel-1) > vDepoEnergyList.at(n_sel) && vDepoEnergyList.at(n_sel) < vDepoEnergyList.at(n_sel+1) ) Type.push_back(-2);
+	if(vDepoEnergyList.at(n_sel-1) > vDepoEnergyList.at(n_sel) &&
+	   vDepoEnergyList.at(n_sel) < vDepoEnergyList.at(n_sel+1) ) {
+	  ValleyType.push_back(1);
+	  Weight.push_back(_Weight);
+	  _Weight = 0;
+	} else {
+	  _Weight += vDepoEnergyList.at(n_sel);
+	  ValleyType.push_back(0);
+	}
       }
     Weight.push_back(0);
 
@@ -225,7 +227,7 @@ void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
     int iWeight = 0;
     for (Int_t n_sel = 1; n_sel < vDepoEnergyList.size()-1; n_sel++)
       {
-	if (Type.at(n_sel) == -2 || n_sel == vDepoEnergyList.size()-2)
+	if (ValleyType.at(n_sel) == 1 || n_sel == vDepoEnergyList.size()-2)
 	  {
 	    iWeight++;
 
@@ -243,6 +245,7 @@ void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
 	    enePhiBump.push_back(_enePhiBump);
 	    phiPhiBump.push_back(_phiPhiBump);
 	    ValleyIndex = n_sel;
+
 	  }
       }
 
