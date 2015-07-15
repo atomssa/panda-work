@@ -207,7 +207,7 @@ void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
     std::vector<double> Weight;
     double _Weight = 0;
     Weight.push_back(0);
-    ValleyType.push_back(-3);
+    ValleyType.push_back(0);
     for (Int_t n_sel = 1; n_sel < vDepoEnergyList.size()-1; n_sel++)
       {
 	if(vDepoEnergyList.at(n_sel-1) > vDepoEnergyList.at(n_sel) &&
@@ -220,6 +220,7 @@ void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
 	  ValleyType.push_back(0);
 	}
       }
+    if (Weight.size()==1) Weight.push_back(1); // no valley found
     Weight.push_back(0);
 
     std::vector<double> enePhiBump, phiPhiBump;
