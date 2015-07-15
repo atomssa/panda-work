@@ -220,7 +220,7 @@ void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
 	  ValleyType.push_back(0);
 	}
       }
-    if (Weight.size()==1) Weight.push_back(_Weight); // no valley found
+    Weight.push_back(_Weight);
     Weight.push_back(0);
 
     std::vector<double> enePhiBump, phiPhiBump;
