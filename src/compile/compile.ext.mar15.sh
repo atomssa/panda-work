@@ -6,6 +6,8 @@ if [[ $HN == "ipnphen01" ]];then
     SOFT_DIR=/vol0/panda/svn
 elif [[ $HN == "rasalula" ]];then
     SOFT_DIR=/Users/tujuba/panda/svn
+elif [[ $HN == "ipngrid01.in2p3.fr" ]]; then
+    SOFT_DIR=/nfs1/panda/ermias/soft_ipngrid01
 else
     SOFT_DIR=/nfs1/panda/ermias/soft
 fi
@@ -34,7 +36,7 @@ if [[ $HN == "rasalula" ]]; then
 $SOFT_DIR/${VFS}/install
 2
 EOF
-elif [[ $HN == "ipnphen01" ]]; then
+elif [[ $HN == "ipnphen01" || $HN == "ipngrid01.in2p3.fr" ]]; then
     ./configure.sh <<EOF
 1
 1
@@ -70,7 +72,7 @@ cmake -DCMAKE_INSTALL_PREFIX=$FAIRROOT_DIR/install -DUSE_DIFFERENT_COMPILER=TRUE
 make -j 4
 make install
 
-if [[ $HN != "ipnphen01" && $HN != "rasalula" ]]; then
+if [[ $HN != "ipnphen01" && $HN != "rasalula" && $HN != "ipngrid01.in2p3.fr" ]]; then
     # regain permission
     cd $SOFT_DIR
     chmod -Rf g+w ${VFS}

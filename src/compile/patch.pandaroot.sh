@@ -69,7 +69,7 @@ if [[ $DO_COMPILE -eq 0 ]]; then
     # build the patch
     cd $PNDROOT_DIR/build
     make -j 4
-    if [[ $HN != "ipnphen01" && $HN != "rasalula" ]]; then
+    if [[ $HN != "ipnphen01" && $HN != "rasalula" && $HN != "ipngrid01.in2p3.fr" ]]; then
 	# reset write permissions
 	cd $SOFT_DIR/$EXT_VER
 	chmod -f g+w .

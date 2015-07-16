@@ -6,6 +6,8 @@ if [[ $HN == "ipnphen01" ]]; then
     SOFT_DIR=/vol0/panda/svn
 elif [[ $HN == "rasalula" ]]; then
     SOFT_DIR=/Users/tujuba/panda/svn
+elif [[ $HN == "ipngrid01.in2p3.fr" ]]; then
+    SOFT_DIR=/nfs1/panda/ermias/soft_ipngrid01
 else
     SOFT_DIR=/nfs1/panda/ermias/soft
 fi
@@ -27,7 +29,7 @@ cd $SOFT_DIR/apr13
 echo PWD: $PWD
 ls -altr
 
-if [[ $HN == "ipnphen01" || $HN == "rasalula" ]]; then
+if [[ $HN == "ipnphen01" || $HN == "rasalula" || $HN == "ipngrid01.in2p3.fr" ]]; then
     . ./configure.sh <<EOF
 1
 1
@@ -42,7 +44,7 @@ else
     . ./configure.sh grid
 fi
 
-if [[ $HN != "ipnphen01" && $HN != "rasalula" ]]; then
+if [[ $HN != "ipnphen01" && $HN != "rasalula" && $HN != "ipngrid01.in2p3.fr" ]]; then
     cd /nfs1/panda/ermias/soft
     chmod -Rf g+w *
 fi
