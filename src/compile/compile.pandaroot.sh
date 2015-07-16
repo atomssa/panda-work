@@ -64,7 +64,7 @@ echo "FAIRROOTPATH= $FAIRROOTPATH"
 cmake -DUSE_DIFFERENT_COMPILER=TRUE ../
 make -j $NCORE
 
-if [[ $HN != "ipnphen01" && $HN != "rasalula" ]]; then
+if [[ $HN != "ipnphen01" && $HN != "rasalula" && $HN != "ipngrid01.in2p3.fr" ]]; then
     cd $SOFT_DIR/$PR_VER
     chmod -Rf g+w pandaroot
 fi
