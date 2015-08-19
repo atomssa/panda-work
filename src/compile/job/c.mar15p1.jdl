@@ -1,0 +1,9 @@
+[
+Executable    = "compile.mar15p1.sh";
+Arguments     = "";
+StdOutput     = "std.out";
+StdError      = "std.err";
+InputSandbox  = {"compile.mar15p1.sh", "compile.ext.mar15p1.sh", "compile.pandaroot.sh", "utils.sh", "patch.pandaroot.sh"};
+OutputSandbox = {"std.out","std.err"};
+OutputSandboxBaseDestURI="gsiftp://localhost";
+]
