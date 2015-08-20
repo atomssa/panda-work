@@ -163,6 +163,12 @@ void AnaTdav2::init_hists() {
   if (bg_mc) {
     _tmin = iplab==0?-11:(iplab==1?-16:-24);
   }
+
+  double tbins_da[40] = {0.};
+  for (int ib=0; ib<tu_binning.size(); ++ib) { tbins_da[ib] = tu_binning[ib]; }
+  httrumc_vb = new TH1F("httrumc_vb", "httrumc_vb", tu_binning.size()-1, tbins_da);
+  hutrumc_vb = new TH1F("hutrumc_vb", "hutrumc_vb", tu_binning.size()-1, tbins_da);
+
   httrumc = new TH1F("httrumc", "httrumc", 200, _tmin, 1);
   hutrumc = new TH1F("hutrumc", "hutrumc", 200, _tmin, 1);
   htrecgg = new TH1F("htrecgg", "htrecgg", 200, _tmin, 1);
@@ -441,6 +447,8 @@ bool AnaTdav2::calc_true_tu() {
 
 	httrumc->Fill(event_t);
 	hutrumc->Fill(event_u);
+	httrumc_vb->Fill(event_t);
+	hutrumc_vb->Fill(event_u);
 	htrupi0thcm->Fill(pi0theta_cm(mcList[j]));
 	htrupi0costhcm->Fill(pi0cost_cm(mcList[j]));
 	htrupi0thlab->Fill(mcList[j]->P4().Theta());
@@ -936,6 +944,8 @@ void AnaTdav2::write_hists() {
   hurecep->Write();
   httrumc->Write();
   hutrumc->Write();
+  httrumc_vb->Write();
+  hutrumc_vb->Write();
   htresgg->Write();
   huresgg->Write();
   htresep->Write();
