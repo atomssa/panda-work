@@ -175,7 +175,6 @@ void AnaTdav2::init_hists() {
 
   httrumc = new TH1F("httrumc", "httrumc", 1000, _tmin, 1);
   hutrumc = new TH1F("hutrumc", "hutrumc", 1000, _tmin, 1);
-
   htrecgg = new TH1F("htrecgg", "htrecgg", 1000, _tmin, 1);
   hurecgg = new TH1F("hurecgg", "hurecgg", 1000, _tmin, 1);
   htrecep = new TH1F("htrecep", "htrecep", 1000, _tmin, 1);
@@ -954,6 +953,7 @@ void AnaTdav2::write_hists() {
   gDirectory->mkdir("pi0cost_cm_bins");
   gDirectory->cd("pi0cost_cm_bins");
   hpi0cost_cm->Write();
+  hpi0cost_cm_mc->Write();
   for (int ib=0; ib<tu_binning.size()-1; ++ib) {
     hmep_pi0cost_cm[ib]->Write();
   }
@@ -962,6 +962,7 @@ void AnaTdav2::write_hists() {
   gDirectory->mkdir("pi0th_bins");
   gDirectory->cd("pi0th_bins");
   hpi0th->Write();
+  hpi0th_mc->Write();
   for (int ib=0; ib<tu_binning.size()-1; ++ib) {
     hmep_pi0th[ib]->Write();
   }
@@ -984,6 +985,10 @@ void AnaTdav2::write_hists() {
   hurecep->Write();
   httrumc->Write();
   hutrumc->Write();
+  htrecgg_mc->Write();
+  hurecgg_mc->Write();
+  htrecep_mc->Write();
+  hurecep_mc->Write();
   httrumc_vb->Write();
   hutrumc_vb->Write();
   htresgg->Write();
@@ -993,6 +998,10 @@ void AnaTdav2::write_hists() {
   htrupi0thcm->Write();
   htrupi0costhcm->Write();
   htrupi0thlab->Write();
+  htrupi0thcm_mc->Write();
+  htrupi0costhcm_mc->Write();
+  htrupi0thlab_mc->Write();
+
 }
 
 void AnaTdav2::dth_dph_cm(RhoCandidate* _gg, RhoCandidate *_epem, double &_dth, double &_dph ) {
