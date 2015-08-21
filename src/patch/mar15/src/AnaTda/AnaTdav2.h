@@ -146,6 +146,8 @@ class AnaTdav2 : public FairTask{
   TH1F* hngg[nstep];
   TH1F* hpi0cost_cm;
   TH1F* hpi0th;
+  TH1F* hpi0cost_cm_mc;
+  TH1F* hpi0th_mc;
 
   //static const int nbinth = 12;
   std::vector<double> tu_binning;
@@ -160,9 +162,11 @@ class AnaTdav2 : public FairTask{
   TH1F* hmtot;
   TH2F* hcmoa;
   TH1F* htrecgg, *hurecgg, *htrecep, *hurecep;
+  TH1F* htrecgg_mc, *hurecgg_mc, *htrecep_mc, *hurecep_mc;
   TH1F* httrumc, *hutrumc;
   TH1F* httrumc_vb, *hutrumc_vb;
   TH1F* htrupi0thcm, *htrupi0thlab, *htrupi0costhcm;
+  TH1F* htrupi0thcm_mc, *htrupi0thlab_mc, *htrupi0costhcm_mc;
   TH1F* htresgg, *huresgg, *htresep, *huresep;
 
   TH1F *hmep_mconst;
@@ -240,6 +244,9 @@ class AnaTdav2 : public FairTask{
   double dth_dph_cm_cut_max;
 
   bool require_exclusivity;
+
+  double jpsi_m_3sig_min;
+  double jpsi_m_3sig_max;
 
  public:
   void do_apply_pi0evsoa_cut(bool a) {apply_pi0evsoa_cut = a;}

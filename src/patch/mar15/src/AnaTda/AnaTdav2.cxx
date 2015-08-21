@@ -62,7 +62,9 @@ AnaTdav2::AnaTdav2(const int& _iplab, const int& itype, const int& brem, const i
   dth_sigma(0.4),
   dph_sigma(0.4),
   dth_dph_cm_cut_max(3.0),
-  require_exclusivity(false)
+  require_exclusivity(false),
+  jpsi_m_3sig_min(2.9),
+  jpsi_m_3sig_max(3.3)
 {
   assert(iplab>=0&&iplab<=2);
   rcl.resize(nrcl);
@@ -144,6 +146,8 @@ void AnaTdav2::init_hists() {
   }
   hpi0th = new TH1F("hpi0th", "hpi0th", 200, 0, TMath::Pi());
   hpi0cost_cm = new TH1F("hpi0cost_cm", "hpi0cost_cm", 200, -1., 1.);
+  hpi0th_mc = new TH1F("hpi0th_mc", "hpi0th_mc", 200, 0, TMath::Pi());
+  hpi0cost_cm_mc = new TH1F("hpi0cost_cm_mc", "hpi0cost_cm_mc", 200, -1., 1.);
   for (int ib=0; ib<tu_binning.size()-1; ++ib) {
     hmep_pi0cost_cm.push_back( new TH1F(Form("hmep_pi0cost_cm_%d", ib), Form("hmep_pi0cost_cm_%d", ib), 200, 0, 5));
     hmep_pi0th.push_back( new TH1F(Form("hmep_pi0th_%d", ib), Form("hmep_pi0th_%d", ib), 200, 0, 5));
@@ -169,20 +173,28 @@ void AnaTdav2::init_hists() {
   httrumc_vb = new TH1F("httrumc_vb", "httrumc_vb", tu_binning.size()-1, tbins_da);
   hutrumc_vb = new TH1F("hutrumc_vb", "hutrumc_vb", tu_binning.size()-1, tbins_da);
 
-  httrumc = new TH1F("httrumc", "httrumc", 200, _tmin, 1);
-  hutrumc = new TH1F("hutrumc", "hutrumc", 200, _tmin, 1);
-  htrecgg = new TH1F("htrecgg", "htrecgg", 200, _tmin, 1);
-  hurecgg = new TH1F("hurecgg", "hurecgg", 200, _tmin, 1);
-  htrecep = new TH1F("htrecep", "htrecep", 200, _tmin, 1);
-  hurecep = new TH1F("hurecep", "hurecep", 200, _tmin, 1);
-  htresgg = new TH1F("htresgg", "htresgg", 200, -3, 3);
-  huresgg = new TH1F("huresgg", "huresgg", 200, -3, 3);
-  htresep = new TH1F("htresep", "htresep", 200, -3, 3);
-  huresep = new TH1F("huresep", "huresep", 200, -3, 3);
+  httrumc = new TH1F("httrumc", "httrumc", 1000, _tmin, 1);
+  hutrumc = new TH1F("hutrumc", "hutrumc", 1000, _tmin, 1);
 
-  htrupi0thcm = new TH1F("htrupi0thcm", "htrupi0thch", 200, 0., TMath::Pi());
-  htrupi0costhcm = new TH1F("htrupi0costhcm", "htrupi0costhcm", 220, -1.1, 1.1);
-  htrupi0thlab = new TH1F("htrupi0thlab", "htrupi0thlab", 200, 0., TMath::Pi());
+  htrecgg = new TH1F("htrecgg", "htrecgg", 1000, _tmin, 1);
+  hurecgg = new TH1F("hurecgg", "hurecgg", 1000, _tmin, 1);
+  htrecep = new TH1F("htrecep", "htrecep", 1000, _tmin, 1);
+  hurecep = new TH1F("hurecep", "hurecep", 1000, _tmin, 1);
+  htrecgg_mc = new TH1F("htrecgg_mc", "htrecgg_mc", 1000, _tmin, 1);
+  hurecgg_mc = new TH1F("hurecgg_mc", "hurecgg_mc", 1000, _tmin, 1);
+  htrecep_mc = new TH1F("htrecep_mc", "htrecep_mc", 1000, _tmin, 1);
+  hurecep_mc = new TH1F("hurecep_mc", "hurecep_mc", 1000, _tmin, 1);
+  htresgg = new TH1F("htresgg", "htresgg", 1000, -3, 3);
+  huresgg = new TH1F("huresgg", "huresgg", 1000, -3, 3);
+  htresep = new TH1F("htresep", "htresep", 1000, -3, 3);
+  huresep = new TH1F("huresep", "huresep", 1000, -3, 3);
+
+  htrupi0thcm = new TH1F("htrupi0thcm", "htrupi0thch", 1000, 0., TMath::Pi());
+  htrupi0costhcm = new TH1F("htrupi0costhcm", "htrupi0costhcm", 1100, -1.1, 1.1);
+  htrupi0thlab = new TH1F("htrupi0thlab", "htrupi0thlab", 1000, 0., TMath::Pi());
+  htrupi0thcm_mc = new TH1F("htrupi0thcm_mc", "htrupi0thch_mc", 1000, 0., TMath::Pi());
+  htrupi0costhcm_mc = new TH1F("htrupi0costhcm_mc", "htrupi0costhcm_mc", 1100, -1.1, 1.1);
+  htrupi0thlab_mc = new TH1F("htrupi0thlab_mc", "htrupi0thlab_mc", 1000, 0., TMath::Pi());
 
   hnevt =  new TH1F("hnevt","hnevt", 10,0,10);
   hnevt->SetBinContent(3, nevt_sim_bg[iplab]);
@@ -452,6 +464,25 @@ bool AnaTdav2::calc_true_tu() {
 	htrupi0thcm->Fill(pi0theta_cm(mcList[j]));
 	htrupi0costhcm->Fill(pi0cost_cm(mcList[j]));
 	htrupi0thlab->Fill(mcList[j]->P4().Theta());
+
+	// bg_mc pi0 angluar distributions with jpsi mass cut on the pippim pair
+	if (bg_mc) {
+	  int kpip = -1, kpim=-1;
+	  for (int k=0; k<mcList.GetLength(); ++k) {
+	    if (mcList[k]->PdgCode()==211) { kpip = k; }
+	    if (mcList[k]->PdgCode()==-211) { kpim = k; }
+	    if (kpip>=0&&kpim>0) {
+	      double mpippim = (mcList[kpip]->P4()+mcList[kpip]->P4()).M();
+	      if ( mpippim>jpsi_m_3sig_min && mpippim<jpsi_m_3sig_max) {
+		htrupi0thcm_mc->Fill(pi0theta_cm(mcList[j]));
+		htrupi0costhcm_mc->Fill(pi0cost_cm(mcList[j]));
+		htrupi0thlab_mc->Fill(mcList[j]->P4().Theta());
+	      }
+	      break;
+	    }
+	  }
+	}
+
 	return true;
 
 	//if (bg_mc) {
@@ -818,11 +849,20 @@ void AnaTdav2::fill_bins() {
 
     hpi0th->Fill(pi0theta_rec);
     hpi0cost_cm->Fill(pi0cost_cm_rec);
-
     htrecgg->Fill(trecgg);
     hurecgg->Fill(urecgg);
     htrecep->Fill(trecep);
     hurecep->Fill(urecep);
+
+    if (rcl[iep_excl][0]->M()>jpsi_m_3sig_min&&rcl[iep_excl][0]->M()<jpsi_m_3sig_max) {
+      htrecgg_mc->Fill(trecgg);
+      hurecgg_mc->Fill(urecgg);
+      htrecep_mc->Fill(trecep);
+      hurecep_mc->Fill(urecep);
+      hpi0th_mc->Fill(pi0theta_rec);
+      hpi0cost_cm_mc->Fill(pi0cost_cm_rec);
+    }
+
     htresgg->Fill(trecgg-event_t);
     htresep->Fill(trecep-event_t);
     huresgg->Fill(urecgg-event_u);
