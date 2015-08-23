@@ -195,6 +195,13 @@ void AnaTdav2::init_hists() {
   htrupi0costhcm_mc = new TH1F("htrupi0costhcm_mc", "htrupi0costhcm_mc", 1100, -1.1, 1.1);
   htrupi0thlab_mc = new TH1F("htrupi0thlab_mc", "htrupi0thlab_mc", 1000, 0., TMath::Pi());
 
+  htrupi0thcm_vs_m = new TH2F("htrupi0thcm_vs_m", "htrupi0thch_vs_m", 200, 0, 5, 1000, 0., TMath::Pi());
+  htrupi0costhcm_vs_m = new TH2F("htrupi0costhcm_vs_m", "htrupi0costhcm_vs_m", 200, 0, 5, 1100, -1.1, 1.1);
+  htrupi0thlab_vs_m = new TH2F("htrupi0thlab_vs_m", "htrupi0thlab_vs_m", 200, 0, 5, 1000, 0., TMath::Pi());
+  htrupi0thcm_mc_vs_m = new TH2F("htrupi0thcm_mc_vs_m", "htrupi0thch_mc_vs_m", 200, 0, 5, 1000, 0., TMath::Pi());
+  htrupi0costhcm_mc_vs_m = new TH2F("htrupi0costhcm_mc_vs_m", "htrupi0costhcm_mc_vs_m", 200, 0, 5, 1100, -1.1, 1.1);
+  htrupi0thlab_mc_vs_m = new TH2F("htrupi0thlab_mc_vs_m", "htrupi0thlab_mc_vs_m", 200, 0, 5, 1000, 0., TMath::Pi());
+
   hnevt =  new TH1F("hnevt","hnevt", 10,0,10);
   hnevt->SetBinContent(3, nevt_sim_bg[iplab]);
   hnevt->SetBinContent(4, nevt_xsect_bg[iplab]);
@@ -472,7 +479,13 @@ bool AnaTdav2::calc_true_tu() {
 	    if (mcList[k]->PdgCode()==-211) { kpim = k; }
 	    if (kpip>0&&kpim>0) {
 	      double mpippim = (mcList[kpip]->P4()+mcList[kpim]->P4()).M();
+	      htrupi0thcm_vs_m->Fill(mpippim, pi0theta_cm(mcList[j]));
+	      htrupi0costhcm_vs_m->Fill(mpippim, pi0cost_cm(mcList[j]));
+	      htrupi0thlab_vs_m->Fill(mpippim, mcList[j]->P4().Theta());
 	      if ( mpippim>jpsi_m_3sig_min && mpippim<jpsi_m_3sig_max) {
+		htrupi0thcm_mc_vs_m->Fill(mpippim, pi0theta_cm(mcList[j]));
+		htrupi0costhcm_mc_vs_m->Fill(mpippim, pi0cost_cm(mcList[j]));
+		htrupi0thlab_mc_vs_m->Fill(mpippim, mcList[j]->P4().Theta());
 		htrupi0thcm_mc->Fill(pi0theta_cm(mcList[j]));
 		htrupi0costhcm_mc->Fill(pi0cost_cm(mcList[j]));
 		htrupi0thlab_mc->Fill(mcList[j]->P4().Theta());
@@ -1001,6 +1014,12 @@ void AnaTdav2::write_hists() {
   htrupi0thcm_mc->Write();
   htrupi0costhcm_mc->Write();
   htrupi0thlab_mc->Write();
+  htrupi0thcm_vs_m->Write();
+  htrupi0costhcm_vs_m->Write();
+  htrupi0thlab_vs_m->Write();
+  htrupi0thcm_mc_vs_m->Write();
+  htrupi0costhcm_mc_vs_m->Write();
+  htrupi0thlab_mc_vs_m->Write();
 
 }
 
