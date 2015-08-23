@@ -470,8 +470,8 @@ bool AnaTdav2::calc_true_tu() {
 	  for (int k=0; k<mcList.GetLength(); ++k) {
 	    if (mcList[k]->PdgCode()==211) { kpip = k; }
 	    if (mcList[k]->PdgCode()==-211) { kpim = k; }
-	    if (kpip>=0&&kpim>0) {
-	      double mpippim = (mcList[kpip]->P4()+mcList[kpip]->P4()).M();
+	    if (kpip>0&&kpim>0) {
+	      double mpippim = (mcList[kpip]->P4()+mcList[kpim]->P4()).M();
 	      if ( mpippim>jpsi_m_3sig_min && mpippim<jpsi_m_3sig_max) {
 		htrupi0thcm_mc->Fill(pi0theta_cm(mcList[j]));
 		htrupi0costhcm_mc->Fill(pi0cost_cm(mcList[j]));
