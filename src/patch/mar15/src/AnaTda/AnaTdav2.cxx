@@ -37,8 +37,10 @@ AnaTdav2::AnaTdav2(const int& _iplab, const int& itype, const int& brem, const i
   event_u(-9999.),
   //tmin{-0.443789, -0.5, -0.5},
   //tmax{0.616486, 0.457248, 0.31538},
-  tmin{-0.443789, -2.76, -6.50},
-  tmax{0.616486, 0.457248, 0.31538},
+  //tmin{-0.443789, -2.76, -6.50},
+  //tmax{0.616486, 0.457248, 0.31538},
+  tmin{-0.092, -1.3, -2.85},
+  tmax{0.59, 0.43, 0.3},
   nevt_sim_bg{81874.0, 224120.0, 189015.0},
   nevt_xsect_bg{4.0e11, 1e11, 1e9},
   eff_file_name("eff/effic_smooth.root"),
@@ -226,12 +228,15 @@ void AnaTdav2::beam_cond(){
   p4targ.SetPxPyPzE(0,0,0,mass_prot);
   p4sys = p4pbar + p4targ;
 
-  double start[3] = {-0.45, -2.0, -5.0};
-  double delta[3] = {0.1, 0.2, 0.5};
+  //double ftmin[3] = {-0.45, -2.0, -5.0};
+  //double delta[3] = {0.1, 0.2, 0.5};
+  double ftmin[3] = {-0.1, -1.3, -2.8};
+  double delta[3] = {0.08, 0.2, 0.4};
 
   cout << "double range[iplab=" << iplab << "][]= {";
   for (int i=0; i<15; ++i) {
-    double xx = start[iplab] + delta[iplab]*i;
+    //double xx = ftmin[iplab] + delta[iplab]*i;
+    double xx = i==0 ? tmin[iplab]: (ftmin[iplab] + delta[iplab]*i);
     if (xx>tmax[iplab]) {
       cout << tmax[iplab] << " }; // n=" << i << endl;;
       tu_binning.push_back(tmax[iplab]);
