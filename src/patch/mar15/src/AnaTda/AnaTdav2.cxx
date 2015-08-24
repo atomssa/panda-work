@@ -41,8 +41,10 @@ AnaTdav2::AnaTdav2(const int& _iplab, const int& itype, const int& brem, const i
   //tmax{0.616486, 0.457248, 0.31538},
   tmin{-0.092, -1.3, -2.85},
   tmax{0.59, 0.43, 0.3},
-  nevt_sim_bg{81874.0, 224120.0, 189015.0},
-  nevt_xsect_bg{4.0e11, 1e11, 1e9},
+  //nevt_sim_bg{81874.0, 224120.0, 189015.0},
+  nevt_sim_bg{816807.0,888292.0,898721.0},
+  //nevt_xsect_bg{4.0e11, 1e11, 1e9},
+  nevt_xsect_bg{4.0e11, 1e11, 2e10}, // xsect={0.2mb, 0.05mb, 0.02mb}
   eff_file_name("eff/effic_smooth.root"),
   eff_hist_name("eff_ep_em_rad"),
   eff_hist_rad(true),
