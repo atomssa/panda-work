@@ -148,10 +148,10 @@ void AnaTdav2::init_hists() {
     hnep[is] = new TH1F(Form("hnep_%d",is),Form("hnep_%d",is),6,-0.5,5.5);
     hngg[is] = new TH1F(Form("hngg_%d",is),Form("hngg_%d",is),26,-0.5,25.5);
   }
-  hpi0th = new TH1F("hpi0th", "hpi0th", 200, 0, TMath::Pi());
-  hpi0cost_cm = new TH1F("hpi0cost_cm", "hpi0cost_cm", 200, -1., 1.);
-  hpi0th_mc = new TH1F("hpi0th_mc", "hpi0th_mc", 200, 0, TMath::Pi());
-  hpi0cost_cm_mc = new TH1F("hpi0cost_cm_mc", "hpi0cost_cm_mc", 200, -1., 1.);
+  hpi0th = new TH1F("hpi0th", "hpi0th", 1000, 0, TMath::Pi());
+  hpi0cost_cm = new TH1F("hpi0cost_cm", "hpi0cost_cm", 1100, -1.1, 1.1);
+  hpi0th_mc = new TH1F("hpi0th_mc", "hpi0th_mc", 1000, 0, TMath::Pi());
+  hpi0cost_cm_mc = new TH1F("hpi0cost_cm_mc", "hpi0cost_cm_mc", 1100, -1.1, 1.1);
   for (int ib=0; ib<tu_binning.size()-1; ++ib) {
     hmep_pi0cost_cm.push_back( new TH1F(Form("hmep_pi0cost_cm_%d", ib), Form("hmep_pi0cost_cm_%d", ib), 200, 0, 5));
     hmep_pi0th.push_back( new TH1F(Form("hmep_pi0th_%d", ib), Form("hmep_pi0th_%d", ib), 200, 0, 5));
@@ -198,6 +198,12 @@ void AnaTdav2::init_hists() {
   htrupi0thcm_mc = new TH1F("htrupi0thcm_mc", "htrupi0thch_mc", 1000, 0., TMath::Pi());
   htrupi0costhcm_mc = new TH1F("htrupi0costhcm_mc", "htrupi0costhcm_mc", 1100, -1.1, 1.1);
   htrupi0thlab_mc = new TH1F("htrupi0thlab_mc", "htrupi0thlab_mc", 1000, 0., TMath::Pi());
+  htrupi0thcm_tc = new TH1F("htrupi0thcm_tc", "htrupi0thch_tc", 1000, 0., TMath::Pi());
+  htrupi0costhcm_tc = new TH1F("htrupi0costhcm_tc", "htrupi0costhcm_tc", 1100, -1.1, 1.1);
+  htrupi0thlab_tc = new TH1F("htrupi0thlab_tc", "htrupi0thlab_tc", 1000, 0., TMath::Pi());
+  htrupi0thcm_tc_mc = new TH1F("htrupi0thcm_tc_mc", "htrupi0thch_tc_mc", 1000, 0., TMath::Pi());
+  htrupi0costhcm_tc_mc = new TH1F("htrupi0costhcm_tc_mc", "htrupi0costhcm_tc_mc", 1100, -1.1, 1.1);
+  htrupi0thlab_tc_mc = new TH1F("htrupi0thlab_tc_mc", "htrupi0thlab_tc_mc", 1000, 0., TMath::Pi());
 
   htrupi0thcm_vs_m = new TH2F("htrupi0thcm_vs_m", "htrupi0thch_vs_m", 200, 0, 5, 1000, 0., TMath::Pi());
   htrupi0costhcm_vs_m = new TH2F("htrupi0costhcm_vs_m", "htrupi0costhcm_vs_m", 200, 0, 5, 1100, -1.1, 1.1);
@@ -478,6 +484,15 @@ bool AnaTdav2::calc_true_tu() {
 	htrupi0costhcm->Fill(pi0cost_cm(mcList[j]));
 	htrupi0thlab->Fill(mcList[j]->P4().Theta());
 
+	bool t_ok = (tmin[iplab] < event_t && event_t < tmax[iplab]);
+	bool u_ok = (tmin[iplab] < event_u && event_u < tmax[iplab]);
+
+	if (t_ok || u_ok) {
+	  htrupi0thcm_tc->Fill(pi0theta_cm(mcList[j]));
+	  htrupi0costhcm_tc->Fill(pi0cost_cm(mcList[j]));
+	  htrupi0thlab_tc->Fill(mcList[j]->P4().Theta());
+	}
+
 	// bg_mc pi0 angluar distributions with jpsi mass cut on the pippim pair
 	if (bg_mc) {
 	  int kpip = -1, kpim=-1;
@@ -490,15 +505,28 @@ bool AnaTdav2::calc_true_tu() {
 	      htrupi0costhcm_vs_m->Fill(mpippim, pi0cost_cm(mcList[j]));
 	      htrupi0thlab_vs_m->Fill(mpippim, mcList[j]->P4().Theta());
 	      if ( mpippim>jpsi_m_3sig_min && mpippim<jpsi_m_3sig_max) {
-		htrupi0thcm_mc_vs_m->Fill(mpippim, pi0theta_cm(mcList[j]));
-		htrupi0costhcm_mc_vs_m->Fill(mpippim, pi0cost_cm(mcList[j]));
-		htrupi0thlab_mc_vs_m->Fill(mpippim, mcList[j]->P4().Theta());
 		htrupi0thcm_mc->Fill(pi0theta_cm(mcList[j]));
 		htrupi0costhcm_mc->Fill(pi0cost_cm(mcList[j]));
 		htrupi0thlab_mc->Fill(mcList[j]->P4().Theta());
+
+		if (t_ok || u_ok) {
+		  htrupi0thcm_tc_mc->Fill(pi0theta_cm(mcList[j]));
+		  htrupi0costhcm_tc_mc->Fill(pi0cost_cm(mcList[j]));
+		  htrupi0thlab_tc_mc->Fill(mcList[j]->P4().Theta());
+		}
+
+		htrupi0thcm_mc_vs_m->Fill(mpippim, pi0theta_cm(mcList[j]));
+		htrupi0costhcm_mc_vs_m->Fill(mpippim, pi0cost_cm(mcList[j]));
+		htrupi0thlab_mc_vs_m->Fill(mpippim, mcList[j]->P4().Theta());
 	      }
 	      break;
 	    }
+	  }
+	} else {
+	  if (t_ok || u_ok) {
+	    htrupi0thcm_tc_mc->Fill(pi0theta_cm(mcList[j]));
+	    htrupi0costhcm_tc_mc->Fill(pi0cost_cm(mcList[j]));
+	    htrupi0thlab_tc_mc->Fill(mcList[j]->P4().Theta());
 	  }
 	}
 
@@ -1021,6 +1049,12 @@ void AnaTdav2::write_hists() {
   htrupi0thcm_mc->Write();
   htrupi0costhcm_mc->Write();
   htrupi0thlab_mc->Write();
+  htrupi0thcm_tc->Write();
+  htrupi0costhcm_tc->Write();
+  htrupi0thlab_tc->Write();
+  htrupi0thcm_tc_mc->Write();
+  htrupi0costhcm_tc_mc->Write();
+  htrupi0thlab_tc_mc->Write();
   htrupi0thcm_vs_m->Write();
   htrupi0costhcm_vs_m->Write();
   htrupi0thlab_vs_m->Write();
