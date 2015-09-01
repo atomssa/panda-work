@@ -147,6 +147,7 @@ void AnaTdav2::init_hists() {
     hmep[is] = new TH1F(Form("hmep_%d",is),Form("hmep_%d",is),200,0,5);
     hnep[is] = new TH1F(Form("hnep_%d",is),Form("hnep_%d",is),6,-0.5,5.5);
     hngg[is] = new TH1F(Form("hngg_%d",is),Form("hngg_%d",is),26,-0.5,25.5);
+    hnpi0jpsi[is] = new TH1F(Form("hnpi0jpsi_%d",is),Form("hnpi0jpsi_%d",is),6,-0.5,5.5);
   }
   hpi0th = new TH1F("hpi0th", "hpi0th", 1000, 0, TMath::Pi());
   hpi0cost_cm = new TH1F("hpi0cost_cm", "hpi0cost_cm", 1100, -1.1, 1.1);
@@ -313,6 +314,7 @@ void AnaTdav2::fill_pair_mass(RhoCandList& org, TH1F* dest) {
 void AnaTdav2::fill_count_hists(int _gg, int _ep, int ihist) {
   hnep[ihist]->Fill(rcl[_ep].GetLength());
   hngg[ihist]->Fill(rcl[_gg].GetLength());
+  hnpi0jpsi[ihist]->Fill(rcl[_gg].GetLength()*rcl[_ep].GetLength());
 }
 
 void AnaTdav2::print_indices() {
@@ -988,6 +990,7 @@ void AnaTdav2::write_hists() {
     hmep[is]->Write();
     hnep[is]->Write();
     hngg[is]->Write();
+    hnpi0jpsi[is]->Write();
   }
 
   hmtot->Write();

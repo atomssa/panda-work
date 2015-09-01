@@ -144,6 +144,7 @@ class AnaTdav2 : public FairTask{
   TH1F* hmep[nstep];
   TH1F* hnep[nstep];
   TH1F* hngg[nstep];
+  TH1F* hnpi0jpsi[nstep];
   TH1F* hpi0cost_cm;
   TH1F* hpi0th;
   TH1F* hpi0cost_cm_mc;
