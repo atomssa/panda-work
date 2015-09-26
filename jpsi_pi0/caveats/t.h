@@ -264,7 +264,15 @@ t::t(TString fname) : sim_type(t::ntype), fChain(0)
 
 t::t(int _type, int idx) : sim_type(_type),fChain(0)
 {
-  TString fname = Form("../grid.out/%s_oct14_binsong_configs/bremcorr.all.ibs.cfg.%d.root", (sim_type==t::esim?"esim":"mum"), idx);
+  //TString fname = Form("../grid.out/%s_oct14_binsong_configs/bremcorr.all.ibs.cfg.%d.root", (sim_type==t::esim?"esim":"mum"), idx);
+  TString fname = Form("../grid.out/%s_oct14_constp/bremcorr.all.ibs.constp.cfg.%d.root", (sim_type==t::esim?"esim":"mum"), idx);
+
+  //TString fname = Form("../grid.out/%s_oct14_binsong_configs_bugfix_comp/bremcorr.all.ibs.cfg.%d.root", (sim_type==t::esim?"esim":"mum"), idx);
+  //TString fname = Form("../grid.out/%s_oct14_constp_g3/bremcorr.all.ibs.cfg.%d.root", (sim_type==t::esim?"esim":"mum"), idx);
+
+  //TString fname = Form("../grid.out/%s_oct14_constp_defaultg4/bremcorr.all.ibs.cfg.%d.root", (sim_type==t::esim?"esim":"mum"), idx);
+  //TString fname = Form("../grid.out/%s_oct14_constp_steplimonlyg4/bremcorr.all.ibs.cfg.%d.root", (sim_type==t::esim?"esim":"mum"), idx);
+
   cout << endl;
   cout << endl;
   cout << "t::t(int, int) Opening " << fname << endl;
@@ -277,7 +285,7 @@ t::t(int _type, int idx) : sim_type(_type),fChain(0)
   }
   f->GetObject("t",tree);
   fout_name = fname;
-  fout_name.ReplaceAll(".root","_hists.root");
+  fout_name.ReplaceAll(".root","_dth_hists.root");
   Init(tree);
   Loop();
 }

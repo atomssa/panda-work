@@ -23,12 +23,23 @@ void t::Loop()
   gStyle->SetTitleFontSize(0.08);
   gStyle->SetTitleFont(62);
 
-  int nbin = 200;
-  double xmin = -0.1, xmax = 0.3;
+  int nbin = 2000;
+  //double xmin = -0.1, xmax = 0.3;
+  double xmin = -0.5, xmax = 1.0;
   TH2F* h_rad_calc_vs_true = new TH2F("h_rad_calc_vs_true","Calculated radius vs. true radius; R_{True}; R_{Calc}", 200, 0, 40, 200, 0, 40);
   set_style(h_rad_calc_vs_true);
-  TH2F* h_zed_calc_vs_true = new TH2F("h_zed_calc_vs_true","Calculated Z vs. true Z; Z_{True}; Z_{Calc}", 500, 0, 500, 500, 0, 500);
+  TH2F* h_zed_calc_vs_true = new TH2F("h_zed_calc_vs_true","Calculated Z vs. true Z; Z_{True}; Z_{Calc}", 500, 0, 180, 500, 0, 200);
   set_style(h_zed_calc_vs_true);
+
+  TH1F* h_rad_true = new TH1F("h_rad_true","Brem #gamma emission point R (Barrel); R_{True}[cm]", 500, 0, 45);
+  TH1F* h_zed_true = new TH1F("h_zed_true","Brem #gamma emission point Z (FWD endcap); Z_{True}[cm]", 500, 0, 180);
+
+  TH1F* h_eloss_all = new TH1F("h_eloss_all","h_eloss_all",200, 0, 1.0);
+  TH2F* h_eloss_vs_the_all = new TH2F("h_eloss_vs_the_all","h_eloss_vs_the_all",200, 0, 1.0, 200, 30, 45);
+  TH2F* h_eloss_vs_phi_all = new TH2F("h_eloss_vs_phi_all","h_eloss_vs_phi_all",200, 0, 1.0, 200, -180, 180);
+
+  TH1F* h_eloss_1brem = new TH1F("h_eloss_1brem","h_eloss_1brem",200, 0, 1.0);
+
   TH1F* h_zed_calc[6];
   for (int ii = 0; ii < 6; ++ii) {
     h_zed_calc[ii] = new TH1F(Form("h_zed_calc_%d",ii),Form("h_zed_calc_%d",ii),200,0,60);
@@ -139,7 +150,10 @@ void t::Loop()
     h_rec_1brem_found_zed[ii] = th1f(Form("h_rec_1brem_found_zed_%d",ii),"1 #gamma_{Brem} + found;(p_{MC} - p_{KF})/p_{MC}",nbin,xmin,xmax,col_rec_1brem[ii]);
   }
 
-  if (fChain == 0) return;
+  if (fChain == 0) {
+    cout << "fChain is null" << endl;
+    return;
+  }
   Long64_t nentries = fChain->GetEntriesFast();
   int nskip_nch = 0;
   Long64_t nbytes = 0, nb = 0;
@@ -166,7 +180,7 @@ void t::Loop()
       	continue;
       }
 
-      if (the_mc[ich] > 15) continue;
+      //if (the_mc[ich] > 15) continue;
 
       if ( ((sim_type==t::esim)&&charge[ich]>0) ||
 	   ((sim_type==t::mum)&&charge[ich]<0) ||
@@ -273,6 +287,19 @@ void t::Loop()
 	}
       }
 
+      double eloss = 0;
+      for (int imcb=imcb_s[ich]; imcb<imcb_e[ich]; ++imcb) {
+	eloss += mcb_ene[imcb];
+	if (mcb_ene[imcb]>0.001) {
+	  h_rad_true->Fill(mcb_rad[imcb]);
+	  h_zed_true->Fill(mcb_zed[imcb]);
+	}
+      }
+      h_eloss_all->Fill(eloss);
+      h_eloss_vs_the_all->Fill(eloss,the_mc[ich]);
+      h_eloss_vs_phi_all->Fill(eloss,phi_mc[ich]);
+      if (nmcb_gt1mev==1) h_eloss_1brem->Fill(eloss);
+
       double ptrec = mom_rec[ich]*TMath::Sin(the[ich]*TMath::DegToRad());
       double ptmc = mom_mc[ich]*TMath::Sin(the_mc[ich]*TMath::DegToRad());
       double _dph_max_rec = 2*TMath::ASin(0.12/ptrec)*TMath::RadToDeg();
@@ -285,7 +312,8 @@ void t::Loop()
       if (_nmcb[ich]==1) { // only one brem photon
 	for (int iab = 0; iab < nab; ++iab) {
 	  if (ab_ich[iab]>=0) continue; // skip bumps associated with track
-	  if (ab_ene[iab]<0.01*mom_rec[ich]) continue;
+	  if (ab_ene[iab]<0.05*mom_rec[ich]) continue; // skip photons with energy < 1% or the electron
+
 	  h_dphi_dthe_all->Fill(ab_the[iab]-the[ich],dphi(ab_phi[iab],ich));
 	  h_dphi_all_sep->Fill(dphi(ab_phi[iab],ich));
 	  if ( ab_score[iab] > 10 ) {
@@ -327,6 +355,12 @@ void t::Loop()
   fout->cd();
   h_rad_calc_vs_true->Write();
   h_zed_calc_vs_true->Write();
+  h_rad_true->Write();
+  h_zed_true->Write();
+  h_eloss_1brem->Write();
+  h_eloss_all->Write();
+  h_eloss_vs_the_all->Write();
+  h_eloss_vs_phi_all->Write();
   for (int ii = 0; ii < 6; ++ii) {
     h_zed_calc[ii]->Write();
   }
