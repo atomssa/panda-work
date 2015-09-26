@@ -117,6 +117,7 @@ log/
 .trash/
 
 test_*/
+*.test/
 
 .bkp
 ./hades/pionbeam/pibeam_set6_mod.data
