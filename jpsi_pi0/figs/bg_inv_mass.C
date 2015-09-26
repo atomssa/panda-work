@@ -12,6 +12,7 @@ void bg_inv_mass(){
   gStyle->SetPadBottomMargin(0.13);
 
   TFile *f_bg = TFile::Open("hists/bg_nofilt_noeff.root");
+  TFile *f_bg = TFile::Open("hists/grp_meet_2014.10.13/bg_nofilt_noeff.root");
 
   TH1F *pip_pim = (TH1F*) f_bg->Get("inv_p_mass_pip_pim");
   pip_pim->SetLineWidth(2);
@@ -53,8 +54,8 @@ void bg_inv_mass(){
   tll->SetLineWidth(2);
   tlu->SetLineWidth(2);
 
-  tll->Draw();
-  tlu->Draw();
+  //tll->Draw();
+  //tlu->Draw();
 
   tl->Draw();
   tc->Print("figs/bg_inv_mass_pip_pim.pdf");

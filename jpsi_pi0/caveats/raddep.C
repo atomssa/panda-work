@@ -44,7 +44,7 @@ void padSetup(TCanvas *tc, TPad *pads[], int ii) {
   pads[ii]->cd();
 }
 
-void raddep(int iconfig = 2){
+void raddep(int iconfig = 18){
 
   gStyle->SetOptStat(0);
   gStyle->SetPadLeftMargin(0.13);
@@ -63,7 +63,8 @@ void raddep(int iconfig = 2){
     /*15*/{0.15, 10.0, 20.0}, /*16*/{0.25, 10.0, 20.0}, /*17*/{0.5, 10.0, 20.0}, /*18*/{1.0, 10.0, 20.0}, /*19*/{1.5, 10.0, 20.0},
     /*20*/{2.0, 10.0, 20.0}, /*21*/{2.5, 10.0, 20.0}, /*22*/{0.2, 30.0, 45.0}, /*23*/{0.2, 90.0, 105.0}, /*24*/{0.2, 10.0, 20.0}};
 
-  TFile *f = TFile::Open(Form("../grid.out/esim_oct14_binsong_configs/all.ibs.xr-0.1_0.3/bremcorr.all.ibs.cfg.%d_hists.root",iconfig));
+  //TFile *f = TFile::Open(Form("../grid.out/esim_oct14_binsong_configs/all.ibs.xr-0.1_0.3/bremcorr.all.ibs.cfg.%d_hists.root",iconfig));
+  TFile *f = TFile::Open(Form("../grid.out/esim_oct14_constp/bremcorr.all.ibs.constp.cfg.%d_hists.root",iconfig));
 
   TH1F* h_rec_1brem[6];
   TH1F* h_out_1brem[6];
@@ -120,7 +121,7 @@ void raddep(int iconfig = 2){
     //double off=(i==2||i==5)?-0.1:0.0;
     double off=-0.11;
     tt->DrawLatex(off+0.46,0.85,Form("%d < %s(cm) < %d", s, var, e));
-    tt->DrawLatex(off+0.53,0.75,Form("p_{T}= %4.1f GeV/c",config[iconfig][0]));
+    tt->DrawLatex(off+0.53,0.75,Form("p = %4.1f GeV/c",config[iconfig][0]));
     tt->DrawLatex(off+0.53,0.65,Form("%3.0f#circ < #theta < %3.0f#circ",config[iconfig][1],config[iconfig][2]));
     tt->SetTextColor(4);
     tt->SetTextSize(0.08);
@@ -129,5 +130,5 @@ void raddep(int iconfig = 2){
     tt->DrawLatex(off+0.58,0.43,Form("p = p_{MC} - E_{#gamma}"));
     //tc[i]->Print(Form("rad_dep_config%d_r%d.pdf",iconfig,i));
   }
-
+  tcall->Print(Form("raddep_config%d.pdf",iconfig));
 }
