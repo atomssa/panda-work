@@ -136,11 +136,11 @@ void dpm_filter(string rxn="pi0pippim") {
   bool verb = false;
 
   std::vector<evt_ref> refs;
-  refs.push_back(evt_ref("pi0pippim", "#pi^{0}#pi^{+}#pi^{-}", pi0, pip, pim)); // pi-, pi0, pi+
+  refs.push_back(evt_ref("pi0pipm", "#pi^{0}#pi^{+}#pi^{-}", pi0, pip, pim)); // pi-, pi0, pi+
   //refs.push_back(evt_ref("pi0epem", "#pi^{0}e^{+}e^{-}", pi0, ep, em)); // e+, e-, pi0: no e+e- events in DPM
   //refs.push_back(evt_ref("pi0jpsi", "#pi^{0}J/#psi", pi0, jpsi)); // pi0, jpsi: no jpsi events in DPM
-  refs.push_back(evt_ref("pi0pi0pippim", "#pi^{0}#pi^{0}#pi^{+}#pi^{-}", pi0, pi0, pip, pim)); // pi-, pi0, pi0, pi+
-  refs.push_back(evt_ref("pi0pippimpippim", "#pi^{0}#pi^{+}#pi^{-}#pi^{+}#pi^{-}", pi0, pip, pim, pip, pim)); // pi-, pi-, pi0, pi+, pi+
+  refs.push_back(evt_ref("pi02pipm", "#pi^{0}#pi^{0}#pi^{+}#pi^{-}", pi0, pi0, pip, pim)); // pi-, pi0, pi0, pi+
+  refs.push_back(evt_ref("pi0pipm2", "#pi^{0}#pi^{+}#pi^{-}#pi^{+}#pi^{-}", pi0, pip, pim, pip, pim)); // pi-, pi-, pi0, pi+, pi+
   //refs.push_back(evt_ref("pi0pi0jpsi", "#pi^{0}#pi^{0}J/#psi", pi0, pi0, jpsi)); // pi0, pi0, jpsi: no jpsi events in DPM
 
   // input
