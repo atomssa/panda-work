@@ -23,7 +23,7 @@ AnaTdav2::AnaTdav2(const int& _iplab, const int& itype, const int& brem, const i
   verb(false),
   nevt(0),
   brem_corr(brem!=0),
-  bg_mc(itype==0),
+  mc_type(itype),
   eid_param_method(eid_meth!=0),
   iplab((_iplab>=0&&_iplab<3)?_iplab:0),
   plab{5.513,8.,12.},
@@ -169,7 +169,7 @@ void AnaTdav2::init_hists() {
   hcmoa_mconst_cut = new TH2F("hcmoa_mconst_cut", "hcmoa_mconst_cut", 200, 0, 2*TMath::Pi(), 200, 0, 2*TMath::Pi());
 
   double _tmin = iplab==0?-1.9:(iplab==1?-6.5:-14);
-  if (bg_mc) {
+  if (mc_type!=1) {
     _tmin = iplab==0?-11:(iplab==1?-16:-24);
   }
 
@@ -460,8 +460,8 @@ bool AnaTdav2::calc_true_tu() {
     if (mcList[j]->PdgCode()==111) {
       RhoCandidate *mcmother = mcList[j]->TheMother();
       int muid = mcmother? mcmother->GetTrackNumber(): -1;
-      if ((bg_mc and muid == -1) or
-	  (!bg_mc and muid == 0)) {
+      if ((mc_type!=1 and muid == -1) or
+	  (mc_type==1 and muid == 0)) {
 	event_t = t_gg(mcList[j]);
 	event_u = u_gg(mcList[j]);
 	// Apply "true" t and u cuts here. For the higher energies, it doesn't make
@@ -495,8 +495,8 @@ bool AnaTdav2::calc_true_tu() {
 	  htrupi0thlab_tc->Fill(mcList[j]->P4().Theta());
 	}
 
-	// bg_mc pi0 angluar distributions with jpsi mass cut on the pippim pair
-	if (bg_mc) {
+	// MC pi0 angluar distributions with jpsi mass cut on the pippim pair
+	if (mc_type==0||mc_type==2) {
 	  int kpip = -1, kpim=-1;
 	  for (int k=0; k<mcList.GetLength(); ++k) {
 	    if (mcList[k]->PdgCode()==211) { kpip = k; }
@@ -534,15 +534,6 @@ bool AnaTdav2::calc_true_tu() {
 
 	return true;
 
-	//if (bg_mc) {
-	//  httrumc->Fill(event_t);
-	//  hutrumc->Fill(event_u);
-	//  htrupi0thcm->Fill(pi0theta_cm(mcList[j]));
-	//  htrupi0costhcm->Fill(pi0cost_cm(mcList[j]));
-	//  htrupi0thlab->Fill(mcList[j]->P4().Theta());
-	//  return true;
-	//} else {
-	//}
       }
     }
   }
@@ -551,7 +542,7 @@ bool AnaTdav2::calc_true_tu() {
 }
 
 void AnaTdav2::calc_evt_wt() {
-  if (bg_mc) {
+  if (mc_type==0) {
     bool pip_found = false, pim_found = false;
     double pip_wt = 0.0, pim_wt = 0.0;
     for (int j=0;j<mcList.GetLength();++j) {
@@ -605,7 +596,7 @@ void AnaTdav2::fill_lists() {
   fAna->FillList(rcl[e], (brem_corr?"BremElectronAllMinus":"ElectronAllMinus"));
   fAna->FillList(rcl[g], "Neutral");
 
-  if (bg_mc) {
+  if (mc_type!=1) {
     fAna->FillList(rcl[pip], "PionAllPlus");
     fAna->FillList(rcl[pim], "PionAllMinus");
     // all pions accepted as identified, but they will be wieghted when filling with the corresponding
@@ -626,18 +617,13 @@ void AnaTdav2::fill_lists() {
 
 void AnaTdav2::nocut_ref() {
   double tmp_eid_wt = m_evt_wt*nevt_sim_bg[iplab]/nevt_xsect_bg[iplab];
-  if (bg_mc) m_evt_wt = nevt_xsect_bg[iplab]/nevt_sim_bg[iplab];
+  if (mc_type==0) m_evt_wt = nevt_xsect_bg[iplab]/nevt_sim_bg[iplab];
   rcl[gg].Combine(rcl[g],rcl[g]);
   rcl[ep].Combine(rcl[e],rcl[p]);
   fill_pair_mass(rcl[ep], hmep[0]);
   fill_count_hists(gg,ep,0);
-  if (bg_mc) m_evt_wt *= tmp_eid_wt;
+  if (mc_type==0) m_evt_wt *= tmp_eid_wt;
 
-  //if (bg_mc) {
-  //  rcl[iep].Combine(rcl[e],rcl[p]);
-  //} else {
-  //  rcl[iep].Combine(rcl[ie],rcl[ip]);
-  //}
   rcl[iep].Combine(rcl[ie],rcl[ip]);
 
   fill_pair_mass(rcl[iep], hmep[1]);

@@ -91,7 +91,7 @@ class AnaTdav2 : public FairTask{
   int nevt;
   bool brem_corr;
 
-  bool bg_mc;
+  int mc_type;
   bool eid_param_method;
 
   PndAnalysis *fAna;
