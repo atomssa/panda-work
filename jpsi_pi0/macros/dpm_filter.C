@@ -131,7 +131,7 @@ void print_interesting_events(int ievt, const vector<int> &evt) {
   if (interesting_event(evt)) print_log(ievt, evt);
 }
 
-void dpm_filter(string rxn="pi0pippim") {
+void dpm_filter(string rxn="pi0pipm") {
 
   bool verb = false;
 
@@ -144,14 +144,14 @@ void dpm_filter(string rxn="pi0pippim") {
   //refs.push_back(evt_ref("pi0pi0jpsi", "#pi^{0}#pi^{0}J/#psi", pi0, pi0, jpsi)); // pi0, pi0, jpsi: no jpsi events in DPM
 
   // input
-  string file_name_in = "Background-micro.root";
+  string file_name_in = "Background-micro.12.root";
   TFile *file_in = TFile::Open(file_name_in.c_str());
   TTree *data_in = (TTree*) file_in->Get("data");
   TClonesArray *part_array = new TClonesArray("TParticle");
   data_in->SetBranchAddress("Particles",&part_array);
   int Nevt = data_in->GetEntries();
 
-  string file_name_out = "filt_complete.root";
+  string file_name_out = "filt_complete.12.root";
   std::cout << "Filtered output file = " << file_name_out << std::endl;
   TFile *file_out = TFile::Open(file_name_out.c_str(),"RECREATE");
   std::vector<TTree*> data_out;
