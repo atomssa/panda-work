@@ -159,8 +159,8 @@ void AnaTdav2::init_hists() {
     hmept.push_back(new TH1F(Form("hmept%d", ib), Form("%3.1f < t < %3.1f;M_{inv}", tu_binning[ib], tu_binning[ib+1]), 200, 0, 5));
     hmepu.push_back(new TH1F(Form("hmepu%d", ib), Form("%3.1f < u < %3.1f;M_{inv}", tu_binning[ib], tu_binning[ib+1]), 200, 0, 5));
   }
-  hmmiss = new TH1F("hmmiss", "hmmiss", 200, 0, 4);
-  hmmiss2 = new TH1F("hmmiss2", "hmmiss2", 200, -10, 10);
+  hmmiss = new TH1F("hmmiss", "hmmiss", 800, -4, 4);
+  hmmiss2 = new TH1F("hmmiss2", "hmmiss2", 2000, -10, 10);
   hmtot = new TH1F("hmtot", "hmtot", 200, 0, 8);
   hcmoa = new TH2F("hcmoa", "hcmoa", 200, 0, 2*TMath::Pi(), 200, 0, 2*TMath::Pi());
 
