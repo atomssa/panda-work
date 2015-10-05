@@ -766,7 +766,7 @@ void AnaTdav2::kin_excl() {
   fill_dth_dph_cm(rcl[iep_excl],rcl[gg_excl], hcmoa);
   fill_mtot(rcl[iep_excl],rcl[gg_excl], hmtot);
   fill_pair_mass(rcl[iep_excl], hmep[4]);
-  fill_count_hists(gg_excl,iep_excl,3);
+  fill_count_hists(gg_excl,iep_excl,5);
 }
 
 /**
