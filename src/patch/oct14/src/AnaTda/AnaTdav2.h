@@ -161,6 +161,7 @@ class AnaTdav2 : public FairTask{
   std::vector<TH1F*> hmepu;
 
   TH1F* hmmiss;
+  TH1F* hmmiss2;
   TH1F* hmtot;
   TH2F* hcmoa;
   TH1F* htrecgg, *hurecgg, *htrecep, *hurecep;
@@ -219,7 +220,7 @@ class AnaTdav2 : public FairTask{
   //void fill_ang_dist(RhoCandidate*);
   void dth_dph_cm(RhoCandidate*, RhoCandidate *, double &, double &);
   void fill_mtot(RhoCandList&, RhoCandList&, TH1F*);
-  void fill_mmiss(RhoCandList&, RhoCandList&, TH1F*);
+  void fill_mmiss(RhoCandList&, RhoCandList&, TH1F*, TH1F*);
   void fill_dth_dph_cm(RhoCandList&, RhoCandList&, TH2F*);
   void fill_pair_mass(RhoCandList&, TH1F*);
   void fill_count_hists(int, int, int);

@@ -159,7 +159,8 @@ void AnaTdav2::init_hists() {
     hmept.push_back(new TH1F(Form("hmept%d", ib), Form("%3.1f < t < %3.1f;M_{inv}", tu_binning[ib], tu_binning[ib+1]), 200, 0, 5));
     hmepu.push_back(new TH1F(Form("hmepu%d", ib), Form("%3.1f < u < %3.1f;M_{inv}", tu_binning[ib], tu_binning[ib+1]), 200, 0, 5));
   }
-  hmmiss = new TH1F("hmmiss", "hmmiss", 200, 0, 8);
+  hmmiss = new TH1F("hmmiss", "hmmiss", 200, 0, 4);
+  hmmiss2 = new TH1F("hmmiss2", "hmmiss2", 200, -10, 10);
   hmtot = new TH1F("hmtot", "hmtot", 200, 0, 8);
   hcmoa = new TH2F("hcmoa", "hcmoa", 200, 0, 2*TMath::Pi(), 200, 0, 2*TMath::Pi());
 
@@ -299,11 +300,13 @@ void AnaTdav2::fill_mtot(RhoCandList& _ep, RhoCandList& _gg, TH1F* dest) {
       dest->Fill(m(_gg[jgg], _ep[jep]), m_evt_wt);
 }
 
-void AnaTdav2::fill_mmiss(RhoCandList& _ep, RhoCandList& _gg, TH1F* dest) {
+void AnaTdav2::fill_mmiss(RhoCandList& _ep, RhoCandList& _gg, TH1F* dest, TH1F* dest2) {
   assert(_ep.GetLength()<=1&&_gg.GetLength()<=1);
   if (_ep.GetLength()==1&&_gg.GetLength()==1) {
     double _mmiss = (p4sys - (_gg[0]->P4() + _ep[0]->P4())).M();
+    double _mmiss2 = (p4sys - (_gg[0]->P4() + _ep[0]->P4())).M2();
     dest->Fill(_mmiss, m_evt_wt);
+    dest2->Fill(_mmiss2, m_evt_wt);
   }
 }
 
@@ -760,7 +763,7 @@ void AnaTdav2::kin_excl() {
   }
   fill_dth_dph_cm(rcl[iep_excl],rcl[gg_excl], hcmoa);
   fill_mtot(rcl[iep_excl],rcl[gg_excl], hmtot);
-  fill_mmiss(rcl[iep_excl],rcl[gg_excl], hmmiss);
+  fill_mmiss(rcl[iep_excl],rcl[gg_excl], hmmiss, hmmiss2);
   fill_pair_mass(rcl[iep_excl], hmep[4]);
   fill_count_hists(gg_excl,iep_excl,5);
 }
@@ -817,7 +820,7 @@ void AnaTdav2::kin_excl_all() {
 
   fill_dth_dph_cm(rcl[iep_excl],rcl[gg_excl], hcmoa);
   fill_mtot(rcl[iep_excl],rcl[gg_excl], hmtot);
-  fill_mmiss(rcl[iep_excl],rcl[gg_excl], hmmiss);
+  fill_mmiss(rcl[iep_excl],rcl[gg_excl], hmmiss, hmmiss2);
 
   fill_pair_mass(rcl[iep_excl], hmep[4]);
   fill_count_hists(gg_excl,iep_excl,5);
@@ -994,6 +997,7 @@ void AnaTdav2::write_hists() {
 
   hmtot->Write();
   hmmiss->Write();
+  hmmiss2->Write();
   hcmoa->Write();
   hmep_mconst->Write();
   hmtot_mconst->Write();
