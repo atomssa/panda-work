@@ -863,10 +863,10 @@ void AnaTdav2::kin_fit_4c() {
   if (rcl[iep_excl].GetLength()==1 and
       rcl[gg_excl].GetLength()==1) {
 
-    RhoCandidate pi0jpsi;
-    pi0jpsi.Combine(rcl[iep_excl][0],rcl[gg_excl][0]);
+    RhoCandList pi0jpsi;
+    pi0jpsi.Combine(rcl[iep_excl],rcl[gg_excl]);
 
-    PndKinFitter fitter(&pi0jpsi);
+    PndKinFitter fitter(pi0jpsi[0]);
     fitter.Add4MomConstraint(p4sys);
     fitter.Fit();
 
