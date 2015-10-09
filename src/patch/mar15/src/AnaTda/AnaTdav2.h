@@ -64,6 +64,7 @@ class AnaTdav2 : public FairTask{
   void kin_excl();
   void kin_excl_all();
   void kin_fit();
+  void kin_fit_4c();
   void fill_bins();
   void write_hists();
   void print_mc_list();
@@ -181,6 +182,9 @@ class AnaTdav2 : public FairTask{
   TH2F *hcmoa_mconst;
   TH1F *hmtot_mconst_cut;
   TH2F *hcmoa_mconst_cut;
+
+  TH1F *hpi0jpsi_chi24c;
+  TH1F *hpi0jpsi_prob4c;
 
   //static const int nrcl = 7;
   enum {e=0, p, g, /* Single Track Lists, no PID: e=elec p=posit, g=gamma*/

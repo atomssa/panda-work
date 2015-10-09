@@ -218,6 +218,10 @@ void AnaTdav2::init_hists() {
   hnevt =  new TH1F("hnevt","hnevt", 10,0,10);
   hnevt->SetBinContent(3, nevt_sim_bg[iplab]);
   hnevt->SetBinContent(4, nevt_xsect_bg[iplab]);
+
+  hpi0jpsi_chi24c = new TH1F("hpi0jpsi_chi24c","hpi0jpsi_chi24c",100,0,40);
+  hpi0jpsi_prob4c  = new TH1F("hpi0jpsi_prob4c ","hpi0jpsi_prob4c ",100,0,1);
+
 }
 
 void AnaTdav2::beam_cond(){
@@ -850,6 +854,26 @@ void AnaTdav2::kin_fit() {
       hmtot_mconst_cut->Fill(_mtot);
       hcmoa_mconst_cut->Fill(_dth,_dph);
     }
+  }
+}
+
+void AnaTdav2::kin_fit_4c() {
+  assert(rcl[iep_excl].GetLength()<=1 and
+	 rcl[gg_excl].GetLength()<=1);
+  if (rcl[iep_excl].GetLength()==1 and
+      rcl[gg_excl].GetLength()==1) {
+
+    RhoCandidate pi0jpsi;
+    pi0jpsi.Combine(rcl[iep_excl][0],rcl[gg_excl][0]);
+
+    PndKinFitter fitter(&pi0jpsi);
+    fitter.Add4MomConstraint(p4sys);
+    fitter.Fit();
+
+    double chi2_4c = fitter.GetChi2();	// get chi2 of fit
+    double prob_4c = fitter.GetProb();	// access probability of fit
+    hpi0jpsi_chi24c->Fill(chi2_4c);
+    hpi0jpsi_prob4c->Fill(prob_4c);
   }
 }
 
