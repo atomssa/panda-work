@@ -1029,6 +1029,9 @@ void AnaTdav2::write_hists() {
   hmtot_mconst_cut->Write();
   hcmoa_mconst_cut->Write();
 
+  hpi0jpsi_chi24c->Write();
+  hpi0jpsi_prob4c->Write();
+
   gDirectory->mkdir("pi0cost_cm_bins");
   gDirectory->cd("pi0cost_cm_bins");
   hpi0cost_cm->Write();
@@ -1092,6 +1095,8 @@ void AnaTdav2::write_hists() {
   htrupi0thcm_mc_vs_m->Write();
   htrupi0costhcm_mc_vs_m->Write();
   htrupi0thlab_mc_vs_m->Write();
+
+
 
 }
 
