@@ -972,7 +972,7 @@ void AnaTdav2::Exec(Option_t* opt) {
     pi0_sel();
     ep_pi0_asso_all();
     kin_excl_all();
-    kin_fit();
+    kin_fit_4c();
     fill_bins();
   }
 
