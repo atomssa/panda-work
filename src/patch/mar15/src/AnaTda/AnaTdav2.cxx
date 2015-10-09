@@ -219,8 +219,8 @@ void AnaTdav2::init_hists() {
   hnevt->SetBinContent(3, nevt_sim_bg[iplab]);
   hnevt->SetBinContent(4, nevt_xsect_bg[iplab]);
 
-  hpi0jpsi_chi24c = new TH1F("hpi0jpsi_chi24c","hpi0jpsi_chi24c",100,0,40);
-  hpi0jpsi_prob4c  = new TH1F("hpi0jpsi_prob4c ","hpi0jpsi_prob4c ",100,0,1);
+  hpi0jpsi_chi24c = new TH1F("hpi0jpsi_chi24c","hpi0jpsi_chi24c",1000,0,mc_type==1?100:400);
+  hpi0jpsi_prob4c  = new TH1F("hpi0jpsi_prob4c ","hpi0jpsi_prob4c ",1000,0,1.0);
 
 }
 
