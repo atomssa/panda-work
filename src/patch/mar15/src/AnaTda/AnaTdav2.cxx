@@ -879,7 +879,14 @@ void AnaTdav2::kin_fit_4c() {
     hpi0jpsi_chi24c->Fill(chi2_4c);
     hpi0jpsi_chi24c_c->Fill(chi2_4c);
     hpi0jpsi_prob4c->Fill(prob_4c);
+
+    fill_pair_mass(rcl[iep_excl], hmep[5]);
+
+    if (chi2_4c<200) {
+      fill_pair_mass(rcl[iep_excl], hmep[6]);
+    }
   }
+
 }
 
 double AnaTdav2::pi0cost_cm(RhoCandidate* pi0) {

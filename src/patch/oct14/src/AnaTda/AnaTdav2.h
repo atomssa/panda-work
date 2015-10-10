@@ -139,7 +139,7 @@ class AnaTdav2 : public FairTask{
 
   double eid_prob_min;
 
-  static const int nstep = 6;
+  static const int nstep = 7;
   TH1F* hnevt;
   TH1F* hwt;
   TH1F* hmep[nstep];
