@@ -219,7 +219,8 @@ void AnaTdav2::init_hists() {
   hnevt->SetBinContent(3, nevt_sim_bg[iplab]);
   hnevt->SetBinContent(4, nevt_xsect_bg[iplab]);
 
-  hpi0jpsi_chi24c = new TH1F("hpi0jpsi_chi24c","hpi0jpsi_chi24c",1000,0,mc_type==1?100:400);
+  hpi0jpsi_chi24c = new TH1F("hpi0jpsi_chi24c","hpi0jpsi_chi24c",2000,0,10000);
+  hpi0jpsi_chi24c_c = new TH1F("hpi0jpsi_chi24c_c","hpi0jpsi_chi24c_c",1000,0,500);
   hpi0jpsi_prob4c  = new TH1F("hpi0jpsi_prob4c ","hpi0jpsi_prob4c ",1000,0,1.0);
 
 }
@@ -872,7 +873,11 @@ void AnaTdav2::kin_fit_4c() {
 
     double chi2_4c = fitter.GetChi2();	// get chi2 of fit
     double prob_4c = fitter.GetProb();	// access probability of fit
+    //int ndf_4c = fitter.GetNdf();
+    //cout << "chi2_4c/NDF = " << chi2_4c << "/" << ndf_4c << " prob_4c = " << prob_4c << endl;
+
     hpi0jpsi_chi24c->Fill(chi2_4c);
+    hpi0jpsi_chi24c_c->Fill(chi2_4c);
     hpi0jpsi_prob4c->Fill(prob_4c);
   }
 }
@@ -1030,6 +1035,7 @@ void AnaTdav2::write_hists() {
   hcmoa_mconst_cut->Write();
 
   hpi0jpsi_chi24c->Write();
+  hpi0jpsi_chi24c_c->Write();
   hpi0jpsi_prob4c->Write();
 
   gDirectory->mkdir("pi0cost_cm_bins");

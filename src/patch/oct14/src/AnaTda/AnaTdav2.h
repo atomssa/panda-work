@@ -184,6 +184,7 @@ class AnaTdav2 : public FairTask{
   TH2F *hcmoa_mconst_cut;
 
   TH1F *hpi0jpsi_chi24c;
+  TH1F *hpi0jpsi_chi24c_c;
   TH1F *hpi0jpsi_prob4c;
 
   //static const int nrcl = 7;
