@@ -42,9 +42,11 @@ AnaTdav2::AnaTdav2(const int& _iplab, const int& itype, const int& brem, const i
   tmin{-0.092, -1.3, -2.85},
   tmax{0.59, 0.43, 0.3},
   //nevt_sim_bg{81874.0, 224120.0, 189015.0},
-  nevt_sim_bg{816807.0,888292.0,898721.0},
+  // 1st index: 0->pi0pipm, 1->pi0jpsi, 2->pi02pipm, 3->pi0pipm2, 4->pi02jpsi
+  nevt_sim_bg{{814794.0,888292.0,898721.0}, {32780.0,50142.0,51860.0}, {214780.0,174864.0,160099.0}, {570751.0,609044.0,527506.0}, {816807.0,888292.0,898721.0}},
   //nevt_xsect_bg{4.0e11, 1e11, 1e9},
-  nevt_xsect_bg{4.0e11, 1e11, 2e10}, // xsect={0.2mb, 0.05mb, 0.02mb}
+  // xsect={0.2mb, 0.05mb, 0.02mb}
+  nevt_xsect_bg{{4.0e11, 1e11, 2e10}, {32780.0,50142.0,51860.0}, {1.15e12, 3.15e11, 6.84e10}, {3.19e12, 1.14e12, 2.92e11}, {4.0e11, 1e11, 2e10}},
   eff_file_name("eff/effic_smooth.root"),
   eff_hist_name("eff_ep_em_rad"),
   eff_hist_rad(true),
@@ -216,8 +218,8 @@ void AnaTdav2::init_hists() {
   htrupi0thlab_mc_vs_m = new TH2F("htrupi0thlab_mc_vs_m", "htrupi0thlab_mc_vs_m", 200, 0, 5, 1000, 0., TMath::Pi());
 
   hnevt =  new TH1F("hnevt","hnevt", 10,0,10);
-  hnevt->SetBinContent(3, nevt_sim_bg[iplab]);
-  hnevt->SetBinContent(4, nevt_xsect_bg[iplab]);
+  hnevt->SetBinContent(3, nevt_sim_bg[mc_type][iplab]);
+  hnevt->SetBinContent(4, nevt_xsect_bg[mc_type][iplab]);
 
   hpi0jpsi_chi24c = new TH1F("hpi0jpsi_chi24c","hpi0jpsi_chi24c",2000,0,10000);
   hpi0jpsi_chi24c_c = new TH1F("hpi0jpsi_chi24c_c","hpi0jpsi_chi24c_c",1000,0,500);
@@ -324,6 +326,9 @@ void AnaTdav2::fill_dth_dph_cm(RhoCandList& _ep, RhoCandList& _gg, TH2F* dest) {
     }
 }
 
+// Here, weight that is applied is the "event" weight. For mutli-pair events all pairs get the same weight.
+// It is possible to do better, by calculating the weight for each pair based on the MC truth info
+// but this will require big changes in structure
 void AnaTdav2::fill_pair_mass(RhoCandList& org, TH1F* dest) {
   for (int j = 0; j < org.GetLength(); ++j) dest->Fill(org[j]->M(),m_evt_wt);
 }
@@ -474,26 +479,13 @@ double AnaTdav2::eff_weight(const TVector3 &mom) {
 //Track 3 (PDG:22) has mother 1 and daughter(s) 6  156
 bool AnaTdav2::calc_true_tu() {
   for (int j=0;j<mcList.GetLength();++j) {
-    if (mcList[j]->PdgCode()==111) {
+    if (mcList[j]->PdgCode()==111) { // in case of multi pi0 events just use the first pi0 to define "true" t and u. Anyways, these don't make much sense
       RhoCandidate *mcmother = mcList[j]->TheMother();
       int muid = mcmother? mcmother->GetTrackNumber(): -1;
-      if ((mc_type!=1 and muid == -1) or
-	  (mc_type==1 and muid == 0)) {
+      if (( (mc_type!=1&&mc_type!=4) and muid == -1) or  // DPM simulation doesn't have pbar-p system at index 0
+	  ( (mc_type==1||mc_type==4) and muid == 0)) {  // EvtGen simulation has pbar-p system at index 0
 	event_t = t_gg(mcList[j]);
 	event_u = u_gg(mcList[j]);
-	// Apply "true" t and u cuts here. For the higher energies, it doesn't make
-	// Sense to look at the whole range in t and u and gives wrong impression in S/B comparisons
-	//if ( (tmin[iplab] < event_t and event_t < tmax[iplab]) or
-	//     (tmin[iplab] < event_u and event_u < tmax[iplab]) ) {
-	//  httrumc->Fill(event_t);
-	//  hutrumc->Fill(event_u);
-	//  htrupi0thcm->Fill(pi0theta_cm(mcList[j]));
-	//  htrupi0costhcm->Fill(pi0cost_cm(mcList[j]));
-	//  htrupi0thlab->Fill(mcList[j]->P4().Theta());
-	//  return true;
-	//} else {
-	//  return false;
-	//}
 
 	httrumc->Fill(event_t);
 	hutrumc->Fill(event_u);
@@ -518,7 +510,7 @@ bool AnaTdav2::calc_true_tu() {
 	  for (int k=0; k<mcList.GetLength(); ++k) {
 	    if (mcList[k]->PdgCode()==211) { kpip = k; }
 	    if (mcList[k]->PdgCode()==-211) { kpim = k; }
-	    if (kpip>0&&kpim>0) {
+	    if (kpip>0&&kpim>0) { // in case of multi pip+pi- events, use the first found pi+pi- event to define mass cuts
 	      double mpippim = (mcList[kpip]->P4()+mcList[kpim]->P4()).M();
 	      htrupi0thcm_vs_m->Fill(mpippim, pi0theta_cm(mcList[j]));
 	      htrupi0costhcm_vs_m->Fill(mpippim, pi0cost_cm(mcList[j]));
@@ -558,10 +550,14 @@ bool AnaTdav2::calc_true_tu() {
   return false;
 }
 
+inline
+bool comp_dth(std::pair<pair<int,int>,double> lhs, std::pair<pair<int,int>,double> rhs) {
+  return lhs.second<rhs.second;
+}
+
 void AnaTdav2::calc_evt_wt() {
-  if (mc_type==0) {
+  if (mc_type==0 /*pi0pipm*/||mc_type==2 /*pi0pi0pipm*/) {
     bool pip_found = false, pim_found = false;
-    double pip_wt = 0.0, pim_wt = 0.0;
     for (int j=0;j<mcList.GetLength();++j) {
       if (mcList[j]->PdgCode()==211&&!pip_found) {
 	m_pip_wt = eff_weight(mcList[j]->GetMomentum());
@@ -573,8 +569,27 @@ void AnaTdav2::calc_evt_wt() {
       }
       if (pip_found&&pim_found) break;
     }
-    m_evt_wt = nevt_xsect_bg[iplab]*m_pip_wt*m_pim_wt/nevt_sim_bg[iplab];
-    //m_evt_wt = 1.0; // debug tmp
+    m_evt_wt = nevt_xsect_bg[mc_type][iplab]*m_pip_wt*m_pim_wt/nevt_sim_bg[mc_type][iplab];
+  } else if (mc_type==1 /*pi0jpsi->epm*/||mc_type==4 /*pi0pi0jpsi->epm*/) {
+    m_evt_wt = 1.0;
+  } else if (mc_type==3 /*pi0pipmpippim*/) {
+    // find the most back to back pip-pim pair to the pi0, and use that to set the event weight
+    std::vector<TLorentzVector> p4pip, p4pim, p4pi0;
+    for (int j=0;j<mcList.GetLength();++j) {
+      if (mcList[j]->PdgCode()==211 && p4pip.size()<2) p4pip.push_back(mcList[j]->P4());
+      if (mcList[j]->PdgCode()==-211 && p4pim.size()<2) p4pim.push_back(mcList[j]->P4());
+      if (mcList[j]->PdgCode()==111 && p4pi0.size()<1) p4pi0.push_back(mcList[j]->P4());
+      if (p4pip.size()==2 && p4pim.size()==2 && p4pi0.size()==1) break;
+    }
+    assert(p4pip.size()==2 && p4pim.size()==2 && p4pi0.size()==1); // if not, wrong type of event
+    std::vector<std::pair<std::pair<int,int>,double> > combs;
+    for (int ip=0; ip<2; ip++)
+      for (int im=0; im<2; ip++)
+	combs.push_back(make_pair(make_pair(ip,im),dth_cm(p4pi0[0],p4pip[ip]+p4pim[im])));
+    sort(combs.begin(),combs.end(),comp_dth);
+    m_pip_wt = eff_weight(p4pip[combs[0].first.first].Vect());
+    m_pim_wt = eff_weight(p4pim[combs[0].first.second].Vect());
+    m_evt_wt = nevt_xsect_bg[mc_type][iplab]*m_pip_wt*m_pim_wt/nevt_sim_bg[mc_type][iplab];
   } else {
     m_evt_wt = 1.0;
   }
@@ -613,7 +628,7 @@ void AnaTdav2::fill_lists() {
   fAna->FillList(rcl[e], (brem_corr?"BremElectronAllMinus":"ElectronAllMinus"));
   fAna->FillList(rcl[g], "Neutral");
 
-  if (mc_type!=1) {
+  if (mc_type!=1&&mc_type!=4) { // if final state is electrons, filter, otherwise, weight
     fAna->FillList(rcl[pip], "PionAllPlus");
     fAna->FillList(rcl[pim], "PionAllMinus");
     // all pions accepted as identified, but they will be wieghted when filling with the corresponding
@@ -633,10 +648,10 @@ void AnaTdav2::fill_lists() {
 }
 
 void AnaTdav2::nocut_ref() {
-  double tmp_eid_wt = m_evt_wt*nevt_sim_bg[iplab]/nevt_xsect_bg[iplab];
-  if (mc_type==0) m_evt_wt = nevt_xsect_bg[iplab]/nevt_sim_bg[iplab];
   rcl[gg].Combine(rcl[g],rcl[g]);
   rcl[ep].Combine(rcl[e],rcl[p]);
+  double tmp_eid_wt = m_evt_wt*nevt_sim_bg[mc_type][iplab]/nevt_xsect_bg[mc_type][iplab];
+  if (mc_type==0) m_evt_wt = nevt_xsect_bg[mc_type][iplab]/nevt_sim_bg[mc_type][iplab];
   fill_pair_mass(rcl[ep], hmep[0]);
   fill_count_hists(gg,ep,0);
   if (mc_type==0) m_evt_wt *= tmp_eid_wt;
@@ -1108,20 +1123,40 @@ void AnaTdav2::write_hists() {
   htrupi0thcm_mc_vs_m->Write();
   htrupi0costhcm_mc_vs_m->Write();
   htrupi0thlab_mc_vs_m->Write();
+}
 
+double AnaTdav2::dph_cm(TLorentzVector p4gg, TLorentzVector p4pm) {
+  double retval = 0, dummy = 0;
+  dth_dph_cm(p4gg,p4pm,dummy,retval);
+  return retval;
+}
 
+double AnaTdav2::dth_cm(TLorentzVector p4gg, TLorentzVector p4pm) {
+  double retval = 0, dummy = 0;
+  dth_dph_cm(p4gg,p4pm,retval,dummy);
+  return retval;
+}
 
+// We want to copy TLVs here before applying boost to CM. Thta way the original vector is preserved in
+// case it is needed in calling function for further processing
+void AnaTdav2::dth_dph_cm(TLorentzVector p4gg, TLorentzVector p4pm, double &_dth, double &_dph) {
+  p4gg.Boost(boost_to_cm);
+  p4pm.Boost(boost_to_cm);
+  _dth = fabs(p4gg.Vect().Theta() + p4pm.Vect().Theta());
+  _dph = p4gg.Vect().Phi() - p4pm.Vect().Phi();
+  if (_dph<0) _dph *= -1;
 }
 
 void AnaTdav2::dth_dph_cm(RhoCandidate* _gg, RhoCandidate *_epem, double &_dth, double &_dph ) {
   TLorentzVector p4gg = _gg->P4();
   TLorentzVector p4epair = _epem->P4();
-  TLorentzVector p4ep = _epem->Daughter(0)->Charge()>0? _epem->Daughter(0)->P4(): _epem->Daughter(1)->P4();
-  p4gg.Boost(boost_to_cm);
-  p4epair.Boost(boost_to_cm);
-  _dth = fabs(p4gg.Vect().Theta() + p4epair.Vect().Theta());
-  _dph = p4gg.Vect().Phi() - p4epair.Vect().Phi();
-  if (_dph<0) _dph *= -1;
+  //TLorentzVector p4ep = _epem->Daughter(0)->Charge()>0? _epem->Daughter(0)->P4(): _epem->Daughter(1)->P4();
+  //p4gg.Boost(boost_to_cm);
+  //p4epair.Boost(boost_to_cm);
+  //_dth = fabs(p4gg.Vect().Theta() + p4epair.Vect().Theta());
+  //_dph = p4gg.Vect().Phi() - p4epair.Vect().Phi();
+  //if (_dph<0) _dph *= -1;
+  dth_dph_cm(p4gg,p4epair,_dth,_dph);
 }
 
 bool AnaTdav2::bayes_pid(RhoCandidate* cand) {

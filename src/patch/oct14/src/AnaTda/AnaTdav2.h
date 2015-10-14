@@ -119,8 +119,8 @@ class AnaTdav2 : public FairTask{
   double m_pip_wt, m_pim_wt, m_evt_wt;
   double tmin[3]; //={-0.443789, -1.0, -1.0};
   double tmax[3]; //={0.616486, 0.457248, 0.31538};
-  double nevt_sim_bg[3]; // number of simulated events for x-sect normalization
-  double nevt_xsect_bg[3]; // number of simulated events for x-sect normalization
+  double nevt_sim_bg[5][3]; // number of simulated events for x-sect normalization
+  double nevt_xsect_bg[5][3]; // number of simulated events for x-sect normalization
 
   // Efficiency parametrizations
   TFile *eff_file;
@@ -223,6 +223,9 @@ class AnaTdav2 : public FairTask{
   double pi0cost_cm(RhoCandidate*);
   double pi0theta_cm(RhoCandidate*);
   //void fill_ang_dist(RhoCandidate*);
+  double dph_cm(TLorentzVector, TLorentzVector);
+  double dth_cm(TLorentzVector, TLorentzVector);
+  void dth_dph_cm(TLorentzVector, TLorentzVector, double&, double&);
   void dth_dph_cm(RhoCandidate*, RhoCandidate *, double &, double &);
   void fill_mtot(RhoCandList&, RhoCandList&, TH1F*);
   void fill_mmiss(RhoCandList&, RhoCandList&, TH1F*, TH1F*);
