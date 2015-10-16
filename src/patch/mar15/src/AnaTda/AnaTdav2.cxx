@@ -69,12 +69,17 @@ AnaTdav2::AnaTdav2(const int& _iplab, const int& itype, const int& brem, const i
   dph_sigma(0.4),
   dth_dph_cm_cut_max(3.0),
   require_exclusivity(false),
-  jpsi_m_3sig_min(2.9),
-  jpsi_m_3sig_max(3.3)
+  jpsi_m_3sig_min(2.8),
+  jpsi_m_3sig_max(3.3),
+  chi2_cut{50.0,100.0,200.0}
 {
   assert(iplab>=0&&iplab<=2);
   rcl.resize(nrcl);
   gRandom->SetSeed();
+  // bootstrap the pi0pi0jpsi (idx4) x-sect from pi0jpsi (idx1) xsect using the pi0pi0pipipm(idx2)/pi0pippim(idx0) ratio
+  for (int ii=0; ii < 3; ++ii) {
+    nevt_xsect[4][ii] = nevt_xsect[1][ii]*(nevt_xsect[2][ii]/nevt_xsect[0][ii]);
+  }
 }
 
 AnaTdav2::~AnaTdav2() {
@@ -897,7 +902,9 @@ void AnaTdav2::kin_fit_4c() {
 
     fill_pair_mass(rcl[iep_excl], hmep[5]);
 
-    if (chi2_4c<200) {
+    if (chi2_4c<chi2_cut[iplab]) {
+      rcl[iep_kinc].Append(rcl[iep_excl][0]);
+      rcl[gg_kinc].Append(rcl[gg_excl][0]);
       fill_pair_mass(rcl[iep_excl], hmep[6]);
     }
   }

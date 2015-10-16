@@ -264,6 +264,8 @@ class AnaTdav2 : public FairTask{
   double jpsi_m_3sig_min;
   double jpsi_m_3sig_max;
 
+  double chi2_cut[3];
+
  public:
   void do_apply_pi0evsoa_cut(bool a) {apply_pi0evsoa_cut = a;}
   void do_apply_pi0m_cut(bool a) {apply_pi0m_cut = a;}
