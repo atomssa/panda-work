@@ -933,28 +933,36 @@ int AnaTdav2::find_bin(double val, const vector<double> &binning) {
   return -1; // Crash
 }
 
-void AnaTdav2::fill_bins() {
-  assert(rcl[iep_excl].GetLength()<=1 and
-	 rcl[gg_excl].GetLength()<=1);
-  if (rcl[iep_excl].GetLength()==1 and
-      rcl[gg_excl].GetLength()==1) {
+void AnaTdav2::fill_bins_kinc() {
+  fill_bins(rcl[iep_kinc], rcl[gg_kinc]);
+}
 
-    double trecgg = t_gg(rcl[gg_excl][0]);
-    double urecgg = u_gg(rcl[gg_excl][0]);
-    double trecep = t_ep(rcl[iep_excl][0]);
-    double urecep = u_ep(rcl[iep_excl][0]);
-    double pi0cost_cm_rec = pi0cost_cm(rcl[gg_excl][0]);
-    double pi0theta_rec = rcl[gg_excl][0]->P4().Theta();
+void AnaTdav2::fill_bins_excl() {
+  fill_bins(rcl[iep_excl], rcl[gg_excl]);
+}
+
+void AnaTdav2::fill_bins(RhoCandList& rclep, RhoCandList& rclgg) {
+  assert(rclep.GetLength()<=1 and
+	 rclgg.GetLength()<=1);
+  if (rclep.GetLength()==1 and
+      rclgg.GetLength()==1) {
+
+    double trecgg = t_gg(rclgg[0]);
+    double urecgg = u_gg(rclgg[0]);
+    double trecep = t_ep(rclep[0]);
+    double urecep = u_ep(rclep[0]);
+    double pi0cost_cm_rec = pi0cost_cm(rclgg[0]);
+    double pi0theta_rec = rclgg[0]->P4().Theta();
 
     int ibin_pi0th = find_bin(pi0theta_rec,pi0th_binning);
     int ibin_pi0cost_cm = find_bin(pi0cost_cm_rec,pi0cost_cm_binning);
     int itbin = find_bin(trecgg,tu_binning);
     int iubin = find_bin(urecgg,tu_binning);
 
-    if (itbin>=0)fill_pair_mass(rcl[iep_excl], hmept[itbin]);
-    if (iubin>=0)fill_pair_mass(rcl[iep_excl], hmepu[iubin]);
-    fill_pair_mass(rcl[iep_excl], hmep_pi0th[ibin_pi0th]);
-    fill_pair_mass(rcl[iep_excl], hmep_pi0cost_cm[ibin_pi0cost_cm]);
+    if (itbin>=0)fill_pair_mass(rclep, hmept[itbin]);
+    if (iubin>=0)fill_pair_mass(rclep, hmepu[iubin]);
+    fill_pair_mass(rclep, hmep_pi0th[ibin_pi0th]);
+    fill_pair_mass(rclep, hmep_pi0cost_cm[ibin_pi0cost_cm]);
 
     hpi0th->Fill(pi0theta_rec);
     hpi0cost_cm->Fill(pi0cost_cm_rec);
@@ -963,7 +971,7 @@ void AnaTdav2::fill_bins() {
     htrecep->Fill(trecep);
     hurecep->Fill(urecep);
 
-    if (rcl[iep_excl][0]->M()>jpsi_m_3sig_min&&rcl[iep_excl][0]->M()<jpsi_m_3sig_max) {
+    if (rclep[0]->M()>jpsi_m_3sig_min&&rclep[0]->M()<jpsi_m_3sig_max) {
       htrecgg_mc->Fill(trecgg);
       hurecgg_mc->Fill(urecgg);
       htrecep_mc->Fill(trecep);
@@ -1000,14 +1008,14 @@ void AnaTdav2::Exec(Option_t* opt) {
     ep_pi0_asso();
     kin_excl();
     kin_fit();
-    fill_bins();
+    fill_bins_excl();
   } else {
     ep_all();
     pi0_sel();
     ep_pi0_asso_all();
     kin_excl_all();
     kin_fit_4c();
-    fill_bins();
+    fill_bins_kinc();
   }
 
 }

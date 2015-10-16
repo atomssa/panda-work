@@ -65,7 +65,9 @@ class AnaTdav2 : public FairTask{
   void kin_excl_all();
   void kin_fit();
   void kin_fit_4c();
-  void fill_bins();
+  void fill_bins_kinc();
+  void fill_bins_excl();
+  void fill_bins(RhoCandList&, RhoCandList&);
   void write_hists();
   void print_mc_list();
   bool bayes_pid(RhoCandidate*);
@@ -200,6 +202,8 @@ class AnaTdav2 : public FairTask{
 	iep_asso_all, /* pid'ed e-p pairs, require associated gg pair satisfying selection cuts */
 	iep_excl, /* pid'ed e-p pairs, require exclusivity of pi0-e-p */
 	gg_excl, /* gg pairs, require exclusivity of pi0-e-p */
+	iep_kinc, /* pid'ed e-p pairs, require exclusivity of pi0-e-p, apply kinematic fit and cut on chi2*/
+	gg_kinc, /* gg pairs, require exclusivity of pi0-e-p, apply kinematic fit and cut on chi2 */
 	nrcl /*number of entries */
   };
   std::vector<RhoCandList> rcl;
