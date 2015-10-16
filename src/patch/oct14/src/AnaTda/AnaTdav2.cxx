@@ -41,12 +41,12 @@ AnaTdav2::AnaTdav2(const int& _iplab, const int& itype, const int& brem, const i
   //tmax{0.616486, 0.457248, 0.31538},
   tmin{-0.092, -1.3, -2.85},
   tmax{0.59, 0.43, 0.3},
-  //nevt_sim_bg{81874.0, 224120.0, 189015.0},
+  //nevt_sim{81874.0, 224120.0, 189015.0},
   // 1st index: 0->pi0pipm, 1->pi0jpsi, 2->pi02pipm, 3->pi0pipm2, 4->pi02jpsi
-  nevt_sim_bg{{814794.0,888292.0,898721.0}, {32780.0,50142.0,51860.0}, {214780.0,174864.0,160099.0}, {570751.0,609044.0,527506.0}, {816807.0,888292.0,898721.0}},
-  //nevt_xsect_bg{4.0e11, 1e11, 1e9},
+  nevt_sim{{814794.0,888292.0,898721.0}, {32780.0,50142.0,51860.0}, {214780.0,174864.0,160099.0}, {570751.0,609044.0,527506.0}, {200000.0,200000.0,200000.0}},
+  //nevt_xsect{4.0e11, 1e11, 1e9},
   // xsect={0.2mb, 0.05mb, 0.02mb}
-  nevt_xsect_bg{{4.0e11, 1e11, 2e10}, {32780.0,50142.0,51860.0}, {1.15e12, 3.15e11, 6.84e10}, {3.19e12, 1.14e12, 2.92e11}, {4.0e11, 1e11, 2e10}},
+  nevt_xsect{{4.0e11, 1e11, 2e10}, {32780.0,50142.0,51860.0}, {1.15e12, 3.15e11, 6.84e10}, {3.19e12, 1.14e12, 2.92e11}, {94243.0, 157947.3, 177361.2}},
   eff_file_name("eff/effic_smooth.root"),
   eff_hist_name("eff_ep_em_rad"),
   eff_hist_rad(true),
@@ -218,8 +218,8 @@ void AnaTdav2::init_hists() {
   htrupi0thlab_mc_vs_m = new TH2F("htrupi0thlab_mc_vs_m", "htrupi0thlab_mc_vs_m", 200, 0, 5, 1000, 0., TMath::Pi());
 
   hnevt =  new TH1F("hnevt","hnevt", 10,0,10);
-  hnevt->SetBinContent(3, nevt_sim_bg[mc_type][iplab]);
-  hnevt->SetBinContent(4, nevt_xsect_bg[mc_type][iplab]);
+  hnevt->SetBinContent(3, nevt_sim[mc_type][iplab]);
+  hnevt->SetBinContent(4, nevt_xsect[mc_type][iplab]);
 
   hpi0jpsi_chi24c = new TH1F("hpi0jpsi_chi24c","hpi0jpsi_chi24c",2000,0,10000);
   hpi0jpsi_chi24c_c = new TH1F("hpi0jpsi_chi24c_c","hpi0jpsi_chi24c_c",1000,0,500);
@@ -569,7 +569,7 @@ void AnaTdav2::calc_evt_wt() {
       }
       if (pip_found&&pim_found) break;
     }
-    m_evt_wt = nevt_xsect_bg[mc_type][iplab]*m_pip_wt*m_pim_wt/nevt_sim_bg[mc_type][iplab];
+    m_evt_wt = nevt_xsect[mc_type][iplab]*m_pip_wt*m_pim_wt/nevt_sim[mc_type][iplab];
   } else if (mc_type==1 /*pi0jpsi->epm*/||mc_type==4 /*pi0pi0jpsi->epm*/) {
     m_evt_wt = 1.0;
   } else if (mc_type==3 /*pi0pipmpippim*/) {
@@ -589,7 +589,7 @@ void AnaTdav2::calc_evt_wt() {
     sort(combs.begin(),combs.end(),comp_dth);
     m_pip_wt = eff_weight(p4pip[combs[0].first.first].Vect());
     m_pim_wt = eff_weight(p4pim[combs[0].first.second].Vect());
-    m_evt_wt = nevt_xsect_bg[mc_type][iplab]*m_pip_wt*m_pim_wt/nevt_sim_bg[mc_type][iplab];
+    m_evt_wt = nevt_xsect[mc_type][iplab]*m_pip_wt*m_pim_wt/nevt_sim[mc_type][iplab];
   } else {
     m_evt_wt = 1.0;
   }
@@ -650,8 +650,8 @@ void AnaTdav2::fill_lists() {
 void AnaTdav2::nocut_ref() {
   rcl[gg].Combine(rcl[g],rcl[g]);
   rcl[ep].Combine(rcl[e],rcl[p]);
-  double tmp_eid_wt = m_evt_wt*nevt_sim_bg[mc_type][iplab]/nevt_xsect_bg[mc_type][iplab];
-  if (mc_type==0) m_evt_wt = nevt_xsect_bg[mc_type][iplab]/nevt_sim_bg[mc_type][iplab];
+  double tmp_eid_wt = m_evt_wt*nevt_sim[mc_type][iplab]/nevt_xsect[mc_type][iplab];
+  if (mc_type==0) m_evt_wt = nevt_xsect[mc_type][iplab]/nevt_sim[mc_type][iplab];
   fill_pair_mass(rcl[ep], hmep[0]);
   fill_count_hists(gg,ep,0);
   if (mc_type==0) m_evt_wt *= tmp_eid_wt;
