@@ -588,9 +588,9 @@ void AnaTdav2::calc_evt_wt() {
     }
     assert(p4pip.size()==2 && p4pim.size()==2 && p4pi0.size()==1); // if not, wrong type of event
     std::vector<std::pair<std::pair<int,int>,double> > combs;
-    for (int ip=0; ip<2; ip++)
-      for (int im=0; im<2; ip++)
-	combs.push_back(make_pair(make_pair(ip,im),dth_cm(p4pi0[0],p4pip[ip]+p4pim[im])));
+    for (int iip=0; iip<2; iip++)
+      for (int iim=0; iim<2; iim++)
+	combs.push_back(make_pair(make_pair(iip,iim),dth_cm(p4pi0[0],p4pip[iip]+p4pim[iim])));
     sort(combs.begin(),combs.end(),comp_dth);
     m_pip_wt = eff_weight(p4pip[combs[0].first.first].Vect());
     m_pim_wt = eff_weight(p4pim[combs[0].first.second].Vect());
