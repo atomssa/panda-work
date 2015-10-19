@@ -193,6 +193,7 @@ class AnaTdav2 : public FairTask{
   TH1F *hpi0pi0jpsi_chi24c;
   TH1F *hpi0pi0jpsi_chi24c_c;
   TH2F *hpi0vs2pi0_chi24c;
+  TH2F *hpi0vs2pi0_chi24c_c;
 
   //static const int nrcl = 7;
   enum {e=0, p, g, /* Single Track Lists, no PID: e=elec p=posit, g=gamma*/

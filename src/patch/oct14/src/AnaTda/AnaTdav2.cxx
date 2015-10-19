@@ -232,7 +232,8 @@ void AnaTdav2::init_hists() {
 
   hpi0pi0jpsi_chi24c = new TH1F("hpi0pi0jpsi_chi24c","hpi0pi0jpsi_chi24c",2000,0,10000);
   hpi0pi0jpsi_chi24c_c = new TH1F("hpi0pi0jpsi_chi24c_c","hpi0pi0jpsi_chi24c_c",1000,0,500);
-  hpi0vs2pi0_chi24c = new TH2F("hpi0vs2pi0_chi24c","hpi0vs2pi0_chi24c",1000,0,10000,1000,0,10000);
+  hpi0vs2pi0_chi24c = new TH2F("hpi0vs2pi0_chi24c","hpi0vs2pi0_chi24c",2000,0,10000,2000,0,10000);
+  hpi0vs2pi0_chi24c_c = new TH2F("hpi0vs2pi0_chi24c_c","hpi0vs2pi0_chi24c_c",1000,0,500,1000,0,500);
 
 }
 
@@ -935,6 +936,7 @@ void AnaTdav2::kin_fit_4c() {
       hpi0pi0jpsi_chi24c->Fill(bg_chi2_4c);
       hpi0pi0jpsi_chi24c_c->Fill(bg_chi2_4c);
       hpi0vs2pi0_chi24c->Fill(sig_chi2_4c, bg_chi2_4c);
+      hpi0vs2pi0_chi24c_c->Fill(sig_chi2_4c, bg_chi2_4c);
     }
 
     // if bg_chi2_4c = 1e9 at this point, it means there was no other pi0
@@ -1127,6 +1129,7 @@ void AnaTdav2::write_hists() {
   hpi0pi0jpsi_chi24c->Write();
   hpi0pi0jpsi_chi24c_c->Write();
   hpi0vs2pi0_chi24c->Write();
+  hpi0vs2pi0_chi24c_c->Write();
 
   gDirectory->mkdir("pi0cost_cm_bins");
   gDirectory->cd("pi0cost_cm_bins");
