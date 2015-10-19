@@ -895,14 +895,14 @@ void AnaTdav2::kin_fit_4c() {
     fitter.Add4MomConstraint(p4sys);
     fitter.Fit();
 
-    double chi2_4c = fitter.GetChi2();	// get chi2 of fit
-    double prob_4c = fitter.GetProb();	// access probability of fit
+    double sig_chi2_4c = fitter.GetChi2();	// get chi2 of fit
+    double sig_prob_4c = fitter.GetProb();	// access probability of fit
     //int ndf_4c = fitter.GetNdf();
-    //cout << "chi2_4c/NDF = " << chi2_4c << "/" << ndf_4c << " prob_4c = " << prob_4c << endl;
+    //cout << "sig_chi2_4c/NDF = " << sig_chi2_4c << "/" << ndf_4c << " sig_prob_4c = " << sig_prob_4c << endl;
 
-    hpi0jpsi_chi24c->Fill(chi2_4c);
-    hpi0jpsi_chi24c_c->Fill(chi2_4c);
-    hpi0jpsi_prob4c->Fill(prob_4c);
+    hpi0jpsi_chi24c->Fill(sig_chi2_4c);
+    hpi0jpsi_chi24c_c->Fill(sig_chi2_4c);
+    hpi0jpsi_prob4c->Fill(sig_prob_4c);
 
     fill_pair_mass(rcl[iep_excl], hmep[5]);
 
@@ -933,7 +933,7 @@ void AnaTdav2::kin_fit_4c() {
     if (xtra_pi0_found) {
       hpi0pi0jpsi_chi24c->Fill(bg_chi2_4c);
       hpi0pi0jpsi_chi24c_c->Fill(bg_chi2_4c);
-      hpi0vs2pi0_chi24c->Fill(chi2_4c, bg_chi2_4c);
+      hpi0vs2pi0_chi24c->Fill(sig_chi2_4c, bg_chi2_4c);
     }
 
     // if bg_chi2_4c = 1e9 at this point, it means there was no other pi0
@@ -941,11 +941,11 @@ void AnaTdav2::kin_fit_4c() {
     // as signal if chi2 passes the chi2 cut. If bg_chi2_4c < 1e9, then it means
     // another pi0 in the event was xtra_pi0_found, in this case, reject the event if the
     // chi2 of multi pi0 background hypothesis is better than signal hypothesis
-    if (chi2_4c<chi2_cut[iplab]) {
+    if (sig_chi2_4c<chi2_cut[iplab]) {
       rcl[iep_kinc].Append(rcl[iep_excl][0]);
       rcl[gg_kinc].Append(rcl[gg_excl][0]);
       fill_pair_mass(rcl[iep_excl], hmep[6]);
-      if (!xtra_pi0_found || (xtra_pi0_found && bg_chi2_4c > chi2_4c)) {
+      if (!xtra_pi0_found || (xtra_pi0_found && bg_chi2_4c > sig_chi2_4c)) {
 	rcl[iep_kinc_bg].Append(rcl[iep_excl][0]);
 	rcl[gg_kinc_bg].Append(rcl[gg_excl][0]);
 	fill_pair_mass(rcl[iep_excl], hmep[7]);
