@@ -945,7 +945,7 @@ void AnaTdav2::kin_fit_4c() {
       rcl[iep_kinc].Append(rcl[iep_excl][0]);
       rcl[gg_kinc].Append(rcl[gg_excl][0]);
       fill_pair_mass(rcl[iep_excl], hmep[6]);
-      if (xtra_pi0_found && bg_chi2_4c > chi2_4c) {
+      if (!xtra_pi0_found || (xtra_pi0_found && bg_chi2_4c > chi2_4c)) {
 	rcl[iep_kinc_bg].Append(rcl[iep_excl][0]);
 	rcl[gg_kinc_bg].Append(rcl[gg_excl][0]);
 	fill_pair_mass(rcl[iep_excl], hmep[7]);
