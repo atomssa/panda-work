@@ -914,8 +914,8 @@ void AnaTdav2::kin_fit_4c() {
     // for better acceptance of multi pi0 background events
     for (int igg=0; igg<rcl[gg].GetLength(); ++igg) {
       if (rcl[gg][igg] == rcl[gg_excl][0]) continue;
-      //if (pi0m_cut_min < rcl[gg][igg]->M() && rcl[gg][igg]->M() < pi0m_cut_max)
-      gg_mcut.Append(rcl[gg][igg]);
+      if (0.090 < rcl[gg][igg]->M() && rcl[gg][igg]->M() < 0.18)
+	gg_mcut.Append(rcl[gg][igg]);
     }
 
     pi0pi0jpsi.Combine(pi0jpsi,gg_mcut);
