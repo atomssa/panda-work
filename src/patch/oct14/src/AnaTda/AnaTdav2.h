@@ -65,8 +65,9 @@ class AnaTdav2 : public FairTask{
   void kin_excl_all();
   void kin_fit();
   void kin_fit_4c();
-  void fill_bins_kinc();
   void fill_bins_excl();
+  void fill_bins_kinc();
+  void fill_bins_kinc_bg();
   void fill_bins(RhoCandList&, RhoCandList&);
   void write_hists();
   void print_mc_list();
@@ -141,7 +142,7 @@ class AnaTdav2 : public FairTask{
 
   double eid_prob_min;
 
-  static const int nstep = 7;
+  static const int nstep = 8;
   TH1F* hnevt;
   TH1F* hwt;
   TH1F* hmep[nstep];
@@ -189,6 +190,10 @@ class AnaTdav2 : public FairTask{
   TH1F *hpi0jpsi_chi24c_c;
   TH1F *hpi0jpsi_prob4c;
 
+  TH1F *hpi0pi0jpsi_chi24c;
+  TH1F *hpi0pi0jpsi_chi24c_c;
+  TH2F *hpi0vs2pi0_chi24c;
+
   //static const int nrcl = 7;
   enum {e=0, p, g, /* Single Track Lists, no PID: e=elec p=posit, g=gamma*/
 	pip, pim, /* List of pion tracks, loaded with pion hypothesis hopefully ordered the same way as electrons*/
@@ -202,8 +207,10 @@ class AnaTdav2 : public FairTask{
 	iep_asso_all, /* pid'ed e-p pairs, require associated gg pair satisfying selection cuts */
 	iep_excl, /* pid'ed e-p pairs, require exclusivity of pi0-e-p */
 	gg_excl, /* gg pairs, require exclusivity of pi0-e-p */
-	iep_kinc, /* pid'ed e-p pairs, require exclusivity of pi0-e-p, apply kinematic fit and cut on chi2*/
-	gg_kinc, /* gg pairs, require exclusivity of pi0-e-p, apply kinematic fit and cut on chi2 */
+	iep_kinc, /* iep_excl + cut on singal hypothesis kinematic fit chi2 */
+	gg_kinc, /* gg_excl + cut on singal hypothesis kinematic fit chi2 */
+	iep_kinc_bg, /* iep_kinc +  accept only if signal hypothesis fits better than bg hypothesis */
+	gg_kinc_bg, /* gg_kinc + accept only if signal hypothesis fits better than bg hypothesis */
 	nrcl /*number of entries */
   };
   std::vector<RhoCandList> rcl;

@@ -230,6 +230,10 @@ void AnaTdav2::init_hists() {
   hpi0jpsi_chi24c_c = new TH1F("hpi0jpsi_chi24c_c","hpi0jpsi_chi24c_c",1000,0,500);
   hpi0jpsi_prob4c  = new TH1F("hpi0jpsi_prob4c ","hpi0jpsi_prob4c ",1000,0,1.0);
 
+  hpi0pi0jpsi_chi24c = new TH1F("hpi0pi0jpsi_chi24c","hpi0pi0jpsi_chi24c",2000,0,10000);
+  hpi0pi0jpsi_chi24c_c = new TH1F("hpi0pi0jpsi_chi24c_c","hpi0pi0jpsi_chi24c_c",1000,0,500);
+  hpi0vs2pi0_chi24c = new TH2F("hpi0vs2pi0_chi24c","hpi0vs2pi0_chi24c",1000,0,10000,1000,0,10000);
+
 }
 
 void AnaTdav2::beam_cond(){
@@ -902,10 +906,50 @@ void AnaTdav2::kin_fit_4c() {
 
     fill_pair_mass(rcl[iep_excl], hmep[5]);
 
+    // loop over all gg pair candiates, and check if there is
+    // a pair that has gives better pi0pi0jpsi than the pi0jpsi hypthesis
+    RhoCandList pi0pi0jpsi;
+    RhoCandList gg_mcut;
+    // First narrow down the pi0 candiate list using just mass cut (no Energy vs OA cut)
+    // for better acceptance of multi pi0 background events
+    for (int igg=0; igg<rcl[gg].GetLength(); ++igg) {
+      if (rcl[gg][igg] == rcl[gg_excl][0]) continue;
+      if (pi0m_cut_min < rcl[gg][igg]->M() && rcl[gg][igg]->M() < pi0m_cut_max) gg_mcut.Append(rcl[gg][igg]);
+    }
+
+    pi0pi0jpsi.Combine(pi0jpsi,gg_mcut);
+    double bg_chi2_4c = 1e9;
+    bool xtra_pi0_found = false;
+    for (int ibg=0; ibg<pi0pi0jpsi.GetLength(); ++ibg) {
+      PndKinFitter bg_fitter(pi0pi0jpsi[ibg]);
+      bg_fitter.Add4MomConstraint(p4sys);
+      bg_fitter.Fit();
+      if ( bg_fitter.GetChi2() < bg_chi2_4c) {
+	bg_chi2_4c = bg_fitter.GetChi2();
+	xtra_pi0_found = true;
+      }
+    }
+
+    if (xtra_pi0_found) {
+      hpi0pi0jpsi_chi24c->Fill(bg_chi2_4c);
+      hpi0pi0jpsi_chi24c_c->Fill(bg_chi2_4c);
+      hpi0vs2pi0_chi24c->Fill(chi2_4c, bg_chi2_4c);
+    }
+
+    // if bg_chi2_4c = 1e9 at this point, it means there was no other pi0
+    // candidate to test bg hypthesis. This automatically qualifies the event
+    // as signal if chi2 passes the chi2 cut. If bg_chi2_4c < 1e9, then it means
+    // another pi0 in the event was xtra_pi0_found, in this case, reject the event if the
+    // chi2 of multi pi0 background hypothesis is better than signal hypothesis
     if (chi2_4c<chi2_cut[iplab]) {
       rcl[iep_kinc].Append(rcl[iep_excl][0]);
       rcl[gg_kinc].Append(rcl[gg_excl][0]);
       fill_pair_mass(rcl[iep_excl], hmep[6]);
+      if (xtra_pi0_found && bg_chi2_4c > chi2_4c) {
+	rcl[iep_kinc_bg].Append(rcl[iep_excl][0]);
+	rcl[gg_kinc_bg].Append(rcl[gg_excl][0]);
+	fill_pair_mass(rcl[iep_excl], hmep[7]);
+      }
     }
   }
 
@@ -935,6 +979,10 @@ int AnaTdav2::find_bin(double val, const vector<double> &binning) {
 
 void AnaTdav2::fill_bins_kinc() {
   fill_bins(rcl[iep_kinc], rcl[gg_kinc]);
+}
+
+void AnaTdav2::fill_bins_kinc_bg() {
+  fill_bins(rcl[iep_kinc_bg], rcl[gg_kinc_bg]);
 }
 
 void AnaTdav2::fill_bins_excl() {
@@ -1015,7 +1063,7 @@ void AnaTdav2::Exec(Option_t* opt) {
     ep_pi0_asso_all();
     kin_excl_all();
     kin_fit_4c();
-    fill_bins_kinc();
+    fill_bins_kinc_bg();
   }
 
 }
@@ -1074,6 +1122,10 @@ void AnaTdav2::write_hists() {
   hpi0jpsi_chi24c->Write();
   hpi0jpsi_chi24c_c->Write();
   hpi0jpsi_prob4c->Write();
+
+  hpi0pi0jpsi_chi24c->Write();
+  hpi0pi0jpsi_chi24c_c->Write();
+  hpi0vs2pi0_chi24c->Write();
 
   gDirectory->mkdir("pi0cost_cm_bins");
   gDirectory->cd("pi0cost_cm_bins");
