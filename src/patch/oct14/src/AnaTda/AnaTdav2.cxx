@@ -967,6 +967,8 @@ void AnaTdav2::kin_fit_4c() {
 	rcl[gg_kinc_bg].Append(rcl[gg_excl][0]);
 	fill_pair_mass(rcl[iep_excl], hmep[7]);
 	if (ng20mev<4) {
+	  rcl[iep_ngcut].Append(rcl[iep_excl][0]);
+	  rcl[gg_ngcut].Append(rcl[gg_excl][0]);
 	  fill_pair_mass(rcl[iep_excl], hmep[8]);
 	}
       }
@@ -1003,6 +1005,10 @@ void AnaTdav2::fill_bins_kinc() {
 
 void AnaTdav2::fill_bins_kinc_bg() {
   fill_bins(rcl[iep_kinc_bg], rcl[gg_kinc_bg]);
+}
+
+void AnaTdav2::fill_bins_ngcut() {
+  fill_bins(rcl[iep_ngcut], rcl[gg_ngcut]);
 }
 
 void AnaTdav2::fill_bins_excl() {
@@ -1083,7 +1089,8 @@ void AnaTdav2::Exec(Option_t* opt) {
     ep_pi0_asso_all();
     kin_excl_all();
     kin_fit_4c();
-    fill_bins_kinc_bg();
+    //fill_bins_kinc_bg();
+    fill_bins_ngcut();
   }
 
 }

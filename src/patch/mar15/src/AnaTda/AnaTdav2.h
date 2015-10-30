@@ -68,6 +68,7 @@ class AnaTdav2 : public FairTask{
   void fill_bins_excl();
   void fill_bins_kinc();
   void fill_bins_kinc_bg();
+  void fill_bins_ngcut();
   void fill_bins(RhoCandList&, RhoCandList&);
   void write_hists();
   void print_mc_list();
@@ -215,6 +216,8 @@ class AnaTdav2 : public FairTask{
 	gg_kinc, /* gg_excl + cut on singal hypothesis kinematic fit chi2 */
 	iep_kinc_bg, /* iep_kinc +  accept only if signal hypothesis fits better than bg hypothesis */
 	gg_kinc_bg, /* gg_kinc + accept only if signal hypothesis fits better than bg hypothesis */
+	iep_ngcut, /* iep_kinc_bg + reject events with >4 20MeV neutral candidates */
+	gg_ngcut, /* gg_kinc_bg +  reject events with >4 20MeV neutral candidates */
 	nrcl /*number of entries */
   };
   std::vector<RhoCandList> rcl;
