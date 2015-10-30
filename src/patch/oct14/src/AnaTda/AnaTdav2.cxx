@@ -662,7 +662,7 @@ void AnaTdav2::fill_lists() {
   }
 
   hng->Fill(rcl[g].GetLength());
-  int ng20mev = 0;
+  ng20mev = 0;
   for (int ig=0; ig < rcl[g].GetLength(); ++ig) {
     if (rcl[g][ig]->Energy()>0.02) ng20mev++;
   }
@@ -966,6 +966,9 @@ void AnaTdav2::kin_fit_4c() {
 	rcl[iep_kinc_bg].Append(rcl[iep_excl][0]);
 	rcl[gg_kinc_bg].Append(rcl[gg_excl][0]);
 	fill_pair_mass(rcl[iep_excl], hmep[7]);
+	if (ng20mev<4) {
+	  fill_pair_mass(rcl[iep_excl], hmep[8]);
+	}
       }
     }
   }

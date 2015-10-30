@@ -142,7 +142,7 @@ class AnaTdav2 : public FairTask{
 
   double eid_prob_min;
 
-  static const int nstep = 8;
+  static const int nstep = 9;
   TH1F* hnevt;
   TH1F* hwt;
   TH1F* hng;
@@ -280,6 +280,8 @@ class AnaTdav2 : public FairTask{
   double jpsi_m_3sig_max;
 
   double chi2_cut[3];
+
+  int ng20mev;
 
  public:
   void do_apply_pi0evsoa_cut(bool a) {apply_pi0evsoa_cut = a;}
