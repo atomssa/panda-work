@@ -150,6 +150,11 @@ void AnaTdav2::init_hists() {
   }
   hwt = new TH1F("hwt", "event by event weight distribution", 2000,0,100);
 
+  // These do not depend on steps
+  hng = new TH1F(Form("hng"),Form("hng"),11,-0.5,10.5);
+  hng20mev = new TH1F(Form("hng20mev"),Form("hng20mev"),11,-0.5,10.5);
+  hnch = new TH1F(Form("hnch"),Form("hnch"),11,-0.5,10.5);
+
   for (int is = 0; is< nstep; ++is) {
     hmep[is] = new TH1F(Form("hmep_%d",is),Form("hmep_%d",is),200,0,5);
     hnep[is] = new TH1F(Form("hnep_%d",is),Form("hnep_%d",is),6,-0.5,5.5);
@@ -655,6 +660,15 @@ void AnaTdav2::fill_lists() {
     eid_filter(rcl[ip],rcl[p]);
     eid_filter(rcl[ie],rcl[e]);
   }
+
+  hng->Fill(rcl[g].GetLength());
+  int ng20mev = 0;
+  for (int ig=0; ig < rcl[g].GetLength(); ++ig) {
+    if (rcl[g][ig]->Energy()>0.02) ng20mev++;
+  }
+  hng20mev->Fill(ng20mev);
+  hnch->Fill(rcl[e].GetLength()+rcl[p].GetLength());
+
 }
 
 void AnaTdav2::nocut_ref() {
@@ -1130,6 +1144,10 @@ void AnaTdav2::write_hists() {
   hpi0pi0jpsi_chi24c_c->Write();
   hpi0vs2pi0_chi24c->Write();
   hpi0vs2pi0_chi24c_c->Write();
+
+  hng->Write();
+  hng20mev->Write();
+  hnch->Write();
 
   gDirectory->mkdir("pi0cost_cm_bins");
   gDirectory->cd("pi0cost_cm_bins");

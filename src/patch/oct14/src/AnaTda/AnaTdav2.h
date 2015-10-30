@@ -145,6 +145,9 @@ class AnaTdav2 : public FairTask{
   static const int nstep = 8;
   TH1F* hnevt;
   TH1F* hwt;
+  TH1F* hng;
+  TH1F* hng20mev;
+  TH1F* hnch;
   TH1F* hmep[nstep];
   TH1F* hnep[nstep];
   TH1F* hngg[nstep];
