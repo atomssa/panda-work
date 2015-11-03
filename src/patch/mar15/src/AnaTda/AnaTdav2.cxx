@@ -171,8 +171,8 @@ void AnaTdav2::init_hists() {
     hmept.push_back(new TH1F(Form("hmept%d", ib), Form("%3.1f < t < %3.1f;M_{inv}", tu_binning[ib], tu_binning[ib+1]), 200, 0, 5));
     hmepu.push_back(new TH1F(Form("hmepu%d", ib), Form("%3.1f < u < %3.1f;M_{inv}", tu_binning[ib], tu_binning[ib+1]), 200, 0, 5));
   }
-  hmmiss = new TH1F("hmmiss", "hmmiss", 800, -4, 4);
-  hmmiss2 = new TH1F("hmmiss2", "hmmiss2", 2000, -10, 10);
+  hmmiss = new TH1F("hmmiss", "hmmiss", 400, -0.6, 0.6);
+  hmmiss2 = new TH1F("hmmiss2", "hmmiss2", 400, -0.2, 0.3);
   hmtot = new TH1F("hmtot", "hmtot", 200, 0, 8);
   hcmoa = new TH2F("hcmoa", "hcmoa", 200, 0, 2*TMath::Pi(), 200, 0, 2*TMath::Pi());
 
@@ -953,26 +953,39 @@ void AnaTdav2::kin_fit_4c() {
       hpi0vs2pi0_chi24c_c->Fill(sig_chi2_4c, bg_chi2_4c);
     }
 
-    // if bg_chi2_4c = 1e9 at this point, it means there was no other pi0
-    // candidate to test bg hypthesis. This automatically qualifies the event
-    // as signal if chi2 passes the chi2 cut. If bg_chi2_4c < 1e9, then it means
-    // another pi0 in the event was xtra_pi0_found, in this case, reject the event if the
-    // chi2 of multi pi0 background hypothesis is better than signal hypothesis
-    if (sig_chi2_4c<chi2_cut[iplab]) {
-      rcl[iep_kinc].Append(rcl[iep_excl][0]);
-      rcl[gg_kinc].Append(rcl[gg_excl][0]);
+    //// if bg_chi2_4c = 1e9 at this point, it means there was no other pi0
+    //// candidate to test bg hypthesis. This automatically qualifies the event
+    //// as signal if chi2 passes the chi2 cut. If bg_chi2_4c < 1e9, then it means
+    //// another pi0 in the event was xtra_pi0_found, in this case, reject the event if the
+    //// chi2 of multi pi0 background hypothesis is better than signal hypothesis
+    //if (sig_chi2_4c<chi2_cut[iplab]) {
+    //  rcl[iep_kinc].Append(rcl[iep_excl][0]);
+    //  rcl[gg_kinc].Append(rcl[gg_excl][0]);
+    //  fill_pair_mass(rcl[iep_excl], hmep[6]);
+    //  if (!xtra_pi0_found || (xtra_pi0_found && bg_chi2_4c > sig_chi2_4c)) {
+    //	rcl[iep_kinc_bg].Append(rcl[iep_excl][0]);
+    //	rcl[gg_kinc_bg].Append(rcl[gg_excl][0]);
+    //	fill_pair_mass(rcl[iep_excl], hmep[7]);
+    //	if (ng20mev<4) {
+    //	  rcl[iep_ngcut].Append(rcl[iep_excl][0]);
+    //	  rcl[gg_ngcut].Append(rcl[gg_excl][0]);
+    //	  fill_pair_mass(rcl[iep_excl], hmep[8]);
+    //	}
+    //  }
+    //}
+
+    // Put everything in
+    if (ng20mev<3) {
+      rcl[iep_ngcut].Append(rcl[iep_excl][0]);
+      rcl[gg_ngcut].Append(rcl[gg_excl][0]);
       fill_pair_mass(rcl[iep_excl], hmep[6]);
-      if (!xtra_pi0_found || (xtra_pi0_found && bg_chi2_4c > sig_chi2_4c)) {
-	rcl[iep_kinc_bg].Append(rcl[iep_excl][0]);
-	rcl[gg_kinc_bg].Append(rcl[gg_excl][0]);
+      if (sig_chi2_4c<chi2_cut[iplab]) {
+	rcl[iep_kinc].Append(rcl[iep_excl][0]);
+	rcl[gg_kinc].Append(rcl[gg_excl][0]);
 	fill_pair_mass(rcl[iep_excl], hmep[7]);
-	if (ng20mev<4) {
-	  rcl[iep_ngcut].Append(rcl[iep_excl][0]);
-	  rcl[gg_ngcut].Append(rcl[gg_excl][0]);
-	  fill_pair_mass(rcl[iep_excl], hmep[8]);
-	}
       }
     }
+
   }
 
 }
