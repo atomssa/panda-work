@@ -77,8 +77,17 @@ AnaTdav2::AnaTdav2(const int& _iplab, const int& itype, const int& brem, const i
   rcl.resize(nrcl);
   gRandom->SetSeed();
   // bootstrap the pi0pi0jpsi (idx4) x-sect from pi0jpsi (idx1) xsect using the pi0pi0pipipm(idx2)/pi0pippim(idx0) ratio
+  nevt_xsect[4][0] = 60000.;
+  nevt_xsect[4][1] = 60000.*(nevt_xsect[1][1]/nevt_xsect[1][0]);
+  nevt_xsect[4][2] = 60000.*(nevt_xsect[1][2]/nevt_xsect[1][0]);
   for (int ii=0; ii < 3; ++ii) {
-    nevt_xsect[4][ii] = nevt_xsect[1][ii]*(nevt_xsect[2][ii]/nevt_xsect[0][ii]);
+    //nevt_xsect[4][ii] = nevt_xsect[1][ii]*(nevt_xsect[2][ii]/nevt_xsect[0][ii]);
+    //nevt_xsect[4][ii] = nevt_xsect[1][ii]*(nevt_xsect[2][ii]/nevt_xsect[0][ii]);
+    cout << " pi0pipm nevt_xsect of iplab("<< iplab<< ") = " << nevt_xsect[0][ii] << endl;
+    cout << " pi0jpsi nevt_xsect of iplab("<< iplab<< ") = " << nevt_xsect[1][ii] << endl;
+    cout << " pi02pipm nevt_xsect of iplab("<< iplab<< ") = " << nevt_xsect[2][ii] << endl;
+    cout << " pi0pipm2 nevt_xsect of iplab("<< iplab<< ") = " << nevt_xsect[3][ii] << endl;
+    cout << " pi0pi0jpsi nevt_xsect of iplab("<< iplab<< ") = " << nevt_xsect[4][ii] << endl;
   }
 }
 
@@ -1103,7 +1112,8 @@ void AnaTdav2::Exec(Option_t* opt) {
     kin_excl_all();
     kin_fit_4c();
     //fill_bins_kinc_bg();
-    fill_bins_ngcut();
+    //fill_bins_ngcut();
+    fill_bins_kinc();
   }
 
 }
