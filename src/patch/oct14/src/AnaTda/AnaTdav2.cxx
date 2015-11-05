@@ -71,17 +71,17 @@ AnaTdav2::AnaTdav2(const int& _iplab, const int& itype, const int& brem, const i
   require_exclusivity(false),
   jpsi_m_3sig_min(2.8),
   jpsi_m_3sig_max(3.3),
-  chi2_cut{50.0,100.0,200.0}
+  chi2_cut{20.0,50.0,100.0}
 {
   assert(iplab>=0&&iplab<=2);
   rcl.resize(nrcl);
   gRandom->SetSeed();
   // bootstrap the pi0pi0jpsi (idx4) x-sect from pi0jpsi (idx1) xsect using the pi0pi0pipipm(idx2)/pi0pippim(idx0) ratio
-  nevt_xsect[4][0] = 60000.;
-  nevt_xsect[4][1] = 60000.*(nevt_xsect[1][1]/nevt_xsect[1][0]);
-  nevt_xsect[4][2] = 60000.*(nevt_xsect[1][2]/nevt_xsect[1][0]);
+  //nevt_xsect[4][0] = 60000.;
+  //nevt_xsect[4][1] = 60000.*(nevt_xsect[1][1]/nevt_xsect[1][0]);
+  //nevt_xsect[4][2] = 60000.*(nevt_xsect[1][2]/nevt_xsect[1][0]);
   for (int ii=0; ii < 3; ++ii) {
-    //nevt_xsect[4][ii] = nevt_xsect[1][ii]*(nevt_xsect[2][ii]/nevt_xsect[0][ii]);
+    nevt_xsect[4][ii] = nevt_xsect[1][ii]*(nevt_xsect[2][ii]/nevt_xsect[0][ii]);
     //nevt_xsect[4][ii] = nevt_xsect[1][ii]*(nevt_xsect[2][ii]/nevt_xsect[0][ii]);
     cout << " pi0pipm nevt_xsect of iplab("<< iplab<< ") = " << nevt_xsect[0][ii] << endl;
     cout << " pi0jpsi nevt_xsect of iplab("<< iplab<< ") = " << nevt_xsect[1][ii] << endl;
@@ -962,38 +962,38 @@ void AnaTdav2::kin_fit_4c() {
       hpi0vs2pi0_chi24c_c->Fill(sig_chi2_4c, bg_chi2_4c);
     }
 
-    //// if bg_chi2_4c = 1e9 at this point, it means there was no other pi0
-    //// candidate to test bg hypthesis. This automatically qualifies the event
-    //// as signal if chi2 passes the chi2 cut. If bg_chi2_4c < 1e9, then it means
-    //// another pi0 in the event was xtra_pi0_found, in this case, reject the event if the
-    //// chi2 of multi pi0 background hypothesis is better than signal hypothesis
-    //if (sig_chi2_4c<chi2_cut[iplab]) {
-    //  rcl[iep_kinc].Append(rcl[iep_excl][0]);
-    //  rcl[gg_kinc].Append(rcl[gg_excl][0]);
-    //  fill_pair_mass(rcl[iep_excl], hmep[6]);
-    //  if (!xtra_pi0_found || (xtra_pi0_found && bg_chi2_4c > sig_chi2_4c)) {
-    //	rcl[iep_kinc_bg].Append(rcl[iep_excl][0]);
-    //	rcl[gg_kinc_bg].Append(rcl[gg_excl][0]);
-    //	fill_pair_mass(rcl[iep_excl], hmep[7]);
-    //	if (ng20mev<4) {
-    //	  rcl[iep_ngcut].Append(rcl[iep_excl][0]);
-    //	  rcl[gg_ngcut].Append(rcl[gg_excl][0]);
-    //	  fill_pair_mass(rcl[iep_excl], hmep[8]);
-    //	}
-    //  }
-    //}
-
-    // Put everything in
-    if (ng20mev<3) {
-      rcl[iep_ngcut].Append(rcl[iep_excl][0]);
-      rcl[gg_ngcut].Append(rcl[gg_excl][0]);
+    // if bg_chi2_4c = 1e9 at this point, it means there was no other pi0
+    // candidate to test bg hypthesis. This automatically qualifies the event
+    // as signal if chi2 passes the chi2 cut. If bg_chi2_4c < 1e9, then it means
+    // another pi0 in the event was xtra_pi0_found, in this case, reject the event if the
+    // chi2 of multi pi0 background hypothesis is better than signal hypothesis
+    if (sig_chi2_4c<chi2_cut[iplab]) {
+      rcl[iep_kinc].Append(rcl[iep_excl][0]);
+      rcl[gg_kinc].Append(rcl[gg_excl][0]);
       fill_pair_mass(rcl[iep_excl], hmep[6]);
-      if (sig_chi2_4c<chi2_cut[iplab]) {
-	rcl[iep_kinc].Append(rcl[iep_excl][0]);
-	rcl[gg_kinc].Append(rcl[gg_excl][0]);
-	fill_pair_mass(rcl[iep_excl], hmep[7]);
+      if (!xtra_pi0_found || (xtra_pi0_found && bg_chi2_4c > sig_chi2_4c)) {
+    	rcl[iep_kinc_bg].Append(rcl[iep_excl][0]);
+    	rcl[gg_kinc_bg].Append(rcl[gg_excl][0]);
+    	fill_pair_mass(rcl[iep_excl], hmep[7]);
+    	if (ng20mev<4) {
+    	  rcl[iep_ngcut].Append(rcl[iep_excl][0]);
+    	  rcl[gg_ngcut].Append(rcl[gg_excl][0]);
+    	  fill_pair_mass(rcl[iep_excl], hmep[8]);
+    	}
       }
     }
+
+    //// Put everything in
+    //if (ng20mev<3) {
+    //  rcl[iep_ngcut].Append(rcl[iep_excl][0]);
+    //  rcl[gg_ngcut].Append(rcl[gg_excl][0]);
+    //  fill_pair_mass(rcl[iep_excl], hmep[6]);
+    //  if (sig_chi2_4c<chi2_cut[iplab]) {
+    //	rcl[iep_kinc].Append(rcl[iep_excl][0]);
+    //	rcl[gg_kinc].Append(rcl[gg_excl][0]);
+    //	fill_pair_mass(rcl[iep_excl], hmep[7]);
+    //  }
+    //}
 
   }
 
@@ -1112,8 +1112,8 @@ void AnaTdav2::Exec(Option_t* opt) {
     kin_excl_all();
     kin_fit_4c();
     //fill_bins_kinc_bg();
-    //fill_bins_ngcut();
-    fill_bins_kinc();
+    fill_bins_ngcut();
+    //fill_bins_kinc();
   }
 
 }
