@@ -43,10 +43,24 @@ AnaTdav2::AnaTdav2(const int& _iplab, const int& itype, const int& brem, const i
   tmax{0.59, 0.43, 0.3},
   //nevt_sim{81874.0, 224120.0, 189015.0},
   // 1st index: 0->pi0pipm, 1->pi0jpsi, 2->pi02pipm, 3->pi0pipm2, 4->pi02jpsi
-  nevt_sim{{814794.0,888292.0,898721.0}, {32780.0,50142.0,51860.0}, {214780.0,174864.0,160099.0}, {570751.0,609044.0,527506.0}, {200000.0,200000.0,200000.0}},
+  nevt_sim{
+    {814794.0,888292.0,898721.0},
+      {32780.0,50142.0,51860.0},
+	{214780.0,174864.0,160099.0},
+	  {570751.0,609044.0,527506.0},
+	    {200000.0,200000.0,200000.0},
+	      {100000.0,100000.0,100000.0},
+		{100000.0,100000.0,100000.0}},
   //nevt_xsect{4.0e11, 1e11, 1e9},
   // xsect={0.2mb, 0.05mb, 0.02mb}
-  nevt_xsect{{4.0e11, 1e11, 2e10}, {32780.0,50142.0,51860.0}, {1.15e12, 3.15e11, 6.84e10}, {3.19e12, 1.14e12, 2.92e11}, {94243.0, 157947.3, 177361.2}},
+  nevt_xsect{
+    {4.0e11, 1e11, 2e10},
+      {32780.0,50142.0,51860.0},
+	{1.15e12, 3.15e11, 6.84e10},
+	  {3.19e12, 1.14e12, 2.92e11},
+	    {94243.0, 157947.3, 177361.2},
+	      {100000.0,100000.0,100000.0},
+		{100000.0,100000.0,100000.0}},
   eff_file_name("eff/effic_smooth.root"),
   eff_hist_name("eff_ep_em_rad"),
   eff_hist_rad(true),
@@ -192,7 +206,7 @@ void AnaTdav2::init_hists() {
   hcmoa_mconst_cut = new TH2F("hcmoa_mconst_cut", "hcmoa_mconst_cut", 200, 0, 2*TMath::Pi(), 200, 0, 2*TMath::Pi());
 
   double _tmin = iplab==0?-1.9:(iplab==1?-6.5:-14);
-  if (mc_type!=1) {
+  if (is_dpm()) {
     _tmin = iplab==0?-11:(iplab==1?-16:-24);
   }
 
@@ -506,8 +520,9 @@ bool AnaTdav2::calc_true_tu() {
     if (mcList[j]->PdgCode()==111) { // in case of multi pi0 events just use the first pi0 to define "true" t and u. Anyways, these don't make much sense
       RhoCandidate *mcmother = mcList[j]->TheMother();
       int muid = mcmother? mcmother->GetTrackNumber(): -1;
-      if (( (mc_type!=1&&mc_type!=4) and muid == -1) or  // DPM simulation doesn't have pbar-p system at index 0
-	  ( (mc_type==1||mc_type==4) and muid == 0)) {  // EvtGen simulation has pbar-p system at index 0
+      //if (( (mc_type!=1&&mc_type!=4&&mc_type!=5&&mc_type!=6) and muid == -1) or  // DPM simulation doesn't have pbar-p system at index 0
+      if (( is_dpm() and muid == -1) or  // DPM simulation doesn't have pbar-p system at index 0
+	  ( is_evt_gen() and muid == 0)) {  // EvtGen simulation has pbar-p system at index 0
 	event_t = t_gg(mcList[j]);
 	event_u = u_gg(mcList[j]);
 
@@ -529,7 +544,7 @@ bool AnaTdav2::calc_true_tu() {
 	}
 
 	// MC pi0 angluar distributions with jpsi mass cut on the pippim pair
-	if (mc_type==0||mc_type==2) {
+	if (is_dpm()) {
 	  int kpip = -1, kpim=-1;
 	  for (int k=0; k<mcList.GetLength(); ++k) {
 	    if (mcList[k]->PdgCode()==211) { kpip = k; }
@@ -594,7 +609,7 @@ void AnaTdav2::calc_evt_wt() {
       if (pip_found&&pim_found) break;
     }
     m_evt_wt = nevt_xsect[mc_type][iplab]*m_pip_wt*m_pim_wt/nevt_sim[mc_type][iplab];
-  } else if (mc_type==1 /*pi0jpsi->epm*/){
+  } else if (mc_type==1 /*pi0jpsi->epm*/ || mc_type==5 /*pi0jpsi_10cm*/ || mc_type==6 /*pi0jpsi_5cm*/ ){
     m_evt_wt = 1.0;
   } else if (mc_type==4 /*pi0pi0jpsi->epm*/) {
     m_evt_wt = nevt_xsect[mc_type][iplab]/nevt_sim[mc_type][iplab];
@@ -654,7 +669,7 @@ void AnaTdav2::fill_lists() {
   fAna->FillList(rcl[e], (brem_corr?"BremElectronAllMinus":"ElectronAllMinus"));
   fAna->FillList(rcl[g], "Neutral");
 
-  if (mc_type!=1&&mc_type!=4) { // if final state is electrons, filter, otherwise, weight
+  if (is_dpm()) { // if final state is not electrons, use efficiency weight
     fAna->FillList(rcl[pip], "PionAllPlus");
     fAna->FillList(rcl[pim], "PionAllMinus");
     // all pions accepted as identified, but they will be wieghted when filling with the corresponding
@@ -682,14 +697,22 @@ void AnaTdav2::fill_lists() {
 
 }
 
+bool AnaTdav2::is_dpm() {
+  return mc_type==0||mc_type==2||mc_type==3;
+}
+
+bool AnaTdav2::is_evt_gen() {
+  return mc_type==1||mc_type==4||mc_type==5||mc_type==6;
+}
+
 void AnaTdav2::nocut_ref() {
   rcl[gg].Combine(rcl[g],rcl[g]);
   rcl[ep].Combine(rcl[e],rcl[p]);
   double tmp_eid_wt = m_evt_wt*nevt_sim[mc_type][iplab]/nevt_xsect[mc_type][iplab];
-  if (mc_type==0) m_evt_wt = nevt_xsect[mc_type][iplab]/nevt_sim[mc_type][iplab];
+  if (is_dpm()) m_evt_wt = nevt_xsect[mc_type][iplab]/nevt_sim[mc_type][iplab];
   fill_pair_mass(rcl[ep], hmep[0]);
   fill_count_hists(gg,ep,0);
-  if (mc_type==0) m_evt_wt *= tmp_eid_wt;
+  if (is_dpm()) m_evt_wt *= tmp_eid_wt;
 
   rcl[iep].Combine(rcl[ie],rcl[ip]);
 

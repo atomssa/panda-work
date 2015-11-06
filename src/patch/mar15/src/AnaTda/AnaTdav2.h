@@ -123,8 +123,8 @@ class AnaTdav2 : public FairTask{
   double m_pip_wt, m_pim_wt, m_evt_wt;
   double tmin[3]; //={-0.443789, -1.0, -1.0};
   double tmax[3]; //={0.616486, 0.457248, 0.31538};
-  double nevt_sim[5][3]; // number of simulated events for x-sect normalization
-  double nevt_xsect[5][3]; // number of simulated events for x-sect normalization
+  double nevt_sim[7][3]; // number of simulated events for x-sect normalization
+  double nevt_xsect[7][3]; // number of simulated events for x-sect normalization
 
   // Efficiency parametrizations
   TFile *eff_file;
@@ -254,6 +254,9 @@ class AnaTdav2 : public FairTask{
   void print_binning(const std::vector<double>&, const char*);
   bool calc_true_tu();
   void calc_evt_wt();
+
+  bool is_dpm();
+  bool is_evt_gen();
 
   ClassDef(AnaTdav2,1);
 
