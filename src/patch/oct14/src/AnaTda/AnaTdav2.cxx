@@ -186,8 +186,8 @@ void AnaTdav2::init_hists() {
   }
   hpi0th = new TH1F("hpi0th", "hpi0th", 1000, 0, TMath::Pi());
   hpi0cost_cm = new TH1F("hpi0cost_cm", "hpi0cost_cm", 1100, -1.1, 1.1);
-  hpi0th_mc = new TH1F("hpi0th_mc", "hpi0th_mc", 1000, 0, TMath::Pi());
-  hpi0cost_cm_mc = new TH1F("hpi0cost_cm_mc", "hpi0cost_cm_mc", 1100, -1.1, 1.1);
+  hpi0th_mcut = new TH1F("hpi0th_mcut", "hpi0th_mcut", 1000, 0, TMath::Pi());
+  hpi0cost_cm_mcut = new TH1F("hpi0cost_cm_mcut", "hpi0cost_cm_mcut", 1100, -1.1, 1.1);
   for (int ib=0; ib<tu_binning.size()-1; ++ib) {
     hmep_pi0cost_cm.push_back( new TH1F(Form("hmep_pi0cost_cm_%d", ib), Form("hmep_pi0cost_cm_%d", ib), 200, 0, 5));
     hmep_pi0th.push_back( new TH1F(Form("hmep_pi0th_%d", ib), Form("hmep_pi0th_%d", ib), 200, 0, 5));
@@ -225,10 +225,10 @@ void AnaTdav2::init_hists() {
   hurecgg = new TH1F("hurecgg", "hurecgg", 1000, _tmin, 1);
   htrecep = new TH1F("htrecep", "htrecep", 1000, _tmin, 1);
   hurecep = new TH1F("hurecep", "hurecep", 1000, _tmin, 1);
-  htrecgg_mc = new TH1F("htrecgg_mc", "htrecgg_mc", 1000, _tmin, 1);
-  hurecgg_mc = new TH1F("hurecgg_mc", "hurecgg_mc", 1000, _tmin, 1);
-  htrecep_mc = new TH1F("htrecep_mc", "htrecep_mc", 1000, _tmin, 1);
-  hurecep_mc = new TH1F("hurecep_mc", "hurecep_mc", 1000, _tmin, 1);
+  htrecgg_mcut = new TH1F("htrecgg_mcut", "htrecgg_mcut", 1000, _tmin, 1);
+  hurecgg_mcut = new TH1F("hurecgg_mcut", "hurecgg_mcut", 1000, _tmin, 1);
+  htrecep_mcut = new TH1F("htrecep_mcut", "htrecep_mcut", 1000, _tmin, 1);
+  hurecep_mcut = new TH1F("hurecep_mcut", "hurecep_mcut", 1000, _tmin, 1);
   htresgg = new TH1F("htresgg", "htresgg", 1000, -3, 3);
   huresgg = new TH1F("huresgg", "huresgg", 1000, -3, 3);
   htresep = new TH1F("htresep", "htresep", 1000, -3, 3);
@@ -237,22 +237,22 @@ void AnaTdav2::init_hists() {
   htrupi0thcm = new TH1F("htrupi0thcm", "htrupi0thch", 1000, 0., TMath::Pi());
   htrupi0costhcm = new TH1F("htrupi0costhcm", "htrupi0costhcm", 1100, -1.1, 1.1);
   htrupi0thlab = new TH1F("htrupi0thlab", "htrupi0thlab", 1000, 0., TMath::Pi());
-  htrupi0thcm_mc = new TH1F("htrupi0thcm_mc", "htrupi0thch_mc", 1000, 0., TMath::Pi());
-  htrupi0costhcm_mc = new TH1F("htrupi0costhcm_mc", "htrupi0costhcm_mc", 1100, -1.1, 1.1);
-  htrupi0thlab_mc = new TH1F("htrupi0thlab_mc", "htrupi0thlab_mc", 1000, 0., TMath::Pi());
-  htrupi0thcm_tc = new TH1F("htrupi0thcm_tc", "htrupi0thch_tc", 1000, 0., TMath::Pi());
-  htrupi0costhcm_tc = new TH1F("htrupi0costhcm_tc", "htrupi0costhcm_tc", 1100, -1.1, 1.1);
-  htrupi0thlab_tc = new TH1F("htrupi0thlab_tc", "htrupi0thlab_tc", 1000, 0., TMath::Pi());
-  htrupi0thcm_tc_mc = new TH1F("htrupi0thcm_tc_mc", "htrupi0thch_tc_mc", 1000, 0., TMath::Pi());
-  htrupi0costhcm_tc_mc = new TH1F("htrupi0costhcm_tc_mc", "htrupi0costhcm_tc_mc", 1100, -1.1, 1.1);
-  htrupi0thlab_tc_mc = new TH1F("htrupi0thlab_tc_mc", "htrupi0thlab_tc_mc", 1000, 0., TMath::Pi());
+  htrupi0thcm_mcut = new TH1F("htrupi0thcm_mcut", "htrupi0thch_mc", 1000, 0., TMath::Pi());
+  htrupi0costhcm_mcut = new TH1F("htrupi0costhcm_mcut", "htrupi0costhcm_mcut", 1100, -1.1, 1.1);
+  htrupi0thlab_mcut = new TH1F("htrupi0thlab_mcut", "htrupi0thlab_mcut", 1000, 0., TMath::Pi());
+  htrupi0thcm_tcut = new TH1F("htrupi0thcm_tcut", "htrupi0thch_tc", 1000, 0., TMath::Pi());
+  htrupi0costhcm_tcut = new TH1F("htrupi0costhcm_tcut", "htrupi0costhcm_tcut", 1100, -1.1, 1.1);
+  htrupi0thlab_tcut = new TH1F("htrupi0thlab_tcut", "htrupi0thlab_tcut", 1000, 0., TMath::Pi());
+  htrupi0thcm_tcut_mcut = new TH1F("htrupi0thcm_tcut_mcut", "htrupi0thch_tc_mc", 1000, 0., TMath::Pi());
+  htrupi0costhcm_tcut_mcut = new TH1F("htrupi0costhcm_tcut_mcut", "htrupi0costhcm_tcut_mcut", 1100, -1.1, 1.1);
+  htrupi0thlab_tcut_mcut = new TH1F("htrupi0thlab_tcut_mcut", "htrupi0thlab_tcut_mcut", 1000, 0., TMath::Pi());
 
   htrupi0thcm_vs_m = new TH2F("htrupi0thcm_vs_m", "htrupi0thch_vs_m", 200, 0, 5, 1000, 0., TMath::Pi());
   htrupi0costhcm_vs_m = new TH2F("htrupi0costhcm_vs_m", "htrupi0costhcm_vs_m", 200, 0, 5, 1100, -1.1, 1.1);
   htrupi0thlab_vs_m = new TH2F("htrupi0thlab_vs_m", "htrupi0thlab_vs_m", 200, 0, 5, 1000, 0., TMath::Pi());
-  htrupi0thcm_mc_vs_m = new TH2F("htrupi0thcm_mc_vs_m", "htrupi0thch_mc_vs_m", 200, 0, 5, 1000, 0., TMath::Pi());
-  htrupi0costhcm_mc_vs_m = new TH2F("htrupi0costhcm_mc_vs_m", "htrupi0costhcm_mc_vs_m", 200, 0, 5, 1100, -1.1, 1.1);
-  htrupi0thlab_mc_vs_m = new TH2F("htrupi0thlab_mc_vs_m", "htrupi0thlab_mc_vs_m", 200, 0, 5, 1000, 0., TMath::Pi());
+  htrupi0thcm_mcut_vs_m = new TH2F("htrupi0thcm_mcut_vs_m", "htrupi0thch_mc_vs_m", 200, 0, 5, 1000, 0., TMath::Pi());
+  htrupi0costhcm_mcut_vs_m = new TH2F("htrupi0costhcm_mcut_vs_m", "htrupi0costhcm_mcut_vs_m", 200, 0, 5, 1100, -1.1, 1.1);
+  htrupi0thlab_mcut_vs_m = new TH2F("htrupi0thlab_mcut_vs_m", "htrupi0thlab_mcut_vs_m", 200, 0, 5, 1000, 0., TMath::Pi());
 
   hnevt =  new TH1F("hnevt","hnevt", 10,0,10);
   hnevt->SetBinContent(3, nevt_sim[mc_type][iplab]);
@@ -535,26 +535,28 @@ bool AnaTdav2::calc_true_tu() {
       RhoCandidate *mcmother = mcList[j]->TheMother();
       int muid = mcmother? mcmother->GetTrackNumber(): -1;
       //if (( (mc_type!=1&&mc_type!=4&&mc_type!=5&&mc_type!=6) and muid == -1) or  // DPM simulation doesn't have pbar-p system at index 0
-      if (( is_dpm() and muid == -1) or  // DPM simulation doesn't have pbar-p system at index 0
+      if (( is_dpm() and muid == -1) or // DPM simulation doesn't have pbar-p system at index 0
 	  ( is_evt_gen() and muid == 0)) {  // EvtGen simulation has pbar-p system at index 0
 	event_t = t_gg(mcList[j]);
 	event_u = u_gg(mcList[j]);
-
+	event_pi0costh_cm = pi0cost_cm(mcList[j]);
+	event_pi0theta_cm = pi0theta_cm(mcList[j]);
+	event_pi0theta_lab = mcList[j]->P4().Theta();
 	httrumc->Fill(event_t);
 	hutrumc->Fill(event_u);
 	httrumc_vb->Fill(event_t);
 	hutrumc_vb->Fill(event_u);
-	htrupi0thcm->Fill(pi0theta_cm(mcList[j]));
-	htrupi0costhcm->Fill(pi0cost_cm(mcList[j]));
-	htrupi0thlab->Fill(mcList[j]->P4().Theta());
+	htrupi0thcm->Fill(event_pi0costh_cm);
+	htrupi0costhcm->Fill(event_pi0theta_cm);
+	htrupi0thlab->Fill(event_pi0theta_lab);
 
 	bool t_ok = (tmin[iplab] < event_t && event_t < tmax[iplab]);
 	bool u_ok = (tmin[iplab] < event_u && event_u < tmax[iplab]);
 
 	if (t_ok || u_ok) {
-	  htrupi0thcm_tc->Fill(pi0theta_cm(mcList[j]));
-	  htrupi0costhcm_tc->Fill(pi0cost_cm(mcList[j]));
-	  htrupi0thlab_tc->Fill(mcList[j]->P4().Theta());
+	  htrupi0thcm_tcut->Fill(event_pi0theta_cm);
+	  htrupi0costhcm_tcut->Fill(event_pi0costh_cm);
+	  htrupi0thlab_tcut->Fill(event_pi0theta_lab);
 	}
 
 	// MC pi0 angluar distributions with jpsi mass cut on the pippim pair
@@ -565,32 +567,32 @@ bool AnaTdav2::calc_true_tu() {
 	    if (mcList[k]->PdgCode()==-211) { kpim = k; }
 	    if (kpip>0&&kpim>0) { // in case of multi pip+pi- events, use the first found pi+pi- event to define mass cuts
 	      double mpippim = (mcList[kpip]->P4()+mcList[kpim]->P4()).M();
-	      htrupi0thcm_vs_m->Fill(mpippim, pi0theta_cm(mcList[j]));
-	      htrupi0costhcm_vs_m->Fill(mpippim, pi0cost_cm(mcList[j]));
-	      htrupi0thlab_vs_m->Fill(mpippim, mcList[j]->P4().Theta());
+	      htrupi0thcm_vs_m->Fill(mpippim, event_pi0theta_cm);
+	      htrupi0costhcm_vs_m->Fill(mpippim, event_pi0costh_cm);
+	      htrupi0thlab_vs_m->Fill(mpippim, event_pi0theta_lab);
 	      if ( mpippim>jpsi_m_3sig_min && mpippim<jpsi_m_3sig_max) {
-		htrupi0thcm_mc->Fill(pi0theta_cm(mcList[j]));
-		htrupi0costhcm_mc->Fill(pi0cost_cm(mcList[j]));
-		htrupi0thlab_mc->Fill(mcList[j]->P4().Theta());
+		htrupi0thcm_mcut->Fill(event_pi0theta_cm);
+		htrupi0costhcm_mcut->Fill(event_pi0costh_cm);
+		htrupi0thlab_mcut->Fill(event_pi0theta_lab);
 
 		if (t_ok || u_ok) {
-		  htrupi0thcm_tc_mc->Fill(pi0theta_cm(mcList[j]));
-		  htrupi0costhcm_tc_mc->Fill(pi0cost_cm(mcList[j]));
-		  htrupi0thlab_tc_mc->Fill(mcList[j]->P4().Theta());
+		  htrupi0thcm_tcut_mcut->Fill(event_pi0theta_cm);
+		  htrupi0costhcm_tcut_mcut->Fill(event_pi0costh_cm);
+		  htrupi0thlab_tcut_mcut->Fill(event_pi0theta_lab);
 		}
 
-		htrupi0thcm_mc_vs_m->Fill(mpippim, pi0theta_cm(mcList[j]));
-		htrupi0costhcm_mc_vs_m->Fill(mpippim, pi0cost_cm(mcList[j]));
-		htrupi0thlab_mc_vs_m->Fill(mpippim, mcList[j]->P4().Theta());
+		htrupi0thcm_mcut_vs_m->Fill(mpippim, event_pi0theta_cm);
+		htrupi0costhcm_mcut_vs_m->Fill(mpippim, event_pi0theta_cm);
+		htrupi0thlab_mcut_vs_m->Fill(mpippim, event_pi0theta_lab);
 	      }
 	      break;
 	    }
 	  }
 	} else {
 	  if (t_ok || u_ok) {
-	    htrupi0thcm_tc_mc->Fill(pi0theta_cm(mcList[j]));
-	    htrupi0costhcm_tc_mc->Fill(pi0cost_cm(mcList[j]));
-	    htrupi0thlab_tc_mc->Fill(mcList[j]->P4().Theta());
+	    htrupi0thcm_tcut_mcut->Fill(pi0theta_cm(mcList[j]));
+	    htrupi0costhcm_tcut_mcut->Fill(pi0cost_cm(mcList[j]));
+	    htrupi0thlab_tcut_mcut->Fill(mcList[j]->P4().Theta());
 	  }
 	}
 
@@ -1108,18 +1110,21 @@ void AnaTdav2::fill_bins(RhoCandList& rclep, RhoCandList& rclgg) {
     hurecep->Fill(urecep);
 
     if (rclep[0]->M()>jpsi_m_3sig_min&&rclep[0]->M()<jpsi_m_3sig_max) {
-      htrecgg_mc->Fill(trecgg);
-      hurecgg_mc->Fill(urecgg);
-      htrecep_mc->Fill(trecep);
-      hurecep_mc->Fill(urecep);
-      hpi0th_mc->Fill(pi0theta_rec);
-      hpi0cost_cm_mc->Fill(pi0cost_cm_rec);
+      htrecgg_mcut->Fill(trecgg);
+      hurecgg_mcut->Fill(urecgg);
+      htrecep_mcut->Fill(trecep);
+      hurecep_mcut->Fill(urecep);
+      hpi0th_mcut->Fill(pi0theta_rec);
+      hpi0cost_cm_mcut->Fill(pi0cost_cm_rec);
     }
 
-    htresgg->Fill(trecgg-event_t);
-    htresep->Fill(trecep-event_t);
-    huresgg->Fill(urecgg-event_u);
-    huresep->Fill(urecep-event_u);
+    if (event_pi0costh_cm>0) {
+      htresgg->Fill(trecgg-event_t);
+      htresep->Fill(trecep-event_t);
+    } else {
+      huresgg->Fill(urecgg-event_u);
+      huresep->Fill(urecep-event_u);
+    }
   }
 }
 
@@ -1225,7 +1230,7 @@ void AnaTdav2::write_hists() {
   gDirectory->mkdir("pi0cost_cm_bins");
   gDirectory->cd("pi0cost_cm_bins");
   hpi0cost_cm->Write();
-  hpi0cost_cm_mc->Write();
+  hpi0cost_cm_mcut->Write();
   for (int ib=0; ib<tu_binning.size()-1; ++ib) {
     hmep_pi0cost_cm[ib]->Write();
   }
@@ -1234,7 +1239,7 @@ void AnaTdav2::write_hists() {
   gDirectory->mkdir("pi0th_bins");
   gDirectory->cd("pi0th_bins");
   hpi0th->Write();
-  hpi0th_mc->Write();
+  hpi0th_mcut->Write();
   for (int ib=0; ib<tu_binning.size()-1; ++ib) {
     hmep_pi0th[ib]->Write();
   }
@@ -1257,10 +1262,10 @@ void AnaTdav2::write_hists() {
   hurecep->Write();
   httrumc->Write();
   hutrumc->Write();
-  htrecgg_mc->Write();
-  hurecgg_mc->Write();
-  htrecep_mc->Write();
-  hurecep_mc->Write();
+  htrecgg_mcut->Write();
+  hurecgg_mcut->Write();
+  htrecep_mcut->Write();
+  hurecep_mcut->Write();
   httrumc_vb->Write();
   hutrumc_vb->Write();
   htresgg->Write();
@@ -1270,21 +1275,21 @@ void AnaTdav2::write_hists() {
   htrupi0thcm->Write();
   htrupi0costhcm->Write();
   htrupi0thlab->Write();
-  htrupi0thcm_mc->Write();
-  htrupi0costhcm_mc->Write();
-  htrupi0thlab_mc->Write();
-  htrupi0thcm_tc->Write();
-  htrupi0costhcm_tc->Write();
-  htrupi0thlab_tc->Write();
-  htrupi0thcm_tc_mc->Write();
-  htrupi0costhcm_tc_mc->Write();
-  htrupi0thlab_tc_mc->Write();
+  htrupi0thcm_mcut->Write();
+  htrupi0costhcm_mcut->Write();
+  htrupi0thlab_mcut->Write();
+  htrupi0thcm_tcut->Write();
+  htrupi0costhcm_tcut->Write();
+  htrupi0thlab_tcut->Write();
+  htrupi0thcm_tcut_mcut->Write();
+  htrupi0costhcm_tcut_mcut->Write();
+  htrupi0thlab_tcut_mcut->Write();
   htrupi0thcm_vs_m->Write();
   htrupi0costhcm_vs_m->Write();
   htrupi0thlab_vs_m->Write();
-  htrupi0thcm_mc_vs_m->Write();
-  htrupi0costhcm_mc_vs_m->Write();
-  htrupi0thlab_mc_vs_m->Write();
+  htrupi0thcm_mcut_vs_m->Write();
+  htrupi0costhcm_mcut_vs_m->Write();
+  htrupi0thlab_mcut_vs_m->Write();
 }
 
 double AnaTdav2::dph_cm(TLorentzVector p4gg, TLorentzVector p4pm) {

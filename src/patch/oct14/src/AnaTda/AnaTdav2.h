@@ -120,6 +120,9 @@ class AnaTdav2 : public FairTask{
   TVector3 boost_to_lab;
   TLorentzVector p4pbar, p4targ, p4sys;
   double event_t, event_u;
+  double event_pi0costh_cm;
+  double event_pi0theta_cm;
+  double event_pi0theta_lab;
   double m_pip_wt, m_pim_wt, m_evt_wt;
   double tmin[3]; //={-0.443789, -1.0, -1.0};
   double tmax[3]; //={0.616486, 0.457248, 0.31538};
@@ -153,10 +156,8 @@ class AnaTdav2 : public FairTask{
   TH1F* hnep[nstep];
   TH1F* hngg[nstep];
   TH1F* hnpi0jpsi[nstep];
-  TH1F* hpi0cost_cm;
-  TH1F* hpi0th;
-  TH1F* hpi0cost_cm_mc;
-  TH1F* hpi0th_mc;
+  TH1F* hpi0cost_cm, hpi0th;
+  TH1F* hpi0cost_cm_mc, hpi0th_mc;
 
   //static const int nbinth = 12;
   std::vector<double> tu_binning;
@@ -173,15 +174,15 @@ class AnaTdav2 : public FairTask{
   TH1F* hmtot;
   TH2F* hcmoa;
   TH1F* htrecgg, *hurecgg, *htrecep, *hurecep;
-  TH1F* htrecgg_mc, *hurecgg_mc, *htrecep_mc, *hurecep_mc;
+  TH1F* htrecgg_mcut, *hurecgg_mcut, *htrecep_mcut, *hurecep_mcut;
   TH1F* httrumc, *hutrumc;
   TH1F* httrumc_vb, *hutrumc_vb;
   TH1F* htrupi0thcm, *htrupi0thlab, *htrupi0costhcm;
-  TH1F* htrupi0thcm_mc, *htrupi0thlab_mc, *htrupi0costhcm_mc;
-  TH1F* htrupi0thcm_tc, *htrupi0thlab_tc, *htrupi0costhcm_tc;
-  TH1F* htrupi0thcm_tc_mc, *htrupi0thlab_tc_mc, *htrupi0costhcm_tc_mc;
+  TH1F* htrupi0thcm_mcut, *htrupi0thlab_mcut, *htrupi0costhcm_mcut;
+  TH1F* htrupi0thcm_tcut, *htrupi0thlab_tcut, *htrupi0costhcm_tcut;
+  TH1F* htrupi0thcm_tcut_mcut, *htrupi0thlab_tcut_mcut, *htrupi0costhcm_tcut_mcut;
   TH2F* htrupi0thcm_vs_m, *htrupi0thlab_vs_m, *htrupi0costhcm_vs_m;
-  TH2F* htrupi0thcm_mc_vs_m, *htrupi0thlab_mc_vs_m, *htrupi0costhcm_mc_vs_m;
+  TH2F* htrupi0thcm_mcut_vs_m, *htrupi0thlab_mcut_vs_m, *htrupi0costhcm_mcut_vs_m;
   TH1F* htresgg, *huresgg, *htresep, *huresep;
 
   TH1F *hmep_mconst;
