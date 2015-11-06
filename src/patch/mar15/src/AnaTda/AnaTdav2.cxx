@@ -594,8 +594,10 @@ void AnaTdav2::calc_evt_wt() {
       if (pip_found&&pim_found) break;
     }
     m_evt_wt = nevt_xsect[mc_type][iplab]*m_pip_wt*m_pim_wt/nevt_sim[mc_type][iplab];
-  } else if (mc_type==1 /*pi0jpsi->epm*/||mc_type==4 /*pi0pi0jpsi->epm*/) {
+  } else if (mc_type==1 /*pi0jpsi->epm*/){
     m_evt_wt = 1.0;
+  } else if (mc_type==4 /*pi0pi0jpsi->epm*/) {
+    m_evt_wt = nevt_xsect[mc_type][iplab]/nevt_sim[mc_type][iplab];
   } else if (mc_type==3 /*pi0pipmpippim*/) {
     // find the most back to back pip-pim pair to the pi0, and use that to set the event weight
     std::vector<TLorentzVector> p4pip, p4pim, p4pi0;
