@@ -168,8 +168,8 @@ class AnaTdav2 : public FairTask{
   std::vector<TH1F*> hmept;
   std::vector<TH1F*> hmepu;
 
-  TH1F* hmmiss;
-  TH1F* hmmiss2;
+  TH1F* hmmiss, hmmiss2;
+  TH1F* hmmiss_jpsi, hmmiss2_jpsi;
   TH1F* hmtot;
   TH2F* hcmoa;
   TH1F* htrecgg, *hurecgg, *htrecep, *hurecep;
