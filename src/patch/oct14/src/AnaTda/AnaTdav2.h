@@ -88,7 +88,12 @@ class AnaTdav2 : public FairTask{
   TEfficiency* rebin2d(TEfficiency *, int);
 
   double dist_chpi_match(RhoCandidate*, RhoCandidate*);
+  double dist_photon_match(RhoCandidate*, RhoCandidate*);
   void charged_pion_filter(RhoCandList&, RhoCandList&, RhoCandList&, RhoCandList&, RhoCandList&, RhoCandList&);
+  void mctruth_match_jpsi(RhoCandList&, RhoCandList&);
+  void mctruth_match_pi0(RhoCandList&);
+  int mct_itrk_e, mct_itrk_p;
+  int mct_itrk_g1, mct_itrk_g2;
 
  private:
 
@@ -156,8 +161,8 @@ class AnaTdav2 : public FairTask{
   TH1F* hnep[nstep];
   TH1F* hngg[nstep];
   TH1F* hnpi0jpsi[nstep];
-  TH1F* hpi0cost_cm, hpi0th;
-  TH1F* hpi0cost_cm_mc, hpi0th_mc;
+  TH1F* hpi0cost_cm, *hpi0th;
+  TH1F* hpi0cost_cm_mcut, *hpi0th_mcut;
 
   //static const int nbinth = 12;
   std::vector<double> tu_binning;
@@ -169,8 +174,8 @@ class AnaTdav2 : public FairTask{
   std::vector<TH1F*> hmept;
   std::vector<TH1F*> hmepu;
 
-  TH1F* hmmiss, hmmiss2;
-  TH1F* hmmiss_jpsi, hmmiss2_jpsi;
+  TH1F* hmmiss, *hmmiss2;
+  TH1F* hmmiss_jpsi, *hmmiss2_jpsi;
   TH1F* hmtot;
   TH2F* hcmoa;
   TH1F* htrecgg, *hurecgg, *htrecep, *hurecep;
@@ -248,6 +253,7 @@ class AnaTdav2 : public FairTask{
   void dth_dph_cm(RhoCandidate*, RhoCandidate *, double &, double &);
   void fill_mtot(RhoCandList&, RhoCandList&, TH1F*);
   void fill_mmiss(RhoCandList&, RhoCandList&, TH1F*, TH1F*);
+  void fill_mmiss_jpsi(RhoCandList&, TH1F*, TH1F*);
   void fill_dth_dph_cm(RhoCandList&, RhoCandList&, TH2F*);
   void fill_pair_mass(RhoCandList&, TH1F*);
   void fill_count_hists(int, int, int);

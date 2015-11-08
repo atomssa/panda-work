@@ -421,11 +421,16 @@ bool AnaTdav2::check_eid(RhoCandidate* cand) {
 }
 
 inline
+double AnaTdav2::dist_photon_match(RhoCandidate *rec, RhoCandidate *mc) {
+  const double dth = (rec->P3().Theta()-mc->P3().Theta())/8.0e-3;
+  const double dph = (rec->P3().Phi()-mc->P3().Phi())/8.22e-3;
+  return TMath::Hypot(dph, dth) / 3.0;
+}
+
+inline
 double AnaTdav2::dist_chpi_match(RhoCandidate *rec, RhoCandidate *mc) {
-  //const double dmom = (rec->P3().Mag()-mc->P3().Mag())/1.3e-2;
   const double _dth = (rec->P3().Theta()-mc->P3().Theta())/1.54e-3;
   const double _dph = (rec->P3().Phi()-mc->P3().Phi())/3.95e-3;
-  //return TMath::Hypot(dmom, TMath::Hypot(dth, dph));
   return TMath::Hypot(_dth, _dph);
 }
 
@@ -484,6 +489,104 @@ void AnaTdav2::charged_pion_filter(RhoCandList& outp, RhoCandList& outm, RhoCand
   } else {
     cout << "pi+ pi- match couldn't be found because reco tracks are too far away from MC tracks dist= " << dmin << endl;
   }
+}
+
+void AnaTdav2::mctruth_match_jpsi(RhoCandList& elec, RhoCandList& posit) {
+  mct_itrk_e = -1;
+  mct_itrk_p = -1;
+  if (elec.GetLength()==0 || posit.GetLength()==0) return;
+
+  int pdg_jpsi = 443, pdg_elec = 11, pdg_posit = -11;
+  int mc_elec = -1, mc_posit = -1;
+  for (int j=0;j<mcList.GetLength();++j) {
+    if (mcList[j]->PdgCode()!=pdg_elec and mcList[j]->PdgCode()!=pdg_posit) continue;
+    if (!mcList[j]->TheMother()) continue;
+    if (mcList[j]->TheMother()->PdgCode()==pdg_jpsi) {
+      if (mcList[j]->PdgCode()==pdg_elec) mc_elec = j;
+      if (mcList[j]->PdgCode()==pdg_posit) mc_posit = j;
+    }
+    if (mc_elec>=0&&mc_posit>=0) break;
+  }
+  if (mc_elec<0||mc_posit<0) {
+    cout << "McTrue e+e- from jpsi not found!!" << endl;
+    return;
+  }
+
+  // These shouldn't really happen!
+  assert(0 <= mc_elec and mc_elec < mcList.GetLength());
+  assert(0 <= mc_posit and mc_posit < mcList.GetLength());
+
+  double dmin = 1e9;
+  int match_elec = -1, match_posit = -1;
+  for (int iielec = 0; iielec < elec.GetLength(); ++iielec) {
+    for (int iiposit = 0; iiposit < posit.GetLength(); ++iiposit) {
+      const double delec = dist_chpi_match(elec[iielec],mcList[mc_elec]);
+      const double dposit = dist_chpi_match(posit[iiposit],mcList[mc_posit]);
+      const double dtot = TMath::Hypot(delec,dposit);
+      if (dtot < dmin) {
+	match_elec = iielec;
+	match_posit = iiposit;
+	dmin = dtot;
+      }
+    }
+  }
+  if (dmin<10000) {
+    mct_itrk_e = elec[match_elec]->GetTrackNumber();
+    mct_itrk_p = posit[match_posit]->GetTrackNumber();
+  } else {
+    cout << "e+ e- match couldn't be found because reco tracks are too far away from MC tracks dist= " << dmin << endl;
+  }
+
+}
+
+void AnaTdav2::mctruth_match_pi0(RhoCandList& gamma) {
+  mct_itrk_g1 = -1;
+  mct_itrk_g2 = -1;
+  if (gamma.GetLength()<1) return;
+
+  int pdg_pi0 = 111, pdg_gamma = 22;
+  int mc_g1 = -1, mc_g2 = -1;
+  for (int j=0;j<mcList.GetLength();++j) {
+    if (mcList[j]->PdgCode()!=pdg_gamma) continue;
+    if (!mcList[j]->TheMother()) continue;
+    if (mcList[j]->TheMother()->PdgCode()==pdg_pi0) {
+      if (mcList[j]->PdgCode()==pdg_gamma) {
+	if (mc_g1 == -1) mc_g1 = j;
+	else mc_g2 = j;
+      }
+    }
+    if (mc_g1>=0&&mc_g2>=0) break;
+  }
+  if (mc_g1<0||mc_g1<0) {
+    cout << "McTrue gg from pi0 not found!!" << endl;
+    return;
+  }
+
+  // These shouldn't really happen!
+  assert(0 <= mc_g1 and mc_g1 < mcList.GetLength());
+  assert(0 <= mc_g2 and mc_g2 < mcList.GetLength());
+
+  double dmin = 1e9;
+  int match_g1 = -1, match_g2 = -1;
+  for (int iig1 = 0; iig1 < gamma.GetLength(); ++iig1) {
+    for (int iig2 = iig1+1; iig2 < gamma.GetLength(); ++iig2) {
+      const double dg1 = dist_photon_match(gamma[iig1],mcList[mc_g1]);
+      const double dg2 = dist_photon_match(gamma[iig2],mcList[mc_g2]);
+      const double dtot = TMath::Hypot(dg1,dg2);
+      if (dtot < dmin) {
+	match_g1 = iig1;
+	match_g2 = iig2;
+	dmin = dtot;
+      }
+    }
+  }
+  if (dmin<10000) {
+    mct_itrk_g1 = gamma[match_g1]->GetTrackNumber();
+    mct_itrk_g2 = gamma[match_g2]->GetTrackNumber();
+  } else {
+    cout << "pi0->gg match couldn't be found because reco tracks are too far away from MC tracks dist= " << dmin << endl;
+  }
+
 }
 
 void AnaTdav2::eid_filter(RhoCandList&out, RhoCandList&in) {
@@ -858,7 +961,7 @@ void AnaTdav2::kin_excl() {
   fill_dth_dph_cm(rcl[iep_excl],rcl[gg_excl], hcmoa);
   fill_mtot(rcl[iep_excl],rcl[gg_excl], hmtot);
   fill_mmiss(rcl[iep_excl],rcl[gg_excl], hmmiss, hmmiss2);
-  fill_mmiss_jpsi(rcl[iep_excl],rcl[gg_excl], hmmiss_jpsi, hmmiss2_jpsi);
+  fill_mmiss_jpsi(rcl[iep_excl], hmmiss_jpsi, hmmiss2_jpsi);
   fill_pair_mass(rcl[iep_excl], hmep[4]);
   fill_count_hists(gg_excl,iep_excl,5);
 }
@@ -916,7 +1019,7 @@ void AnaTdav2::kin_excl_all() {
   fill_dth_dph_cm(rcl[iep_excl],rcl[gg_excl], hcmoa);
   fill_mtot(rcl[iep_excl],rcl[gg_excl], hmtot);
   fill_mmiss(rcl[iep_excl],rcl[gg_excl], hmmiss, hmmiss2);
-  fill_mmiss_jpsi(rcl[iep_excl],rcl[gg_excl], hmmiss_jpsi, hmmiss2_jpsi);
+  fill_mmiss_jpsi(rcl[iep_excl], hmmiss_jpsi, hmmiss2_jpsi);
   fill_pair_mass(rcl[iep_excl], hmep[4]);
   fill_count_hists(gg_excl,iep_excl,5);
 
