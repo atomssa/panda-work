@@ -643,7 +643,7 @@ void AnaTdav2::mctruth_match_pi0(RhoCandList& gamma) {
   double dmin = 1e9;
   int match_g1 = -1, match_g2 = -1;
   for (int iig1 = 0; iig1 < gamma.GetLength(); ++iig1) {
-    for (int iig2 = iig1+1; iig2 < gamma.GetLength(); ++iig2) {
+    for (int iig2 = 0; iig2 < gamma.GetLength(); ++iig2) {
       const double dg1 = dist_photon_match(gamma[iig1],mcList[mc_g1]);
       const double dg2 = dist_photon_match(gamma[iig2],mcList[mc_g2]);
       const double dtot = TMath::Hypot(dg1,dg2);
