@@ -21,28 +21,32 @@ if [[ $HN == "ipnphen01" ]]; then
     export SOFT_DIR=/vol0/panda/svn
     export EXT_DIR=$SOFT_DIR/$EXT_VER
     export SIMPATH=$EXT_DIR/install
+    export PNDROOT_DIR=$EXT_DIR/pandaroot/$PR_VER
     export PATCH_DIR=/vol0/panda/work/src/patch/$PR_VER
     export NCORE=16
 elif [[ $HN == "rasalula" ]]; then
     export SOFT_DIR=/Users/tujuba/panda/svn
     export EXT_DIR=$SOFT_DIR/$EXT_VER
     export SIMPATH=$EXT_DIR/install
+    export PNDROOT_DIR=$EXT_DIR/pandaroot/$PR_VER
     export PATCH_DIR=/Users/tujuba/panda/work/src/patch/$PR_VER
     export NCORE=16
 elif [[ $HN == "ipngrid01.in2p3.fr" ]]; then
     export SOFT_DIR=/nfs1/panda/ermias/soft
     export EXT_DIR=$SOFT_DIR/$EXT_VER
     export SIMPATH=$EXT_DIR/install
-    export PATCH_DIR=/nfs1/panda/ermias/soft/panda-work/src/patch/${PR_VER}ig01
+    export PNDROOT_DIR=$EXT_DIR/pandaroot/${PR_VER}ig01
+    export PATCH_DIR=$SOFT_DIR/panda-work/src/patch/${PR_VER}
     export NCORE=8
 else
     export SOFT_DIR=/nfs1/panda/ermias/soft
+    export PNDROOT_DIR=$SOFT_DIR/$EXT_VER/pandaroot/$PR_VER
     export EXT_DIR=$SOFT_DIR/$EXT_VER
     export SIMPATH=$EXT_DIR/install
     export PATCH_DIR=$SOFT_DIR/panda-work/src/patch/$PR_VER
     export NCORE=4
 fi
 
-export PNDROOT_DIR=$SOFT_DIR/$EXT_VER/pandaroot/$PR_VER
+
 
 echo "utils.sh setting up done "
