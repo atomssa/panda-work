@@ -33,7 +33,7 @@ elif [[ $HN == "ipngrid01.in2p3.fr" ]]; then
     export SOFT_DIR=/nfs1/panda/ermias/soft
     export EXT_DIR=$SOFT_DIR/$EXT_VER
     export SIMPATH=$EXT_DIR/install
-    export PATCH_DIR=/nfs1/panda/ermias/soft/panda-work/src/patch/$PR_VER
+    export PATCH_DIR=/nfs1/panda/ermias/soft/panda-work/src/patch/${PR_VER}ig01
     export NCORE=8
 else
     export SOFT_DIR=/nfs1/panda/ermias/soft
