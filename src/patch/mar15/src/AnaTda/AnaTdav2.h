@@ -157,6 +157,8 @@ class AnaTdav2 : public FairTask{
   TH1F* hng;
   TH1F* hng20mev;
   TH1F* hnch;
+  TH1F* hmep_mct[nstep], *hmep_non_mct[nstep], *hthe_ep_mct[nstep], *hthe_ep_mct_fwd[nstep], *hthe_ep_mct_bwd[nstep];
+  TH1F* hmgg_mct[nstep], *hmgg_non_mct[nstep], *hthe_gg_mct[nstep], *hthe_gg_mct_fwd[nstep], *hthe_gg_mct_bwd[nstep], *hoa_gg_mct[nstep];
   TH1F* hmep[nstep];
   TH1F* hnep[nstep];
   TH1F* hngg[nstep];
@@ -230,6 +232,11 @@ class AnaTdav2 : public FairTask{
   RhoCandList mcList; // this one special..
 
   // Utilities
+  bool check_mct_jpsi(RhoCandidate*);
+  bool check_mct_pi0(RhoCandidate*);
+  double oa(RhoCandidate*);
+  double the_bwd(RhoCandidate*);
+  double the_fwd(RhoCandidate*);
   bool oa_vs_avg_cut(const double&, const double &);
   double oa(RhoCandidate* c1, RhoCandidate* c2) { return c1->P3().Angle(c2->P3()); }
   double m(RhoCandidate* c1, RhoCandidate* c2) { return (c1->P4() + c2->P4()).M(); }
@@ -257,6 +264,7 @@ class AnaTdav2 : public FairTask{
   void fill_dth_dph_cm(RhoCandList&, RhoCandList&, TH2F*);
   void fill_pair_mass(RhoCandList&, TH1F*);
   void fill_count_hists(int, int, int);
+  void fill_mctruth(RhoCandList&, RhoCandList&, int);
   void print_indices();
   void print_binning(const std::vector<double>&, const char*);
   bool calc_true_tu();
