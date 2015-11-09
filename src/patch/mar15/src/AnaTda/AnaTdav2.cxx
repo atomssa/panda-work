@@ -496,9 +496,9 @@ bool AnaTdav2::check_eid(RhoCandidate* cand) {
 
 inline
 double AnaTdav2::dist_photon_match(RhoCandidate *rec, RhoCandidate *mc) {
-  const double dth = (rec->P3().Theta()-mc->P3().Theta())/8.0e-3;
-  const double dph = (rec->P3().Phi()-mc->P3().Phi())/8.22e-3;
-  return TMath::Hypot(dph, dth) / 3.0;
+  const double _dth = (rec->P3().Theta()-mc->P3().Theta())/8.0e-3;
+  const double _dph = (rec->P3().Phi()-mc->P3().Phi())/8.22e-3;
+  return TMath::Hypot(_dph, _dth) / 3.0;
 }
 
 inline
