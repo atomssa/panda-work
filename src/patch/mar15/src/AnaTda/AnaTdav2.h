@@ -92,8 +92,8 @@ class AnaTdav2 : public FairTask{
   void charged_pion_filter(RhoCandList&, RhoCandList&, RhoCandList&, RhoCandList&, RhoCandList&, RhoCandList&);
   void mctruth_match_jpsi(RhoCandList&, RhoCandList&);
   void mctruth_match_pi0(RhoCandList&);
-  int mct_itrk_e, mct_itrk_p;
-  int mct_itrk_g1, mct_itrk_g2;
+  int mct_uid_e, mct_uid_p;
+  int mct_uid_g1, mct_uid_g2;
 
  private:
 

@@ -399,19 +399,19 @@ void AnaTdav2::fill_pair_mass(RhoCandList& org, TH1F* dest) {
 }
 
 bool AnaTdav2::check_mct_jpsi(RhoCandidate* _cand) {
-  if (mct_itrk_e<0||mct_itrk_p<0) return false;
+  if (mct_uid_e<0||mct_uid_p<0) return false;
   if (_cand->NDaughters()!=2) return false;
-  int i0 = _cand->Daughter(0)->GetTrackNumber();
-  int i1 = _cand->Daughter(1)->GetTrackNumber();
-  return (i0==mct_itrk_e&&i1==mct_itrk_p)||(i0==mct_itrk_p&&i1==mct_itrk_e);
+  int i0 = _cand->Daughter(0)->Uid();
+  int i1 = _cand->Daughter(1)->Uid();
+  return (i0==mct_uid_e&&i1==mct_uid_p)||(i0==mct_uid_p&&i1==mct_uid_e);
 }
 
 bool AnaTdav2::check_mct_pi0(RhoCandidate* _cand) {
-  if (mct_itrk_g1<0||mct_itrk_g2<0) return false;
+  if (mct_uid_g1<0||mct_uid_g2<0) return false;
   if (_cand->NDaughters()!=2) return false;
-  int i0 = _cand->Daughter(0)->GetTrackNumber();
-  int i1 = _cand->Daughter(1)->GetTrackNumber();
-  return (i0==mct_itrk_g1&&i1==mct_itrk_g2)||(i0==mct_itrk_g2&&i1==mct_itrk_g1);
+  int i0 = _cand->Daughter(0)->Uid();
+  int i1 = _cand->Daughter(1)->Uid();
+  return (i0==mct_uid_g1&&i1==mct_uid_g2)||(i0==mct_uid_g2&&i1==mct_uid_g1);
 }
 
 double AnaTdav2::the_bwd(RhoCandidate* _cand) {
@@ -454,7 +454,7 @@ void AnaTdav2::fill_mctruth(RhoCandList& _ep, RhoCandList& _gg, int step) {
       hthe_gg_mct_bwd[step]->Fill(the_bwd(_gg[j]), m_evt_wt);
       hoa_gg_mct[step]->Fill(oa(_gg[j]), m_evt_wt);
     } else {
-      hmep_non_mct[step]->Fill(_gg[j]->M(), m_evt_wt);
+      hmgg_non_mct[step]->Fill(_gg[j]->M(), m_evt_wt);
     }
   }
 }
@@ -566,8 +566,8 @@ void AnaTdav2::charged_pion_filter(RhoCandList& outp, RhoCandList& outm, RhoCand
 }
 
 void AnaTdav2::mctruth_match_jpsi(RhoCandList& elec, RhoCandList& posit) {
-  mct_itrk_e = -1;
-  mct_itrk_p = -1;
+  mct_uid_e = -1;
+  mct_uid_p = -1;
   if (elec.GetLength()==0 || posit.GetLength()==0) return;
 
   int pdg_jpsi = 443, pdg_elec = 11, pdg_posit = -11;
@@ -605,8 +605,8 @@ void AnaTdav2::mctruth_match_jpsi(RhoCandList& elec, RhoCandList& posit) {
     }
   }
   if (dmin<10000) {
-    mct_itrk_e = elec[match_elec]->GetTrackNumber();
-    mct_itrk_p = posit[match_posit]->GetTrackNumber();
+    mct_uid_e = elec[match_elec]->Uid();
+    mct_uid_p = posit[match_posit]->Uid();
   } else {
     cout << "e+ e- match couldn't be found because reco tracks are too far away from MC tracks dist= " << dmin << endl;
   }
@@ -614,8 +614,8 @@ void AnaTdav2::mctruth_match_jpsi(RhoCandList& elec, RhoCandList& posit) {
 }
 
 void AnaTdav2::mctruth_match_pi0(RhoCandList& gamma) {
-  mct_itrk_g1 = -1;
-  mct_itrk_g2 = -1;
+  mct_uid_g1 = -1;
+  mct_uid_g2 = -1;
   if (gamma.GetLength()<1) return;
 
   int pdg_pi0 = 111, pdg_gamma = 22;
@@ -655,8 +655,8 @@ void AnaTdav2::mctruth_match_pi0(RhoCandList& gamma) {
     }
   }
   if (dmin<10000) {
-    mct_itrk_g1 = gamma[match_g1]->GetTrackNumber();
-    mct_itrk_g2 = gamma[match_g2]->GetTrackNumber();
+    mct_uid_g1 = gamma[match_g1]->Uid();
+    mct_uid_g2 = gamma[match_g2]->Uid();
   } else {
     cout << "pi0->gg match couldn't be found because reco tracks are too far away from MC tracks dist= " << dmin << endl;
   }
