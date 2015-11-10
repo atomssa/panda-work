@@ -160,6 +160,7 @@ class AnaTdav2 : public FairTask{
   TH1F* hmep_mct[nstep], *hmep_non_mct[nstep], *hthe_ep_mct[nstep], *hthe_ep_mct_fwd[nstep], *hthe_ep_mct_bwd[nstep];
   TH1F* hmgg_mct[nstep], *hmgg_non_mct[nstep], *hthe_gg_mct[nstep], *hthe_gg_mct_fwd[nstep], *hthe_gg_mct_bwd[nstep], *hoa_gg_mct[nstep];
   TH1F* hmep[nstep];
+  TH1F* hmgg[nstep];
   TH1F* hnep[nstep];
   TH1F* hngg[nstep];
   TH1F* hnpi0jpsi[nstep];

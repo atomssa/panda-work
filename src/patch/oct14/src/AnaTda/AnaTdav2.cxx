@@ -179,18 +179,19 @@ void AnaTdav2::init_hists() {
   hnch = new TH1F(Form("hnch"),Form("hnch"),11,-0.5,10.5);
 
   for (int is = 0; is< nstep; ++is) {
-    hmep[is] = new TH1F(Form("hmep_%d",is),Form("hmep_%d",is),200,0,5);
+    hmep[is] = new TH1F(Form("hmep_%d",is),Form("hmep_%d",is),400,0,5);
+    hmgg[is] = new TH1F(Form("hmgg_%d",is),Form("hmgg_%d",is),400,0,0.2);
     hnep[is] = new TH1F(Form("hnep_%d",is),Form("hnep_%d",is),6,-0.5,5.5);
     hngg[is] = new TH1F(Form("hngg_%d",is),Form("hngg_%d",is),26,-0.5,25.5);
     hnpi0jpsi[is] = new TH1F(Form("hnpi0jpsi_%d",is),Form("hnpi0jpsi_%d",is),6,-0.5,5.5);
 
-    hmep_mct[is] = new TH1F(Form("hmep_mct_%d",is),Form("hmep_mct_%d",is),200,0,5);
-    hmep_non_mct[is] = new TH1F(Form("hmep_non_mct_%d",is),Form("hmep_non_mct_%d",is),200,0,5);
+    hmep_mct[is] = new TH1F(Form("hmep_mct_%d",is),Form("hmep_mct_%d",is),400,0,5);
+    hmep_non_mct[is] = new TH1F(Form("hmep_non_mct_%d",is),Form("hmep_non_mct_%d",is),400,0,5);
     hthe_ep_mct[is] = new TH1F(Form("hthe_ep_mct_%d",is),Form("hthe_ep_mct_%d",is),400,0,TMath::Pi());
     hthe_ep_mct_fwd[is] = new TH1F(Form("hthe_ep_mct_fwd_%d",is),Form("hthe_ep_mct_fwd_%d",is),400,0,TMath::Pi());
     hthe_ep_mct_bwd[is] = new TH1F(Form("hthe_ep_mct_bwd_%d",is),Form("hthe_ep_mct_bwd_%d",is),400,0,TMath::Pi());
-    hmgg_mct[is] = new TH1F(Form("hmgg_mct_%d",is),Form("hmgg_mct_%d",is),200,0.0,0.2);
-    hmgg_non_mct[is] = new TH1F(Form("hmgg_non_mct_%d",is),Form("hmgg_non_mct_%d",is),200,0.0,0.2);
+    hmgg_mct[is] = new TH1F(Form("hmgg_mct_%d",is),Form("hmgg_mct_%d",is),400,0.0,0.2);
+    hmgg_non_mct[is] = new TH1F(Form("hmgg_non_mct_%d",is),Form("hmgg_non_mct_%d",is),400,0.0,0.2);
     hthe_gg_mct[is] = new TH1F(Form("hthe_gg_mct_%d",is),Form("hthe_gg_mct_%d",is),400,0,TMath::Pi());
     hthe_gg_mct_fwd[is] = new TH1F(Form("hthe_gg_mct_fwd_%d",is),Form("hthe_gg_mct_fwd_%d",is),400,0,TMath::Pi());
     hthe_gg_mct_bwd[is] = new TH1F(Form("hthe_gg_mct_bwd_%d",is),Form("hthe_gg_mct_bwd_%d",is),400,0,TMath::Pi());
@@ -436,27 +437,46 @@ double AnaTdav2::oa(RhoCandidate* _cand) {
 }
 
 void AnaTdav2::fill_mctruth(RhoCandList& _ep, RhoCandList& _gg, int step) {
-  for (int j = 0; j < _ep.GetLength(); ++j) {
-    if (check_mct_jpsi(_ep[j])) {
-      hmep_mct[step]->Fill(_ep[j]->M(), m_evt_wt);
-      hthe_ep_mct[step]->Fill(_ep[j]->P3().Theta()*TMath::RadToDeg(), m_evt_wt);
-      hthe_ep_mct_fwd[step]->Fill(the_fwd(_ep[j]), m_evt_wt);
-      hthe_ep_mct_bwd[step]->Fill(the_bwd(_ep[j]), m_evt_wt);
-    } else {
-      hmep_non_mct[step]->Fill(_ep[j]->M(), m_evt_wt);
+  for (int ii=0; ii < _ep.GetLength(); ++ii) {
+    for (int jj=0; jj < _gg.GetLength(); ++jj) {
+      if (check_mct_jpsi(_ep[ii]) and
+	  check_mct_pi0(_gg[jj])) {
+	hmep_mct[step]->Fill(_ep[ii]->M(), m_evt_wt);
+	hthe_ep_mct[step]->Fill(_ep[ii]->P3().Theta()*TMath::RadToDeg(), m_evt_wt);
+	hthe_ep_mct_fwd[step]->Fill(the_fwd(_ep[ii]), m_evt_wt);
+	hthe_ep_mct_bwd[step]->Fill(the_bwd(_ep[ii]), m_evt_wt);
+	hmgg_mct[step]->Fill(_gg[jj]->M(),m_evt_wt);
+	hthe_gg_mct[step]->Fill(_gg[jj]->P3().Theta()*TMath::RadToDeg(), m_evt_wt);
+	hthe_gg_mct_fwd[step]->Fill(the_fwd(_gg[jj]), m_evt_wt);
+	hthe_gg_mct_bwd[step]->Fill(the_bwd(_gg[jj]), m_evt_wt);
+	hoa_gg_mct[step]->Fill(oa(_gg[jj]), m_evt_wt);
+      } else {
+	hmep_non_mct[step]->Fill(_ep[ii]->M(), m_evt_wt);
+	hmgg_non_mct[step]->Fill(_gg[jj]->M(), m_evt_wt);
+      }
     }
   }
-  for (int j = 0; j < _gg.GetLength(); ++j) {
-    if (check_mct_pi0(_gg[j])) {
-      hmgg_mct[step]->Fill(_gg[j]->M(),m_evt_wt);
-      hthe_gg_mct[step]->Fill(_gg[j]->P3().Theta()*TMath::RadToDeg(), m_evt_wt);
-      hthe_gg_mct_fwd[step]->Fill(the_fwd(_gg[j]), m_evt_wt);
-      hthe_gg_mct_bwd[step]->Fill(the_bwd(_gg[j]), m_evt_wt);
-      hoa_gg_mct[step]->Fill(oa(_gg[j]), m_evt_wt);
-    } else {
-      hmgg_non_mct[step]->Fill(_gg[j]->M(), m_evt_wt);
-    }
-  }
+  //for (int j = 0; j < _ep.GetLength(); ++j) {
+  //  if (check_mct_jpsi(_ep[j])) {
+  //    hmep_mct[step]->Fill(_ep[j]->M(), m_evt_wt);
+  //    hthe_ep_mct[step]->Fill(_ep[j]->P3().Theta()*TMath::RadToDeg(), m_evt_wt);
+  //    hthe_ep_mct_fwd[step]->Fill(the_fwd(_ep[j]), m_evt_wt);
+  //    hthe_ep_mct_bwd[step]->Fill(the_bwd(_ep[j]), m_evt_wt);
+  //  } else {
+  //    hmep_non_mct[step]->Fill(_ep[j]->M(), m_evt_wt);
+  //  }
+  //}
+  //for (int j = 0; j < _gg.GetLength(); ++j) {
+  //  if (check_mct_pi0(_gg[j])) {
+  //    hmgg_mct[step]->Fill(_gg[j]->M(),m_evt_wt);
+  //    hthe_gg_mct[step]->Fill(_gg[j]->P3().Theta()*TMath::RadToDeg(), m_evt_wt);
+  //    hthe_gg_mct_fwd[step]->Fill(the_fwd(_gg[j]), m_evt_wt);
+  //    hthe_gg_mct_bwd[step]->Fill(the_bwd(_gg[j]), m_evt_wt);
+  //    hoa_gg_mct[step]->Fill(oa(_gg[j]), m_evt_wt);
+  //  } else {
+  //    hmgg_non_mct[step]->Fill(_gg[j]->M(), m_evt_wt);
+  //  }
+  //}
 }
 
 void AnaTdav2::fill_count_hists(int _gg, int _ep, int ihist) {
@@ -910,6 +930,7 @@ void AnaTdav2::nocut_ref() {
   double tmp_eid_wt = m_evt_wt*nevt_sim[mc_type][iplab]/nevt_xsect[mc_type][iplab];
   if (is_dpm()) m_evt_wt = nevt_xsect[mc_type][iplab]/nevt_sim[mc_type][iplab];
   fill_pair_mass(rcl[ep], hmep[0]);
+  fill_pair_mass(rcl[gg], hmgg[0]);
   fill_mctruth(rcl[ep], rcl[gg], 0);
   fill_count_hists(gg,ep,0);
   if (is_dpm()) m_evt_wt *= tmp_eid_wt;
@@ -917,6 +938,7 @@ void AnaTdav2::nocut_ref() {
   rcl[iep].Combine(rcl[ie],rcl[ip]);
 
   fill_pair_mass(rcl[iep], hmep[1]);
+  fill_pair_mass(rcl[gg], hmgg[1]);
   fill_mctruth(rcl[iep], rcl[gg], 1);
   fill_count_hists(gg,iep,1);
 }
@@ -933,6 +955,7 @@ void AnaTdav2::ep_uniq() {
     rcl[iep_uniq].Combine(rcl[ie],rcl[ip]);
   }
   fill_pair_mass(rcl[iep_uniq], hmep[2]);
+  fill_pair_mass(rcl[gg], hmgg[2]);
   fill_mctruth(rcl[iep_uniq], rcl[gg], 2);
   fill_count_hists(gg,iep_uniq,2);
 }
@@ -945,6 +968,7 @@ void AnaTdav2::ep_uniq() {
 void AnaTdav2::ep_all() {
   rcl[iep_all].Combine(rcl[ie],rcl[ip]);
   fill_pair_mass(rcl[iep_all], hmep[2]);
+  fill_pair_mass(rcl[gg], hmgg[2]);
   fill_mctruth(rcl[iep_all],rcl[gg], 2);
   fill_count_hists(gg,iep_all,2);
 }
@@ -987,6 +1011,7 @@ void AnaTdav2::ep_pi0_asso() {
     }
   }
   fill_pair_mass(rcl[iep_asso], hmep[3]);
+  fill_pair_mass(rcl[gg_sel], hmgg[3]);
   fill_mctruth(rcl[iep_asso], rcl[gg_sel], 3);
   fill_count_hists(gg_sel,iep_asso,4);
 }
@@ -1002,6 +1027,7 @@ void AnaTdav2::ep_pi0_asso_all() {
     rcl[iep_asso_all].Append(rcl[iep_all]);
   }
   fill_pair_mass(rcl[iep_asso_all], hmep[3]);
+  fill_pair_mass(rcl[gg_sel], hmep[3]);
   fill_mctruth(rcl[iep_asso_all], rcl[gg_sel], 3);
   fill_count_hists(gg_sel,iep_asso_all,4);
 }
@@ -1049,6 +1075,7 @@ void AnaTdav2::kin_excl() {
   fill_mmiss(rcl[iep_excl],rcl[gg_excl], hmmiss, hmmiss2);
   fill_mmiss_jpsi(rcl[iep_excl], hmmiss_jpsi, hmmiss2_jpsi);
   fill_pair_mass(rcl[iep_excl], hmep[4]);
+  fill_pair_mass(rcl[gg_excl], hmgg[4]);
   fill_mctruth(rcl[iep_excl], rcl[gg_excl], 4);
   fill_count_hists(gg_excl,iep_excl,5);
 }
@@ -1108,6 +1135,7 @@ void AnaTdav2::kin_excl_all() {
   fill_mmiss(rcl[iep_excl],rcl[gg_excl], hmmiss, hmmiss2);
   fill_mmiss_jpsi(rcl[iep_excl], hmmiss_jpsi, hmmiss2_jpsi);
   fill_pair_mass(rcl[iep_excl], hmep[4]);
+  fill_pair_mass(rcl[gg_excl], hmgg[4]);
   fill_mctruth(rcl[iep_excl], rcl[gg_excl], 4);
   fill_count_hists(gg_excl,iep_excl,5);
 
@@ -1133,6 +1161,7 @@ void AnaTdav2::kin_fit() {
 
     if (fabs(_dth-TMath::Pi())<TMath::Pi()*20./180.) {
       fill_pair_mass(rcl[iep_excl], hmep[5]);
+      fill_pair_mass(rcl[gg_excl], hmgg[5]);
       fill_mctruth(rcl[iep_excl], rcl[gg_excl], 5);
       hmtot_mconst_cut->Fill(_mtot);
       hcmoa_mconst_cut->Fill(_dth,_dph);
@@ -1163,6 +1192,7 @@ void AnaTdav2::kin_fit_4c() {
     hpi0jpsi_prob4c->Fill(sig_prob_4c);
 
     fill_pair_mass(rcl[iep_excl], hmep[5]);
+    fill_pair_mass(rcl[gg_excl], hmgg[5]);
     fill_mctruth(rcl[iep_excl], rcl[gg_excl], 5);
 
     // loop over all gg pair candiates, and check if there is
@@ -1206,16 +1236,19 @@ void AnaTdav2::kin_fit_4c() {
       rcl[iep_kinc].Append(rcl[iep_excl][0]);
       rcl[gg_kinc].Append(rcl[gg_excl][0]);
       fill_pair_mass(rcl[iep_excl], hmep[6]);
+      fill_pair_mass(rcl[gg_excl], hmgg[6]);
       fill_mctruth(rcl[iep_excl], rcl[gg_excl], 6);
       if (!xtra_pi0_found || (xtra_pi0_found && bg_chi2_4c > sig_chi2_4c)) {
     	rcl[iep_kinc_bg].Append(rcl[iep_excl][0]);
     	rcl[gg_kinc_bg].Append(rcl[gg_excl][0]);
     	fill_pair_mass(rcl[iep_excl], hmep[7]);
+    	fill_pair_mass(rcl[gg_excl], hmgg[7]);
 	fill_mctruth(rcl[iep_excl], rcl[gg_excl], 7);
     	if (ng20mev<4) {
     	  rcl[iep_ngcut].Append(rcl[iep_excl][0]);
     	  rcl[gg_ngcut].Append(rcl[gg_excl][0]);
     	  fill_pair_mass(rcl[iep_excl], hmep[8]);
+    	  fill_pair_mass(rcl[gg_excl], hmgg[8]);
 	  fill_mctruth(rcl[iep_excl], rcl[gg_excl], 8);
     	}
       }
@@ -1395,6 +1428,7 @@ void AnaTdav2::write_hists() {
 
   for (int is = 0; is< nstep; ++is) {
     hmep[is]->Write();
+    hmgg[is]->Write();
     hnep[is]->Write();
     hngg[is]->Write();
     hnpi0jpsi[is]->Write();
