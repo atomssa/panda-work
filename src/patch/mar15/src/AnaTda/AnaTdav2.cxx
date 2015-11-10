@@ -1027,7 +1027,7 @@ void AnaTdav2::ep_pi0_asso_all() {
     rcl[iep_asso_all].Append(rcl[iep_all]);
   }
   fill_pair_mass(rcl[iep_asso_all], hmep[3]);
-  fill_pair_mass(rcl[gg_sel], hmep[3]);
+  fill_pair_mass(rcl[gg_sel], hmgg[3]);
   fill_mctruth(rcl[iep_asso_all], rcl[gg_sel], 3);
   fill_count_hists(gg_sel,iep_asso_all,4);
 }
