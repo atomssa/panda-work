@@ -1,4 +1,14 @@
 #include "TMath.h"
+#include "TF1.h"
+#include "TH1.h"
+#include "TGAxis.h"
+#include "TStyle.h"
+#include "TPad.h"
+#include "TCanvas.h"
+#include "TFile.h"
+#include "TBox.h"
+#include "TLegend.h"
+#include "TText.h"
 
 // constants for prob. calculation
 //_Mp = 0.938;
@@ -36,17 +46,18 @@ static const double M0 = 8776.88; //GeV
 //print "M0 = %4.2f" % M0
 
 //const double pbarn = 0.38941e9;
-static const double pbarn = 0.38941*pow(10,9);
+static const double pbarn = 0.38941*pow(10.0,9);
 
 static const double Lumi = 2e3;
 static const double Br = 5.94e-2;
 
 //const double pbarn = 4e6;
 double _ssss = 10.0;
-const double _s[3] = {12.25, 16.87, ,24.35};
+const double _s[3] = {12.25, 16.87, 24.35};
 const double _tmin[3] = {-0.45, -2.76, -6.5};
 const double _tmax[3] = {0.6, 0.46, 0.32};
-const double _val_min[3] = {-0.092, -1.3, -2.85};
+//const double _val_min[3] = {-0.092, -1.3, -2.85};
+const double _val_min[3] = {-0.092, -1.0, -1.0};
 const double _val_max[3] = {0.59, 0.43, 0.3};
 
 //funciton definitions
@@ -93,14 +104,14 @@ double _dsig_dDel_sq_a(double Del_sq, double s){
   return pbarn*F1 * F2 * ( pow(I,2) - DelT_sq*pow(Iprim,2)/Mp_sq);
 }
 
-double anatda_func(double mand){
-  double _deltaT2 = ((1-_xi)/(1+_xi)) * (mand - 2.*_xi * ( (pow(_Mp,2)/(1+_xi)) - (pow(_Mpi0,2)/(1-_xi)) ));
-  double I = M0*fpi*gpiNN*_Mp*(1-_xi)/(mand-_Mp*_Mp)/(1+_xi);
-  double Iprim = M0*fpi*gpiNN*_Mp/(mand-_Mp*_Mp);
-  double MT2 = 0.25*C*C*(2*(_xi+1)/_xi/pow(M,8)) *  (  pow(I,2) - _deltaT2 * pow(Iprim,2)/pow(_Mp,2) );
-  double lamda2 = pow(_s,2)-4*_s*pow(_Mp,4);
-  return MT2/(16*pi*lamda2)*0.38941*pow(10,9);
-}
+//double anatda_func(double mand){
+//  double _deltaT2 = ((1-_xi)/(1+_xi)) * (mand - 2.*_xi * ( (pow(Mp,2)/(1+_xi)) - (pow(Mpi0,2)/(1-_xi)) ));
+//  double I = M0*fpi*gpiNN*Mp*(1-_xi)/(mand-Mp*Mp)/(1+_xi);
+//  double Iprim = M0*fpi*gpiNN*Mp/(mand-Mp*Mp);
+//  double MT2 = 0.25*C*C*(2*(_xi+1)/_xi/pow(M,8)) *  (  pow(I,2) - _deltaT2 * pow(Iprim,2)/pow(Mp,2) );
+//  double lamda2 = pow(_s,2)-4*_s*pow(Mp,4);
+//  return MT2/(16*pi*lamda2)*0.38941*pow(10,9);
+//}
 
 double func_Del_sq(double *x, double* par) {
   return _dsig_dDel_sq_a(x[0],par[0]);
@@ -124,7 +135,7 @@ void tda(int ip=0) {
   fDel_sq->Draw();
 }
 
-TF1* get_func(int ip=0, double _min, double _max) {
+TF1* get_func(int ip, double _min, double _max) {
   TF1* fDel_sq =  new TF1(Form("Del_sq_%d",ip),func_Del_sq, _min, _max, 1);
   fDel_sq->SetParameter(0,_s[ip]);
   fDel_sq->SetLineWidth(3);
@@ -132,7 +143,7 @@ TF1* get_func(int ip=0, double _min, double _max) {
   return fDel_sq;
 }
 
-TF1* get_func(int ip=0) {
+TF1* get_func(int ip) {
   TF1* fDel_sq =  new TF1(Form("Del_sq_%d",ip),func_Del_sq, _tmin[ip], _tmax[ip], 1);
   fDel_sq->SetParameter(0,_s[ip]);
   fDel_sq->SetLineWidth(3);
@@ -140,7 +151,7 @@ TF1* get_func(int ip=0) {
 }
 
 TF1* get_func_mirror(int ip=0) {
-  TF1* fDel_sq_mir =  new TF1(Form("Del_sq_mir",ip),func_Del_sq_mirror, 2*_tmin[ip]-_tmax[ip], _tmin[ip], 1);
+  TF1* fDel_sq_mir =  new TF1(Form("Del_sq_%d_mir",ip),func_Del_sq_mirror, 2*_tmin[ip]-_tmax[ip], _tmin[ip], 1);
   fDel_sq_mir->SetParameter(0,_s[ip]);
   fDel_sq_mir->SetLineWidth(3);
   return fDel_sq_mir;
@@ -185,6 +196,8 @@ void tda_func(int ip=0, TPad *tp=0) {
     "/Users/tujuba/panda/work/jpsi_pi0/hists/pcm.jul.2015//anav2_jpsi_brem_plab12.0.root" };
 
 
+  TCanvas *tc_gen_comp = new TCanvas(Form("gen_comp_p%d",ip),Form("gen_comp_p%d",ip),1200,500);
+
   _ssss = _s[ip];
 
   TFile *f = new TFile(file_name[ip]);
@@ -222,7 +235,7 @@ void tda_func(int ip=0, TPad *tp=0) {
   TF1* func_mirror =  get_func_mirror(ip);
   func_mirror->DrawCopy("same");
 
-  TLegend *tl = new TLegend(0.3,0.55,0.7,0.85);
+  TLegend *tl = new TLegend(0.4,0.55,0.7,0.85);
   tl->SetTextSize(0.05);
   tl->SetBorderSize(0);
   tl->SetFillStyle(0);
@@ -238,6 +251,8 @@ void tda_func(int ip=0, TPad *tp=0) {
   //TText *tt = new TText();
   tt->DrawText(mirror(_val_max[ip])+0.1, 0.1*h->GetMaximum(),"Bwd Kin");
   tt->DrawText(mirror(_val_max[ip])+0.1, 0.02*h->GetMaximum(),"Valid. range");
+
+  tc_gen_comp->Print(Form("gen_comp_%d.pdf",ip));
 
 }
 

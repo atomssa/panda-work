@@ -194,7 +194,8 @@ def _dsig_dDel_sq(Del_sq,s):
 
 svals =    [12.25, 15,   16.8745,  20,    24.346]
 #min_vals = [-0.45,   -0.5, -2.76,    -0.5,  -6.5]
-min_vals = [-0.092,   -0.5, -1.3,    -0.5,  -2.85]
+#min_vals = [-0.092,   -0.5, -1.3,    -0.5,  -2.85]
+min_vals = [-0.092,   -0.5, -1.0,    -0.5,  -1.0]
 #min_vals = [-0.5,   -0.5,  -0.5,     -0.5,  -0.5]
 #min_vals = [-0.3,   -0.45,  -0.45,     -0.45,  -0.45]
 #max_vals = [0.6,    0.0,  0.46,     0.0,   0.32]
@@ -350,7 +351,8 @@ def numevt():
     #{-13.2926, -6.48861, 0.31538}
     #normr = [ (-0.443789, 0.616486), (-1.0, 0.457248), (-1.0, 0.31538) ] # normalization winodw in Delta^2
     #normr = [ (-0.443789, 0.616486), (-0.5, 0.457248), (-0.5, 0.31538) ] # normalization winodw in Delta^2
-    normr = [ (-0.092, 0.59), (-1.3, 0.43), (-2.85, 0.3) ] # normalization winodw in Delta^2
+    #normr = [ (-0.092, 0.59), (-1.3, 0.43), (-2.85, 0.3) ] # normalization winodw in Delta^2
+    normr = [ (-0.092, 0.59), (-1.0, 0.43), (-1.0, 0.3) ] # normalization winodw in Delta^2
     fullr = [ (-0.443789, 0.616486), (-2.75368, 0.457248), (-6.48861, 0.31538)] # full range from 0 < cost < 1
     print s_
     for idx, s in enumerate(s_):
