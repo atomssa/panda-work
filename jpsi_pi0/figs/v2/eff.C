@@ -60,6 +60,8 @@ void eff(){
   //gStyle->SetTitleAlign(33);
   TGaxis::SetMaxDigits(3);
 
+  const char* bdir = "/Users/tujuba/panda/work/jpsi_pi0/";
+
   const int nplab = 3;
   const double plab[nplab] = {5.513, 8., 12.};
   const double _s[nplab] = {12.25, 16.87, ,24.35};
@@ -84,7 +86,10 @@ void eff(){
   tceff->cd();
   int nrebin = 10;
   for (int iplab = nplab-1; iplab >=0; --iplab) {
-    f[iplab] = TFile::Open(Form("hists/note.aug.2015/eid90pct/anav2_pi0jpsi_tda_eff_ip%d_brem.root",iplab));
+    //f[iplab] = TFile::Open(Form("%s/hists/note.aug.2015/eid90pct/anav2_pi0jpsi_tda_eff_ip%d_brem.root",bdir,iplab));
+    int ibrem = 1;
+    int pass = 13;
+    f[iplab] = TFile::Open(Form("%s/hists/note.v2.oct.2015/anav2_pi0jpsi_%s4eff_p%d_pass%d.root", bdir, (ibrem==0?"raw":"brem"), iplab, pass));
 
     total[iplab] = (TH1F*) f[iplab]->Get("tu/httrumc");
     passed[iplab] = (TH1F*) f[iplab]->Get("tu/htrecgg");
@@ -166,14 +171,12 @@ void eff(){
 
   }
 
-
-
   TH1F* dum = (TH1F*) tmg->GetHistogram();
   dum->GetYaxis()->SetNdivisions(508);
   set_style(dum,4,0,false);
   gPad->Update();
 
-  tceff->Print("figs/2015.09.15/efficiency_vs_t.pdf");
+  //tceff->Print(Form("%s/figs/2015.09.15/efficiency_vs_t.pdf",bdir));
 
   /*
   vector<double> tu_bins;

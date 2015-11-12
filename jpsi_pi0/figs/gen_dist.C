@@ -3,7 +3,7 @@ void set_style(TAxis *axis) {
   axis->SetLabelSize(0.05);
 }
 
-void ang_dist() {
+void gen_dist() {
 
   gStyle->SetOptStat(0);
 

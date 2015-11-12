@@ -10,7 +10,7 @@ void set_style(TH1F* h) {
   h->GetXaxis()->SetNdivisions(610);
 }
 
-void all(){
+void ana_steps(int ip=0 ){
 
   gStyle->SetOptStat(0);
   gStyle->SetPadLeftMargin(0.11);
@@ -21,17 +21,18 @@ void all(){
   //gStyle->SetTitleAlign(33);
   TGaxis::SetMaxDigits(3);
 
-  //TFile *fsim= TFile::Open("new_test/anav2_jpsi_brem_plab5.5.root");
-  //TFile *fbg= TFile::Open("new_test/anav2_pip_pim_brem_plab5.5.root");
-
-  //TFile *fsim= TFile::Open("new_test/anav2_jpsi_brem_plab12.0.root");
-  //TFile *fbg= TFile::Open("new_test/anav2_pip_pim_brem_plab12.0.root");
-
-  TFile *fsim = TFile::Open("hists/note.aug.2015//anav2_jpsi_brem_plab5.5.root");
-  TFile *fbg = TFile::Open("hists/note.aug.2015//anav2_pip_pim_brem_plab5.5.root");
-
-  //TFile *fsim = TFile::Open("hists/note.aug.2015//anav2_jpsi_brem_plab12.0.root");
-  //TFile *fbg = TFile::Open("hists/note.aug.2015//anav2_pip_pim_brem_plab12.0.root");
+  const char* bdir = "/Users/tujuba/panda/work/jpsi_pi0/";
+  TFile *fsim,*fbg;
+  if (ip==0){
+    fsim = TFile::Open(Form("%s/hists/note.aug.2015//anav2_jpsi_brem_plab5.5.root",bdir));
+    fbg = TFile::Open(Form("%s/hists/note.aug.2015//anav2_pip_pim_brem_plab5.5.root",bdir));
+  } else if (ip==1) {
+    fsim = TFile::Open(Form("%s/hists/note.aug.2015//anav2_jpsi_brem_plab8.0.root",bdir));
+    fbg = TFile::Open(Form("%s/hists/note.aug.2015//anav2_pip_pim_brem_plab8.0.root",bdir));
+  } else {
+    fsim = TFile::Open(Form("%s/hists/note.aug.2015//anav2_jpsi_brem_plab12.0.root",bdir));
+    fbg = TFile::Open(Form("%s/hists/note.aug.2015//anav2_pip_pim_brem_plab12.0.root",bdir));
+  }
 
   TLegend *tl = new TLegend(0.35,0.5,0.85,0.9);
   tl->SetBorderSize(0);
@@ -81,6 +82,6 @@ void all(){
     if (ii==1) tl->Draw();
   }
 
-  tc_vert->Print("figs/2015.06.08/ana_steps.pdf");
+  //tc_vert->Print(Form("%s/figs/2015.06.08/ana_steps.pdf",bdir));
 
 }

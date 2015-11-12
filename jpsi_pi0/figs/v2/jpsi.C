@@ -26,10 +26,12 @@ void jpsi(){
   //gStyle->SetTitleAlign(33);
   TGaxis::SetMaxDigits(3);
 
-  TFile *fb = TFile::Open("hists/note.aug.2015/eid90pct/pass3/anav2_jpsi_brem_plab5.5.root");
-  TFile *fr = TFile::Open("hists/note.aug.2015/eid90pct/pass3/anav2_jpsi_raw_plab5.5.root");
-  //TFile *fb = TFile::Open("pi.brem.root");
-  //TFile *fr = TFile::Open("pi.raw.root");
+  const char* bdir = "/Users/tujuba/panda/work/jpsi_pi0/";
+
+  TFile *fb = TFile::Open(Form("%s/hists/note.aug.2015/eid90pct/pass3/anav2_jpsi_brem_plab5.5.root",bdir));
+  TFile *fr = TFile::Open(Form("%s/hists/note.aug.2015/eid90pct/pass3/anav2_jpsi_raw_plab5.5.root",bdir));
+  //TFile *fb = TFile::Open(Form("%s/pi.brem.root",bdir));
+  //TFile *fr = TFile::Open(Form("%s/pi.raw.root",bdir));
 
   TH1F* jpsib = (TH1F*) fb->Get("hmep_3")->Clone("jpsib");
   //TH1F* jpsib = (TH1F*) fb->Get("hmep_3")->Clone("jpsib");
@@ -56,8 +58,8 @@ void jpsi(){
   tl->AddEntry(jpsir, "No Brem Corr.", "pl");
   tl->Draw();
 
-  //tc->Print("figs/2015.09.15/jpsi_mass_brem_vs_raw.pdf");
-  //tc->Print("figs/2015.09.15/pipm_mass_brem_vs_raw.pdf");
+  //tc->Print(Form("%s/figs/2015.09.15/jpsi_mass_brem_vs_raw.pdf",bdir));
+  //tc->Print(Form("%s/figs/2015.09.15/pipm_mass_brem_vs_raw.pdf",bdir));
 
   TCanvas *tcfit = new TCanvas("tcfit","tcfit",700,0,700,700);
   tcfit->cd();
@@ -116,7 +118,7 @@ void jpsi(){
   cout <<"width= " << width << endl;
   cout << "min= " << mean-3*width << endl;
   cout << "max= " << mean+3*width << endl;
-  //  tcfit->Print("figs/2015.09.15/jpsi_mass_fit.pdf");
-  //tcfit->Print("figs/2015.09.15/pipm_mass_fit.pdf");
+  tcfit->Print(Form("%s/figs/2015.09.15/jpsi_mass_fit.pdf",bdir));
+  tcfit->Print(Form("%s/figs/2015.09.15/pipm_mass_fit.pdf",bdir));
 
 }
