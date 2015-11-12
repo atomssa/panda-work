@@ -29,10 +29,27 @@ enum {
 };
 
 struct evt_ref {
+
+  //evt_ref(string n, string t, int i1, int i2):count(0), name(n), title(t) { pdg.push_back(i1); pdg.push_back(i2); sort_evt(); }
+  //evt_ref(string n, string t, int i1, int i2, int i3): evt_ref(n,t,i1,i2) { pdg.push_back(i3); sort_evt(); }
+  //evt_ref(string n, string t, int i1, int i2, int i3, int i4): evt_ref(n,t,i1,i2,i3) { pdg.push_back(i4); sort_evt(); }
+  //evt_ref(string n, string t, int i1, int i2, int i3, int i4, int i5): evt_ref(n,t,i1,i2,i3,i4) { pdg.push_back(i5); sort_evt(); }
+  //evt_ref(string n, string t, int i1, int i2, int i3, int i4, int i5, int i6): evt_ref(n,t,i1,i2,i3,i4,i5) { pdg.push_back(i6); sort_evt(); }
+  //evt_ref(string n, string t, int i1, int i2, int i3, int i4, int i5, int i6, int i7): evt_ref(n,t,i1,i2,i3,i4,i5,i6) { pdg.push_back(i7); sort_evt(); }
+  //evt_ref(string n, string t, int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8): evt_ref(n,t,i1,i2,i3,i4,i5,i6,i7) { pdg.push_back(i8); sort_evt(); }
+  //evt_ref(string n, string t, int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8, int i9): evt_ref(n,t,i1,i2,i3,i4,i5,i6,i7,i8) { pdg.push_back(i9); sort_evt(); }
+  //evt_ref(string n, string t, int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8, int i9, int i10): evt_ref(n,t,i1,i2,i3,i4,i5,i6,i7,i8,i9) { pdg.push_back(i10); sort_evt(); }
+
   evt_ref(string n, string t, int i1, int i2):count(0), name(n), title(t) { pdg.push_back(i1); pdg.push_back(i2); sort_evt(); }
-  evt_ref(string n, string t, int i1, int i2, int i3): evt_ref(n,t,i1,i2) { pdg.push_back(i3); sort_evt(); }
-  evt_ref(string n, string t, int i1, int i2, int i3, int i4): evt_ref(n,t,i1,i2,i3) { pdg.push_back(i4); sort_evt(); }
-  evt_ref(string n, string t, int i1, int i2, int i3, int i4, int i5): evt_ref(n,t,i1,i2,i3,i4) { pdg.push_back(i5); sort_evt(); }
+  evt_ref(string n, string t, int i1, int i2, int i3):count(0), name(n), title(t) { pdg.push_back(i1); pdg.push_back(i2); pdg.push_back(i3); sort_evt(); }
+  evt_ref(string n, string t, int i1, int i2, int i3, int i4):count(0), name(n), title(t) { pdg.push_back(i1); pdg.push_back(i2); pdg.push_back(i3); pdg.push_back(i4); sort_evt(); }
+  evt_ref(string n, string t, int i1, int i2, int i3, int i4, int i5):count(0), name(n), title(t) { pdg.push_back(i1); pdg.push_back(i2); pdg.push_back(i3); pdg.push_back(i4); pdg.push_back(i5); sort_evt(); }
+  evt_ref(string n, string t, int i1, int i2, int i3, int i4, int i5, int i6):count(0), name(n), title(t) { pdg.push_back(i1); pdg.push_back(i2); pdg.push_back(i3); pdg.push_back(i4); pdg.push_back(i5); pdg.push_back(i6); sort_evt(); }
+  evt_ref(string n, string t, int i1, int i2, int i3, int i4, int i5, int i6, int i7):count(0), name(n), title(t) { pdg.push_back(i1); pdg.push_back(i2); pdg.push_back(i3); pdg.push_back(i4); pdg.push_back(i5); pdg.push_back(i6); pdg.push_back(i7); sort_evt(); }
+  evt_ref(string n, string t, int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8):count(0), name(n), title(t) { pdg.push_back(i1); pdg.push_back(i2); pdg.push_back(i3); pdg.push_back(i4); pdg.push_back(i5); pdg.push_back(i6); pdg.push_back(i7); pdg.push_back(i8); sort_evt(); }
+  evt_ref(string n, string t, int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8, int i9):count(0), name(n), title(t) { pdg.push_back(i1); pdg.push_back(i2); pdg.push_back(i3); pdg.push_back(i4); pdg.push_back(i5); pdg.push_back(i6); pdg.push_back(i7); pdg.push_back(i8); pdg.push_back(i9); sort_evt(); }
+  evt_ref(string n, string t, int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8, int i9, int i10):count(0), name(n), title(t) { pdg.push_back(i1); pdg.push_back(i2); pdg.push_back(i3); pdg.push_back(i4); pdg.push_back(i5); pdg.push_back(i6); pdg.push_back(i7); pdg.push_back(i8); pdg.push_back(i9); pdg.push_back(i10); sort_evt(); }
+
   void sort_evt() {std::sort(pdg.begin(),pdg.end());}
   std::vector<int> pdg;
   int count;
@@ -136,15 +153,61 @@ void dpm_filter(string rxn="pi0pipm") {
   bool verb = false;
 
   std::vector<evt_ref> refs;
-  refs.push_back(evt_ref("pi0pipm", "#pi^{0}#pi^{+}#pi^{-}", pi0, pip, pim)); // pi-, pi0, pi+
+
+  // unicorns
   //refs.push_back(evt_ref("pi0epem", "#pi^{0}e^{+}e^{-}", pi0, ep, em)); // e+, e-, pi0: no e+e- events in DPM
   //refs.push_back(evt_ref("pi0jpsi", "#pi^{0}J/#psi", pi0, jpsi)); // pi0, jpsi: no jpsi events in DPM
-  refs.push_back(evt_ref("pi02pipm", "#pi^{0}#pi^{0}#pi^{+}#pi^{-}", pi0, pi0, pip, pim)); // pi-, pi0, pi0, pi+
-  refs.push_back(evt_ref("pi0pipm2", "#pi^{0}#pi^{+}#pi^{-}#pi^{+}#pi^{-}", pi0, pip, pim, pip, pim)); // pi-, pi-, pi0, pi+, pi+
   //refs.push_back(evt_ref("pi0pi0jpsi", "#pi^{0}#pi^{0}J/#psi", pi0, pi0, jpsi)); // pi0, pi0, jpsi: no jpsi events in DPM
 
+  // 3pion
+  refs.push_back(evt_ref("pi0pipm", "3pi:#pi^{0}#pi^{+}#pi^{-}", pi0, pip, pim)); // pi-, pi0, pi+
+
+  // 4pion
+  refs.push_back(evt_ref("_pi02pipm", "4pi:#pi^{0}#pi^{0}#pi^{+}#pi^{-}", pi0, pi0, pip, pim)); // pi-, pi0, pi0, pi+
+  refs.push_back(evt_ref("pipm2", "4pi:#pi^{+}#pi^{-}#pi^{+}#pi^{-}", pip, pim, pip, pim ));
+  refs.push_back(evt_ref("pi04", "4pi:#pi^{0}#pi^{0}#pi^{0}#pi^{0}", pi0, pi0, pi0, pi0 ));
+
+  // 5pion
+  refs.push_back(evt_ref("pi0pipm2", "5pi:#pi^{0}#pi^{+}#pi^{-}#pi^{+}#pi^{-}", pi0, pip, pim, pip, pim)); // pi-, pi-, pi0, pi+, pi+
+  refs.push_back(evt_ref("_pi03pipm", "5pi:#pi^{0}#pi^{0}#pi^{0}#pi^{+}#pi^{-}", pi0, pi0, pi0, pip, pim));
+  refs.push_back(evt_ref("_pi05", "5pi:#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}", pi0, pi0, pi0, pi0, pi0));
+
+  // 6pion
+  refs.push_back(evt_ref("_pi06", "6pi:#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}", pi0, pi0, pi0, pi0, pi0, pi0));
+  refs.push_back(evt_ref("_pi04pipm", "6pi:#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{+}#pi^{-}", pi0, pi0, pi0, pi0, pip, pim));
+  refs.push_back(evt_ref("_pi02pipm2", "6pi:#pi^{0}#pi^{0}#pi^{+}#pi^{-}#pi^{+}#pi^{-}", pi0, pi0, pip, pim, pip, pim));
+  refs.push_back(evt_ref("_pipm3", "6pi:#pi^{+}#pi^{-}#pi^{+}#pi^{-}#pi^{+}#pi^{-}", pip, pim, pip, pim, pip, pim));
+
+  // 7pion
+  refs.push_back(evt_ref("_pi07", "7pi:#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}", pi0, pi0, pi0, pi0, pi0, pi0, pi0));
+  refs.push_back(evt_ref("_pi05pipm", "7pi:#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{+}#pi^{-}", pi0, pi0, pi0, pi0, pi0, pip, pim));
+  refs.push_back(evt_ref("_pi03pipm2", "7pi:#pi^{0}#pi^{0}#pi^{0}#pi^{+}#pi^{-}#pi^{+}#pi^{-}", pi0, pi0, pi0, pip, pim, pip, pim));
+  refs.push_back(evt_ref("_pi0pipm3", "7pi:#pi^{0}#pi^{+}#pi^{-}#pi^{+}#pi^{-}#pi^{+}#pi^{-}", pi0, pip, pim, pip, pim, pip, pim));
+
+  // 8pion
+  refs.push_back(evt_ref("_pi08", "8pi:#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}", pi0, pi0, pi0, pi0, pi0, pi0, pi0, pi0));
+  refs.push_back(evt_ref("_pi06pipm", "8pi:#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{+}#pi^{-}", pi0, pi0, pi0, pi0, pi0, pi0, pip, pim));
+  refs.push_back(evt_ref("_pi04pipm2", "8pi:#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{+}#pi^{-}#pi^{+}#pi^{-}", pi0, pi0, pi0, pi0, pip, pim, pip, pim));
+  refs.push_back(evt_ref("_pi02pipm3", "8pi:#pi^{0}#pi^{0}#pi^{+}#pi^{-}#pi^{+}#pi^{-}#pi^{+}#pi^{-}", pi0, pi0, pip, pim, pip, pim, pip, pim));
+  refs.push_back(evt_ref("_pipm4", "8pi:#pi^{+}#pi^{-}#pi^{+}#pi^{-}#pi^{+}#pi^{-}#pi^{+}#pi^{-}", pip, pim, pip, pim, pip, pim, pip, pim));
+
+  // 9pion
+  refs.push_back(evt_ref("_pi09", "9pi:#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}", pi0, pi0, pi0, pi0, pi0, pi0, pi0, pi0, pi0));
+  refs.push_back(evt_ref("_pi07pipm", "9pi:#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{+}#pi^{-}", pi0, pi0, pi0, pi0, pi0, pi0, pi0, pip, pim));
+  refs.push_back(evt_ref("_pi05pipm2", "9pi:#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{+}#pi^{-}#pi^{+}#pi^{-}", pi0, pi0, pi0, pi0, pi0, pip, pim, pip, pim));
+  refs.push_back(evt_ref("_pi03pipm3", "9pi:#pi^{0}#pi^{0}#pi^{0}#pi^{+}#pi^{-}#pi^{+}#pi^{-}#pi^{+}#pi^{-}", pi0, pi0, pi0, pip, pim, pip, pim, pip, pim));
+  refs.push_back(evt_ref("_pi0pipm4", "9pi:#pi^{0}#pi^{+}#pi^{-}#pi^{+}#pi^{-}#pi^{+}#pi^{-}#pi^{+}#pi^{-}", pi0, pip, pim, pip, pim, pip, pim, pip, pim));
+
+  // 10pion
+  refs.push_back(evt_ref("_pi010", "10pi:#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}", pi0, pi0, pi0, pi0, pi0, pi0, pi0, pi0, pi0, pi0));
+  refs.push_back(evt_ref("_pi08pipm", "10pi:#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{+}#pi^{-}", pi0, pi0, pi0, pi0, pi0, pi0, pi0, pi0, pip, pim));
+  refs.push_back(evt_ref("_pi06pipm2", "10pi:#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{+}#pi^{-}#pi^{+}#pi^{-}", pi0, pi0, pi0, pi0, pi0, pi0, pip, pim, pip, pim));
+  refs.push_back(evt_ref("_pi04pipm3", "10pi:#pi^{0}#pi^{0}#pi^{0}#pi^{0}#pi^{+}#pi^{-}#pi^{+}#pi^{-}#pi^{+}#pi^{-}", pi0, pi0, pi0, pi0, pip, pim, pip, pim, pip, pim));
+  refs.push_back(evt_ref("_pi02pipm4", "10pi:#pi^{0}#pi^{0}#pi^{+}#pi^{-}#pi^{+}#pi^{-}#pi^{+}#pi^{-}#pi^{+}#pi^{-}", pi0, pi0, pip, pim, pip, pim, pip, pim, pip, pim));
+  refs.push_back(evt_ref("_pipm5", "10pi:#pi^{+}#pi^{-}#pi^{+}#pi^{-}#pi^{+}#pi^{-}#pi^{+}#pi^{-}#pi^{+}#pi^{-}", pip, pim, pip, pim, pip, pim, pip, pim, pip, pim));
+
   // input
-  string file_name_in = "Background-micro.12.root";
+  string file_name_in = "Background-micro.8.root";
   TFile *file_in = TFile::Open(file_name_in.c_str());
   TTree *data_in = (TTree*) file_in->Get("data");
   TClonesArray *part_array = new TClonesArray("TParticle");
