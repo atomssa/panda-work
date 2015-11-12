@@ -302,15 +302,15 @@ void AnaTdav2::beam_cond(){
   p4targ.SetPxPyPzE(0,0,0,mass_prot);
   p4sys = p4pbar + p4targ;
 
-  //double ftmin[3] = {-0.45, -2.0, -5.0};
-  //double delta[3] = {0.1, 0.2, 0.5};
-  double ftmin[3] = {-0.1, -1.3, -2.8};
-  double delta[3] = {0.08, 0.2, 0.4};
+  double ftmin[3] = {-0.45, -2.0, -5.0};
+  double delta[3] = {0.1, 0.2, 0.2};
+  //double ftmin[3] = {-0.1, -1.3, -2.8};
+  //double delta[3] = {0.08, 0.2, 0.4};
 
   cout << "double range[iplab=" << iplab << "][]= {";
-  for (int i=0; i<15; ++i) {
-    //double xx = ftmin[iplab] + delta[iplab]*i;
-    double xx = i==0 ? tmin[iplab]: (ftmin[iplab] + delta[iplab]*i);
+  for (int i=0; i<30; ++i) {
+    double xx = ftmin[iplab] + delta[iplab]*i;
+    //double xx = i==0 ? tmin[iplab]: (ftmin[iplab] + delta[iplab]*i);
     if (xx>tmax[iplab]) {
       cout << tmax[iplab] << " }; // n=" << i << endl;;
       tu_binning.push_back(tmax[iplab]);
