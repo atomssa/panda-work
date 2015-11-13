@@ -335,8 +335,8 @@ def color_labels():
 
     plt.show()
 
-def numevt():
-    lumi = 2e3 # b-1
+def numevt(msv):
+    lumi = [95.5,103.0,108.0] if msv else [2e3,2e3,2e3]
     br = 5.94e-2 # branching ratio
     f_t = [] # fraction within normalization window of |t| approx
     sig_normr = []
@@ -360,8 +360,8 @@ def numevt():
         sig_normr.append(quad(_dsig_dDel_sq, normr[idx][0], normr[idx][1] , args=(s))[0])
         sig_fullr.append(quad(_dsig_dDel_sq, fullr[idx][0], fullr[idx][1] , args=(s))[0])
         f_t.append(sig_normr[idx]/sig_fullr[idx])
-        nevt_normr.append(sig_normr[idx]*lumi*br*2)
-        nevt_fullr.append(sig_fullr[idx]*lumi*br*2)
+        nevt_normr.append(sig_normr[idx]*lumi[idx]*br*2)
+        nevt_fullr.append(sig_fullr[idx]*lumi[idx]*br*2)
         print("s=%4.2f  xs(nr)=%4.2f nevt(nr)=%4.2f xs(fr)=%4.2f nevt(fr)=%4.2f"% (s, 2*sig_normr[idx], nevt_normr[idx], 2*sig_fullr[idx], nevt_fullr[idx]))
 
 #integration

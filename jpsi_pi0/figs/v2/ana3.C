@@ -27,15 +27,17 @@ void ana3() {
   //double mmin = 0, mmax = 10;
   int immin = 0, immax = 0;
 
-  const int ntbin_max = 20;
+  const int ntbin_max = 30;
 
-  const double Lumi = 2e3;
+  bool msv = true;
+  const double Lumi[3] = msv? {95.5,103.0,108.0} : {2e3,2e3,2e3};
   const double Br = 5.94e-2;
 
   //12.25 & 5.513 & -0.092 & 0.59
   //16.87 & 8.0  & -1.3 & 0.43
   //24.35 & 12.0 & -2.85 & 0.3
-  const double tvalidmin[nplab] = {-0.092, -1.3, -2.85};
+  //const double tvalidmin[nplab] = {-0.092, -1.3, -2.85};
+  const double tvalidmin[nplab] = {-0.092, -1.0, -1.0};
   const double tvalidmax[nplab] = {0.59, 0.43, 0.3};
 
   TGraph *tg_sig_eff[nplab], *tg_bg_eff[nplab];
@@ -172,9 +174,12 @@ void ana3() {
   for (int iplab=0; iplab<nplab; ++iplab) {
     //for (int iplab=0; iplab<1; ++iplab) {
 
-    int pass = 13;
+    int pass = 15;
 
-    fsig[iplab] = TFile::Open(Form("%s/hists/note.v2.oct.2015/anav2_pi0jpsi_%s_p%d_pass%d.root",bdir,(ibrem==0?"raw":"brem"), iplab, pass));
+    if (msv)
+      fsig[iplab] = TFile::Open(Form("%s/hists/note.v2.oct.2015/anav2_pi0jpsi_%s_msv_p%d_pass%d.root",bdir,(ibrem==0?"raw":"brem"), iplab, pass));
+    else
+      fsig[iplab] = TFile::Open(Form("%s/hists/note.v2.oct.2015/anav2_pi0jpsi_%s_p%d_pass%d.root",bdir,(ibrem==0?"raw":"brem"), iplab, pass));
     feff[iplab] = TFile::Open(Form("%s/hists/note.v2.oct.2015/anav2_pi0jpsi_%s4eff_p%d_pass%d.root",bdir,(ibrem==0?"raw":"brem"), iplab, pass));
     //fbg[0][iplab] = TFile::Open(Form("%s/hists/note.v2.oct.2015/anav2_pi0pipm_%s_p%d_pass13.root",bdir,(ibrem==0?"raw":"brem"), iplab));
     fbg[0][iplab] = TFile::Open(Form("%s/hists/note.v2.oct.2015/anav2_pi0pipm_%s_p%d_pass%d.root",bdir,(ibrem==0?"raw":"brem"), iplab, pass));
@@ -184,8 +189,8 @@ void ana3() {
 
     h_teff_den[iplab] = (TH1F*) feff[iplab]->Get("tu/httrumc");
     h_ueff_den[iplab] = (TH1F*) feff[iplab]->Get("tu/hutrumc");
-    h_teff_num[iplab] = (TH1F*) feff[iplab]->Get("tu/htrecgg_mc");
-    h_ueff_num[iplab] = (TH1F*) feff[iplab]->Get("tu/hurecgg_mc");
+    h_teff_num[iplab] = (TH1F*) feff[iplab]->Get(pass<15?"tu/htrecgg_mc":"tu/htrecgg_mcut");
+    h_ueff_num[iplab] = (TH1F*) feff[iplab]->Get(pass<15?"tu/hurecgg_mc":"tu/hurecgg_mcut");
 
     vector<double> tu_bins;
     TVectorD *vv =  (TVectorT<double>*)fsig[iplab]->Get("tu_binning");
@@ -212,6 +217,7 @@ void ana3() {
 	t_cnt[iplab][itbin] = t[iplab][itbin]+0.01;
 	u_cnt[iplab][itbin] = u[iplab][itbin]+0.01;
 
+	//cout << "h_teff_num[iplab]= " << h_teff_num[iplab] << " h_teff_den[iplab]= " << h_teff_den[iplab] << endl;
 	eff_cor[0][iplab][itbin] = integrate_content(h_teff_num[iplab], tu_bins[itbin], tu_bins[itbin+1]);
 	double d0 = integrate_content(h_teff_den[iplab], tu_bins[itbin], tu_bins[itbin+1]);
 	eff_cor[0][iplab][itbin] /= d0;
@@ -254,6 +260,7 @@ void ana3() {
 	  // old
 	  // hmbg_tu[itu][iplab][itbin] = (TH1F*) fbg[ibg][iplab]->Get(Form("tu_bins/hmep%s%d",toru[itu],itbin))->Clone(Form("hmep_bg_p%d_%s%d",iplab,toru[itu],itbin));
 	  TH1F* htmp = (TH1F*) fbg[ibg][iplab]->Get(Form("tu_bins/hmep%s%d",toru[itu],itbin))->Clone(Form("tmp_hmep_bg_p%d_%s%d",iplab,toru[itu],itbin));
+	  if (msv) htmp->Scale(0.0478);
 	  if (ibg==nbg-1) htmp->Scale(pi0pi0jpsi_scale[iplab]);
 	  if (ibg==0)
 	    hmbg_tu[itu][iplab][itbin] = (TH1F*) htmp->Clone(Form("hmep_bg_p%d_%s%d",iplab,toru[itu],itbin));
@@ -357,8 +364,8 @@ void ana3() {
 	  //cout << "t=  " << t[iplab][nptok[itu][iplab]] << " eff= " << eff_cor[itu][iplab][itbin]
 	  // << " pm " << eff_cor_er[itu][iplab][itbin] << endl;
 
-	  yield_cor[itu][iplab][nptok[itu][iplab]] /= Lumi*Br;
-	  yield_cor_er[itu][iplab][nptok[itu][iplab]] /= Lumi*Br;
+	  yield_cor[itu][iplab][nptok[itu][iplab]] /= Lumi[iplab]*Br;
+	  yield_cor_er[itu][iplab][nptok[itu][iplab]] /= Lumi[iplab]*Br;
 
 	  cout << " " << Form("%.2g", _tvalid_min[itu][iplab][nptok[itu][iplab]])
 	       << " & " << Form("%.2g", _tvalid_max[itu][iplab][nptok[itu][iplab]])

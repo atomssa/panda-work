@@ -88,7 +88,7 @@ void eff(){
   for (int iplab = nplab-1; iplab >=0; --iplab) {
     //f[iplab] = TFile::Open(Form("%s/hists/note.aug.2015/eid90pct/anav2_pi0jpsi_tda_eff_ip%d_brem.root",bdir,iplab));
     int ibrem = 1;
-    int pass = 13;
+    int pass = 15;
     f[iplab] = TFile::Open(Form("%s/hists/note.v2.oct.2015/anav2_pi0jpsi_%s4eff_p%d_pass%d.root", bdir, (ibrem==0?"raw":"brem"), iplab, pass));
 
     total[iplab] = (TH1F*) f[iplab]->Get("tu/httrumc");
