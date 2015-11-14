@@ -456,27 +456,6 @@ void AnaTdav2::fill_mctruth(RhoCandList& _ep, RhoCandList& _gg, int step) {
       }
     }
   }
-  //for (int j = 0; j < _ep.GetLength(); ++j) {
-  //  if (check_mct_jpsi(_ep[j])) {
-  //    hmep_mct[step]->Fill(_ep[j]->M(), m_evt_wt);
-  //    hthe_ep_mct[step]->Fill(_ep[j]->P3().Theta()*TMath::RadToDeg(), m_evt_wt);
-  //    hthe_ep_mct_fwd[step]->Fill(the_fwd(_ep[j]), m_evt_wt);
-  //    hthe_ep_mct_bwd[step]->Fill(the_bwd(_ep[j]), m_evt_wt);
-  //  } else {
-  //    hmep_non_mct[step]->Fill(_ep[j]->M(), m_evt_wt);
-  //  }
-  //}
-  //for (int j = 0; j < _gg.GetLength(); ++j) {
-  //  if (check_mct_pi0(_gg[j])) {
-  //    hmgg_mct[step]->Fill(_gg[j]->M(),m_evt_wt);
-  //    hthe_gg_mct[step]->Fill(_gg[j]->P3().Theta()*TMath::RadToDeg(), m_evt_wt);
-  //    hthe_gg_mct_fwd[step]->Fill(the_fwd(_gg[j]), m_evt_wt);
-  //    hthe_gg_mct_bwd[step]->Fill(the_bwd(_gg[j]), m_evt_wt);
-  //    hoa_gg_mct[step]->Fill(oa(_gg[j]), m_evt_wt);
-  //  } else {
-  //    hmgg_non_mct[step]->Fill(_gg[j]->M(), m_evt_wt);
-  //  }
-  //}
 }
 
 void AnaTdav2::fill_count_hists(int _gg, int _ep, int ihist) {
@@ -1117,15 +1096,6 @@ void AnaTdav2::kin_excl_all() {
 
   // if no pairs, nothing to do
   if (jgg_most_btb<0||jep_most_btb<0) return;
-
-  //static int noagree = 0;
-  //if (jgg_most_btb!=jgg_dmtot_best||
-  //    jep_most_btb!=jep_dmtot_best
-  //    ) {
-  //  noagree++;
-  //} else {
-  //  cout << "Evt" << nevt << "most_btb and best_mtot agree!" << endl;
-  //}
 
   rcl[iep_excl].Append(rcl[iep_asso_all][jep_most_btb]);
   rcl[gg_excl].Append(rcl[gg_sel][jgg_most_btb]);
