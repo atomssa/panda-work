@@ -181,6 +181,10 @@ class AnaTdav2 : public FairTask{
   std::vector<TH1F*> hmep_pi0th;
   std::vector<TH1F*> hmept;
   std::vector<TH1F*> hmepu;
+  std::vector<TH1F*> hmeptthe;
+  std::vector<TH1F*> hmeptcth;
+  std::vector<TH1F*> hmeputhe;
+  std::vector<TH1F*> hmepucth;
 
   TH1F* hmmiss, *hmmiss2;
   TH1F* hmmiss_jpsi, *hmmiss2_jpsi;
@@ -258,7 +262,7 @@ class AnaTdav2 : public FairTask{
   double cost_b(const TLorentzVector&, const TVector3&);
   double the_b(const TLorentzVector&, const TVector3&);
   TLorentzVector get_p4ep(RhoCandidate*);
-
+  int comb_bins(int,int,int);
   int find_bin(double val, const std::vector<double>& binning);
   //int t_bin(RhoCandidate*);
   //int u_bin(RhoCandidate*);
