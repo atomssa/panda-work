@@ -128,6 +128,8 @@ class AnaTdav2 : public FairTask{
   double event_pi0costh_cm;
   double event_pi0theta_cm;
   double event_pi0theta_lab;
+  double event_epthe_jpsi;
+  double event_epcosth_jpsi;
   double m_pip_wt, m_pim_wt, m_evt_wt;
   double tmin[3]; //={-0.443789, -1.0, -1.0};
   double tmax[3]; //={0.616486, 0.457248, 0.31538};
@@ -171,6 +173,9 @@ class AnaTdav2 : public FairTask{
   std::vector<double> tu_binning;
   std::vector<double> pi0th_binning;
   std::vector<double> pi0cost_cm_binning;
+  std::vector<double> tu_binning_2d;
+  std::vector<double> the_binning_2d;
+  std::vector<double> costh_binning_2d;
 
   std::vector<TH1F*> hmep_pi0cost_cm;
   std::vector<TH1F*> hmep_pi0th;
@@ -192,6 +197,8 @@ class AnaTdav2 : public FairTask{
   TH2F* htrupi0thcm_vs_m, *htrupi0thlab_vs_m, *htrupi0costhcm_vs_m;
   TH2F* htrupi0thcm_mcut_vs_m, *htrupi0thlab_mcut_vs_m, *htrupi0costhcm_mcut_vs_m;
   TH1F* htresgg, *huresgg, *htresep, *huresep;
+  TH1F* hepthe_jpsi_rec, *hepcosth_jpsi_rec;
+  TH1F* hepthe_jpsi_mc, *hepcosth_jpsi_mc;
 
   TH1F *hmep_mconst;
   TH1F *hmtot_mconst;
@@ -246,6 +253,11 @@ class AnaTdav2 : public FairTask{
   double t_ep(RhoCandidate *_ep) { return (_ep->P4()-p4targ).M2(); }
   double u_gg(RhoCandidate *_gg) { return (_gg->P4()-p4targ).M2(); }
   double u_ep(RhoCandidate *_ep) { return (_ep->P4()-p4pbar).M2(); }
+
+  TLorentzVector boost_transf(const TLorentzVector&, const TVector3&);
+  double cost_b(const TLorentzVector&, const TVector3&);
+  double the_b(const TLorentzVector&, const TVector3&);
+  TLorentzVector get_p4ep(RhoCandidate*);
 
   int find_bin(double val, const std::vector<double>& binning);
   //int t_bin(RhoCandidate*);
