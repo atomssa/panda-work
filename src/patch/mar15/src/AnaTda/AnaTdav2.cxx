@@ -209,16 +209,16 @@ void AnaTdav2::init_hists() {
     hmepu.push_back(new TH1F(Form("hmepu%d", ib), Form("%3.1f < u < %3.1f;M_{inv}", tu_binning[ib], tu_binning[ib+1]), 200, 0, 5));
   }
 
-  for (int iby=0; iby < the_binning_2d.size(); ++iby) {
-    for (int ibx=0; ibx < tu_binning_2d.size(); ++ibx) {
-      hmeptthe.push_back(new TH1F(Form("hmep_t%d_th%d", ibx, iby), Form("%3.1f < t < %3.1f & %3.0f < #theta < %3.0f;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], the_binning_2d[ibx], the_binning_2d[ibx+1]), 200, 0, 5));
+  for (int iby=0; iby < the_binning_2d.size()-1; ++iby) {
+    for (int ibx=0; ibx < tu_binning_2d.size()-1; ++ibx) {
+      hmeptthe.push_back(new TH1F(Form("hmep_t%d_th%d", ibx, iby), Form("%3.1f < t < %3.1f & %3.0f < #theta < %3.0f;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], the_binning_2d[iby], the_binning_2d[iby+1]), 200, 0, 5));
       hmeptcth.push_back(new TH1F(Form("hmep_t%d_cth%d", ibx, iby), Form("%3.1f < t < %3.1f & %3.0f < cos(#theta) < %3.0f;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], costh_binning_2d[iby], costh_binning_2d[iby+1]), 200, 0, 5));
     }
   }
-  for (int iby=0; iby < costh_binning_2d.size(); ++iby) {
-    for (int ibx=0; ibx < tu_binning_2d.size(); ++ibx) {
-      hmeputhe.push_back(new TH1F(Form("hmep_u%d_th%d", ibx, iby), Form("%3.1f < u < %3.1f & %3.0f < #theta < %3.0f;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], the_binning_2d[ibx], the_binning_2d[ibx+1]), 200, 0, 5));
-      hmepucth.push_back(new TH1F(Form("hmep_u%d_cth%d", ibx, iby), Form("%3.1f < u < %3.1f & %3.0f < cos(#theta) < %3.0f;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], costh_binning_2d[iby], costh_binning_2d[iby+1]), 200, 0, 5));
+  for (int iby=0; iby < costh_binning_2d.size()-1; ++iby) {
+    for (int ibx=0; ibx < tu_binning_2d.size()-1; ++ibx) {
+      hmeputhe.push_back(new TH1F(Form("hmep_u%d_th%d", ibx, ibx), Form("%3.1f < u < %3.1f & %3.0f < #theta < %3.0f;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], the_binning_2d[iby], the_binning_2d[iby+1]), 200, 0, 5));
+      hmepucth.push_back(new TH1F(Form("hmep_u%d_cth%d", iby, ibx), Form("%3.1f < u < %3.1f & %3.0f < cos(#theta) < %3.0f;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], costh_binning_2d[iby], costh_binning_2d[iby+1]), 200, 0, 5));
     }
   }
 
