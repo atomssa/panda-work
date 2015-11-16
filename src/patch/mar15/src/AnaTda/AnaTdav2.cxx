@@ -248,10 +248,10 @@ void AnaTdav2::init_hists() {
   htresep = new TH1F("htresep", "htresep", 1000, -3, 3);
   huresep = new TH1F("huresep", "huresep", 1000, -3, 3);
 
-  hepthe_jpsi_rec = new TH1F("hepthe_jpsi_rec", "hepthe_jpsi_rec", 1000, 0., TMath::Pi());
-  hepcosth_jpsi_rec = new TH1F("hepcosth_jpsi_rec", "hepcosth_jpsi_rec", 1000, -1.0, 1.0);
-  hepthe_jpsi_mc = new TH1F("hepthe_jpsi_mc", "hepthe_jpsi_mc", 1000, 0., TMath::Pi());
-  hepcosth_jpsi_mc = new TH1F("hepcosth_jpsi_mc", "hepcosth_jpsi_mc", 1000, -1.0, 1.0);
+  hepthe_jpsi_rec = new TH1F("hepthe_jpsi_rec", "hepthe_jpsi_rec", 1000, -5., 185.0);
+  hepcosth_jpsi_rec = new TH1F("hepcosth_jpsi_rec", "hepcosth_jpsi_rec", 1000, -1.1, 1.1);
+  hepthe_jpsi_mc = new TH1F("hepthe_jpsi_mc", "hepthe_jpsi_mc", 1000, -5., 185.0);
+  hepcosth_jpsi_mc = new TH1F("hepcosth_jpsi_mc", "hepcosth_jpsi_mc", 1000, -1.1, 1.1);
 
   htrupi0thcm = new TH1F("htrupi0thcm", "htrupi0thch", 1000, 0., TMath::Pi());
   htrupi0costhcm = new TH1F("htrupi0costhcm", "htrupi0costhcm", 1100, -1.1, 1.1);
@@ -729,10 +729,10 @@ bool AnaTdav2::calc_true_tu() {
 	if (is_evt_gen()) {
 	  for (int ik=0; ik < mcList.GetLength(); ++ik) {
 	    if (mcList[ik]->PdgCode()==443) {
-	      event_epthe_jpsi = the_b(get_p4ep(mcList[0]), mcList[0]->P4().BoostVector());
-	      event_epcosth_jpsi = cost_b(get_p4ep(mcList[0]), mcList[0]->P4().BoostVector());
-	      hepthe_jpsi_rec->Fill(event_epthe_jpsi);
-	      hepcosth_jpsi_rec->Fill(event_epcosth_jpsi);
+	      event_epthe_jpsi = the_b(get_p4ep(mcList[ik]), -mcList[ik]->P4().BoostVector());
+	      event_epcosth_jpsi = cost_b(get_p4ep(mcList[ik]), -mcList[ik]->P4().BoostVector());
+	      hepthe_jpsi_mc->Fill(event_epthe_jpsi);
+	      hepcosth_jpsi_mc->Fill(event_epcosth_jpsi);
 	    }
 	  }
 	}
@@ -1319,18 +1319,18 @@ void AnaTdav2::fill_bins(RhoCandList& rclep, RhoCandList& rclgg) {
     double pi0cost_cm_rec = pi0cost_cm(rclgg[0]);
     double pi0theta_rec = rclgg[0]->P4().Theta();
 
-    double epthe_jpsi_rec = the_b(get_p4ep(rclep[0]), rclep[0]->P4().BoostVector());
-    double epcosth_jpsi_rec = cost_b(get_p4ep(rclep[0]), rclep[0]->P4().BoostVector());
+    double epthe_jpsi_rec = the_b(get_p4ep(rclep[0]), -rclep[0]->P4().BoostVector());
+    double epcosth_jpsi_rec = cost_b(get_p4ep(rclep[0]), -rclep[0]->P4().BoostVector());
 
     int ibin_pi0th = find_bin(pi0theta_rec,pi0th_binning);
     int ibin_pi0cost_cm = find_bin(pi0cost_cm_rec,pi0cost_cm_binning);
     int itbin = find_bin(trecgg,tu_binning);
     int iubin = find_bin(urecgg,tu_binning);
 
-    int itbin_2d = find_bin(trecgg, tu_binning_2d);
-    int iubin_2d = find_bin(urecgg, tu_binning_2d);
-    int ibin_the_2d = find_bin(epthe_jpsi_rec, the_binning_2d);
-    int ibin_costh_2d = find_bin(epcosth_jpsi_rec, costh_binning_2d);
+    //int itbin_2d = find_bin(trecgg, tu_binning_2d);
+    //int iubin_2d = find_bin(urecgg, tu_binning_2d);
+    //int ibin_the_2d = find_bin(epthe_jpsi_rec, the_binning_2d);
+    //int ibin_costh_2d = find_bin(epcosth_jpsi_rec, costh_binning_2d);
 
     if (itbin>=0)fill_pair_mass(rclep, hmept[itbin]);
     if (iubin>=0)fill_pair_mass(rclep, hmepu[iubin]);
