@@ -30,7 +30,10 @@ void ana3() {
   const int ntbin_max = 30;
 
   bool msv = true;
-  const double Lumi[3] = msv? {95.5,103.0,108.0} : {2e3,2e3,2e3};
+  const double Lumi_msv[3] = {95.5,103.0,108.0};
+  const double Lumi_full[3] = {2.e3,2.e3,2.e3};
+  //const double Lumi[3] = {0.};
+
   const double Br = 5.94e-2;
 
   //12.25 & 5.513 & -0.092 & 0.59
@@ -364,8 +367,8 @@ void ana3() {
 	  //cout << "t=  " << t[iplab][nptok[itu][iplab]] << " eff= " << eff_cor[itu][iplab][itbin]
 	  // << " pm " << eff_cor_er[itu][iplab][itbin] << endl;
 
-	  yield_cor[itu][iplab][nptok[itu][iplab]] /= Lumi[iplab]*Br;
-	  yield_cor_er[itu][iplab][nptok[itu][iplab]] /= Lumi[iplab]*Br;
+	  yield_cor[itu][iplab][nptok[itu][iplab]] /= (msv?Lumi_msv[iplab]:Lumi_full[iplab])*Br;
+	  yield_cor_er[itu][iplab][nptok[itu][iplab]] /= (msv?Lumi_msv[iplab]:Lumi_full[iplab])*Br;
 
 	  cout << " " << Form("%.2g", _tvalid_min[itu][iplab][nptok[itu][iplab]])
 	       << " & " << Form("%.2g", _tvalid_max[itu][iplab][nptok[itu][iplab]])
@@ -418,7 +421,7 @@ void ana3() {
       cout << "  \\end{center}" << endl;
       cout << "\\end{table}" << endl;
 
-      //tc_mep_tbins[itu][iplab]->Print(Form("%s/figs/2015.09.15/%s.pdf",bdir,tc_mep_tbins[itu][iplab]->GetName()));
+      tc_mep_tbins[itu][iplab]->Print(Form("%s/figs/v2/%s/%s.pdf",bdir,(msv?"msv":"full"),tc_mep_tbins[itu][iplab]->GetName()));
 
       tg_yield[itu][iplab] = new TGraphErrors(nptok[itu][iplab],tvalid[itu][iplab],yield[itu][iplab],t_er,yield_er[itu][iplab]);
       tg_yield[itu][iplab]->SetMarkerStyle(mar[itu]);
@@ -555,39 +558,8 @@ void ana3() {
       tl[3][iplab]->DrawLatex(_x_st+0.34,0.17,"B: #bar{p}p#rightarrow#pi^{0}#pi^{+}#pi^{-}");
       legend3[itu][iplab]->Draw();
     }
-    //tc_stob_pbp[itu]->Print(Form("%s/figs/2015.09.15/%s.pdf",bdir,tc_stob_pbp[itu]->GetName()));
 
-    /*
-    tc_yield_pbp[itu] = new TCanvas(Form("fitted_yield_pbp%s",toru[itu]),Form("fitted_yield_pbp%s",toru[itu]));
-    tc_yield_pbp[itu]->Divide(3,1);
-    for (int iplab = 0; iplab < nplab; ++iplab) {
-      double xl = (iplab==0?0:0.1)+iplab*0.3;
-      double xh = 0.1+(iplab+1)*0.3+(iplab==1?0.001:0.0);
-      pad_yield[itu][iplab] = new TPad(Form("pad_yield_%s_%d",toru[itu],iplab),Form("pad_yield_%s_%d",toru[itu],iplab),xl,0.0,xh,1.0);
-      tc_yield_pbp[itu]->cd(0);
-      pad_yield[itu][iplab]->Draw();
-      double epsilon=1e-9;
-      if (iplab==0) {pad_yield[itu][iplab]->SetRightMargin(epsilon); pad_yield[itu][iplab]->SetLeftMargin(0.2);}
-      if (iplab==1) {pad_yield[itu][iplab]->SetLeftMargin(epsilon);  pad_yield[itu][iplab]->SetRightMargin(epsilon); }
-      if (iplab==2) {pad_yield[itu][iplab]->SetLeftMargin(epsilon);  pad_yield[itu][iplab]->SetRightMargin(0.1);}
-      pad_yield[itu][iplab]->SetTicks(0,1);
-      pad_yield[itu][iplab]->cd();
-      tmg_yield_pbp[itu][iplab]->Draw("a");
-      hdummy_yield[itu][iplab] = (TH1F*)tmg_yield_pbp[itu][iplab]->GetHistogram();
-      hdummy_yield[itu][iplab]->SetLabelSize(0.065,"Y");
-      hdummy_yield[itu][iplab]->SetLabelSize(0.065,"X");
-      hdummy_yield[itu][iplab]->SetLabelOffset(0.005,"Y");
-      hdummy_yield[itu][iplab]->SetTitleSize(0.06,"X");
-      hdummy_yield[itu][iplab]->SetTitleSize(0.06,"Y");
-      hdummy_yield[itu][iplab]->SetTitleOffset(1.5,"Y");
-      hdummy_yield[itu][iplab]->SetTitle(Form(";%s[GeV^{2}];dN_{J/#psi}/d%s[GeV^{-2}]",(itu==0?"t":"u"),(itu==0?"t":"u")));
-      hdummy_yield[itu][iplab]->SetMinimum(0);
-      hdummy_yield[itu][iplab]->SetMaximum((max_yield[0]>max_yield[1]?max_yield[0]:max_yield[1])*1.4);
-      tmg_yield_pbp[itu][iplab]->SetMinimum(0.0);
-      tl[1][iplab]->DrawLatex((iplab==0?0.2:0.15),0.8,iplab==0?Form("p^{LAB}_{#bar{p}} = %5.3f GeV/c",plab[iplab]):Form("p^{LAB}_{#bar{p}} = %3.1f GeV/c",plab[iplab]));
-    }
-    tc_yield_pbp[itu]->Print(Form("%s/figs/2015.09.15/%s.pdf",bdir,tc_yield_pbp[itu]->GetName()));
-    */
+    tc_stob_pbp[itu]->Print(Form("%s/figs/v2/%s/%s.pdf",bdir,(msv?"msv":"full"),tc_stob_pbp[itu]->GetName()));
 
     tc_yield_cnt_pbp[itu] = new TCanvas(Form("fitted_yield_cnt_pbp%s",toru[itu]),Form("fitted_yield_cnt_pbp%s",toru[itu]));
     tc_yield_cnt_pbp[itu]->Divide(3,1);
@@ -622,7 +594,7 @@ void ana3() {
       legend[itu][iplab]->Draw();
 
     }
-    //tc_yield_cnt_pbp[itu]->Print(Form("%s/figs/2015.09.15/%s.pdf",bdir,tc_yield_cnt_pbp[itu]->GetName()));
+    tc_yield_cnt_pbp[itu]->Print(Form("%s/figs/v2/%s/%s.pdf",bdir,(msv?"msv":"full"),tc_yield_cnt_pbp[itu]->GetName()));
 
     tc_yield_cor_pbp[itu] = new TCanvas(Form("fitted_yield_cor_pbp%s",toru[itu]),Form("fitted_yield_cor_pbp%s",toru[itu]), 1400, 550);
     tc_yield_cor_pbp[itu]->Divide(3,1);
@@ -661,7 +633,8 @@ void ana3() {
       tl[2][iplab]->DrawLatex(0.33,0.93,iplab==0?Form("p^{LAB}_{#bar{p}} = %5.3f GeV/c",plab[iplab]):Form("p^{LAB}_{#bar{p}} = %3.1f GeV/c",plab[iplab]));
 
     }
-    //tc_yield_cor_pbp[itu]->Print(Form("%s/figs/2015.09.15/%s.pdf",bdir,tc_yield_cor_pbp[itu]->GetName()));
+
+    tc_yield_cor_pbp[itu]->Print(Form("%s/figs/v2/%s/%s.pdf",bdir,(msv?"msv":"full"),tc_yield_cor_pbp[itu]->GetName()));
 
   }
 

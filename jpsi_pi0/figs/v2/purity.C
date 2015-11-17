@@ -16,20 +16,22 @@ void purity() {
   gROOT->LoadMacro(Form("%s/figs/v2/ananote.C",bdir));
 
   int ibrem = 1;
-  int pass = 14;
+  int pass = 15;
   int iplab = 0;
 
   TFile *fsig = TFile::Open(Form("%s/hists/note.v2.oct.2015/anav2_pi0jpsi_%s4eff_p%d_pass%d.root",bdir,(ibrem==0?"raw":"brem"), iplab, pass));
 
-  TH1F* hmep = (TH1F* ) fsig->Get("hmep_4");
-  TH1F* hmep_mct = (TH1F* ) fsig->Get("mct/hmep_mct_4");
+  int step = 8;
+
+  TH1F* hmep = (TH1F* ) fsig->Get(Form("hmep_%d",step));
+  TH1F* hmep_mct = (TH1F* ) fsig->Get(Form(Form("mct/hmep_mct_%d",step)));
   hmep->SetTitle(";M_{e^{+}e^{-}}[GeV/c^{2}]");
   set_style(hmep,4);
   set_style(hmep_mct,2);
 
-  TH1F* hmgg = (TH1F* ) fsig->Get("mct/hmgg_mct_4")->Clone("hmgg");
-  hmgg->Add((TH1F* ) fsig->Get("mct/hmgg_non_mct_4"));
-  TH1F* hmgg_mct = (TH1F* ) fsig->Get("mct/hmgg_mct_4");
+  TH1F* hmgg = (TH1F* ) fsig->Get(Form("mct/hmgg_mct_%d",step))->Clone("hmgg");
+  hmgg->Add((TH1F* ) fsig->Get(Form("mct/hmgg_non_mct_%d",step)));
+  TH1F* hmgg_mct = (TH1F* ) fsig->Get(Form("mct/hmgg_mct_%d",step));
   hmgg->SetTitle(";M_{#gamma#gamma}[GeV/c^{2}]");
   hmgg->GetXaxis()->SetRangeUser(0.1,0.164);
   set_style(hmgg,4);

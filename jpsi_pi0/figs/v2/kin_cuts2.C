@@ -1,3 +1,10 @@
+double count_jpsim(TH1F* s) {
+  int mmin = s->GetXaxis()->FindBin(2.8);
+  int mmax = s->GetXaxis()->FindBin(3.3);
+  double _sig = s->Integral(mmin,mmax);
+  return _sig>0? _sig: -1;
+}
+
 double stob_r(TH1F* s, TH1F*b) {
   int mmin = s->GetXaxis()->FindBin(2.8);
   int mmax = s->GetXaxis()->FindBin(3.3);
@@ -190,7 +197,6 @@ void kin_cuts2(int pass=14) {
     cout << "AFT(ip="<<iplab<<"): pi0pipm2 (3sig-jpsi) = "  << hmep_bg_a[2][iplab]->Integral(mmin,mmax) << endl;
     cout << "AFT(ip="<<iplab<<"): BgTot (3sig-jpsi) = "  << hmep_bg_tot_a[iplab]->Integral(mmin,mmax) << endl;
 
-
     cout << "S/B:" << endl;
     cout << "BEF(ip="<<iplab<<"): Sig/pi0pi0jpsi = " << stob_r( hmep_sg_b[iplab], hmep_bg_b[3][iplab]) << endl;
     cout << "BEF(ip="<<iplab<<"): Sig/pi0pipm = " << stob_r( hmep_sg_b[iplab], hmep_bg_b[0][iplab]) << endl;
@@ -203,6 +209,20 @@ void kin_cuts2(int pass=14) {
     cout << "AFT(ip="<<iplab<<"): Sig/pi02pipm = " << stob_r( hmep_sg_a[iplab], hmep_bg_a[1][iplab]) << endl;
     cout << "AFT(ip="<<iplab<<"): Sig/pi0pipm2 = " << stob_r( hmep_sg_a[iplab], hmep_bg_a[2][iplab]) << endl;
     cout << "AFT(ip="<<iplab<<"): Sig/Bgtot = " << stob_r( hmep_sg_a[iplab], hmep_bg_tot_a[iplab]) << endl;
+
+
+    cout << "Rejection:" << endl;
+
+    cout << "Rejection:" << endl;
+    cout << "BEF(ip="<<iplab<<"): pi0pi0jpsi = " << nevt_sim[3][iplab]/count_jpsim( hmep_bg_b[3][iplab]) << endl;
+    cout << "BEF(ip="<<iplab<<"): pi0pipm = " <<  nevt_sim[0][iplab]/count_jpsim( hmep_bg_b[0][iplab]) << endl;
+    cout << "BEF(ip="<<iplab<<"): pi02pipm = " << nevt_sim[1][iplab]/count_jpsim( hmep_bg_b[1][iplab]) << endl;
+    cout << "BEF(ip="<<iplab<<"): pi0pipm2 = " << nevt_sim[2][iplab]/count_jpsim( hmep_bg_b[2][iplab]) << endl;
+
+    cout << "AFT(ip="<<iplab<<"): pi0pi0jpsi = " << nevt_sim[3][iplab]/count_jpsim( hmep_bg_a[3][iplab]) << endl;
+    cout << "AFT(ip="<<iplab<<"): pi0pipm = " <<  nevt_sim[0][iplab]/count_jpsim( hmep_bg_a[0][iplab]) << endl;
+    cout << "AFT(ip="<<iplab<<"): pi02pipm = " << nevt_sim[1][iplab]/count_jpsim( hmep_bg_a[1][iplab]) << endl;
+    cout << "AFT(ip="<<iplab<<"): pi0pipm2 = " << nevt_sim[2][iplab]/count_jpsim( hmep_bg_a[2][iplab]) << endl;
 
   }
 

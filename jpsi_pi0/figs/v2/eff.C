@@ -176,7 +176,7 @@ void eff(){
   set_style(dum,4,0,false);
   gPad->Update();
 
-  //tceff->Print(Form("%s/figs/2015.09.15/efficiency_vs_t.pdf",bdir));
+  tceff->Print(Form("%s/figs/v2/efficiency_vs_t.pdf",bdir));
 
   /*
   vector<double> tu_bins;
