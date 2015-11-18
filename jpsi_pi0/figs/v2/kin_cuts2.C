@@ -78,7 +78,7 @@ void kin_cuts2(int pass=14) {
   tl4->SetFillStyle(0);
 
   int ibef = 5;
-  int iaft = 8;
+  int iaft = 6;
 
   for (int iplab=0; iplab < nplab; ++iplab) {
 
@@ -113,6 +113,7 @@ void kin_cuts2(int pass=14) {
       tl->AddEntry(hmep_sg_a[iplab],"#pi^{0}J/#psi(#rightarrow e^{+}e^{-})","l");
       tl2->AddEntry(hmep_sg_a[iplab],"#pi^{0}J/#psi(#rightarrow e^{+}e^{-})","l");
       tl3->AddEntry(hmep_sg_a[iplab],"#pi^{0}J/#psi(#rightarrow e^{+}e^{-})","l");
+      tl4->AddEntry(hmep_sg_a[iplab],"#pi^{0}J/#psi(#rightarrow e^{+}e^{-})","l");
     }
 
     hpi0jpsi_chi24c[0][iplab] = (TH1F*) fsg[iplab]->Get("hpi0jpsi_chi24c")->Clone(Form("hpi0jpsi_chi24c_t0_p%d",iplab));
