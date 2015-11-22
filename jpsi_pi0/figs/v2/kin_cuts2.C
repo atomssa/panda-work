@@ -78,7 +78,7 @@ void kin_cuts2(int pass=14) {
   tl4->SetFillStyle(0);
 
   int ibef = 5;
-  int iaft = 6;
+  int iaft = 8;
 
   for (int iplab=0; iplab < nplab; ++iplab) {
 
@@ -213,17 +213,18 @@ void kin_cuts2(int pass=14) {
 
 
     cout << "Rejection:" << endl;
-
+    //
+    //double nevt_xsect[5][3] = {{4.0e11, 1e11, 2e10}, {32780.0,50142.0,51860.0}, {1.15e12, 3.15e11, 6.84e10}, {3.19e12, 1.14e12, 2.92e11}, {94243.0, 157947.3, 177361.2}};
     cout << "Rejection:" << endl;
-    cout << "BEF(ip="<<iplab<<"): pi0pi0jpsi = " << nevt_sim[3][iplab]/count_jpsim( hmep_bg_b[3][iplab]) << endl;
-    cout << "BEF(ip="<<iplab<<"): pi0pipm = " <<  nevt_sim[0][iplab]/count_jpsim( hmep_bg_b[0][iplab]) << endl;
-    cout << "BEF(ip="<<iplab<<"): pi02pipm = " << nevt_sim[1][iplab]/count_jpsim( hmep_bg_b[1][iplab]) << endl;
-    cout << "BEF(ip="<<iplab<<"): pi0pipm2 = " << nevt_sim[2][iplab]/count_jpsim( hmep_bg_b[2][iplab]) << endl;
+    cout << "BEF(ip="<<iplab<<"): pi0pi0jpsi = " << nevt_xsect[4][iplab]/count_jpsim( hmep_bg_b[3][iplab]) << endl;
+    cout << "BEF(ip="<<iplab<<"): pi0pipm = " <<  nevt_xsect[0][iplab]/count_jpsim( hmep_bg_b[0][iplab]) << endl;
+    cout << "BEF(ip="<<iplab<<"): pi02pipm = " << nevt_xsect[2][iplab]/count_jpsim( hmep_bg_b[1][iplab]) << endl;
+    cout << "BEF(ip="<<iplab<<"): pi0pipm2 = " << nevt_xsect[3][iplab]/count_jpsim( hmep_bg_b[2][iplab]) << endl;
 
-    cout << "AFT(ip="<<iplab<<"): pi0pi0jpsi = " << nevt_sim[3][iplab]/count_jpsim( hmep_bg_a[3][iplab]) << endl;
-    cout << "AFT(ip="<<iplab<<"): pi0pipm = " <<  nevt_sim[0][iplab]/count_jpsim( hmep_bg_a[0][iplab]) << endl;
-    cout << "AFT(ip="<<iplab<<"): pi02pipm = " << nevt_sim[1][iplab]/count_jpsim( hmep_bg_a[1][iplab]) << endl;
-    cout << "AFT(ip="<<iplab<<"): pi0pipm2 = " << nevt_sim[2][iplab]/count_jpsim( hmep_bg_a[2][iplab]) << endl;
+    cout << "AFT(ip="<<iplab<<"): pi0pi0jpsi = " << nevt_xsect[4][iplab]/count_jpsim( hmep_bg_a[3][iplab]) << endl;
+    cout << "AFT(ip="<<iplab<<"): pi0pipm = " <<  nevt_xsect[0][iplab]/count_jpsim( hmep_bg_a[0][iplab]) << endl;
+    cout << "AFT(ip="<<iplab<<"): pi02pipm = " << nevt_xsect[2][iplab]/count_jpsim( hmep_bg_a[1][iplab]) << endl;
+    cout << "AFT(ip="<<iplab<<"): pi0pipm2 = " << nevt_xsect[3][iplab]/count_jpsim( hmep_bg_a[2][iplab]) << endl;
 
   }
 
@@ -254,6 +255,7 @@ void kin_cuts2(int pass=14) {
     if (iplab==2) tl4->Draw();
   }
   tc_akf->Print(iaft==6?"invm_bgsrc_aft_chi2sig_cut.pdf":"invm_bgsrc_aft_kincuts.pdf");
+  tc_akf->Print(iaft==6?"invm_bgsrc_aft_chi2sig_cut.png":"invm_bgsrc_aft_kincuts.png");
 
   TCanvas *tc[nplab];
   for (int iplab=0; iplab < nplab; ++iplab) {
