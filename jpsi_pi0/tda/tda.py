@@ -222,6 +222,7 @@ def plot_xi():
     qvals3.append(Mjpsi2)
 
     rr=np.linspace(min_vals[2],max_vals[2],npt)
+    #rr=np.linspace(min_vals[2],max_vals[2],npt)
     trange.append(rr)
     xi3.append(map(lambda x: _xi_q(x, Mjpsi2, svals[2]), trange[1]))
     cols3.append('r')
@@ -229,6 +230,7 @@ def plot_xi():
     qvals3.append(Mjpsi2)
 
     rr=np.linspace(min_vals[4],max_vals[4],npt)
+    #rr=np.linspace(min_vals[4],max_vals[4],npt)
     trange.append(rr)
     xi3.append(map(lambda x: _xi_q(x, Mjpsi2, svals[4]), trange[2]))
     cols3.append('b')
@@ -275,27 +277,26 @@ def plot_xi():
                 line, = ax3.plot(trange[idx], _xi3, cols3[idx], label=r'$s \ = \ %4.1f \ GeV \ ^2 (\pi^{0}\gamma^*)$' %(svals3[idx]), linewidth=3)
                 colors.append(plt.getp(line,'color'))
             if idx==2 or idx==1:
-                plt.text(trange[idx][0],_xi3[0]+0.01,r'$Q^2=%4.2g \ GeV \ ^2$' % (qvals3[idx]), fontsize=20)
+                plt.text(trange[idx][0]-0.32,_xi3[0],r'$Q^2=%4.2g \ GeV \ ^2$' % (qvals3[idx]), fontsize=20) # Q^2 = 9.6 GeV^2 black and blue
             elif (idx-3)/(nq+1)==0:
-                plt.text(trange[idx][npt-1]+0.04,_xi3[npt-1]-0.03,r'$Q^2=%4.2g \ GeV \ ^2$' % (qvals3[idx]), fontsize=20)
+                plt.text(trange[idx][npt-1],_xi3[npt-1]-0.03,r'$Q^2=%4.2g \ GeV \ ^2$' % (qvals3[idx]), fontsize=20) # Q^2 = 3GeV^2
             else:
-                plt.text(trange[idx][0]-0.5,_xi3[0],r'$Q^2=%4.2g \ GeV \ ^2$' % (qvals3[idx]), fontsize=20)
+                plt.text(trange[idx][0]-0.3,_xi3[0],r'$Q^2=%4.2g \ GeV \ ^2$' % (qvals3[idx]), fontsize=20) # Q^2 = 9.6GeV^2black + Q^2 5GeV^2
         else:
             if ((idx-3)%(nq+1))-(nq)==0:
                 ax3.plot(trange[idx], _xi3, cols3[idx], linewidth=3)
                 if (idx-3)/(nq+1)==0:
-                    plt.text(trange[idx][npt-1]+0.05,_xi3[npt-1]-0.02,r'$Q^2=%4.2g \ GeV \ ^2$' % (qvals3[idx]), fontsize=20, backgroundcolor='w')
+                    plt.text(trange[idx][npt-1]+0.01,_xi3[npt-1]-0.02,r'$Q^2=%4.2g \ GeV \ ^2$' % (qvals3[idx]), fontsize=20, backgroundcolor='w')
                 else:
-                    plt.text(trange[idx][0]-0.5,_xi3[0],r'$Q^2=%4.2g \ GeV \ ^2$' % (qvals3[idx]), fontsize=20)
+                    plt.text(trange[idx][0]-0.3,_xi3[0],r'$Q^2=%4.2g \ GeV \ ^2$' % (qvals3[idx]), fontsize=20) # Q^2 = 9GeV^2 upper cyan
             else:
                 ax3.plot(trange[idx], _xi3, cols3[idx])
-
 
     plt.ylabel(r"$\xi$", fontdict=font);
     plt.xlabel(r"$t[GeV^2]$",fontdict=font);
     #plt.axis([-0.51,0.01,50,250]);
     #plt.yticks(np.arange(0.1, 1.0, 0.1))
-    #plt.xticks(np.arange(-3.0, 1.5, 0.5))
+    plt.xticks(np.arange(-1.5, 1.0, 0.5))
     legend3 = ax3.legend(loc='best', shadow=True);
 
     frame = legend3.get_frame();
@@ -315,7 +316,7 @@ def plot_xi():
         text.set_fontsize(30);
 
     plt.show()
-    fig3.savefig('xi_range.pdf')
+    fig3.savefig('xi_range.png')
 
 def color_labels():
     x = np.arange(10)
