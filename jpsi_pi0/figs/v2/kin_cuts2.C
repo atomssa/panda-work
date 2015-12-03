@@ -19,6 +19,8 @@ void kin_cuts2(int pass=14) {
   gStyle->SetPadLeftMargin(0.13);
   gStyle->SetPadBottomMargin(0.13);
 
+  gStyle->SetTitleFontSize(0.1);
+
   const char* bdir = "/Users/tujuba/panda/work/jpsi_pi0/";
 
   gROOT->LoadMacro(Form("%s/figs/v2/ananote.C",bdir));
@@ -78,7 +80,7 @@ void kin_cuts2(int pass=14) {
   tl4->SetFillStyle(0);
 
   int ibef = 5;
-  int iaft = 8;
+  int iaft = 6;
 
   for (int iplab=0; iplab < nplab; ++iplab) {
 
@@ -99,11 +101,15 @@ void kin_cuts2(int pass=14) {
     set_style(hmep_sg_a[iplab],2);
 
     if (iplab==0) {
-      hmep_fg_b[iplab]->SetTitle(Form("Before cut on 4C fit #chi^{2} (p_{#bar{p}} = %5.4g GeV/c); M_{ee}[GeV/c^{2}]", plab[iplab]));
-      hmep_fg_a[iplab]->SetTitle(Form("After cuts on 4C fit #chi^{2} (p_{#bar{p}} = %5.4g GeV/c); M_{ee}[GeV/c^{2}]", plab[iplab]));
+      //hmep_fg_b[iplab]->SetTitle(Form("Before cut on 4C fit #chi^{2} (p_{#bar{p}} = %5.4g GeV/c); M_{ee}[GeV/c^{2}]", plab[iplab]));
+      //hmep_fg_a[iplab]->SetTitle(Form("After cuts on 4C fit #chi^{2} (p_{#bar{p}} = %5.4g GeV/c); M_{ee}[GeV/c^{2}]", plab[iplab]));
+      hmep_fg_b[iplab]->SetTitle(Form("p_{#bar{p}} = %5.4g GeV/c; M_{ee}[GeV/c^{2}]", plab[iplab]));
+      hmep_fg_a[iplab]->SetTitle(Form("p_{#bar{p}} = %5.4g GeV/c; M_{ee}[GeV/c^{2}]", plab[iplab]));
     } else {
-      hmep_fg_b[iplab]->SetTitle(Form("Before cut on 4C fit #chi^{2} (p_{#bar{p}} = %4.1f GeV/c); M_{ee}[GeV/c^{2}]", plab[iplab]));
-      hmep_fg_a[iplab]->SetTitle(Form("After cuts on 4C fit #chi^{2} (p_{#bar{p}} = %4.1f GeV/c); M_{ee}[GeV/c^{2}]", plab[iplab]));
+      //hmep_fg_b[iplab]->SetTitle(Form("Before cut on 4C fit #chi^{2} (p_{#bar{p}} = %4.1f GeV/c); M_{ee}[GeV/c^{2}]", plab[iplab]));
+      //hmep_fg_a[iplab]->SetTitle(Form("After cuts on 4C fit #chi^{2} (p_{#bar{p}} = %4.1f GeV/c); M_{ee}[GeV/c^{2}]", plab[iplab]));
+      hmep_fg_b[iplab]->SetTitle(Form("p_{#bar{p}} = %4.1f GeV/c; M_{ee}[GeV/c^{2}]", plab[iplab]));
+      hmep_fg_a[iplab]->SetTitle(Form("p_{#bar{p}} = %4.1f GeV/c; M_{ee}[GeV/c^{2}]", plab[iplab]));
     }
 
     if (iplab==0) {
@@ -228,7 +234,7 @@ void kin_cuts2(int pass=14) {
 
   }
 
-  TCanvas *tc_bkf = new TCanvas("invm_bgsrc_bef_kinfit", "tc_bkf", 1400, 700);
+  TCanvas *tc_bkf = new TCanvas("invm_bgsrc_bef_kinfit", "tc_bkf", 1600, 700);
   tc_bkf->Divide(3,1);
   for (int iplab=0; iplab < nplab; ++iplab) {
     tc_bkf->cd(1+iplab);
@@ -242,7 +248,7 @@ void kin_cuts2(int pass=14) {
   }
   tc_bkf->Print("invm_bgsrc_bef_kinfit.pdf");
 
-  TCanvas *tc_akf = new TCanvas("invm_bgsrc_aft_kinfit", "tc_akf", 1400, 700);
+  TCanvas *tc_akf = new TCanvas("invm_bgsrc_aft_kinfit", "tc_akf", 1600, 700);
   tc_akf->Divide(3,1);
   for (int iplab=0; iplab < nplab; ++iplab) {
     tc_akf->cd(1+iplab);
@@ -255,7 +261,7 @@ void kin_cuts2(int pass=14) {
     if (iplab==2) tl4->Draw();
   }
   tc_akf->Print(iaft==6?"invm_bgsrc_aft_chi2sig_cut.pdf":"invm_bgsrc_aft_kincuts.pdf");
-  tc_akf->Print(iaft==6?"invm_bgsrc_aft_chi2sig_cut.png":"invm_bgsrc_aft_kincuts.png");
+  //tc_akf->Print(iaft==6?"invm_bgsrc_aft_chi2sig_cut.png":"invm_bgsrc_aft_kincuts.png");
 
   TCanvas *tc[nplab];
   for (int iplab=0; iplab < nplab; ++iplab) {
@@ -305,7 +311,7 @@ void kin_cuts2(int pass=14) {
       hpi0jpsi_chi24cc[ii][iplab]->DrawNormalized(ii==0?"":"same");
     }
     //tc_chi2[iplab]->Print(Form("%s/marc_meeting/chi2_sighyp_p%d.eps",bdir,iplab));
-    tc_chi2[iplab]->Print(Form("kinfit_4c_chi2_dists_p%d.pdf",iplab));
+    //tc_chi2[iplab]->Print(Form("kinfit_4c_chi2_dists_p%d.pdf",iplab));
   }
 
   return;
@@ -347,7 +353,7 @@ void kin_cuts2(int pass=14) {
     hpi0vs2pi0_chi24c[0][iplab]->Draw("box");
     tc_chi2bgvssig[iplab]->cd(2);
     hpi0vs2pi0_chi24c[4][iplab]->Draw("box");
-    tc_chi2bgvssig[iplab]->Print(Form("%s/marc_meeting/chi2_sig_vs_bg_hyp_p%d.eps",bdir,iplab));
+    //tc_chi2bgvssig[iplab]->Print(Form("%s/marc_meeting/chi2_sig_vs_bg_hyp_p%d.eps",bdir,iplab));
   }
 
 }

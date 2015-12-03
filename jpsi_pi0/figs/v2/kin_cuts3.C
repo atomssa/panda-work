@@ -29,14 +29,21 @@ void kin_cuts3() {
   TGaxis::SetMaxDigits(3);
   TCanvas *tc =new TCanvas("tc","tc",1300,700);
   tc->Divide(2);
-  tc->cd(1);
+  tc->cd(2);
   hmep_brem_bef->SetTitle("Invariant mass, With Brem Corr;M_{ee}[GeV/c]");
   hmep_brem_bef->SetMaximum(30000);
   hmep_brem_bef->Draw();
   hmep_brem_aft->Draw("sames");
   tl->Draw();
+
+  // Retrieve the stat box
+  //TPaveStats *ps_brem_bef = (TPaveStats*) hmep_brem_bef->GetPrimitive("stats");
+  //ps_brem_bef->SetName("TEST TEST");
+  //ps_brem_bef->SetTextColor(2);
+  //ps_brem_bef->SetLineColor(2);
+
   //gPad->SetLogy();
-  tc->cd(2);
+  tc->cd(1);
   hmep_raw_bef->SetTitle("Invariant mass, No Brem Corr;M_{ee}[GeV/c]");
   hmep_raw_bef->SetMaximum(30000);
   hmep_raw_bef->Draw();
