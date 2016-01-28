@@ -1352,10 +1352,10 @@ void AnaTdav2::fill_bins(RhoCandList& rclep, RhoCandList& rclgg) {
     int ibin_the_2d = find_bin(epthe_jpsi_rec, the_binning_2d);
     int ibin_costh_2d = find_bin(epcosth_jpsi_rec, costh_binning_2d);
 
-    if (itbin_2d>=0&&ibin_the_2d>0) fill_pair_mass(rclep, hmeptthe[comb_bins(tu_binning_2d.size(),itbin_2d,ibin_the_2d)]);
-    if (itbin_2d>=0&&ibin_costh_2d>0) fill_pair_mass(rclep, hmeptcth[comb_bins(tu_binning_2d.size(),itbin_2d,ibin_costh_2d)]);
-    if (iubin_2d>=0&&ibin_the_2d>0) fill_pair_mass(rclep, hmeputhe[comb_bins(tu_binning_2d.size(),iubin_2d,ibin_the_2d)]);
-    if (iubin_2d>=0&&ibin_costh_2d>0) fill_pair_mass(rclep, hmepucth[comb_bins(tu_binning_2d.size(),iubin_2d,ibin_costh_2d)]);
+    if (itbin_2d>=0&&ibin_the_2d>0) fill_pair_mass(rclep, hmeptthe[comb_bins(tu_binning_2d.size()-1,itbin_2d,ibin_the_2d)]);
+    if (itbin_2d>=0&&ibin_costh_2d>0) fill_pair_mass(rclep, hmeptcth[comb_bins(tu_binning_2d.size()-1,itbin_2d,ibin_costh_2d)]);
+    if (iubin_2d>=0&&ibin_the_2d>0) fill_pair_mass(rclep, hmeputhe[comb_bins(tu_binning_2d.size()-1,iubin_2d,ibin_the_2d)]);
+    if (iubin_2d>=0&&ibin_costh_2d>0) fill_pair_mass(rclep, hmepucth[comb_bins(tu_binning_2d.size()-1,iubin_2d,ibin_costh_2d)]);
     if (itbin>=0)fill_pair_mass(rclep, hmept[itbin]);
     if (iubin>=0)fill_pair_mass(rclep, hmepu[iubin]);
 
