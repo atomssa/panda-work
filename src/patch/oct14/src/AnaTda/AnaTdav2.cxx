@@ -294,6 +294,10 @@ void AnaTdav2::init_hists() {
   hpi0jpsi_chi24c_c = new TH1F("hpi0jpsi_chi24c_c","hpi0jpsi_chi24c_c",1000,0,500);
   hpi0jpsi_prob4c  = new TH1F("hpi0jpsi_prob4c ","hpi0jpsi_prob4c ",1000,0,1.0);
 
+  hpi0jpsi_chi24c_vs_mtot = new TH2F("hpi0jpsi_chi24c_vs_mtot","hpi0jpsi_chi24c_vs_mtot",2000,0,10000,200,0,8);
+  hpi0jpsi_chi24c_vs_cm_dth = new TH2F("hpi0jpsi_chi24c_vs_cm_dth","hpi0jpsi_chi24c_vs_cm_dth",2000,0,10000,200,0,8);
+  hpi0jpsi_chi24c_vs_cm_dph = new TH2F("hpi0jpsi_chi24c_vs_cm_dph","hpi0jpsi_chi24c_vs_cm_dph",2000,0,10000,200,0,8);
+
   hpi0pi0jpsi_chi24c = new TH1F("hpi0pi0jpsi_chi24c","hpi0pi0jpsi_chi24c",2000,0,10000);
   hpi0pi0jpsi_chi24c_c = new TH1F("hpi0pi0jpsi_chi24c_c","hpi0pi0jpsi_chi24c_c",1000,0,500);
   hpi0vs2pi0_chi24c = new TH2F("hpi0vs2pi0_chi24c","hpi0vs2pi0_chi24c",2000,0,10000,2000,0,10000);
@@ -1199,6 +1203,14 @@ void AnaTdav2::kin_fit_4c() {
     hpi0jpsi_chi24c_c->Fill(sig_chi2_4c);
     hpi0jpsi_prob4c->Fill(sig_prob_4c);
 
+    // Fill correlation histograms between chi2 of 4c and Mtot, cm opening angle
+    double _mtot = (rcl[iep_excl][0]->GetFit()->P4()+rcl[gg_excl][0]->P4()).M();
+    double cm_dph, cm_dth;
+    dth_dph_cm(rcl[gg_excl][0],rcl[iep_excl][0],cm_dth,cm_dph);
+    hpi0jpsi_chi24c_vs_mtot->Fill(sig_chi2_4c,_mtot);
+    hpi0jpsi_chi24c_vs_cm_dth->Fill(sig_chi2_4c,cm_dth);
+    hpi0jpsi_chi24c_vs_cm_dph->Fill(sig_chi2_4c,cm_dph);
+
     fill_pair_mass(rcl[iep_excl], hmep[5]);
     fill_pair_mass(rcl[gg_excl], hmgg[5]);
     fill_mctruth(rcl[iep_excl], rcl[gg_excl], 5);
@@ -1480,6 +1492,10 @@ void AnaTdav2::write_hists() {
   hpi0jpsi_chi24c->Write();
   hpi0jpsi_chi24c_c->Write();
   hpi0jpsi_prob4c->Write();
+
+  hpi0jpsi_chi24c_vs_mtot->Write();
+  hpi0jpsi_chi24c_vs_cm_dth->Write();
+  hpi0jpsi_chi24c_vs_cm_dph->Write();
 
   hpi0pi0jpsi_chi24c->Write();
   hpi0pi0jpsi_chi24c_c->Write();
