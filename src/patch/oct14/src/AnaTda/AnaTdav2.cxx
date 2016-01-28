@@ -294,7 +294,9 @@ void AnaTdav2::init_hists() {
   hpi0jpsi_chi24c_c = new TH1F("hpi0jpsi_chi24c_c","hpi0jpsi_chi24c_c",1000,0,500);
   hpi0jpsi_prob4c  = new TH1F("hpi0jpsi_prob4c ","hpi0jpsi_prob4c ",1000,0,1.0);
 
-  hpi0jpsi_chi24c_vs_mtot = new TH2F("hpi0jpsi_chi24c_vs_mtot","hpi0jpsi_chi24c_vs_mtot",2000,0,10000,200,0,8);
+  double hist_mmin[3] = {2.6,2.8,3.};
+  double hist_mmax[3] = {3.8,4.2,5.};
+  hpi0jpsi_chi24c_vs_mtot = new TH2F("hpi0jpsi_chi24c_vs_mtot","hpi0jpsi_chi24c_vs_mtot",2000,0,10000,200,hist_mmin[iplab],hist_mmax[iplab]);
   hpi0jpsi_chi24c_vs_cm_dth = new TH2F("hpi0jpsi_chi24c_vs_cm_dth","hpi0jpsi_chi24c_vs_cm_dth",2000,0,10000,200,0,8);
   hpi0jpsi_chi24c_vs_cm_dph = new TH2F("hpi0jpsi_chi24c_vs_cm_dph","hpi0jpsi_chi24c_vs_cm_dph",2000,0,10000,200,0,8);
 
