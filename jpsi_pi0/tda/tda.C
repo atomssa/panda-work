@@ -203,7 +203,8 @@ void tda_func(int ip=0, TPad *tp=0) {
   TFile *f = new TFile(file_name[ip]);
 
   TH1F* h = (TH1F*) f->Get("tu/httrumc");
-  h->SetTitle(Form("Expected signal rates, s=%5.2f GeV^{2};t[GeV^{2}]; dN_{sig}/dt [Counts/GeV^{2}]",_s[ip]));
+  //h->SetTitle(Form("Expected signal rates, s=%5.2f GeV^{2};t[GeV^{2}]; dN_{sig}/dt [Counts/GeV^{2}]",_s[ip]));
+  h->SetTitle(Form("s = %5.2f GeV^{2};t[GeV^{2}]; dN_{sig}/dt [Counts/GeV^{2}]",_s[ip]));
   set_style(h,1);
 
   if (ip==0) {h->GetXaxis()->SetRangeUser(-1.6,0.7);}

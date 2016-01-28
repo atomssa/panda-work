@@ -118,7 +118,7 @@ void jpsi(){
   cout <<"width= " << width << endl;
   cout << "min= " << mean-3*width << endl;
   cout << "max= " << mean+3*width << endl;
-  tcfit->Print(Form("%s/figs/2015.09.15/jpsi_mass_fit.pdf",bdir));
-  tcfit->Print(Form("%s/figs/2015.09.15/pipm_mass_fit.pdf",bdir));
+  //tcfit->Print(Form("%s/figs/2015.09.15/jpsi_mass_fit.pdf",bdir));
+  //tcfit->Print(Form("%s/figs/2015.09.15/pipm_mass_fit.pdf",bdir));
 
 }

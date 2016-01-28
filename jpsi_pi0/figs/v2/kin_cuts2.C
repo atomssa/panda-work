@@ -1,3 +1,10 @@
+double count_jpsim(TH1F* s) {
+  int mmin = s->GetXaxis()->FindBin(2.8);
+  int mmax = s->GetXaxis()->FindBin(3.3);
+  double _sig = s->Integral(mmin,mmax);
+  return _sig>0? _sig: -1;
+}
+
 double stob_r(TH1F* s, TH1F*b) {
   int mmin = s->GetXaxis()->FindBin(2.8);
   int mmax = s->GetXaxis()->FindBin(3.3);
@@ -11,6 +18,8 @@ void kin_cuts2(int pass=14) {
   gStyle->SetOptStat(0);
   gStyle->SetPadLeftMargin(0.13);
   gStyle->SetPadBottomMargin(0.13);
+
+  gStyle->SetTitleFontSize(0.1);
 
   const char* bdir = "/Users/tujuba/panda/work/jpsi_pi0/";
 
@@ -71,7 +80,7 @@ void kin_cuts2(int pass=14) {
   tl4->SetFillStyle(0);
 
   int ibef = 5;
-  int iaft = 8;
+  int iaft = 6;
 
   for (int iplab=0; iplab < nplab; ++iplab) {
 
@@ -92,11 +101,15 @@ void kin_cuts2(int pass=14) {
     set_style(hmep_sg_a[iplab],2);
 
     if (iplab==0) {
-      hmep_fg_b[iplab]->SetTitle(Form("Before cut on 4C fit #chi^{2} (p_{#bar{p}} = %5.4g GeV/c); M_{ee}[GeV/c^{2}]", plab[iplab]));
-      hmep_fg_a[iplab]->SetTitle(Form("After cuts on 4C fit #chi^{2} (p_{#bar{p}} = %5.4g GeV/c); M_{ee}[GeV/c^{2}]", plab[iplab]));
+      //hmep_fg_b[iplab]->SetTitle(Form("Before cut on 4C fit #chi^{2} (p_{#bar{p}} = %5.4g GeV/c); M_{ee}[GeV/c^{2}]", plab[iplab]));
+      //hmep_fg_a[iplab]->SetTitle(Form("After cuts on 4C fit #chi^{2} (p_{#bar{p}} = %5.4g GeV/c); M_{ee}[GeV/c^{2}]", plab[iplab]));
+      hmep_fg_b[iplab]->SetTitle(Form("p_{#bar{p}} = %5.4g GeV/c; M_{ee}[GeV/c^{2}]", plab[iplab]));
+      hmep_fg_a[iplab]->SetTitle(Form("p_{#bar{p}} = %5.4g GeV/c; M_{ee}[GeV/c^{2}]", plab[iplab]));
     } else {
-      hmep_fg_b[iplab]->SetTitle(Form("Before cut on 4C fit #chi^{2} (p_{#bar{p}} = %4.1f GeV/c); M_{ee}[GeV/c^{2}]", plab[iplab]));
-      hmep_fg_a[iplab]->SetTitle(Form("After cuts on 4C fit #chi^{2} (p_{#bar{p}} = %4.1f GeV/c); M_{ee}[GeV/c^{2}]", plab[iplab]));
+      //hmep_fg_b[iplab]->SetTitle(Form("Before cut on 4C fit #chi^{2} (p_{#bar{p}} = %4.1f GeV/c); M_{ee}[GeV/c^{2}]", plab[iplab]));
+      //hmep_fg_a[iplab]->SetTitle(Form("After cuts on 4C fit #chi^{2} (p_{#bar{p}} = %4.1f GeV/c); M_{ee}[GeV/c^{2}]", plab[iplab]));
+      hmep_fg_b[iplab]->SetTitle(Form("p_{#bar{p}} = %4.1f GeV/c; M_{ee}[GeV/c^{2}]", plab[iplab]));
+      hmep_fg_a[iplab]->SetTitle(Form("p_{#bar{p}} = %4.1f GeV/c; M_{ee}[GeV/c^{2}]", plab[iplab]));
     }
 
     if (iplab==0) {
@@ -106,6 +119,7 @@ void kin_cuts2(int pass=14) {
       tl->AddEntry(hmep_sg_a[iplab],"#pi^{0}J/#psi(#rightarrow e^{+}e^{-})","l");
       tl2->AddEntry(hmep_sg_a[iplab],"#pi^{0}J/#psi(#rightarrow e^{+}e^{-})","l");
       tl3->AddEntry(hmep_sg_a[iplab],"#pi^{0}J/#psi(#rightarrow e^{+}e^{-})","l");
+      tl4->AddEntry(hmep_sg_a[iplab],"#pi^{0}J/#psi(#rightarrow e^{+}e^{-})","l");
     }
 
     hpi0jpsi_chi24c[0][iplab] = (TH1F*) fsg[iplab]->Get("hpi0jpsi_chi24c")->Clone(Form("hpi0jpsi_chi24c_t0_p%d",iplab));
@@ -190,7 +204,6 @@ void kin_cuts2(int pass=14) {
     cout << "AFT(ip="<<iplab<<"): pi0pipm2 (3sig-jpsi) = "  << hmep_bg_a[2][iplab]->Integral(mmin,mmax) << endl;
     cout << "AFT(ip="<<iplab<<"): BgTot (3sig-jpsi) = "  << hmep_bg_tot_a[iplab]->Integral(mmin,mmax) << endl;
 
-
     cout << "S/B:" << endl;
     cout << "BEF(ip="<<iplab<<"): Sig/pi0pi0jpsi = " << stob_r( hmep_sg_b[iplab], hmep_bg_b[3][iplab]) << endl;
     cout << "BEF(ip="<<iplab<<"): Sig/pi0pipm = " << stob_r( hmep_sg_b[iplab], hmep_bg_b[0][iplab]) << endl;
@@ -204,9 +217,24 @@ void kin_cuts2(int pass=14) {
     cout << "AFT(ip="<<iplab<<"): Sig/pi0pipm2 = " << stob_r( hmep_sg_a[iplab], hmep_bg_a[2][iplab]) << endl;
     cout << "AFT(ip="<<iplab<<"): Sig/Bgtot = " << stob_r( hmep_sg_a[iplab], hmep_bg_tot_a[iplab]) << endl;
 
+
+    cout << "Rejection:" << endl;
+    //
+    //double nevt_xsect[5][3] = {{4.0e11, 1e11, 2e10}, {32780.0,50142.0,51860.0}, {1.15e12, 3.15e11, 6.84e10}, {3.19e12, 1.14e12, 2.92e11}, {94243.0, 157947.3, 177361.2}};
+    cout << "Rejection:" << endl;
+    cout << "BEF(ip="<<iplab<<"): pi0pi0jpsi = " << nevt_xsect[4][iplab]/count_jpsim( hmep_bg_b[3][iplab]) << endl;
+    cout << "BEF(ip="<<iplab<<"): pi0pipm = " <<  nevt_xsect[0][iplab]/count_jpsim( hmep_bg_b[0][iplab]) << endl;
+    cout << "BEF(ip="<<iplab<<"): pi02pipm = " << nevt_xsect[2][iplab]/count_jpsim( hmep_bg_b[1][iplab]) << endl;
+    cout << "BEF(ip="<<iplab<<"): pi0pipm2 = " << nevt_xsect[3][iplab]/count_jpsim( hmep_bg_b[2][iplab]) << endl;
+
+    cout << "AFT(ip="<<iplab<<"): pi0pi0jpsi = " << nevt_xsect[4][iplab]/count_jpsim( hmep_bg_a[3][iplab]) << endl;
+    cout << "AFT(ip="<<iplab<<"): pi0pipm = " <<  nevt_xsect[0][iplab]/count_jpsim( hmep_bg_a[0][iplab]) << endl;
+    cout << "AFT(ip="<<iplab<<"): pi02pipm = " << nevt_xsect[2][iplab]/count_jpsim( hmep_bg_a[1][iplab]) << endl;
+    cout << "AFT(ip="<<iplab<<"): pi0pipm2 = " << nevt_xsect[3][iplab]/count_jpsim( hmep_bg_a[2][iplab]) << endl;
+
   }
 
-  TCanvas *tc_bkf = new TCanvas("invm_bgsrc_bef_kinfit", "tc_bkf", 1400, 700);
+  TCanvas *tc_bkf = new TCanvas("invm_bgsrc_bef_kinfit", "tc_bkf", 1600, 700);
   tc_bkf->Divide(3,1);
   for (int iplab=0; iplab < nplab; ++iplab) {
     tc_bkf->cd(1+iplab);
@@ -220,7 +248,7 @@ void kin_cuts2(int pass=14) {
   }
   tc_bkf->Print("invm_bgsrc_bef_kinfit.pdf");
 
-  TCanvas *tc_akf = new TCanvas("invm_bgsrc_aft_kinfit", "tc_akf", 1400, 700);
+  TCanvas *tc_akf = new TCanvas("invm_bgsrc_aft_kinfit", "tc_akf", 1600, 700);
   tc_akf->Divide(3,1);
   for (int iplab=0; iplab < nplab; ++iplab) {
     tc_akf->cd(1+iplab);
@@ -233,6 +261,7 @@ void kin_cuts2(int pass=14) {
     if (iplab==2) tl4->Draw();
   }
   tc_akf->Print(iaft==6?"invm_bgsrc_aft_chi2sig_cut.pdf":"invm_bgsrc_aft_kincuts.pdf");
+  //tc_akf->Print(iaft==6?"invm_bgsrc_aft_chi2sig_cut.png":"invm_bgsrc_aft_kincuts.png");
 
   TCanvas *tc[nplab];
   for (int iplab=0; iplab < nplab; ++iplab) {
@@ -282,7 +311,7 @@ void kin_cuts2(int pass=14) {
       hpi0jpsi_chi24cc[ii][iplab]->DrawNormalized(ii==0?"":"same");
     }
     //tc_chi2[iplab]->Print(Form("%s/marc_meeting/chi2_sighyp_p%d.eps",bdir,iplab));
-    tc_chi2[iplab]->Print(Form("kinfit_4c_chi2_dists_p%d.pdf",iplab));
+    //tc_chi2[iplab]->Print(Form("kinfit_4c_chi2_dists_p%d.pdf",iplab));
   }
 
   return;
@@ -324,7 +353,7 @@ void kin_cuts2(int pass=14) {
     hpi0vs2pi0_chi24c[0][iplab]->Draw("box");
     tc_chi2bgvssig[iplab]->cd(2);
     hpi0vs2pi0_chi24c[4][iplab]->Draw("box");
-    tc_chi2bgvssig[iplab]->Print(Form("%s/marc_meeting/chi2_sig_vs_bg_hyp_p%d.eps",bdir,iplab));
+    //tc_chi2bgvssig[iplab]->Print(Form("%s/marc_meeting/chi2_sig_vs_bg_hyp_p%d.eps",bdir,iplab));
   }
 
 }
