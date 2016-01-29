@@ -309,22 +309,22 @@ void AnaTdav2::init_hists() {
   hpi0vs2pi0_chi24c_c = new TH2F("hpi0vs2pi0_chi24c_c","hpi0vs2pi0_chi24c_c",1000,0,500,1000,0,500);
 
   // pull distributions
-  hmom_pull_ep_r = new TH1F("hmom_pull_ep_r","mom pull e^{+} (reco)",100,-1.,1.);
-  hmom_pull_ep_f = new TH1F("hmom_pull_ep_f","mom pull e^{+} (fit)",100,-1.,1.);
-  hmom_pull_em_r = new TH1F("hmom_pull_ep_r","mom pull e^{-} (reco)",100,-1.,1.);
-  hmom_pull_em_f = new TH1F("hmom_pull_ep_f","mom pull e^{-} (fit)",100,-1.,1.);
-  hpx_pull_ep_r = new TH1F("hpx_pull_ep_r","px pull e^{+} (reco)",100,-1.,1.);
-  hpx_pull_ep_f = new TH1F("hpx_pull_ep_f","px pull e^{+} (fit)",100,-1.,1.);
-  hpx_pull_em_r = new TH1F("hpx_pull_ep_r","px pull e^{-} (reco)",100,-1.,1.);
-  hpx_pull_em_f = new TH1F("hpx_pull_ep_f","px pull e^{-} (fit)",100,-1.,1.);
-  hpy_pull_ep_r = new TH1F("hpy_pull_ep_r","py pull e^{+} (reco)",100,-1.,1.);
-  hpy_pull_ep_f = new TH1F("hpy_pull_ep_f","py pull e^{+} (fit)",100,-1.,1.);
-  hpy_pull_em_r = new TH1F("hpy_pull_ep_r","py pull e^{-} (reco)",100,-1.,1.);
-  hpy_pull_em_f = new TH1F("hpy_pull_ep_f","py pull e^{-} (fit)",100,-1.,1.);
-  hpz_pull_ep_r = new TH1F("hpz_pull_ep_r","pz pull e^{+} (reco)",100,-1.,1.);
-  hpz_pull_ep_f = new TH1F("hpz_pull_ep_f","pz pull e^{+} (fit)",100,-1.,1.);
-  hpz_pull_em_r = new TH1F("hpz_pull_ep_r","pz pull e^{-} (reco)",100,-1.,1.);
-  hpz_pull_em_f = new TH1F("hpz_pull_ep_f","pz pull e^{-} (fit)",100,-1.,1.);
+  hmom_pull_ep_r = new TH1F("hmom_pull_ep_r","mom pull e^{+} (reco)",100,-2.,2.);
+  hmom_pull_ep_f = new TH1F("hmom_pull_ep_f","mom pull e^{+} (fit)",100,-2.,2.);
+  hmom_pull_em_r = new TH1F("hmom_pull_em_r","mom pull e^{-} (reco)",100,-2.,2.);
+  hmom_pull_em_f = new TH1F("hmom_pull_em_f","mom pull e^{-} (fit)",100,-2.,2.);
+  hpx_pull_ep_r = new TH1F("hpx_pull_ep_r","px pull e^{+} (reco)",100,-2.,2.);
+  hpx_pull_ep_f = new TH1F("hpx_pull_ep_f","px pull e^{+} (fit)",100,-2.,2.);
+  hpx_pull_em_r = new TH1F("hpx_pull_em_r","px pull e^{-} (reco)",100,-2.,2.);
+  hpx_pull_em_f = new TH1F("hpx_pull_em_f","px pull e^{-} (fit)",100,-2.,2.);
+  hpy_pull_ep_r = new TH1F("hpy_pull_ep_r","py pull e^{+} (reco)",100,-2.,2.);
+  hpy_pull_ep_f = new TH1F("hpy_pull_ep_f","py pull e^{+} (fit)",100,-2.,2.);
+  hpy_pull_em_r = new TH1F("hpy_pull_em_r","py pull e^{-} (reco)",100,-2.,2.);
+  hpy_pull_em_f = new TH1F("hpy_pull_em_f","py pull e^{-} (fit)",100,-2.,2.);
+  hpz_pull_ep_r = new TH1F("hpz_pull_ep_r","pz pull e^{+} (reco)",100,-2.,2.);
+  hpz_pull_ep_f = new TH1F("hpz_pull_ep_f","pz pull e^{+} (fit)",100,-2.,2.);
+  hpz_pull_em_r = new TH1F("hpz_pull_em_r","pz pull e^{-} (reco)",100,-2.,2.);
+  hpz_pull_em_f = new TH1F("hpz_pull_em_f","pz pull e^{-} (fit)",100,-2.,2.);
 
 }
 
@@ -1275,27 +1275,27 @@ void AnaTdav2::kin_fit_4c() {
 
     int idp_r = rcl[iep_excl][0]->Daughter(0)->Charge()>0?0:1;
     int idm_r = rcl[iep_excl][0]->Daughter(0)->Charge()<0?0:1;
-    int idp_f = rcl[iep_excl][0]->GetFit()->Daughter(0)->Charge()>0?0:1;
-    int idm_f = rcl[iep_excl][0]->GetFit()->Daughter(0)->Charge()<0?0:1;
+    //int idp_f = rcl[iep_excl][0]->GetFit()->Daughter(0)->Charge()>0?0:1;
+    //int idm_f = rcl[iep_excl][0]->GetFit()->Daughter(0)->Charge()<0?0:1;
     assert(idp_r!=idm_r);
-    assert(idp_f!=idm_f);
+    //assert(idp_f!=idm_f);
 
     hmom_pull_ep_r->Fill(mom_pull(rcl[iep_excl][0]->Daughter(idp_r),mcList[mc_posit]));
-    hmom_pull_ep_f->Fill(mom_pull(rcl[iep_excl][0]->GetFit()->Daughter(idp_f),mcList[mc_posit]));
+    hmom_pull_ep_f->Fill(mom_pull(rcl[iep_excl][0]->Daughter(idp_r)->GetFit(),mcList[mc_posit]));
     hmom_pull_em_r->Fill(mom_pull(rcl[iep_excl][0]->Daughter(idm_r),mcList[mc_elec]));
-    hmom_pull_em_f->Fill(mom_pull(rcl[iep_excl][0]->GetFit()->Daughter(idm_f),mcList[mc_elec]));
+    hmom_pull_em_f->Fill(mom_pull(rcl[iep_excl][0]->Daughter(idm_r)->GetFit(),mcList[mc_elec]));
     hpx_pull_ep_r->Fill(px_pull(rcl[iep_excl][0]->Daughter(idp_r),mcList[mc_posit]));
-    hpx_pull_ep_f->Fill(px_pull(rcl[iep_excl][0]->GetFit()->Daughter(idp_f),mcList[mc_posit]));
+    hpx_pull_ep_f->Fill(px_pull(rcl[iep_excl][0]->Daughter(idp_r)->GetFit(),mcList[mc_posit]));
     hpx_pull_em_r->Fill(px_pull(rcl[iep_excl][0]->Daughter(idm_r),mcList[mc_elec]));
-    hpx_pull_em_f->Fill(px_pull(rcl[iep_excl][0]->GetFit()->Daughter(idm_f),mcList[mc_elec]));
+    hpx_pull_em_f->Fill(px_pull(rcl[iep_excl][0]->Daughter(idp_r)->GetFit(),mcList[mc_elec]));
     hpy_pull_ep_r->Fill(py_pull(rcl[iep_excl][0]->Daughter(idp_r),mcList[mc_posit]));
-    hpy_pull_ep_f->Fill(py_pull(rcl[iep_excl][0]->GetFit()->Daughter(idp_f),mcList[mc_posit]));
+    hpy_pull_ep_f->Fill(py_pull(rcl[iep_excl][0]->Daughter(idp_r)->GetFit(),mcList[mc_posit]));
     hpy_pull_em_r->Fill(py_pull(rcl[iep_excl][0]->Daughter(idm_r),mcList[mc_elec]));
-    hpy_pull_em_f->Fill(py_pull(rcl[iep_excl][0]->GetFit()->Daughter(idm_f),mcList[mc_elec]));
+    hpy_pull_em_f->Fill(py_pull(rcl[iep_excl][0]->Daughter(idm_r)->GetFit(),mcList[mc_elec]));
     hpz_pull_ep_r->Fill(pz_pull(rcl[iep_excl][0]->Daughter(idp_r),mcList[mc_posit]));
-    hpz_pull_ep_f->Fill(pz_pull(rcl[iep_excl][0]->GetFit()->Daughter(idp_f),mcList[mc_posit]));
+    hpz_pull_ep_f->Fill(pz_pull(rcl[iep_excl][0]->Daughter(idp_r)->GetFit(),mcList[mc_posit]));
     hpz_pull_em_r->Fill(pz_pull(rcl[iep_excl][0]->Daughter(idm_r),mcList[mc_elec]));
-    hpz_pull_em_f->Fill(pz_pull(rcl[iep_excl][0]->GetFit()->Daughter(idm_f),mcList[mc_elec]));
+    hpz_pull_em_f->Fill(pz_pull(rcl[iep_excl][0]->Daughter(idm_r)->GetFit(),mcList[mc_elec]));
 
     fill_pair_mass(rcl[iep_excl], hmep[5]);
     fill_pair_mass(rcl[gg_excl], hmgg[5]);
