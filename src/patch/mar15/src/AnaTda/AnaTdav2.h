@@ -94,6 +94,8 @@ class AnaTdav2 : public FairTask{
   void mctruth_match_pi0(RhoCandList&);
   int mct_uid_e, mct_uid_p;
   int mct_uid_g1, mct_uid_g2;
+  int mc_elec, mc_posit;
+  int mc_g1, mc_g2;
 
  private:
 
@@ -213,14 +215,34 @@ class AnaTdav2 : public FairTask{
   TH1F *hpi0jpsi_chi24c;
   TH1F *hpi0jpsi_chi24c_c;
   TH1F *hpi0jpsi_prob4c;
-  TH2F *hpi0jpsi_chi24c_vs_mtot;
-  TH2F *hpi0jpsi_chi24c_vs_cm_dth;
-  TH2F *hpi0jpsi_chi24c_vs_cm_dph;
+  TH2F *hpi0jpsi_chi24c_vs_mtot_r;
+  TH2F *hpi0jpsi_chi24c_vs_cm_dth_r;
+  TH2F *hpi0jpsi_chi24c_vs_cm_dph_r;
+  TH2F *hpi0jpsi_chi24c_vs_mtot_f;
+  TH2F *hpi0jpsi_chi24c_vs_cm_dth_f;
+  TH2F *hpi0jpsi_chi24c_vs_cm_dph_f;
 
   TH1F *hpi0pi0jpsi_chi24c;
   TH1F *hpi0pi0jpsi_chi24c_c;
   TH2F *hpi0vs2pi0_chi24c;
   TH2F *hpi0vs2pi0_chi24c_c;
+
+  TH1F *hmom_pull_ep_r;
+  TH1F *hmom_pull_ep_f;
+  TH1F *hmom_pull_em_r;
+  TH1F *hmom_pull_em_f;
+  TH1F *hpx_pull_ep_r;
+  TH1F *hpx_pull_ep_f;
+  TH1F *hpx_pull_em_r;
+  TH1F *hpx_pull_em_f;
+  TH1F *hpy_pull_ep_r;
+  TH1F *hpy_pull_ep_f;
+  TH1F *hpy_pull_em_r;
+  TH1F *hpy_pull_em_f;
+  TH1F *hpz_pull_ep_r;
+  TH1F *hpz_pull_ep_f;
+  TH1F *hpz_pull_em_r;
+  TH1F *hpz_pull_em_f;
 
   //static const int nrcl = 7;
   enum {e=0, p, g, /* Single Track Lists, no PID: e=elec p=posit, g=gamma*/
@@ -260,6 +282,10 @@ class AnaTdav2 : public FairTask{
   double t_ep(RhoCandidate *_ep) { return (_ep->P4()-p4targ).M2(); }
   double u_gg(RhoCandidate *_gg) { return (_gg->P4()-p4targ).M2(); }
   double u_ep(RhoCandidate *_ep) { return (_ep->P4()-p4pbar).M2(); }
+  double mom_pull(RhoCandidate*, RhoCandidate*);
+  double px_pull(RhoCandidate*, RhoCandidate*);
+  double py_pull(RhoCandidate*, RhoCandidate*);
+  double pz_pull(RhoCandidate*, RhoCandidate*);
 
   TLorentzVector boost_transf(const TLorentzVector&, const TVector3&);
   double cost_b(const TLorentzVector&, const TVector3&);

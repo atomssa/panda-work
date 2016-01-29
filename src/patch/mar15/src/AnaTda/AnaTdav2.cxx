@@ -294,16 +294,37 @@ void AnaTdav2::init_hists() {
   hpi0jpsi_chi24c_c = new TH1F("hpi0jpsi_chi24c_c","hpi0jpsi_chi24c_c",1000,0,500);
   hpi0jpsi_prob4c  = new TH1F("hpi0jpsi_prob4c ","hpi0jpsi_prob4c ",1000,0,1.0);
 
-  double hist_mmin[3] = {2.6,2.8,3.};
-  double hist_mmax[3] = {3.8,4.2,5.};
-  hpi0jpsi_chi24c_vs_mtot = new TH2F("hpi0jpsi_chi24c_vs_mtot","hpi0jpsi_chi24c_vs_mtot",2000,0,10000,200,hist_mmin[iplab],hist_mmax[iplab]);
-  hpi0jpsi_chi24c_vs_cm_dth = new TH2F("hpi0jpsi_chi24c_vs_cm_dth","hpi0jpsi_chi24c_vs_cm_dth",2000,0,10000,200,0,8);
-  hpi0jpsi_chi24c_vs_cm_dph = new TH2F("hpi0jpsi_chi24c_vs_cm_dph","hpi0jpsi_chi24c_vs_cm_dph",2000,0,10000,200,0,8);
+  double hist_mmin[3] = {2.6,2.8,3.8};
+  double hist_mmax[3] = {3.8,5.,6.};
+  hpi0jpsi_chi24c_vs_mtot_r = new TH2F("hpi0jpsi_chi24c_vs_mtot_r","hpi0jpsi_chi24c_vs_mtot_r",2000,0,10000,200,hist_mmin[iplab],hist_mmax[iplab]);
+  hpi0jpsi_chi24c_vs_cm_dth_r = new TH2F("hpi0jpsi_chi24c_vs_cm_dth_r","hpi0jpsi_chi24c_vs_cm_dth_r",2000,0,10000,200,1.0,5.0);
+  hpi0jpsi_chi24c_vs_cm_dph_r = new TH2F("hpi0jpsi_chi24c_vs_cm_dph_r","hpi0jpsi_chi24c_vs_cm_dph_r",2000,0,10000,200,1.5,5.0);
+  hpi0jpsi_chi24c_vs_mtot_f = new TH2F("hpi0jpsi_chi24c_vs_mtot_f","hpi0jpsi_chi24c_vs_mtot_f",500,0,1000,200,hist_mmin[iplab],hist_mmax[iplab]);
+  hpi0jpsi_chi24c_vs_cm_dth_f = new TH2F("hpi0jpsi_chi24c_vs_cm_dth_f","hpi0jpsi_chi24c_vs_cm_dth_f",500,0,1000,500,1.0,5.0);
+  hpi0jpsi_chi24c_vs_cm_dph_f = new TH2F("hpi0jpsi_chi24c_vs_cm_dph_f","hpi0jpsi_chi24c_vs_cm_dph_f",500,0,1000,500,1.5,5.0);
 
   hpi0pi0jpsi_chi24c = new TH1F("hpi0pi0jpsi_chi24c","hpi0pi0jpsi_chi24c",2000,0,10000);
   hpi0pi0jpsi_chi24c_c = new TH1F("hpi0pi0jpsi_chi24c_c","hpi0pi0jpsi_chi24c_c",1000,0,500);
   hpi0vs2pi0_chi24c = new TH2F("hpi0vs2pi0_chi24c","hpi0vs2pi0_chi24c",2000,0,10000,2000,0,10000);
   hpi0vs2pi0_chi24c_c = new TH2F("hpi0vs2pi0_chi24c_c","hpi0vs2pi0_chi24c_c",1000,0,500,1000,0,500);
+
+  // pull distributions
+  hmom_pull_ep_r = new TH1F("hmom_pull_ep_r","mom pull e^{+} (reco)",100,-1.,1.);
+  hmom_pull_ep_f = new TH1F("hmom_pull_ep_f","mom pull e^{+} (fit)",100,-1.,1.);
+  hmom_pull_em_r = new TH1F("hmom_pull_ep_r","mom pull e^{-} (reco)",100,-1.,1.);
+  hmom_pull_em_f = new TH1F("hmom_pull_ep_f","mom pull e^{-} (fit)",100,-1.,1.);
+  hpx_pull_ep_r = new TH1F("hpx_pull_ep_r","px pull e^{+} (reco)",100,-1.,1.);
+  hpx_pull_ep_f = new TH1F("hpx_pull_ep_f","px pull e^{+} (fit)",100,-1.,1.);
+  hpx_pull_em_r = new TH1F("hpx_pull_ep_r","px pull e^{-} (reco)",100,-1.,1.);
+  hpx_pull_em_f = new TH1F("hpx_pull_ep_f","px pull e^{-} (fit)",100,-1.,1.);
+  hpy_pull_ep_r = new TH1F("hpy_pull_ep_r","py pull e^{+} (reco)",100,-1.,1.);
+  hpy_pull_ep_f = new TH1F("hpy_pull_ep_f","py pull e^{+} (fit)",100,-1.,1.);
+  hpy_pull_em_r = new TH1F("hpy_pull_ep_r","py pull e^{-} (reco)",100,-1.,1.);
+  hpy_pull_em_f = new TH1F("hpy_pull_ep_f","py pull e^{-} (fit)",100,-1.,1.);
+  hpz_pull_ep_r = new TH1F("hpz_pull_ep_r","pz pull e^{+} (reco)",100,-1.,1.);
+  hpz_pull_ep_f = new TH1F("hpz_pull_ep_f","pz pull e^{+} (fit)",100,-1.,1.);
+  hpz_pull_em_r = new TH1F("hpz_pull_ep_r","pz pull e^{-} (reco)",100,-1.,1.);
+  hpz_pull_em_f = new TH1F("hpz_pull_ep_f","pz pull e^{-} (fit)",100,-1.,1.);
 
 }
 
@@ -600,7 +621,9 @@ void AnaTdav2::mctruth_match_jpsi(RhoCandList& elec, RhoCandList& posit) {
   if (elec.GetLength()==0 || posit.GetLength()==0) return;
 
   int pdg_jpsi = 443, pdg_elec = 11, pdg_posit = -11;
-  int mc_elec = -1, mc_posit = -1;
+  //int mc_elec = -1, mc_posit = -1;
+  mc_elec = -1;
+  mc_posit = -1;
   for (int j=0;j<mcList.GetLength();++j) {
     if (mcList[j]->PdgCode()!=pdg_elec and mcList[j]->PdgCode()!=pdg_posit) continue;
     if (!mcList[j]->TheMother()) continue;
@@ -648,7 +671,9 @@ void AnaTdav2::mctruth_match_pi0(RhoCandList& gamma) {
   if (gamma.GetLength()<1) return;
 
   int pdg_pi0 = 111, pdg_gamma = 22;
-  int mc_g1 = -1, mc_g2 = -1;
+  //int mc_g1 = -1, mc_g2 = -1;
+  mc_g1 = -1;
+  mc_g2 = -1;
   for (int j=0;j<mcList.GetLength();++j) {
     if (mcList[j]->PdgCode()!=pdg_gamma) continue;
     if (!mcList[j]->TheMother()) continue;
@@ -1183,6 +1208,33 @@ void AnaTdav2::kin_fit() {
   }
 }
 
+double AnaTdav2::mom_pull(RhoCandidate* rf, RhoCandidate *mc) {
+  TLorentzVector prf = rf->P4();
+  TLorentzVector pmc = mc->P4();
+  RhoError err = rf->P4Err();
+  double err_mom_fc_sq =
+    prf.X()*prf.X()*err[0][0] +
+    prf.Y()*prf.Y()*err[1][1] +
+    prf.Z()*prf.Z()*err[2][2] +
+    2*prf.X()*prf.Y()*err[0][1] +
+    2*prf.X()*prf.Z()*err[0][2] +
+    2*prf.Y()*prf.Z()*err[1][2];
+  err_mom_fc_sq *= 4/prf.Vect().Mag2();
+  return (prf.Vect().Mag()-pmc.Vect().Mag())/sqrt(err_mom_fc_sq);
+}
+
+double AnaTdav2::px_pull(RhoCandidate* rf, RhoCandidate *mc) {
+  return (mc->P4().X()-rf->P4().X())/sqrt(rf->P4Err()[0][0]);
+}
+
+double AnaTdav2::py_pull(RhoCandidate* rf, RhoCandidate *mc) {
+  return (mc->P4().Y()-rf->P4().Y())/sqrt(rf->P4Err()[1][1]);
+}
+
+double AnaTdav2::pz_pull(RhoCandidate* rf, RhoCandidate *mc) {
+  return (mc->P4().Z()-rf->P4().Z())/sqrt(rf->P4Err()[2][2]);
+}
+
 void AnaTdav2::kin_fit_4c() {
   assert(rcl[iep_excl].GetLength()<=1 and
 	 rcl[gg_excl].GetLength()<=1);
@@ -1206,12 +1258,44 @@ void AnaTdav2::kin_fit_4c() {
     hpi0jpsi_prob4c->Fill(sig_prob_4c);
 
     // Fill correlation histograms between chi2 of 4c and Mtot, cm opening angle
-    double _mtot = (rcl[iep_excl][0]->GetFit()->P4()+rcl[gg_excl][0]->P4()).M();
-    double cm_dph, cm_dth;
-    dth_dph_cm(rcl[gg_excl][0],rcl[iep_excl][0],cm_dth,cm_dph);
-    hpi0jpsi_chi24c_vs_mtot->Fill(sig_chi2_4c,_mtot);
-    hpi0jpsi_chi24c_vs_cm_dth->Fill(sig_chi2_4c,cm_dth);
-    hpi0jpsi_chi24c_vs_cm_dph->Fill(sig_chi2_4c,cm_dph);
+    double raw_mtot = (rcl[iep_excl][0]->P4()+rcl[gg_excl][0]->P4()).M();
+    double fit_mtot = (rcl[iep_excl][0]->GetFit()->P4()+rcl[gg_excl][0]->GetFit()->P4()).M();
+    double fit_mtot2 = pi0jpsi[0]->GetFit()->P4().M();
+
+    double raw_cm_dph, raw_cm_dth;
+    double fit_cm_dph, fit_cm_dth;
+    dth_dph_cm(rcl[gg_excl][0],rcl[iep_excl][0],raw_cm_dth,raw_cm_dph);
+    dth_dph_cm(rcl[gg_excl][0]->GetFit(),rcl[iep_excl][0]->GetFit(),raw_cm_dth,raw_cm_dph);
+    hpi0jpsi_chi24c_vs_mtot_r->Fill(sig_chi2_4c,raw_mtot);
+    hpi0jpsi_chi24c_vs_cm_dth_r->Fill(sig_chi2_4c,raw_cm_dth);
+    hpi0jpsi_chi24c_vs_cm_dph_r->Fill(sig_chi2_4c,raw_cm_dph);
+    hpi0jpsi_chi24c_vs_mtot_f->Fill(sig_chi2_4c,fit_mtot);
+    hpi0jpsi_chi24c_vs_cm_dth_f->Fill(sig_chi2_4c,fit_cm_dth);
+    hpi0jpsi_chi24c_vs_cm_dph_f->Fill(sig_chi2_4c,fit_cm_dph);
+
+    int idp_r = rcl[iep_excl][0]->Daughter(0)->Charge()>0?0:1;
+    int idm_r = rcl[iep_excl][0]->Daughter(0)->Charge()<0?0:1;
+    int idp_f = rcl[iep_excl][0]->GetFit()->Daughter(0)->Charge()>0?0:1;
+    int idm_f = rcl[iep_excl][0]->GetFit()->Daughter(0)->Charge()<0?0:1;
+    assert(idp_r!=idm_r);
+    assert(idp_f!=idm_f);
+
+    hmom_pull_ep_r->Fill(mom_pull(rcl[iep_excl][0]->Daughter(idp_r),mcList[mc_posit]));
+    hmom_pull_ep_f->Fill(mom_pull(rcl[iep_excl][0]->GetFit()->Daughter(idp_f),mcList[mc_posit]));
+    hmom_pull_em_r->Fill(mom_pull(rcl[iep_excl][0]->Daughter(idm_r),mcList[mc_elec]));
+    hmom_pull_em_f->Fill(mom_pull(rcl[iep_excl][0]->GetFit()->Daughter(idm_f),mcList[mc_elec]));
+    hpx_pull_ep_r->Fill(px_pull(rcl[iep_excl][0]->Daughter(idp_r),mcList[mc_posit]));
+    hpx_pull_ep_f->Fill(px_pull(rcl[iep_excl][0]->GetFit()->Daughter(idp_f),mcList[mc_posit]));
+    hpx_pull_em_r->Fill(px_pull(rcl[iep_excl][0]->Daughter(idm_r),mcList[mc_elec]));
+    hpx_pull_em_f->Fill(px_pull(rcl[iep_excl][0]->GetFit()->Daughter(idm_f),mcList[mc_elec]));
+    hpy_pull_ep_r->Fill(py_pull(rcl[iep_excl][0]->Daughter(idp_r),mcList[mc_posit]));
+    hpy_pull_ep_f->Fill(py_pull(rcl[iep_excl][0]->GetFit()->Daughter(idp_f),mcList[mc_posit]));
+    hpy_pull_em_r->Fill(py_pull(rcl[iep_excl][0]->Daughter(idm_r),mcList[mc_elec]));
+    hpy_pull_em_f->Fill(py_pull(rcl[iep_excl][0]->GetFit()->Daughter(idm_f),mcList[mc_elec]));
+    hpz_pull_ep_r->Fill(pz_pull(rcl[iep_excl][0]->Daughter(idp_r),mcList[mc_posit]));
+    hpz_pull_ep_f->Fill(pz_pull(rcl[iep_excl][0]->GetFit()->Daughter(idp_f),mcList[mc_posit]));
+    hpz_pull_em_r->Fill(pz_pull(rcl[iep_excl][0]->Daughter(idm_r),mcList[mc_elec]));
+    hpz_pull_em_f->Fill(pz_pull(rcl[iep_excl][0]->GetFit()->Daughter(idm_f),mcList[mc_elec]));
 
     fill_pair_mass(rcl[iep_excl], hmep[5]);
     fill_pair_mass(rcl[gg_excl], hmgg[5]);
@@ -1495,9 +1579,12 @@ void AnaTdav2::write_hists() {
   hpi0jpsi_chi24c_c->Write();
   hpi0jpsi_prob4c->Write();
 
-  hpi0jpsi_chi24c_vs_mtot->Write();
-  hpi0jpsi_chi24c_vs_cm_dth->Write();
-  hpi0jpsi_chi24c_vs_cm_dph->Write();
+  hpi0jpsi_chi24c_vs_mtot_r->Write();
+  hpi0jpsi_chi24c_vs_cm_dth_r->Write();
+  hpi0jpsi_chi24c_vs_cm_dph_r->Write();
+  hpi0jpsi_chi24c_vs_mtot_f->Write();
+  hpi0jpsi_chi24c_vs_cm_dth_f->Write();
+  hpi0jpsi_chi24c_vs_cm_dph_f->Write();
 
   hpi0pi0jpsi_chi24c->Write();
   hpi0pi0jpsi_chi24c_c->Write();
@@ -1621,6 +1708,27 @@ void AnaTdav2::write_hists() {
   htrupi0thcm_mcut_vs_m->Write();
   htrupi0costhcm_mcut_vs_m->Write();
   htrupi0thlab_mcut_vs_m->Write();
+  gDirectory->cd(root_dir);
+
+  gDirectory->mkdir("pull");
+  gDirectory->cd("pull");
+  hmom_pull_ep_r->Write();
+  hmom_pull_ep_f->Write();
+  hmom_pull_em_r->Write();
+  hmom_pull_em_f->Write();
+  hpx_pull_ep_r->Write();
+  hpx_pull_ep_f->Write();
+  hpx_pull_em_r->Write();
+  hpx_pull_em_f->Write();
+  hpy_pull_ep_r->Write();
+  hpy_pull_ep_f->Write();
+  hpy_pull_em_r->Write();
+  hpy_pull_em_f->Write();
+  hpz_pull_ep_r->Write();
+  hpz_pull_ep_f->Write();
+  hpz_pull_em_r->Write();
+  hpz_pull_em_f->Write();
+  gDirectory->cd(root_dir);
 
 }
 
