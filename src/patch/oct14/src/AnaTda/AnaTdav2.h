@@ -282,10 +282,15 @@ class AnaTdav2 : public FairTask{
   double t_ep(RhoCandidate *_ep) { return (_ep->P4()-p4targ).M2(); }
   double u_gg(RhoCandidate *_gg) { return (_gg->P4()-p4targ).M2(); }
   double u_ep(RhoCandidate *_ep) { return (_ep->P4()-p4pbar).M2(); }
-  double mom_pull(RhoCandidate*, RhoCandidate*);
-  double px_pull(RhoCandidate*, RhoCandidate*);
-  double py_pull(RhoCandidate*, RhoCandidate*);
-  double pz_pull(RhoCandidate*, RhoCandidate*);
+  double err_mom_sq(RhoCandidate*);
+  double mom_pull_r(RhoCandidate*, RhoCandidate*);
+  double mom_pull_f(RhoCandidate*, RhoCandidate*);
+  double px_pull_r(RhoCandidate*, RhoCandidate*);
+  double px_pull_f(RhoCandidate*, RhoCandidate*);
+  double py_pull_r(RhoCandidate*, RhoCandidate*);
+  double py_pull_f(RhoCandidate*, RhoCandidate*);
+  double pz_pull_r(RhoCandidate*, RhoCandidate*);
+  double pz_pull_f(RhoCandidate*, RhoCandidate*);
 
   TLorentzVector boost_transf(const TLorentzVector&, const TVector3&);
   double cost_b(const TLorentzVector&, const TVector3&);

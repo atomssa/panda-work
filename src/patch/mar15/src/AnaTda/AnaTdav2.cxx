@@ -1208,31 +1208,49 @@ void AnaTdav2::kin_fit() {
   }
 }
 
-double AnaTdav2::mom_pull(RhoCandidate* rf, RhoCandidate *mc) {
-  TLorentzVector prf = rf->P4();
-  TLorentzVector pmc = mc->P4();
-  RhoError err = rf->P4Err();
+double AnaTdav2::err_mom_sq(RhoCandidate *rr) {
+  TLorentzVector prec = rr->P4();
+  RhoError err = rr->P4Err();
   double err_mom_fc_sq =
-    prf.X()*prf.X()*err[0][0] +
-    prf.Y()*prf.Y()*err[1][1] +
-    prf.Z()*prf.Z()*err[2][2] +
-    2*prf.X()*prf.Y()*err[0][1] +
-    2*prf.X()*prf.Z()*err[0][2] +
-    2*prf.Y()*prf.Z()*err[1][2];
-  err_mom_fc_sq *= 4/prf.Vect().Mag2();
-  return (prf.Vect().Mag()-pmc.Vect().Mag())/sqrt(err_mom_fc_sq);
+    prec.X()*prec.X()*err[0][0] +
+    prec.Y()*prec.Y()*err[1][1] +
+    prec.Z()*prec.Z()*err[2][2] +
+    2*prec.X()*prec.Y()*err[0][1] +
+    2*prec.X()*prec.Z()*err[0][2] +
+    2*prec.Y()*prec.Z()*err[1][2];
+  return err_mom_fc_sq*4/prec.Vect().Mag2();
 }
 
-double AnaTdav2::px_pull(RhoCandidate* rf, RhoCandidate *mc) {
-  return (mc->P4().X()-rf->P4().X())/sqrt(rf->P4Err()[0][0]);
+double AnaTdav2::mom_pull_r(RhoCandidate* rf, RhoCandidate *mc) {
+  return (rf->P4().Vect().Mag()-mc->P4().Vect().Mag())/sqrt(err_mom_sq(rf));
 }
 
-double AnaTdav2::py_pull(RhoCandidate* rf, RhoCandidate *mc) {
-  return (mc->P4().Y()-rf->P4().Y())/sqrt(rf->P4Err()[1][1]);
+double AnaTdav2::mom_pull_f(RhoCandidate* rf, RhoCandidate *mc) {
+  return (rf->GetFit()->P4().Vect().Mag()-mc->P4().Vect().Mag())/sqrt(err_mom_sq(rf));
 }
 
-double AnaTdav2::pz_pull(RhoCandidate* rf, RhoCandidate *mc) {
-  return (mc->P4().Z()-rf->P4().Z())/sqrt(rf->P4Err()[2][2]);
+double AnaTdav2::px_pull_r(RhoCandidate* rf, RhoCandidate *mc) {
+  return (rf->P4().X()-mc->P4().X())/sqrt(rf->P4Err()[0][0]);
+}
+
+double AnaTdav2::px_pull_f(RhoCandidate* rf, RhoCandidate *mc) {
+  return (rf->GetFit()->P4().X()-mc->P4().X())/sqrt(rf->P4Err()[0][0]);
+}
+
+double AnaTdav2::py_pull_r(RhoCandidate* rf, RhoCandidate *mc) {
+  return (rf->P4().Y()-mc->P4().Y())/sqrt(rf->P4Err()[1][1]);
+}
+
+double AnaTdav2::py_pull_f(RhoCandidate* rf, RhoCandidate *mc) {
+  return (rf->GetFit()->P4().Y()-rf->P4().Y())/sqrt(rf->P4Err()[1][1]);
+}
+
+double AnaTdav2::pz_pull_r(RhoCandidate* rf, RhoCandidate *mc) {
+  return (rf->P4().Z()-mc->P4().Z())/sqrt(rf->P4Err()[2][2]);
+}
+
+double AnaTdav2::pz_pull_f(RhoCandidate* rf, RhoCandidate *mc) {
+  return (rf->GetFit()->P4().Z()-mc->P4().Z())/sqrt(rf->P4Err()[2][2]);
 }
 
 void AnaTdav2::kin_fit_4c() {
@@ -1265,7 +1283,7 @@ void AnaTdav2::kin_fit_4c() {
     double raw_cm_dph, raw_cm_dth;
     double fit_cm_dph, fit_cm_dth;
     dth_dph_cm(rcl[gg_excl][0],rcl[iep_excl][0],raw_cm_dth,raw_cm_dph);
-    dth_dph_cm(rcl[gg_excl][0]->GetFit(),rcl[iep_excl][0]->GetFit(),raw_cm_dth,raw_cm_dph);
+    dth_dph_cm(rcl[gg_excl][0]->GetFit(),rcl[iep_excl][0]->GetFit(),fit_cm_dth,fit_cm_dph);
     hpi0jpsi_chi24c_vs_mtot_r->Fill(sig_chi2_4c,raw_mtot);
     hpi0jpsi_chi24c_vs_cm_dth_r->Fill(sig_chi2_4c,raw_cm_dth);
     hpi0jpsi_chi24c_vs_cm_dph_r->Fill(sig_chi2_4c,raw_cm_dph);
@@ -1281,22 +1299,22 @@ void AnaTdav2::kin_fit_4c() {
     int idm_f = pi0jpsi[0]->Daughter(id_jpsi)->Daughter(0)->Charge()<0?0:1;
     assert(idp_f!=idm_f);
 
-    hmom_pull_ep_r->Fill(mom_pull(rcl[iep_excl][0]->Daughter(idp_r),mcList[mc_posit]));
-    hmom_pull_ep_f->Fill(mom_pull(pi0jpsi[0]->Daughter(id_jpsi)->Daughter(idp_f)->GetFit(),mcList[mc_posit]));
-    hmom_pull_em_r->Fill(mom_pull(rcl[iep_excl][0]->Daughter(idm_r),mcList[mc_elec]));
-    hmom_pull_em_f->Fill(mom_pull(pi0jpsi[0]->Daughter(id_jpsi)->Daughter(idm_f)->GetFit(),mcList[mc_elec]));
-    hpx_pull_ep_r->Fill(px_pull(rcl[iep_excl][0]->Daughter(idp_r),mcList[mc_posit]));
-    hpx_pull_ep_f->Fill(px_pull(pi0jpsi[0]->Daughter(id_jpsi)->Daughter(idp_f)->GetFit(),mcList[mc_posit]));
-    hpx_pull_em_r->Fill(px_pull(rcl[iep_excl][0]->Daughter(idm_r),mcList[mc_elec]));
-    hpx_pull_em_f->Fill(px_pull(pi0jpsi[0]->Daughter(id_jpsi)->Daughter(idm_f)->GetFit(),mcList[mc_elec]));
-    hpy_pull_ep_r->Fill(py_pull(rcl[iep_excl][0]->Daughter(idp_r),mcList[mc_posit]));
-    hpy_pull_ep_f->Fill(py_pull(pi0jpsi[0]->Daughter(id_jpsi)->Daughter(idp_f)->GetFit(),mcList[mc_posit]));
-    hpy_pull_em_r->Fill(py_pull(rcl[iep_excl][0]->Daughter(idm_r),mcList[mc_elec]));
-    hpy_pull_em_f->Fill(py_pull(pi0jpsi[0]->Daughter(id_jpsi)->Daughter(idm_f)->GetFit(),mcList[mc_elec]));
-    hpz_pull_ep_r->Fill(pz_pull(rcl[iep_excl][0]->Daughter(idp_r),mcList[mc_posit]));
-    hpz_pull_ep_f->Fill(pz_pull(pi0jpsi[0]->Daughter(id_jpsi)->Daughter(idp_f)->GetFit(),mcList[mc_posit]));
-    hpz_pull_em_r->Fill(pz_pull(rcl[iep_excl][0]->Daughter(idm_r),mcList[mc_elec]));
-    hpz_pull_em_f->Fill(pz_pull(pi0jpsi[0]->Daughter(id_jpsi)->Daughter(idm_f)->GetFit(),mcList[mc_elec]));
+    hmom_pull_ep_r->Fill(mom_pull_r(rcl[iep_excl][0]->Daughter(idp_r),mcList[mc_posit]));
+    hmom_pull_ep_f->Fill(mom_pull_f(rcl[iep_excl][0]->Daughter(idp_r),mcList[mc_posit]));
+    hmom_pull_em_r->Fill(mom_pull_r(rcl[iep_excl][0]->Daughter(idm_r),mcList[mc_elec]));
+    hmom_pull_em_f->Fill(mom_pull_f(rcl[iep_excl][0]->Daughter(idm_r),mcList[mc_elec]));
+    hpx_pull_ep_r->Fill(px_pull_r(rcl[iep_excl][0]->Daughter(idp_r),mcList[mc_posit]));
+    hpx_pull_ep_f->Fill(px_pull_f(rcl[iep_excl][0]->Daughter(idp_r),mcList[mc_posit]));
+    hpx_pull_em_r->Fill(px_pull_r(rcl[iep_excl][0]->Daughter(idm_r),mcList[mc_elec]));
+    hpx_pull_em_f->Fill(px_pull_f(rcl[iep_excl][0]->Daughter(idm_r),mcList[mc_elec]));
+    hpy_pull_ep_r->Fill(py_pull_r(rcl[iep_excl][0]->Daughter(idp_r),mcList[mc_posit]));
+    hpy_pull_ep_f->Fill(py_pull_f(rcl[iep_excl][0]->Daughter(idp_r),mcList[mc_posit]));
+    hpy_pull_em_r->Fill(py_pull_r(rcl[iep_excl][0]->Daughter(idm_r),mcList[mc_elec]));
+    hpy_pull_em_f->Fill(py_pull_f(rcl[iep_excl][0]->Daughter(idm_r),mcList[mc_elec]));
+    hpz_pull_ep_r->Fill(pz_pull_r(rcl[iep_excl][0]->Daughter(idp_r),mcList[mc_posit]));
+    hpz_pull_ep_f->Fill(pz_pull_f(rcl[iep_excl][0]->Daughter(idp_r),mcList[mc_posit]));
+    hpz_pull_em_r->Fill(pz_pull_r(rcl[iep_excl][0]->Daughter(idm_r),mcList[mc_elec]));
+    hpz_pull_em_f->Fill(pz_pull_f(rcl[iep_excl][0]->Daughter(idm_r),mcList[mc_elec]));
 
     fill_pair_mass(rcl[iep_excl], hmep[5]);
     fill_pair_mass(rcl[gg_excl], hmgg[5]);
