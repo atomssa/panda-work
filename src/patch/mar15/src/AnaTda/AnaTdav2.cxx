@@ -309,22 +309,23 @@ void AnaTdav2::init_hists() {
   hpi0vs2pi0_chi24c_c = new TH2F("hpi0vs2pi0_chi24c_c","hpi0vs2pi0_chi24c_c",1000,0,500,1000,0,500);
 
   // pull distributions
-  hmom_pull_ep_r = new TH1F("hmom_pull_ep_r","mom pull e^{+} (reco)",100,-3.,3.);
-  hmom_pull_ep_f = new TH1F("hmom_pull_ep_f","mom pull e^{+} (fit)",100,-3.,3.);
-  hmom_pull_em_r = new TH1F("hmom_pull_em_r","mom pull e^{-} (reco)",100,-3.,3.);
-  hmom_pull_em_f = new TH1F("hmom_pull_em_f","mom pull e^{-} (fit)",100,-3.,3.);
-  hpx_pull_ep_r = new TH1F("hpx_pull_ep_r","px pull e^{+} (reco)",100,-3.,3.);
-  hpx_pull_ep_f = new TH1F("hpx_pull_ep_f","px pull e^{+} (fit)",100,-3.,3.);
-  hpx_pull_em_r = new TH1F("hpx_pull_em_r","px pull e^{-} (reco)",100,-3.,3.);
-  hpx_pull_em_f = new TH1F("hpx_pull_em_f","px pull e^{-} (fit)",100,-3.,3.);
-  hpy_pull_ep_r = new TH1F("hpy_pull_ep_r","py pull e^{+} (reco)",100,-3.,3.);
-  hpy_pull_ep_f = new TH1F("hpy_pull_ep_f","py pull e^{+} (fit)",100,-3.,3.);
-  hpy_pull_em_r = new TH1F("hpy_pull_em_r","py pull e^{-} (reco)",100,-3.,3.);
-  hpy_pull_em_f = new TH1F("hpy_pull_em_f","py pull e^{-} (fit)",100,-3.,3.);
-  hpz_pull_ep_r = new TH1F("hpz_pull_ep_r","pz pull e^{+} (reco)",100,-3.,3.);
-  hpz_pull_ep_f = new TH1F("hpz_pull_ep_f","pz pull e^{+} (fit)",100,-3.,3.);
-  hpz_pull_em_r = new TH1F("hpz_pull_em_r","pz pull e^{-} (reco)",100,-3.,3.);
-  hpz_pull_em_f = new TH1F("hpz_pull_em_f","pz pull e^{-} (fit)",100,-3.,3.);
+  double zoom = (mc_type == 1||mc_type == 5)? 1.0:2.0;
+  hmom_pull_ep_r = new TH1F("hmom_pull_ep_r","mom pull e^{+} (reco)",150,-3.*fact,3.*fact);
+  hmom_pull_ep_f = new TH1F("hmom_pull_ep_f","mom pull e^{+} (fit)",150,-3.*fact,3.*fact);
+  hmom_pull_em_r = new TH1F("hmom_pull_em_r","mom pull e^{-} (reco)",150,-3.*fact,3.*fact);
+  hmom_pull_em_f = new TH1F("hmom_pull_em_f","mom pull e^{-} (fit)",150,-3.*fact,3.*fact);
+  hpx_pull_ep_r = new TH1F("hpx_pull_ep_r","px pull e^{+} (reco)",150,-3.*fact,3.*fact);
+  hpx_pull_ep_f = new TH1F("hpx_pull_ep_f","px pull e^{+} (fit)",150,-3.*fact,3.*fact);
+  hpx_pull_em_r = new TH1F("hpx_pull_em_r","px pull e^{-} (reco)",150,-3.*fact,3.*fact);
+  hpx_pull_em_f = new TH1F("hpx_pull_em_f","px pull e^{-} (fit)",150,-3.*fact,3.*fact);
+  hpy_pull_ep_r = new TH1F("hpy_pull_ep_r","py pull e^{+} (reco)",150,-3.*fact,3.*fact);
+  hpy_pull_ep_f = new TH1F("hpy_pull_ep_f","py pull e^{+} (fit)",150,-3.*fact,3.*fact);
+  hpy_pull_em_r = new TH1F("hpy_pull_em_r","py pull e^{-} (reco)",150,-3.*fact,3.*fact);
+  hpy_pull_em_f = new TH1F("hpy_pull_em_f","py pull e^{-} (fit)",150,-3.*fact,3.*fact);
+  hpz_pull_ep_r = new TH1F("hpz_pull_ep_r","pz pull e^{+} (reco)",150,-3.*fact,3.*fact);
+  hpz_pull_ep_f = new TH1F("hpz_pull_ep_f","pz pull e^{+} (fit)",150,-3.*fact,3.*fact);
+  hpz_pull_em_r = new TH1F("hpz_pull_em_r","pz pull e^{-} (reco)",150,-3.*fact,3.*fact);
+  hpz_pull_em_f = new TH1F("hpz_pull_em_f","pz pull e^{-} (fit)",150,-3.*fact,3.*fact);
 
 }
 
@@ -949,7 +950,7 @@ void AnaTdav2::fill_lists() {
   }
 
   // If signal sim, tag tracks from true jpsi and pi0
-  if (mc_type==1||mc_type==4) {
+  if (mc_type==1||mc_type==4||mc_type==5) {
     mctruth_match_pi0(rcl[g]);
     mctruth_match_jpsi(rcl[e], rcl[p]);
   }
