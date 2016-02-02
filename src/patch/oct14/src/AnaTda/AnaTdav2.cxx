@@ -1242,7 +1242,7 @@ double AnaTdav2::py_pull_r(RhoCandidate* rf, RhoCandidate *mc) {
 }
 
 double AnaTdav2::py_pull_f(RhoCandidate* rf, RhoCandidate *mc) {
-  return (rf->GetFit()->P4().Y()-rf->P4().Y())/sqrt(rf->P4Err()[1][1]);
+  return (rf->GetFit()->P4().Y()-mc->P4().Y())/sqrt(rf->P4Err()[1][1]);
 }
 
 double AnaTdav2::pz_pull_r(RhoCandidate* rf, RhoCandidate *mc) {
