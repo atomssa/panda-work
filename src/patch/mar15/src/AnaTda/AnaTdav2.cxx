@@ -949,7 +949,7 @@ void AnaTdav2::fill_lists() {
   }
 
   // If signal sim, tag tracks from true jpsi and pi0
-  if (mc_type==1) {
+  if (mc_type==1||mc_type==4) {
     mctruth_match_pi0(rcl[g]);
     mctruth_match_jpsi(rcl[e], rcl[p]);
   }
