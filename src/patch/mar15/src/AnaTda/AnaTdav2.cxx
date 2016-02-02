@@ -293,6 +293,8 @@ void AnaTdav2::init_hists() {
   hpi0jpsi_chi24c = new TH1F("hpi0jpsi_chi24c","hpi0jpsi_chi24c",2000,0,10000);
   hpi0jpsi_chi24c_c = new TH1F("hpi0jpsi_chi24c_c","hpi0jpsi_chi24c_c",1000,0,500);
   hpi0jpsi_prob4c  = new TH1F("hpi0jpsi_prob4c ","hpi0jpsi_prob4c ",1000,0,1.0);
+  hpi0jpsi_pull4c  = new TH1F("hpi0jpsi_pull4c ","hpi0jpsi_pull4c ",1000,-6,6);
+  hpi0jpsi_chi2diff4c  = new TH1F("hpi0jpsi_chi2diff4c ","hpi0jpsi_chi2diff4c ",1000,-100,100);
 
   double hist_mmin[3] = {2.6,2.8,3.8};
   double hist_mmax[3] = {3.8,5.,6.};
@@ -1269,12 +1271,16 @@ void AnaTdav2::kin_fit_4c() {
 
     double sig_chi2_4c = fitter.GetChi2();	// get chi2 of fit
     double sig_prob_4c = fitter.GetProb();	// access probability of fit
+    double sig_pull_4c = fitter.GetPull();	// pull ?
+    double sig_chi2diff4c = fitter.Chi2Diff();	// chi2diff ?
     //int ndf_4c = fitter.GetNdf();
     //cout << "sig_chi2_4c/NDF = " << sig_chi2_4c << "/" << ndf_4c << " sig_prob_4c = " << sig_prob_4c << endl;
 
     hpi0jpsi_chi24c->Fill(sig_chi2_4c);
     hpi0jpsi_chi24c_c->Fill(sig_chi2_4c);
     hpi0jpsi_prob4c->Fill(sig_prob_4c);
+    hpi0jpsi_pull4c->Fill(sig_pull_4c);
+    hpi0jpsi_chi2diff4c->Fill(sig_chi2diff4c);
 
     // Fill correlation histograms between chi2 of 4c and Mtot, cm opening angle
     double raw_mtot = (rcl[iep_excl][0]->P4()+rcl[gg_excl][0]->P4()).M();

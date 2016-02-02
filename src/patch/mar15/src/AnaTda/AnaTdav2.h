@@ -215,6 +215,8 @@ class AnaTdav2 : public FairTask{
   TH1F *hpi0jpsi_chi24c;
   TH1F *hpi0jpsi_chi24c_c;
   TH1F *hpi0jpsi_prob4c;
+  TH1F *hpi0jpsi_pull4c;
+  TH1F *hpi0jpsi_chi2diff4c;
   TH2F *hpi0jpsi_chi24c_vs_mtot_r;
   TH2F *hpi0jpsi_chi24c_vs_cm_dth_r;
   TH2F *hpi0jpsi_chi24c_vs_cm_dph_r;
