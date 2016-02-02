@@ -310,22 +310,22 @@ void AnaTdav2::init_hists() {
 
   // pull distributions
   double zoom = (mc_type == 1||mc_type == 5)? 1.0:2.0;
-  hmom_pull_ep_r = new TH1F("hmom_pull_ep_r","mom pull e^{+} (reco)",150,-3.*fact,3.*fact);
-  hmom_pull_ep_f = new TH1F("hmom_pull_ep_f","mom pull e^{+} (fit)",150,-3.*fact,3.*fact);
-  hmom_pull_em_r = new TH1F("hmom_pull_em_r","mom pull e^{-} (reco)",150,-3.*fact,3.*fact);
-  hmom_pull_em_f = new TH1F("hmom_pull_em_f","mom pull e^{-} (fit)",150,-3.*fact,3.*fact);
-  hpx_pull_ep_r = new TH1F("hpx_pull_ep_r","px pull e^{+} (reco)",150,-3.*fact,3.*fact);
-  hpx_pull_ep_f = new TH1F("hpx_pull_ep_f","px pull e^{+} (fit)",150,-3.*fact,3.*fact);
-  hpx_pull_em_r = new TH1F("hpx_pull_em_r","px pull e^{-} (reco)",150,-3.*fact,3.*fact);
-  hpx_pull_em_f = new TH1F("hpx_pull_em_f","px pull e^{-} (fit)",150,-3.*fact,3.*fact);
-  hpy_pull_ep_r = new TH1F("hpy_pull_ep_r","py pull e^{+} (reco)",150,-3.*fact,3.*fact);
-  hpy_pull_ep_f = new TH1F("hpy_pull_ep_f","py pull e^{+} (fit)",150,-3.*fact,3.*fact);
-  hpy_pull_em_r = new TH1F("hpy_pull_em_r","py pull e^{-} (reco)",150,-3.*fact,3.*fact);
-  hpy_pull_em_f = new TH1F("hpy_pull_em_f","py pull e^{-} (fit)",150,-3.*fact,3.*fact);
-  hpz_pull_ep_r = new TH1F("hpz_pull_ep_r","pz pull e^{+} (reco)",150,-3.*fact,3.*fact);
-  hpz_pull_ep_f = new TH1F("hpz_pull_ep_f","pz pull e^{+} (fit)",150,-3.*fact,3.*fact);
-  hpz_pull_em_r = new TH1F("hpz_pull_em_r","pz pull e^{-} (reco)",150,-3.*fact,3.*fact);
-  hpz_pull_em_f = new TH1F("hpz_pull_em_f","pz pull e^{-} (fit)",150,-3.*fact,3.*fact);
+  hmom_pull_ep_r = new TH1F("hmom_pull_ep_r","mom pull e^{+} (reco)",150,-3.*zoom,3.*zoom);
+  hmom_pull_ep_f = new TH1F("hmom_pull_ep_f","mom pull e^{+} (fit)",150,-3.*zoom,3.*zoom);
+  hmom_pull_em_r = new TH1F("hmom_pull_em_r","mom pull e^{-} (reco)",150,-3.*zoom,3.*zoom);
+  hmom_pull_em_f = new TH1F("hmom_pull_em_f","mom pull e^{-} (fit)",150,-3.*zoom,3.*zoom);
+  hpx_pull_ep_r = new TH1F("hpx_pull_ep_r","px pull e^{+} (reco)",150,-3.*zoom,3.*zoom);
+  hpx_pull_ep_f = new TH1F("hpx_pull_ep_f","px pull e^{+} (fit)",150,-3.*zoom,3.*zoom);
+  hpx_pull_em_r = new TH1F("hpx_pull_em_r","px pull e^{-} (reco)",150,-3.*zoom,3.*zoom);
+  hpx_pull_em_f = new TH1F("hpx_pull_em_f","px pull e^{-} (fit)",150,-3.*zoom,3.*zoom);
+  hpy_pull_ep_r = new TH1F("hpy_pull_ep_r","py pull e^{+} (reco)",150,-3.*zoom,3.*zoom);
+  hpy_pull_ep_f = new TH1F("hpy_pull_ep_f","py pull e^{+} (fit)",150,-3.*zoom,3.*zoom);
+  hpy_pull_em_r = new TH1F("hpy_pull_em_r","py pull e^{-} (reco)",150,-3.*zoom,3.*zoom);
+  hpy_pull_em_f = new TH1F("hpy_pull_em_f","py pull e^{-} (fit)",150,-3.*zoom,3.*zoom);
+  hpz_pull_ep_r = new TH1F("hpz_pull_ep_r","pz pull e^{+} (reco)",150,-3.*zoom,3.*zoom);
+  hpz_pull_ep_f = new TH1F("hpz_pull_ep_f","pz pull e^{+} (fit)",150,-3.*zoom,3.*zoom);
+  hpz_pull_em_r = new TH1F("hpz_pull_em_r","pz pull e^{-} (reco)",150,-3.*zoom,3.*zoom);
+  hpz_pull_em_f = new TH1F("hpz_pull_em_f","pz pull e^{-} (fit)",150,-3.*zoom,3.*zoom);
 
 }
 
