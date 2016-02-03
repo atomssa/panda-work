@@ -1604,6 +1604,8 @@ void AnaTdav2::write_hists() {
   hpi0jpsi_chi24c->Write();
   hpi0jpsi_chi24c_c->Write();
   hpi0jpsi_prob4c->Write();
+  hpi0jpsi_pull4c->Write();
+  hpi0jpsi_chi2diff4c->Write();
 
   hpi0jpsi_chi24c_vs_mtot_r->Write();
   hpi0jpsi_chi24c_vs_cm_dth_r->Write();
