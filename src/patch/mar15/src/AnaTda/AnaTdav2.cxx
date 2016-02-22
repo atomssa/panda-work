@@ -180,7 +180,9 @@ void AnaTdav2::init_hists() {
 
   for (int is = 0; is< nstep; ++is) {
     hmep[is] = new TH1F(Form("hmep_%d",is),Form("hmep_%d",is),400,0,5);
+    hmep_valid[is] = new TH1F(Form("hmep_valid_%d",is),Form("hmep_valid_%d",is),400,0,5);
     hmgg[is] = new TH1F(Form("hmgg_%d",is),Form("hmgg_%d",is),400,0,0.2);
+    hmgg_valid[is] = new TH1F(Form("hmgg_valid_%d",is),Form("hmgg_valid_%d",is),400,0,0.2);
     hnep[is] = new TH1F(Form("hnep_%d",is),Form("hnep_%d",is),6,-0.5,5.5);
     hngg[is] = new TH1F(Form("hngg_%d",is),Form("hngg_%d",is),26,-0.5,25.5);
     hnpi0jpsi[is] = new TH1F(Form("hnpi0jpsi_%d",is),Form("hnpi0jpsi_%d",is),6,-0.5,5.5);
@@ -205,20 +207,20 @@ void AnaTdav2::init_hists() {
   for (int ib=0; ib<tu_binning.size()-1; ++ib) {
     hmep_pi0cost_cm.push_back( new TH1F(Form("hmep_pi0cost_cm_%d", ib), Form("hmep_pi0cost_cm_%d", ib), 200, 0, 5));
     hmep_pi0th.push_back( new TH1F(Form("hmep_pi0th_%d", ib), Form("hmep_pi0th_%d", ib), 200, 0, 5));
-    hmept.push_back(new TH1F(Form("hmept%d", ib), Form("%3.1f < t < %3.1f;M_{inv}", tu_binning[ib], tu_binning[ib+1]), 200, 0, 5));
-    hmepu.push_back(new TH1F(Form("hmepu%d", ib), Form("%3.1f < u < %3.1f;M_{inv}", tu_binning[ib], tu_binning[ib+1]), 200, 0, 5));
+    hmept.push_back(new TH1F(Form("hmept%d", ib), Form("%4.2f < t < %4.2f;M_{inv}", tu_binning[ib], tu_binning[ib+1]), 200, 0, 5));
+    hmepu.push_back(new TH1F(Form("hmepu%d", ib), Form("%4.2f < u < %4.2f;M_{inv}", tu_binning[ib], tu_binning[ib+1]), 200, 0, 5));
   }
 
   for (int iby=0; iby < the_binning_2d.size()-1; ++iby) {
     for (int ibx=0; ibx < tu_binning_2d.size()-1; ++ibx) {
-      hmeptthe.push_back(new TH1F(Form("hmep_t%d_th%d", ibx, iby), Form("%3.1f < t < %3.1f & %3.0f < #theta < %3.0f;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], the_binning_2d[iby], the_binning_2d[iby+1]), 200, 0, 5));
-      hmeptcth.push_back(new TH1F(Form("hmep_t%d_cth%d", ibx, iby), Form("%3.1f < t < %3.1f & %3.0f < cos(#theta) < %3.0f;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], costh_binning_2d[iby], costh_binning_2d[iby+1]), 200, 0, 5));
+      hmeptthe.push_back(new TH1F(Form("hmep_t%d_th%d", ibx, iby), Form("%4.2f < t < %4.2f & %3.0f < #theta < %3.0f;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], the_binning_2d[iby], the_binning_2d[iby+1]), 200, 0, 5));
+      hmeptcth.push_back(new TH1F(Form("hmep_t%d_cth%d", ibx, iby), Form("%4.2f < t < %4.2f & %4.2f < cos(#theta) < %4.2f;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], costh_binning_2d[iby], costh_binning_2d[iby+1]), 200, 0, 5));
     }
   }
   for (int iby=0; iby < costh_binning_2d.size()-1; ++iby) {
     for (int ibx=0; ibx < tu_binning_2d.size()-1; ++ibx) {
-      hmeputhe.push_back(new TH1F(Form("hmep_u%d_th%d", ibx, ibx), Form("%3.1f < u < %3.1f & %3.0f < #theta < %3.0f;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], the_binning_2d[iby], the_binning_2d[iby+1]), 200, 0, 5));
-      hmepucth.push_back(new TH1F(Form("hmep_u%d_cth%d", iby, ibx), Form("%3.1f < u < %3.1f & %3.0f < cos(#theta) < %3.0f;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], costh_binning_2d[iby], costh_binning_2d[iby+1]), 200, 0, 5));
+      hmeputhe.push_back(new TH1F(Form("hmep_u%d_th%d", ibx, ibx), Form("%4.2f < u < %4.2f & %3.0f < #theta < %3.0f;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], the_binning_2d[iby], the_binning_2d[iby+1]), 200, 0, 5));
+      hmepucth.push_back(new TH1F(Form("hmep_u%d_cth%d", ibx, iby), Form("%4.2f < u < %4.2f & %4.2f < cos(#theta) < %4.2f;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], costh_binning_2d[iby], costh_binning_2d[iby+1]), 200, 0, 5));
     }
   }
 
@@ -261,10 +263,17 @@ void AnaTdav2::init_hists() {
   htresep = new TH1F("htresep", "htresep", 1000, -3, 3);
   huresep = new TH1F("huresep", "huresep", 1000, -3, 3);
 
-  hepthe_jpsi_rec = new TH1F("hepthe_jpsi_rec", "hepthe_jpsi_rec", 1000, -5., 185.0);
-  hepcosth_jpsi_rec = new TH1F("hepcosth_jpsi_rec", "hepcosth_jpsi_rec", 1000, -1.1, 1.1);
-  hepthe_jpsi_mc = new TH1F("hepthe_jpsi_mc", "hepthe_jpsi_mc", 1000, -5., 185.0);
-  hepcosth_jpsi_mc = new TH1F("hepcosth_jpsi_mc", "hepcosth_jpsi_mc", 1000, -1.1, 1.1);
+  hepthe_jpsi_rec_all = new TH1F("hepthe_jpsi_rec_all", "hepthe_jpsi_rec_all", 1000, -5., 185.0);
+  hepcosth_jpsi_rec_all = new TH1F("hepcosth_jpsi_rec_all", "hepcosth_jpsi_rec_all", 1000, -1.1, 1.1);
+  hepthe_jpsi_mc_all = new TH1F("hepthe_jpsi_mc_all", "hepthe_jpsi_mc_all", 1000, -5., 185.0);
+  hepcosth_jpsi_mc_all = new TH1F("hepcosth_jpsi_mc_all", "hepcosth_jpsi_mc_all", 1000, -1.1, 1.1);
+  for (int ii=0; ii < 4; ++ii) {
+    hepthe_jpsi_rec[ii] = new TH1F(Form("hepthe_jpsi_rec_itu%d",ii), Form("hepthe_jpsi_rec_itu%d",ii), 1000, -5., 185.0);
+    hepcosth_jpsi_rec[ii] = new TH1F(Form("hepcosth_jpsi_rec_itu%d",ii), Form("hepcosth_jpsi_rec_itu%d",ii), 1000, -1.1, 1.1);
+    hepthe_jpsi_mc[ii] = new TH1F(Form("hepthe_jpsi_mc_itu%d",ii), Form("hepthe_jpsi_mc_itu%d",ii), 1000, -5., 185.0);
+    hepcosth_jpsi_mc[ii] = new TH1F(Form("hepcosth_jpsi_mc_itu%d",ii), Form("hepcosth_jpsi_mc_itu%d",ii), 1000, -1.1, 1.1);
+  }
+
 
   htrupi0thcm = new TH1F("htrupi0thcm", "htrupi0thch", 1000, 0., TMath::Pi());
   htrupi0costhcm = new TH1F("htrupi0costhcm", "htrupi0costhcm", 1100, -1.1, 1.1);
@@ -370,11 +379,11 @@ void AnaTdav2::beam_cond(){
   }
   print_binning(tu_binning, "tu_binning");
 
-  tu_binning_2d.push_back(ftmin[iplab]);
-  tu_binning_2d.push_back((ftmin[iplab]+tmax[iplab])/2.0);
+  tu_binning_2d.push_back(tmin[iplab]);
+  tu_binning_2d.push_back((tmin[iplab]+tmax[iplab])/2.0);
   tu_binning_2d.push_back(tmax[iplab]);
-  for (int ith=0; ith < 7; ++ith) { the_binning_2d.push_back(180.*ith/6.); }
-  for (int icth=0; icth < 7; ++icth) { costh_binning_2d.push_back(1.*icth/6.); }
+  for (int ith=0; ith < 9; ++ith) { the_binning_2d.push_back(180.*ith/8.); }
+  for (int icth=0; icth < 9; ++icth) { costh_binning_2d.push_back(-1.0 + (2.0*icth/8.0)); }
 
   // Equal subdivisions in costh_cm, boost to lab for th bins
   TLorentzVector pi0;
@@ -777,6 +786,10 @@ bool AnaTdav2::calc_true_tu() {
 	event_pi0theta_cm = pi0theta_cm(mcList[j]);
 	event_pi0theta_lab = mcList[j]->P4().Theta();
 
+	int itbin_2d = find_bin(event_t, tu_binning_2d);
+	int iubin_2d = find_bin(event_u, tu_binning_2d);
+	int itu2d = itbin_2d>=0?itbin_2d:(iubin_2d>=0?2+iubin_2d:-1);
+
 	event_epthe_jpsi = -9999.0;
 	event_epcosth_jpsi = -9999.0;
 	if (is_evt_gen()) {
@@ -784,8 +797,14 @@ bool AnaTdav2::calc_true_tu() {
 	    if (mcList[ik]->PdgCode()==443) {
 	      event_epthe_jpsi = the_b(get_p4ep(mcList[ik]), -mcList[ik]->P4().BoostVector());
 	      event_epcosth_jpsi = cost_b(get_p4ep(mcList[ik]), -mcList[ik]->P4().BoostVector());
-	      hepthe_jpsi_mc->Fill(event_epthe_jpsi);
-	      hepcosth_jpsi_mc->Fill(event_epcosth_jpsi);
+
+	      hepthe_jpsi_mc_all->Fill(event_epthe_jpsi);
+	      hepcosth_jpsi_mc_all->Fill(event_epcosth_jpsi);
+	      if (itu2d>=0){
+		hepthe_jpsi_rec[itu2d]->Fill(event_epthe_jpsi);
+		hepcosth_jpsi_rec[itu2d]->Fill(event_epcosth_jpsi);
+	      }
+
 	    }
 	  }
 	}
@@ -1221,7 +1240,7 @@ double AnaTdav2::err_mom_sq(RhoCandidate *rr) {
     2*prec.X()*prec.Y()*err[0][1] +
     2*prec.X()*prec.Z()*err[0][2] +
     2*prec.Y()*prec.Z()*err[1][2];
-  return err_mom_fc_sq*4/prec.Vect().Mag2();
+  return err_mom_fc_sq/prec.Vect().Mag2();
 }
 
 double AnaTdav2::mom_pull_r(RhoCandidate* rf, RhoCandidate *mc) {
@@ -1323,8 +1342,16 @@ void AnaTdav2::kin_fit_4c() {
     hpz_pull_em_r->Fill(pz_pull_r(rcl[iep_excl][0]->Daughter(idm_r),mcList[mc_elec]));
     hpz_pull_em_f->Fill(pz_pull_f(rcl[iep_excl][0]->Daughter(idm_r),mcList[mc_elec]));
 
+    double _t_gg = t_gg(rcl[gg_excl][0]);
+    double _u_gg = u_gg(rcl[gg_excl][0]);
+    bool t_ok = (tmin[iplab] < _t_gg && _t_gg < tmax[iplab]);
+    bool u_ok = (tmin[iplab] < _u_gg && _u_gg < tmax[iplab]);
+    bool _valid = t_ok || u_ok;
+
     fill_pair_mass(rcl[iep_excl], hmep[5]);
     fill_pair_mass(rcl[gg_excl], hmgg[5]);
+    if (_valid) fill_pair_mass(rcl[iep_excl], hmep_valid[5]);
+    if (_valid) fill_pair_mass(rcl[gg_excl], hmgg_valid[5]);
     fill_mctruth(rcl[iep_excl], rcl[gg_excl], 5);
 
     // loop over all gg pair candiates, and check if there is
@@ -1369,18 +1396,24 @@ void AnaTdav2::kin_fit_4c() {
       rcl[gg_kinc].Append(rcl[gg_excl][0]);
       fill_pair_mass(rcl[iep_excl], hmep[6]);
       fill_pair_mass(rcl[gg_excl], hmgg[6]);
+      if (_valid) fill_pair_mass(rcl[iep_excl], hmep_valid[6]);
+      if (_valid) fill_pair_mass(rcl[gg_excl], hmgg_valid[6]);
       fill_mctruth(rcl[iep_excl], rcl[gg_excl], 6);
       if (!xtra_pi0_found || (xtra_pi0_found && bg_chi2_4c > sig_chi2_4c)) {
     	rcl[iep_kinc_bg].Append(rcl[iep_excl][0]);
     	rcl[gg_kinc_bg].Append(rcl[gg_excl][0]);
     	fill_pair_mass(rcl[iep_excl], hmep[7]);
     	fill_pair_mass(rcl[gg_excl], hmgg[7]);
+	if (_valid) fill_pair_mass(rcl[iep_excl], hmep_valid[6]);
+	if (_valid) fill_pair_mass(rcl[gg_excl], hmgg_valid[6]);
 	fill_mctruth(rcl[iep_excl], rcl[gg_excl], 7);
     	if (ng20mev<4) {
     	  rcl[iep_ngcut].Append(rcl[iep_excl][0]);
     	  rcl[gg_ngcut].Append(rcl[gg_excl][0]);
     	  fill_pair_mass(rcl[iep_excl], hmep[8]);
     	  fill_pair_mass(rcl[gg_excl], hmgg[8]);
+	  if (_valid) fill_pair_mass(rcl[iep_excl], hmep_valid[8]);
+	  if (_valid) fill_pair_mass(rcl[gg_excl], hmgg_valid[8]);
 	  fill_mctruth(rcl[iep_excl], rcl[gg_excl], 8);
     	}
       }
@@ -1492,8 +1525,14 @@ void AnaTdav2::fill_bins(RhoCandList& rclep, RhoCandList& rclgg) {
     hurecgg->Fill(urecgg);
     htrecep->Fill(trecep);
     hurecep->Fill(urecep);
-    hepthe_jpsi_rec->Fill(epthe_jpsi_rec);
-    hepcosth_jpsi_rec->Fill(epcosth_jpsi_rec);
+
+    int itu2d = itbin_2d>=0?itbin_2d:(iubin_2d>=0?2+iubin_2d:-1);
+    hepthe_jpsi_rec_all->Fill(epthe_jpsi_rec);
+    hepcosth_jpsi_rec_all->Fill(epcosth_jpsi_rec);
+    if (itu2d>=0){
+      hepthe_jpsi_rec[itu2d]->Fill(epthe_jpsi_rec);
+      hepcosth_jpsi_rec[itu2d]->Fill(epcosth_jpsi_rec);
+    }
 
     if (rclep[0]->M()>jpsi_m_3sig_min&&rclep[0]->M()<jpsi_m_3sig_max) {
       htrecgg_mcut->Fill(trecgg);
@@ -1586,6 +1625,8 @@ void AnaTdav2::write_hists() {
   for (int is = 0; is< nstep; ++is) {
     hmep[is]->Write();
     hmgg[is]->Write();
+    hmep_valid[is]->Write();
+    hmgg_valid[is]->Write();
     hnep[is]->Write();
     hngg[is]->Write();
     hnpi0jpsi[is]->Write();
@@ -1623,10 +1664,19 @@ void AnaTdav2::write_hists() {
   hng20mev->Write();
   hnch->Write();
 
-  hepthe_jpsi_rec->Write();
-  hepcosth_jpsi_rec->Write();
-  hepthe_jpsi_mc->Write();
-  hepcosth_jpsi_mc->Write();
+  gDirectory->mkdir("epeff");
+  gDirectory->cd("epeff");
+  hepthe_jpsi_rec_all->Write();
+  hepcosth_jpsi_rec_all->Write();
+  hepthe_jpsi_mc_all->Write();
+  hepcosth_jpsi_mc_all->Write();
+  for (int ii=0; ii < 4; ++ii) {
+    hepthe_jpsi_rec[ii]->Write();
+    hepcosth_jpsi_rec[ii]->Write();
+    hepthe_jpsi_mc[ii]->Write();
+    hepcosth_jpsi_mc[ii]->Write();
+  }
+  gDirectory->cd(root_dir);
 
   gDirectory->mkdir("tthebins");
   gDirectory->cd("tthebins");

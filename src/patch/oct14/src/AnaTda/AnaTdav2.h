@@ -163,8 +163,8 @@ class AnaTdav2 : public FairTask{
   TH1F* hnch;
   TH1F* hmep_mct[nstep], *hmep_non_mct[nstep], *hthe_ep_mct[nstep], *hthe_ep_mct_fwd[nstep], *hthe_ep_mct_bwd[nstep];
   TH1F* hmgg_mct[nstep], *hmgg_non_mct[nstep], *hthe_gg_mct[nstep], *hthe_gg_mct_fwd[nstep], *hthe_gg_mct_bwd[nstep], *hoa_gg_mct[nstep];
-  TH1F* hmep[nstep];
-  TH1F* hmgg[nstep];
+  TH1F* hmep[nstep], *hmep_valid[nstep];
+  TH1F* hmgg[nstep], *hmgg_valid[nstep];
   TH1F* hnep[nstep];
   TH1F* hngg[nstep];
   TH1F* hnpi0jpsi[nstep];
@@ -203,8 +203,10 @@ class AnaTdav2 : public FairTask{
   TH2F* htrupi0thcm_vs_m, *htrupi0thlab_vs_m, *htrupi0costhcm_vs_m;
   TH2F* htrupi0thcm_mcut_vs_m, *htrupi0thlab_mcut_vs_m, *htrupi0costhcm_mcut_vs_m;
   TH1F* htresgg, *huresgg, *htresep, *huresep;
-  TH1F* hepthe_jpsi_rec, *hepcosth_jpsi_rec;
-  TH1F* hepthe_jpsi_mc, *hepcosth_jpsi_mc;
+  TH1F* hepthe_jpsi_rec_all, *hepcosth_jpsi_rec_all;
+  TH1F* hepthe_jpsi_mc_all, *hepcosth_jpsi_mc_all;
+  TH1F* hepthe_jpsi_rec[4], *hepcosth_jpsi_rec[4];
+  TH1F* hepthe_jpsi_mc[4], *hepcosth_jpsi_mc[4];
 
   TH1F *hmep_mconst;
   TH1F *hmtot_mconst;
