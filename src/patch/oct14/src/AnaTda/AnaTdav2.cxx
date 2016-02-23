@@ -801,8 +801,8 @@ bool AnaTdav2::calc_true_tu() {
 	      hepthe_jpsi_mc_all->Fill(event_epthe_jpsi);
 	      hepcosth_jpsi_mc_all->Fill(event_epcosth_jpsi);
 	      if (itu2d>=0){
-		hepthe_jpsi_rec[itu2d]->Fill(event_epthe_jpsi);
-		hepcosth_jpsi_rec[itu2d]->Fill(event_epcosth_jpsi);
+		hepthe_jpsi_mc[itu2d]->Fill(event_epthe_jpsi);
+		hepcosth_jpsi_mc[itu2d]->Fill(event_epcosth_jpsi);
 	      }
 
 	    }
