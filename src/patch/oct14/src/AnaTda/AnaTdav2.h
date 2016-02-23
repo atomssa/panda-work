@@ -133,7 +133,9 @@ class AnaTdav2 : public FairTask{
   double event_epthe_jpsi;
   double event_epcosth_jpsi;
   double m_pip_wt, m_pim_wt, m_evt_wt;
+  double m_epcth_wt0, m_epcth_wt1;
   double tmin[3]; //={-0.443789, -1.0, -1.0};
+  double tmid[3]; //={-0.443789, -1.0, -1.0};
   double tmax[3]; //={0.616486, 0.457248, 0.31538};
   double nevt_sim[7][3]; // number of simulated events for x-sect normalization
   double nevt_xsect[7][3]; // number of simulated events for x-sect normalization
@@ -184,9 +186,9 @@ class AnaTdav2 : public FairTask{
   std::vector<TH1F*> hmept;
   std::vector<TH1F*> hmepu;
   std::vector<TH1F*> hmeptthe;
-  std::vector<TH1F*> hmeptcth;
+  std::vector<TH1F*> hmeptcth,hmeptcth0,hmeptcth1;
   std::vector<TH1F*> hmeputhe;
-  std::vector<TH1F*> hmepucth;
+  std::vector<TH1F*> hmepucth,hmepucth0,hmepucth1;
 
   TH1F* hmmiss, *hmmiss2;
   TH1F* hmmiss_jpsi, *hmmiss2_jpsi;
@@ -204,7 +206,7 @@ class AnaTdav2 : public FairTask{
   TH2F* htrupi0thcm_mcut_vs_m, *htrupi0thlab_mcut_vs_m, *htrupi0costhcm_mcut_vs_m;
   TH1F* htresgg, *huresgg, *htresep, *huresep;
   TH1F* hepthe_jpsi_rec_all, *hepcosth_jpsi_rec_all;
-  TH1F* hepthe_jpsi_mc_all, *hepcosth_jpsi_mc_all;
+  TH1F* hepthe_jpsi_mc_all, *hepcosth_jpsi_mc_all, *hepcosth_jpsi_mc_all_wt0, *hepcosth_jpsi_mc_all_wt1;
   TH1F* hepthe_jpsi_rec[4], *hepcosth_jpsi_rec[4];
   TH1F* hepthe_jpsi_mc[4], *hepcosth_jpsi_mc[4];
 
@@ -318,6 +320,7 @@ class AnaTdav2 : public FairTask{
   void fill_mmiss_jpsi(RhoCandList&, TH1F*, TH1F*);
   void fill_dth_dph_cm(RhoCandList&, RhoCandList&, TH2F*);
   void fill_pair_mass(RhoCandList&, TH1F*);
+  void fill_pair_mass(RhoCandList&, TH1F*, double);
   void fill_count_hists(int, int, int);
   void fill_mctruth(RhoCandList&, RhoCandList&, int);
   void print_indices();

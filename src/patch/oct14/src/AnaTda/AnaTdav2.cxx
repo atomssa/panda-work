@@ -39,7 +39,9 @@ AnaTdav2::AnaTdav2(const int& _iplab, const int& itype, const int& brem, const i
   //tmax{0.616486, 0.457248, 0.31538},
   //tmin{-0.443789, -2.76, -6.50},
   //tmax{0.616486, 0.457248, 0.31538},
-  tmin{-0.092, -1.3, -2.85},
+  //tmin{-0.092, -1.3, -2.85},
+  tmin{-0.092, -1.0, -1.0},
+  tmid{-0.45, -2.76, -6.5},
   tmax{0.59, 0.43, 0.3},
   //nevt_sim{81874.0, 224120.0, 189015.0},
   // 1st index: 0->pi0pipm, 1->pi0jpsi, 2->pi02pipm, 3->pi0pipm2, 4->pi02jpsi
@@ -213,14 +215,24 @@ void AnaTdav2::init_hists() {
 
   for (int iby=0; iby < the_binning_2d.size()-1; ++iby) {
     for (int ibx=0; ibx < tu_binning_2d.size()-1; ++ibx) {
-      hmeptthe.push_back(new TH1F(Form("hmep_t%d_th%d", ibx, iby), Form("%4.2f < t < %4.2f & %3.0f < #theta < %3.0f;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], the_binning_2d[iby], the_binning_2d[iby+1]), 200, 0, 5));
-      hmeptcth.push_back(new TH1F(Form("hmep_t%d_cth%d", ibx, iby), Form("%4.2f < t < %4.2f & %4.2f < cos(#theta) < %4.2f;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], costh_binning_2d[iby], costh_binning_2d[iby+1]), 200, 0, 5));
+      hmeptthe.push_back(new TH1F(Form("hmep_t%d_th%d", ibx, iby), Form("%5.3f < t < %5.3f & %3.0f < #theta < %3.0f;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], the_binning_2d[iby], the_binning_2d[iby+1]), 200, 0, 5));
+      hmeptcth.push_back(new TH1F(Form("hmep_t%d_cth%d", ibx, iby), Form("%5.3f < t < %5.3f & %4.2f < cos(#theta) < %4.2f;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], costh_binning_2d[iby], costh_binning_2d[iby+1]), 200, 0, 5));
+      hmeptcth[hmeptcth.size()-1]->Sumw2();
+      hmeptcth0.push_back(new TH1F(Form("hmep_t%d_cth%d_wt0", ibx, iby), Form("%5.3f < t < %5.3f & %4.2f < cos(#theta) < %4.2f, A=1.0;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], costh_binning_2d[iby], costh_binning_2d[iby+1]), 200, 0, 5));
+      hmeptcth0[hmeptcth0.size()-1]->Sumw2();
+      hmeptcth1.push_back(new TH1F(Form("hmep_t%d_cth%d_wt1", ibx, iby), Form("%5.3f < t < %5.3f & %4.2f < cos(#theta) < %4.2f, A=0.4;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], costh_binning_2d[iby], costh_binning_2d[iby+1]), 200, 0, 5));
+      hmeptcth1[hmeptcth1.size()-1]->Sumw2();
     }
   }
   for (int iby=0; iby < costh_binning_2d.size()-1; ++iby) {
     for (int ibx=0; ibx < tu_binning_2d.size()-1; ++ibx) {
-      hmeputhe.push_back(new TH1F(Form("hmep_u%d_th%d", ibx, ibx), Form("%4.2f < u < %4.2f & %3.0f < #theta < %3.0f;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], the_binning_2d[iby], the_binning_2d[iby+1]), 200, 0, 5));
-      hmepucth.push_back(new TH1F(Form("hmep_u%d_cth%d", ibx, iby), Form("%4.2f < u < %4.2f & %4.2f < cos(#theta) < %4.2f;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], costh_binning_2d[iby], costh_binning_2d[iby+1]), 200, 0, 5));
+      hmeputhe.push_back(new TH1F(Form("hmep_u%d_th%d", ibx, ibx), Form("%5.3f < u < %5.3f & %3.0f < #theta < %3.0f;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], the_binning_2d[iby], the_binning_2d[iby+1]), 200, 0, 5));
+      hmepucth.push_back(new TH1F(Form("hmep_u%d_cth%d", ibx, iby), Form("%5.3f < u < %5.3f & %4.2f < cos(#theta) < %4.2f;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], costh_binning_2d[iby], costh_binning_2d[iby+1]), 200, 0, 5));
+      hmepucth[hmepucth.size()-1]->Sumw2();
+      hmepucth0.push_back(new TH1F(Form("hmep_u%d_cth%d_wt0", ibx, iby), Form("%5.3f < u < %5.3f & %4.2f < cos(#theta) < %4.2f, A=1.0;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], costh_binning_2d[iby], costh_binning_2d[iby+1]), 200, 0, 5));
+      hmepucth0[hmepucth0.size()-1]->Sumw2();
+      hmepucth1.push_back(new TH1F(Form("hmep_u%d_cth%d_wt1", ibx, iby), Form("%5.3f < u < %5.3f & %4.2f < cos(#theta) < %4.2f, A=0.4;M_{inv}", tu_binning_2d[ibx], tu_binning_2d[ibx+1], costh_binning_2d[iby], costh_binning_2d[iby+1]), 200, 0, 5));
+      hmepucth1[hmepucth1.size()-1]->Sumw2();
     }
   }
 
@@ -267,6 +279,9 @@ void AnaTdav2::init_hists() {
   hepcosth_jpsi_rec_all = new TH1F("hepcosth_jpsi_rec_all", "hepcosth_jpsi_rec_all", 1000, -1.1, 1.1);
   hepthe_jpsi_mc_all = new TH1F("hepthe_jpsi_mc_all", "hepthe_jpsi_mc_all", 1000, -5., 185.0);
   hepcosth_jpsi_mc_all = new TH1F("hepcosth_jpsi_mc_all", "hepcosth_jpsi_mc_all", 1000, -1.1, 1.1);
+  hepcosth_jpsi_mc_all_wt0 = new TH1F("hepcosth_jpsi_mc_all_wt0", "hepcosth_jpsi_mc_all_wt0", 1000, -1.1, 1.1);
+  hepcosth_jpsi_mc_all_wt1 = new TH1F("hepcosth_jpsi_mc_all_wt1", "hepcosth_jpsi_mc_all_wt1", 1000, -1.1, 1.1);
+
   for (int ii=0; ii < 4; ++ii) {
     hepthe_jpsi_rec[ii] = new TH1F(Form("hepthe_jpsi_rec_itu%d",ii), Form("hepthe_jpsi_rec_itu%d",ii), 1000, -5., 185.0);
     hepcosth_jpsi_rec[ii] = new TH1F(Form("hepcosth_jpsi_rec_itu%d",ii), Form("hepcosth_jpsi_rec_itu%d",ii), 1000, -1.1, 1.1);
@@ -379,11 +394,13 @@ void AnaTdav2::beam_cond(){
   }
   print_binning(tu_binning, "tu_binning");
 
+  tu_binning_2d.push_back(tmid[iplab]);
   tu_binning_2d.push_back(tmin[iplab]);
-  tu_binning_2d.push_back((tmin[iplab]+tmax[iplab])/2.0);
+  //tu_binning_2d.push_back((tmin[iplab]+tmax[iplab])/2.0);
   tu_binning_2d.push_back(tmax[iplab]);
   for (int ith=0; ith < 9; ++ith) { the_binning_2d.push_back(180.*ith/8.); }
-  for (int icth=0; icth < 9; ++icth) { costh_binning_2d.push_back(-1.0 + (2.0*icth/8.0)); }
+  //for (int icth=0; icth < 9; ++icth) { costh_binning_2d.push_back(-1.0 + (2.0*icth/8.0)); }
+  for (int icth=0; icth < 9; ++icth) { costh_binning_2d.push_back(-0.8 + (2.0*icth/10.0)); }
 
   // Equal subdivisions in costh_cm, boost to lab for th bins
   TLorentzVector pi0;
@@ -460,6 +477,13 @@ void AnaTdav2::fill_dth_dph_cm(RhoCandList& _ep, RhoCandList& _gg, TH2F* dest) {
 // but this will require big changes in structure
 void AnaTdav2::fill_pair_mass(RhoCandList& org, TH1F* dest) {
   for (int j = 0; j < org.GetLength(); ++j) dest->Fill(org[j]->M(),m_evt_wt);
+}
+
+// Here, weight that is applied is the "event" weight. For mutli-pair events all pairs get the same weight.
+// It is possible to do better, by calculating the weight for each pair based on the MC truth info
+// but this will require big changes in structure
+void AnaTdav2::fill_pair_mass(RhoCandList& org, TH1F* dest, double more_weight) {
+  for (int j = 0; j < org.GetLength(); ++j) dest->Fill(org[j]->M(),m_evt_wt*more_weight);
 }
 
 bool AnaTdav2::check_mct_jpsi(RhoCandidate* _cand) {
@@ -790,6 +814,8 @@ bool AnaTdav2::calc_true_tu() {
 	int iubin_2d = find_bin(event_u, tu_binning_2d);
 	int itu2d = itbin_2d>=0?itbin_2d:(iubin_2d>=0?2+iubin_2d:-1);
 
+	m_epcth_wt0 = 1.0;
+	m_epcth_wt1 = 1.0;
 	event_epthe_jpsi = -9999.0;
 	event_epcosth_jpsi = -9999.0;
 	if (is_evt_gen()) {
@@ -798,8 +824,13 @@ bool AnaTdav2::calc_true_tu() {
 	      event_epthe_jpsi = the_b(get_p4ep(mcList[ik]), -mcList[ik]->P4().BoostVector());
 	      event_epcosth_jpsi = cost_b(get_p4ep(mcList[ik]), -mcList[ik]->P4().BoostVector());
 
+	      m_epcth_wt0 = (1 + event_epcosth_jpsi*event_epcosth_jpsi)/4.71238898038;
+	      m_epcth_wt1 = (1 + 0.4*event_epcosth_jpsi*event_epcosth_jpsi)/3.76991118431;
+
 	      hepthe_jpsi_mc_all->Fill(event_epthe_jpsi);
 	      hepcosth_jpsi_mc_all->Fill(event_epcosth_jpsi);
+	      hepcosth_jpsi_mc_all_wt0->Fill(event_epcosth_jpsi, m_epcth_wt0);
+	      hepcosth_jpsi_mc_all_wt1->Fill(event_epcosth_jpsi, m_epcth_wt1);
 	      if (itu2d>=0){
 		hepthe_jpsi_mc[itu2d]->Fill(event_epthe_jpsi);
 		hepcosth_jpsi_mc[itu2d]->Fill(event_epcosth_jpsi);
@@ -1404,8 +1435,8 @@ void AnaTdav2::kin_fit_4c() {
     	rcl[gg_kinc_bg].Append(rcl[gg_excl][0]);
     	fill_pair_mass(rcl[iep_excl], hmep[7]);
     	fill_pair_mass(rcl[gg_excl], hmgg[7]);
-	if (_valid) fill_pair_mass(rcl[iep_excl], hmep_valid[6]);
-	if (_valid) fill_pair_mass(rcl[gg_excl], hmgg_valid[6]);
+	if (_valid) fill_pair_mass(rcl[iep_excl], hmep_valid[7]);
+	if (_valid) fill_pair_mass(rcl[gg_excl], hmgg_valid[7]);
 	fill_mctruth(rcl[iep_excl], rcl[gg_excl], 7);
     	if (ng20mev<4) {
     	  rcl[iep_ngcut].Append(rcl[iep_excl][0]);
@@ -1509,10 +1540,15 @@ void AnaTdav2::fill_bins(RhoCandList& rclep, RhoCandList& rclgg) {
     int ibin_the_2d = find_bin(epthe_jpsi_rec, the_binning_2d);
     int ibin_costh_2d = find_bin(epcosth_jpsi_rec, costh_binning_2d);
 
+    if (iubin_2d>=0&&ibin_the_2d>0) fill_pair_mass(rclep, hmeputhe[comb_bins(tu_binning_2d.size()-1,iubin_2d,ibin_the_2d)]);
     if (itbin_2d>=0&&ibin_the_2d>0) fill_pair_mass(rclep, hmeptthe[comb_bins(tu_binning_2d.size()-1,itbin_2d,ibin_the_2d)]);
     if (itbin_2d>=0&&ibin_costh_2d>0) fill_pair_mass(rclep, hmeptcth[comb_bins(tu_binning_2d.size()-1,itbin_2d,ibin_costh_2d)]);
-    if (iubin_2d>=0&&ibin_the_2d>0) fill_pair_mass(rclep, hmeputhe[comb_bins(tu_binning_2d.size()-1,iubin_2d,ibin_the_2d)]);
     if (iubin_2d>=0&&ibin_costh_2d>0) fill_pair_mass(rclep, hmepucth[comb_bins(tu_binning_2d.size()-1,iubin_2d,ibin_costh_2d)]);
+    if (itbin_2d>=0&&ibin_costh_2d>0) fill_pair_mass(rclep, hmeptcth0[comb_bins(tu_binning_2d.size()-1,itbin_2d,ibin_costh_2d)], m_epcth_wt0);
+    if (iubin_2d>=0&&ibin_costh_2d>0) fill_pair_mass(rclep, hmepucth0[comb_bins(tu_binning_2d.size()-1,iubin_2d,ibin_costh_2d)], m_epcth_wt0);
+    if (itbin_2d>=0&&ibin_costh_2d>0) fill_pair_mass(rclep, hmeptcth1[comb_bins(tu_binning_2d.size()-1,itbin_2d,ibin_costh_2d)], m_epcth_wt1);
+    if (iubin_2d>=0&&ibin_costh_2d>0) fill_pair_mass(rclep, hmepucth1[comb_bins(tu_binning_2d.size()-1,iubin_2d,ibin_costh_2d)], m_epcth_wt1);
+
     if (itbin>=0)fill_pair_mass(rclep, hmept[itbin]);
     if (iubin>=0)fill_pair_mass(rclep, hmepu[iubin]);
 
@@ -1670,6 +1706,8 @@ void AnaTdav2::write_hists() {
   hepcosth_jpsi_rec_all->Write();
   hepthe_jpsi_mc_all->Write();
   hepcosth_jpsi_mc_all->Write();
+  hepcosth_jpsi_mc_all_wt0->Write();
+  hepcosth_jpsi_mc_all_wt1->Write();
   for (int ii=0; ii < 4; ++ii) {
     hepthe_jpsi_rec[ii]->Write();
     hepcosth_jpsi_rec[ii]->Write();
@@ -1689,6 +1727,8 @@ void AnaTdav2::write_hists() {
   gDirectory->cd("tcosthbins");
   for (int ib=0; ib < hmeptcth.size(); ++ib) {
     hmeptcth[ib]->Write();
+    hmeptcth0[ib]->Write();
+    hmeptcth1[ib]->Write();
   }
   gDirectory->cd(root_dir);
 
@@ -1703,6 +1743,8 @@ void AnaTdav2::write_hists() {
   gDirectory->cd("ucosthbins");
   for (int ib=0; ib < hmepucth.size(); ++ib) {
     hmepucth[ib]->Write();
+    hmepucth0[ib]->Write();
+    hmepucth1[ib]->Write();
   }
   gDirectory->cd(root_dir);
 
