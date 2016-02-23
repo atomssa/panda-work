@@ -207,15 +207,15 @@ class AnaTdav2 : public FairTask{
   TH1F* htresgg, *huresgg, *htresep, *huresep;
   TH1F* hepthe_jpsi_rec_all, *hepcosth_jpsi_rec_all;
   TH1F* hepthe_jpsi_mc_all, *hepcosth_jpsi_mc_all, *hepcosth_jpsi_mc_all_wt0, *hepcosth_jpsi_mc_all_wt1;
+  TH2F* hepcosth_jpsi_vs_epthlab_rec_all, *hepcosth_jpsi_vs_emthlab_rec_all;
   TH1F* hepthe_jpsi_rec[4], *hepcosth_jpsi_rec[4];
   TH1F* hepthe_jpsi_mc[4], *hepcosth_jpsi_mc[4];
-
+  TH2F* hepcosth_jpsi_vs_epthlab_rec[4], *hepcosth_jpsi_vs_emthlab_rec[4];
   TH1F *hmep_mconst;
   TH1F *hmtot_mconst;
   TH2F *hcmoa_mconst;
   TH1F *hmtot_mconst_cut;
   TH2F *hcmoa_mconst_cut;
-
   TH1F *hpi0jpsi_chi24c;
   TH1F *hpi0jpsi_chi24c_c;
   TH1F *hpi0jpsi_prob4c;
@@ -302,6 +302,7 @@ class AnaTdav2 : public FairTask{
   double cost_b(const TLorentzVector&, const TVector3&);
   double the_b(const TLorentzVector&, const TVector3&);
   TLorentzVector get_p4ep(RhoCandidate*);
+  TLorentzVector get_p4em(RhoCandidate*);
   int comb_bins(int,int,int);
   int find_bin(double val, const std::vector<double>& binning);
   //int t_bin(RhoCandidate*);

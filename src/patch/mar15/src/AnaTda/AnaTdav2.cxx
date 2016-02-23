@@ -281,14 +281,17 @@ void AnaTdav2::init_hists() {
   hepcosth_jpsi_mc_all = new TH1F("hepcosth_jpsi_mc_all", "hepcosth_jpsi_mc_all", 1000, -1.1, 1.1);
   hepcosth_jpsi_mc_all_wt0 = new TH1F("hepcosth_jpsi_mc_all_wt0", "hepcosth_jpsi_mc_all_wt0", 1000, -1.1, 1.1);
   hepcosth_jpsi_mc_all_wt1 = new TH1F("hepcosth_jpsi_mc_all_wt1", "hepcosth_jpsi_mc_all_wt1", 1000, -1.1, 1.1);
+  hepcosth_jpsi_vs_epthlab_rec_all = new TH2F("hepcosth_jpsi_vs_epthlab_rec_all", "hepcosth_jpsi_vs_epthlab_rec_all", 200, -1.1, 1.1, 200, 0, 180);
+  hepcosth_jpsi_vs_emthlab_rec_all = new TH2F("hepcosth_jpsi_vs_emthlab_rec_all", "hepcosth_jpsi_vs_emthlab_rec_all", 200, -1.1, 1.1, 200, 0, 180);
 
   for (int ii=0; ii < 4; ++ii) {
     hepthe_jpsi_rec[ii] = new TH1F(Form("hepthe_jpsi_rec_itu%d",ii), Form("hepthe_jpsi_rec_itu%d",ii), 1000, -5., 185.0);
     hepcosth_jpsi_rec[ii] = new TH1F(Form("hepcosth_jpsi_rec_itu%d",ii), Form("hepcosth_jpsi_rec_itu%d",ii), 1000, -1.1, 1.1);
+    hepcosth_jpsi_vs_epthlab_rec[ii] = new TH2F(Form("hepcosth_jpsi_vs_epthlab_rec_itu%d",ii), Form("hepcosth_jpsi_vs_epthlab_rec_itu%d",ii), 1000, -1.1, 1.1, 200, 0, 180);
+    hepcosth_jpsi_vs_emthlab_rec[ii] = new TH2F(Form("hepcosth_jpsi_vs_emthlab_rec_itu%d",ii), Form("hepcosth_jpsi_vs_emthlab_rec_itu%d",ii), 1000, -1.1, 1.1, 200, 0, 180);
     hepthe_jpsi_mc[ii] = new TH1F(Form("hepthe_jpsi_mc_itu%d",ii), Form("hepthe_jpsi_mc_itu%d",ii), 1000, -5., 185.0);
     hepcosth_jpsi_mc[ii] = new TH1F(Form("hepcosth_jpsi_mc_itu%d",ii), Form("hepcosth_jpsi_mc_itu%d",ii), 1000, -1.1, 1.1);
   }
-
 
   htrupi0thcm = new TH1F("htrupi0thcm", "htrupi0thch", 1000, 0., TMath::Pi());
   htrupi0costhcm = new TH1F("htrupi0costhcm", "htrupi0costhcm", 1100, -1.1, 1.1);
@@ -1512,6 +1515,7 @@ TLorentzVector AnaTdav2::boost_transf(const TLorentzVector& vect_in, const TVect
 double AnaTdav2::cost_b(const TLorentzVector& v, const TVector3& boost) { return boost_transf(v,boost).CosTheta(); }
 double AnaTdav2::the_b(const TLorentzVector& v, const TVector3& boost) { return TMath::RadToDeg()*(boost_transf(v,boost).Vect().Theta()); }
 TLorentzVector AnaTdav2::get_p4ep(RhoCandidate* _epem) { return _epem->Daughter(0)->Charge()>0? _epem->Daughter(0)->P4(): _epem->Daughter(1)->P4(); }
+TLorentzVector AnaTdav2::get_p4em(RhoCandidate* _epem) { return _epem->Daughter(0)->Charge()<0? _epem->Daughter(0)->P4(): _epem->Daughter(1)->P4(); }
 int AnaTdav2::comb_bins(int nx, int ix, int iy) { return iy*nx + ix; }
 
 void AnaTdav2::fill_bins(RhoCandList& rclep, RhoCandList& rclgg) {
@@ -1565,9 +1569,18 @@ void AnaTdav2::fill_bins(RhoCandList& rclep, RhoCandList& rclgg) {
     int itu2d = itbin_2d>=0?itbin_2d:(iubin_2d>=0?2+iubin_2d:-1);
     hepthe_jpsi_rec_all->Fill(epthe_jpsi_rec);
     hepcosth_jpsi_rec_all->Fill(epcosth_jpsi_rec);
+
+    double ep_the_lab = get_p4ep(rclep[0]).Vect().Theta();
+    double em_the_lab = get_p4em(rclep[0]).Vect().Theta();
+
+    hepcosth_jpsi_vs_epthlab_rec_all->Fill(epcosth_jpsi_rec,ep_the_lab);
+    hepcosth_jpsi_vs_emthlab_rec_all->Fill(epcosth_jpsi_rec,em_the_lab);
+
     if (itu2d>=0){
       hepthe_jpsi_rec[itu2d]->Fill(epthe_jpsi_rec);
       hepcosth_jpsi_rec[itu2d]->Fill(epcosth_jpsi_rec);
+      hepcosth_jpsi_vs_epthlab_rec[itu2d]->Fill(epcosth_jpsi_rec,ep_the_lab);
+      hepcosth_jpsi_vs_emthlab_rec[itu2d]->Fill(epcosth_jpsi_rec,em_the_lab);
     }
 
     if (rclep[0]->M()>jpsi_m_3sig_min&&rclep[0]->M()<jpsi_m_3sig_max) {
@@ -1708,9 +1721,14 @@ void AnaTdav2::write_hists() {
   hepcosth_jpsi_mc_all->Write();
   hepcosth_jpsi_mc_all_wt0->Write();
   hepcosth_jpsi_mc_all_wt1->Write();
+  hepcosth_jpsi_vs_epthlab_rec_all->Write();
+  hepcosth_jpsi_vs_emthlab_rec_all->Write();
+
   for (int ii=0; ii < 4; ++ii) {
     hepthe_jpsi_rec[ii]->Write();
     hepcosth_jpsi_rec[ii]->Write();
+    hepcosth_jpsi_vs_epthlab_rec[ii]->Write();
+    hepcosth_jpsi_vs_emthlab_rec[ii]->Write();
     hepthe_jpsi_mc[ii]->Write();
     hepcosth_jpsi_mc[ii]->Write();
   }
