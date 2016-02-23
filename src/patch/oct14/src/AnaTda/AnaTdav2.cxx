@@ -824,8 +824,8 @@ bool AnaTdav2::calc_true_tu() {
 	      event_epthe_jpsi = the_b(get_p4ep(mcList[ik]), -mcList[ik]->P4().BoostVector());
 	      event_epcosth_jpsi = cost_b(get_p4ep(mcList[ik]), -mcList[ik]->P4().BoostVector());
 
-	      m_epcth_wt0 = (1 + event_epcosth_jpsi*event_epcosth_jpsi)/4.71238898038;
-	      m_epcth_wt1 = (1 + 0.4*event_epcosth_jpsi*event_epcosth_jpsi)/3.76991118431;
+	      m_epcth_wt0 = (1 + event_epcosth_jpsi*event_epcosth_jpsi)/1.5;
+	      m_epcth_wt1 = (1 + 0.4*event_epcosth_jpsi*event_epcosth_jpsi)/1.2;
 
 	      hepthe_jpsi_mc_all->Fill(event_epthe_jpsi);
 	      hepcosth_jpsi_mc_all->Fill(event_epcosth_jpsi);
