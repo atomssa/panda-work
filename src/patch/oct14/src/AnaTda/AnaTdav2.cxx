@@ -1639,18 +1639,18 @@ void AnaTdav2::fill_bins(RhoCandList& rclep, RhoCandList& rclgg) {
     }
 
     // This is a bit crazy but replicate the analysis with fitted pi0 mom instead of reco jpsi mom to boost e+ angle
-    double f_epthe_jpsi_rec = the_b(get_p4ep(rclep[0]), rclgg[0]->GetFit()->P4().BoostVector());
-    double f_epcosth_jpsi_rec = cost_b(get_p4ep(rclep[0]), rclgg[0]->GetFit()->P4().BoostVector());
-    int f_itbin_2d = find_bin(trecgg, tu_binning_2d);
-    int f_iubin_2d = find_bin(urecgg, tu_binning_2d);
+    //TLorentzVector _p4piz = -rclgg[0]->GetFit()->P4();
+    TLorentzVector _p4piz = -rcl[gg_excl]->GetFit()->P4();
+    double f_epthe_jpsi_rec = the_b(get_p4ep(rclep[0]), _p4piz.BoostVector());
+    double f_epcosth_jpsi_rec = cost_b(get_p4ep(rclep[0]), _p4piz.BoostVector());
     int f_ibin_costh_2d = find_bin(f_epcosth_jpsi_rec, costh_binning_2d);
     int f_itu2d = f_itbin_2d>=0?f_itbin_2d:(f_iubin_2d>=0?2+f_iubin_2d:-1);
-    if (f_itbin_2d>=0&&f_ibin_costh_2d>=0) fill_pair_mass(rclep, f_hmeptcth[comb_bins(tu_binning_2d.size()-1,f_itbin_2d,f_ibin_costh_2d)]);
-    if (f_iubin_2d>=0&&f_ibin_costh_2d>=0) fill_pair_mass(rclep, f_hmepucth[comb_bins(tu_binning_2d.size()-1,f_iubin_2d,f_ibin_costh_2d)]);
-    if (f_itbin_2d>=0&&f_ibin_costh_2d>=0) fill_pair_mass(rclep, f_hmeptcth0[comb_bins(tu_binning_2d.size()-1,f_itbin_2d,f_ibin_costh_2d)], m_epcth_wt0);
-    if (f_iubin_2d>=0&&f_ibin_costh_2d>=0) fill_pair_mass(rclep, f_hmepucth0[comb_bins(tu_binning_2d.size()-1,f_iubin_2d,f_ibin_costh_2d)], m_epcth_wt0);
-    if (f_itbin_2d>=0&&f_ibin_costh_2d>=0) fill_pair_mass(rclep, f_hmeptcth1[comb_bins(tu_binning_2d.size()-1,f_itbin_2d,f_ibin_costh_2d)], m_epcth_wt1);
-    if (f_iubin_2d>=0&&f_ibin_costh_2d>=0) fill_pair_mass(rclep, f_hmepucth1[comb_bins(tu_binning_2d.size()-1,f_iubin_2d,f_ibin_costh_2d)], m_epcth_wt1);
+    if (f_itbin_2d>=0&&f_ibin_costh_2d>=0) fill_pair_mass(rclep, f_hmeptcth[comb_bins(tu_binning_2d.size()-1,itbin_2d,f_ibin_costh_2d)]);
+    if (f_iubin_2d>=0&&f_ibin_costh_2d>=0) fill_pair_mass(rclep, f_hmepucth[comb_bins(tu_binning_2d.size()-1,iubin_2d,f_ibin_costh_2d)]);
+    if (f_itbin_2d>=0&&f_ibin_costh_2d>=0) fill_pair_mass(rclep, f_hmeptcth0[comb_bins(tu_binning_2d.size()-1,itbin_2d,f_ibin_costh_2d)], m_epcth_wt0);
+    if (f_iubin_2d>=0&&f_ibin_costh_2d>=0) fill_pair_mass(rclep, f_hmepucth0[comb_bins(tu_binning_2d.size()-1,iubin_2d,f_ibin_costh_2d)], m_epcth_wt0);
+    if (f_itbin_2d>=0&&f_ibin_costh_2d>=0) fill_pair_mass(rclep, f_hmeptcth1[comb_bins(tu_binning_2d.size()-1,itbin_2d,f_ibin_costh_2d)], m_epcth_wt1);
+    if (f_iubin_2d>=0&&f_ibin_costh_2d>=0) fill_pair_mass(rclep, f_hmepucth1[comb_bins(tu_binning_2d.size()-1,iubin_2d,f_ibin_costh_2d)], m_epcth_wt1);
     //double ep_the_lab = get_p4ep(rclep[0]).Vect().Theta();
     //double em_the_lab = get_p4em(rclep[0]).Vect().Theta();
     f_hepcosth_jpsi_rec_all->Fill(f_epcosth_jpsi_rec);
