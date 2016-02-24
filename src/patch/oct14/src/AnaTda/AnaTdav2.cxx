@@ -291,6 +291,9 @@ void AnaTdav2::init_hists() {
   htresep = new TH1F("htresep", "htresep", 1000, -3, 3);
   huresep = new TH1F("huresep", "huresep", 1000, -3, 3);
 
+  hepcosth_res = new TH1F("hepcosth_res", "hepcosth_res", 1000, -0.5, 0.5);
+  f_hepcosth_res = new TH1F("f_hepcosth_res", "f_hepcosth_res", 1000, -0.5, 0.5);
+
   hepcosth_jpsi_mc_all = new TH1F("hepcosth_jpsi_mc_all", "hepcosth_jpsi_mc_all", 1000, -1.1, 1.1);
   hepcosth_jpsi_mc_all_wt0 = new TH1F("hepcosth_jpsi_mc_all_wt0", "hepcosth_jpsi_mc_all_wt0", 1000, -1.1, 1.1);
   hepcosth_jpsi_mc_all_wt1 = new TH1F("hepcosth_jpsi_mc_all_wt1", "hepcosth_jpsi_mc_all_wt1", 1000, -1.1, 1.1);
@@ -1598,6 +1601,7 @@ void AnaTdav2::fill_bins(RhoCandList& rclep, RhoCandList& rclgg) {
 
     /// below the positron angle dependnt stuff
     double epcosth_jpsi_rec = cost_b(get_p4ep(rclep[0]), -rclep[0]->P4().BoostVector());
+    hepcosth_res->Fill(epcosth_jpsi_rec-event_epcosth_jpsi);
     int itbin_2d = find_bin(trecgg, tu_binning_2d);
     int iubin_2d = find_bin(urecgg, tu_binning_2d);
     int ibin_costh_2d = find_bin(epcosth_jpsi_rec, costh_binning_2d);
@@ -1619,14 +1623,12 @@ void AnaTdav2::fill_bins(RhoCandList& rclep, RhoCandList& rclgg) {
       hepcosth_jpsi_vs_emthlab_rec[itu2d]->Fill(epcosth_jpsi_rec,TMath::RadToDeg()*em_the_lab);
     }
 
-    // // This is a bit crazy but replicate the analysis with fitted pi0 mom instead of reco jpsi mom to boost e+ angle
-    // //TLorentzVector _p4piz = -rclgg[0]->GetFit()->P4();
-    // TLorentzVector _p4jpsi = rcl[iep_excl][0]->GetFit()->P4();
-    // //double f_epcosth_jpsi_rec = cost_b(get_p4ep(rclep[0]), -_p4jpsi.BoostVector());
-    // double f_epcosth_jpsi_rec = cost_b(get_p4ep(rcl[iep_excl][0]->GetFit()), -_p4jpsi.BoostVector());
-
-    double f_epcosth_jpsi_rec = event_epcosth_jpsi;
-
+    // This is a bit crazy but replicate the analysis with fitted pi0 mom instead of reco jpsi mom to boost e+ angle
+    //TLorentzVector _p4piz = -rclgg[0]->GetFit()->P4();
+    TLorentzVector _p4jpsi = rcl[iep_excl][0]->GetFit()->P4();
+    //double f_epcosth_jpsi_rec = cost_b(get_p4ep(rclep[0]), -_p4jpsi.BoostVector());
+    double f_epcosth_jpsi_rec = cost_b(get_p4ep(rcl[iep_excl][0]->GetFit()), -_p4jpsi.BoostVector());
+    f_hepcosth_res->Fill(f_epcosth_jpsi_rec-event_epcosth_jpsi);
     int f_ibin_costh_2d = find_bin(f_epcosth_jpsi_rec, costh_binning_2d);
     if (itbin_2d>=0&&f_ibin_costh_2d>=0) fill_pair_mass(rclep, f_hmeptcth[comb_bins(tu_binning_2d.size()-1,itbin_2d,f_ibin_costh_2d)]);
     if (iubin_2d>=0&&f_ibin_costh_2d>=0) fill_pair_mass(rclep, f_hmepucth[comb_bins(tu_binning_2d.size()-1,iubin_2d,f_ibin_costh_2d)]);
@@ -1761,6 +1763,9 @@ void AnaTdav2::write_hists() {
 
   gDirectory->mkdir("epeff");
   gDirectory->cd("epeff");
+
+  hepcosth_res->Write();
+  f_hepcosth_res->Write();
 
   hepcosth_jpsi_mc_all->Write();
   hepcosth_jpsi_mc_all_wt0->Write();
