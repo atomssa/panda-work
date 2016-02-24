@@ -1619,11 +1619,14 @@ void AnaTdav2::fill_bins(RhoCandList& rclep, RhoCandList& rclgg) {
       hepcosth_jpsi_vs_emthlab_rec[itu2d]->Fill(epcosth_jpsi_rec,TMath::RadToDeg()*em_the_lab);
     }
 
-    // This is a bit crazy but replicate the analysis with fitted pi0 mom instead of reco jpsi mom to boost e+ angle
-    //TLorentzVector _p4piz = -rclgg[0]->GetFit()->P4();
-    TLorentzVector _p4jpsi = rcl[iep_excl][0]->GetFit()->P4();
-    //double f_epcosth_jpsi_rec = cost_b(get_p4ep(rclep[0]), -_p4jpsi.BoostVector());
-    double f_epcosth_jpsi_rec = cost_b(get_p4ep(rcl[iep_excl][0]->GetFit()), -_p4jpsi.BoostVector());
+    // // This is a bit crazy but replicate the analysis with fitted pi0 mom instead of reco jpsi mom to boost e+ angle
+    // //TLorentzVector _p4piz = -rclgg[0]->GetFit()->P4();
+    // TLorentzVector _p4jpsi = rcl[iep_excl][0]->GetFit()->P4();
+    // //double f_epcosth_jpsi_rec = cost_b(get_p4ep(rclep[0]), -_p4jpsi.BoostVector());
+    // double f_epcosth_jpsi_rec = cost_b(get_p4ep(rcl[iep_excl][0]->GetFit()), -_p4jpsi.BoostVector());
+
+    double f_epcosth_jpsi_rec = event_epcosth_jpsi;
+
     int f_ibin_costh_2d = find_bin(f_epcosth_jpsi_rec, costh_binning_2d);
     if (itbin_2d>=0&&f_ibin_costh_2d>=0) fill_pair_mass(rclep, f_hmeptcth[comb_bins(tu_binning_2d.size()-1,itbin_2d,f_ibin_costh_2d)]);
     if (iubin_2d>=0&&f_ibin_costh_2d>=0) fill_pair_mass(rclep, f_hmepucth[comb_bins(tu_binning_2d.size()-1,iubin_2d,f_ibin_costh_2d)]);
