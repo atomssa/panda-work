@@ -1573,14 +1573,14 @@ void AnaTdav2::fill_bins(RhoCandList& rclep, RhoCandList& rclgg) {
     double ep_the_lab = get_p4ep(rclep[0]).Vect().Theta();
     double em_the_lab = get_p4em(rclep[0]).Vect().Theta();
 
-    hepcosth_jpsi_vs_epthlab_rec_all->Fill(epcosth_jpsi_rec,ep_the_lab);
-    hepcosth_jpsi_vs_emthlab_rec_all->Fill(epcosth_jpsi_rec,em_the_lab);
+    hepcosth_jpsi_vs_epthlab_rec_all->Fill(epcosth_jpsi_rec,TMath::RadToDeg()*ep_the_lab);
+    hepcosth_jpsi_vs_emthlab_rec_all->Fill(epcosth_jpsi_rec,TMath::RadToDeg()*em_the_lab);
 
     if (itu2d>=0){
       hepthe_jpsi_rec[itu2d]->Fill(epthe_jpsi_rec);
       hepcosth_jpsi_rec[itu2d]->Fill(epcosth_jpsi_rec);
-      hepcosth_jpsi_vs_epthlab_rec[itu2d]->Fill(epcosth_jpsi_rec,ep_the_lab);
-      hepcosth_jpsi_vs_emthlab_rec[itu2d]->Fill(epcosth_jpsi_rec,em_the_lab);
+      hepcosth_jpsi_vs_epthlab_rec[itu2d]->Fill(epcosth_jpsi_rec,TMath::RadToDeg()*ep_the_lab);
+      hepcosth_jpsi_vs_emthlab_rec[itu2d]->Fill(epcosth_jpsi_rec,TMath::RadToDeg()*em_the_lab);
     }
 
     if (rclep[0]->M()>jpsi_m_3sig_min&&rclep[0]->M()<jpsi_m_3sig_max) {
