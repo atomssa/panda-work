@@ -873,15 +873,13 @@ bool AnaTdav2::calc_true_tu() {
 	      hepcosth_jpsi_mc_all->Fill(event_epcosth_jpsi);
 	      hepcosth_jpsi_mc_all_wt0->Fill(event_epcosth_jpsi, m_epcth_wt0);
 	      hepcosth_jpsi_mc_all_wt1->Fill(event_epcosth_jpsi, m_epcth_wt1);
-
 	      hepcosth_jpsi_vs_epthlab_mc_all->Fill(event_epcosth_jpsi, _epth_lab  );
 	      hepcosth_jpsi_vs_emthlab_mc_all->Fill(event_epcosth_jpsi, _emth_lab  );
 
 	      if (itu2d>=0){
 		hepthe_jpsi_mc[itu2d]->Fill(event_epthe_jpsi);
 		hepcosth_jpsi_mc[itu2d]->Fill(event_epcosth_jpsi);
-
-		hepcosth_jpsi_vs_epthlab_mc[itu2d]->Fill(event_epthe_jpsi, _epth_lab);
+		hepcosth_jpsi_vs_epthlab_mc[itu2d]->Fill(event_epcosth_jpsi, _epth_lab);
 		hepcosth_jpsi_vs_emthlab_mc[itu2d]->Fill(event_epcosth_jpsi, _emth_lab);
 	      }
 
