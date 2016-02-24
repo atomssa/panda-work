@@ -1622,9 +1622,9 @@ void AnaTdav2::fill_bins(RhoCandList& rclep, RhoCandList& rclgg) {
     // This is a bit crazy but replicate the analysis with fitted pi0 mom instead of reco jpsi mom to boost e+ angle
     //TLorentzVector _p4piz = -rclgg[0]->GetFit()->P4();
     TLorentzVector _p4jpsi = rcl[iep_excl][0]->GetFit()->P4();
-    double f_epcosth_jpsi_rec = cost_b(get_p4ep(rclep[0]), -_p4jpsi.BoostVector());
+    //double f_epcosth_jpsi_rec = cost_b(get_p4ep(rclep[0]), -_p4jpsi.BoostVector());
+    double f_epcosth_jpsi_rec = cost_b(get_p4ep(rcl[iep_excl][0]->GetFit()), -_p4jpsi.BoostVector());
     int f_ibin_costh_2d = find_bin(f_epcosth_jpsi_rec, costh_binning_2d);
-    int f_itu2d = itbin_2d>=0?itbin_2d:(iubin_2d>=0?2+iubin_2d:-1);
     if (itbin_2d>=0&&f_ibin_costh_2d>=0) fill_pair_mass(rclep, f_hmeptcth[comb_bins(tu_binning_2d.size()-1,itbin_2d,f_ibin_costh_2d)]);
     if (iubin_2d>=0&&f_ibin_costh_2d>=0) fill_pair_mass(rclep, f_hmepucth[comb_bins(tu_binning_2d.size()-1,iubin_2d,f_ibin_costh_2d)]);
     if (itbin_2d>=0&&f_ibin_costh_2d>=0) fill_pair_mass(rclep, f_hmeptcth0[comb_bins(tu_binning_2d.size()-1,itbin_2d,f_ibin_costh_2d)], m_epcth_wt0);
@@ -1636,7 +1636,7 @@ void AnaTdav2::fill_bins(RhoCandList& rclep, RhoCandList& rclgg) {
     f_hepcosth_jpsi_rec_all->Fill(f_epcosth_jpsi_rec);
     f_hepcosth_jpsi_vs_epthlab_rec_all->Fill(f_epcosth_jpsi_rec,TMath::RadToDeg()*ep_the_lab);
     f_hepcosth_jpsi_vs_emthlab_rec_all->Fill(f_epcosth_jpsi_rec,TMath::RadToDeg()*em_the_lab);
-    if (f_itu2d>=0){
+    if (itu2d>=0){
       f_hepcosth_jpsi_rec[itu2d]->Fill(f_epcosth_jpsi_rec);
       f_hepcosth_jpsi_vs_epthlab_rec[itu2d]->Fill(f_epcosth_jpsi_rec,TMath::RadToDeg()*ep_the_lab);
       f_hepcosth_jpsi_vs_emthlab_rec[itu2d]->Fill(f_epcosth_jpsi_rec,TMath::RadToDeg()*em_the_lab);
@@ -1758,11 +1758,18 @@ void AnaTdav2::write_hists() {
 
   gDirectory->mkdir("epeff");
   gDirectory->cd("epeff");
+
   hepcosth_jpsi_mc_all->Write();
   hepcosth_jpsi_mc_all_wt0->Write();
   hepcosth_jpsi_mc_all_wt1->Write();
+
   hepcosth_jpsi_vs_epthlab_mc_all->Write();
   hepcosth_jpsi_vs_emthlab_mc_all->Write();
+
+  hepcosth_jpsi_rec_all->Write();
+  hepcosth_jpsi_vs_epthlab_rec_all->Write();
+  hepcosth_jpsi_vs_emthlab_rec_all->Write();
+
   f_hepcosth_jpsi_rec_all->Write();
   f_hepcosth_jpsi_vs_epthlab_rec_all->Write();
   f_hepcosth_jpsi_vs_emthlab_rec_all->Write();
