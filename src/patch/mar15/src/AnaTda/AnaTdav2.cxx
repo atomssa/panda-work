@@ -1639,8 +1639,8 @@ void AnaTdav2::fill_bins(RhoCandList& rclep, RhoCandList& rclgg) {
     }
 
     // This is a bit crazy but replicate the analysis with fitted pi0 mom instead of reco jpsi mom to boost e+ angle
-    double f_epthe_jpsi_rec = the_b(get_p4ep(rclep[0]), rclgg[0]->P4().BoostVector());
-    double f_epcosth_jpsi_rec = cost_b(get_p4ep(rclep[0]), rclgg[0]->P4().BoostVector());
+    double f_epthe_jpsi_rec = the_b(get_p4ep(rclep[0]), rclgg[0]->GetFit()->P4().BoostVector());
+    double f_epcosth_jpsi_rec = cost_b(get_p4ep(rclep[0]), rclgg[0]->GetFit()->P4().BoostVector());
     int f_itbin_2d = find_bin(trecgg, tu_binning_2d);
     int f_iubin_2d = find_bin(urecgg, tu_binning_2d);
     int f_ibin_costh_2d = find_bin(f_epcosth_jpsi_rec, costh_binning_2d);
