@@ -187,8 +187,10 @@ class AnaTdav2 : public FairTask{
   std::vector<TH1F*> hmepu;
   std::vector<TH1F*> hmeptthe;
   std::vector<TH1F*> hmeptcth,hmeptcth0,hmeptcth1;
+  std::vector<TH1F*> f_hmeptcth,f_hmeptcth0,f_hmeptcth1;
   std::vector<TH1F*> hmeputhe;
   std::vector<TH1F*> hmepucth,hmepucth0,hmepucth1;
+  std::vector<TH1F*> f_hmepucth,f_hmepucth0,f_hmepucth1;
 
   TH1F* hmmiss, *hmmiss2;
   TH1F* hmmiss_jpsi, *hmmiss2_jpsi;
@@ -205,12 +207,20 @@ class AnaTdav2 : public FairTask{
   TH2F* htrupi0thcm_vs_m, *htrupi0thlab_vs_m, *htrupi0costhcm_vs_m;
   TH2F* htrupi0thcm_mcut_vs_m, *htrupi0thlab_mcut_vs_m, *htrupi0costhcm_mcut_vs_m;
   TH1F* htresgg, *huresgg, *htresep, *huresep;
-  TH1F* hepthe_jpsi_rec_all, *hepcosth_jpsi_rec_all;
+
+  TH2F* hepcosth_jpsi_vs_epthlab_mc_all, *hepcosth_jpsi_vs_emthlab_mc_all;
   TH1F* hepthe_jpsi_mc_all, *hepcosth_jpsi_mc_all, *hepcosth_jpsi_mc_all_wt0, *hepcosth_jpsi_mc_all_wt1;
+  TH1F* hepthe_jpsi_mc[4], *hepcosth_jpsi_mc[4];
+  TH2F* hepcosth_jpsi_vs_epthlab_mc[4], *hepcosth_jpsi_vs_emthlab_mc[4];
+  TH1F* hepthe_jpsi_rec_all, *hepcosth_jpsi_rec_all;
   TH2F* hepcosth_jpsi_vs_epthlab_rec_all, *hepcosth_jpsi_vs_emthlab_rec_all;
   TH1F* hepthe_jpsi_rec[4], *hepcosth_jpsi_rec[4];
-  TH1F* hepthe_jpsi_mc[4], *hepcosth_jpsi_mc[4];
   TH2F* hepcosth_jpsi_vs_epthlab_rec[4], *hepcosth_jpsi_vs_emthlab_rec[4];
+  TH1F* f_hepthe_jpsi_rec_all, *f_hepcosth_jpsi_rec_all;
+  TH2F* f_hepcosth_jpsi_vs_epthlab_rec_all, *f_hepcosth_jpsi_vs_emthlab_rec_all;
+  TH1F* f_hepthe_jpsi_rec[4], *f_hepcosth_jpsi_rec[4];
+  TH2F* f_hepcosth_jpsi_vs_epthlab_rec[4], *f_hepcosth_jpsi_vs_emthlab_rec[4];
+
   TH1F *hmep_mconst;
   TH1F *hmtot_mconst;
   TH2F *hcmoa_mconst;
