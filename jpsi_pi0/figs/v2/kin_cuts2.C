@@ -80,7 +80,7 @@ void kin_cuts2(int pass=14) {
   tl4->SetFillStyle(0);
 
   int ibef = 5;
-  int iaft = 6;
+  int iaft = 8;
 
   for (int iplab=0; iplab < nplab; ++iplab) {
 
@@ -152,7 +152,7 @@ void kin_cuts2(int pass=14) {
 
       if (ibg==0) {
 	hmep_bg_tot_b[iplab] = (TH1F*) fbg[ibg][iplab]->Get(Form("hmep_%d",ibef))->Clone(Form("hmep_bg_tot_b_p%d",iplab));
-	hmep_bg_tot_a[iplab] = (TH1F*) fbg[ibg][iplab]->Get(Form("hmep_%d",iaft))->Clone(Form("hmep_bg_tot_b_p%d",iplab));
+	hmep_bg_tot_a[iplab] = (TH1F*) fbg[ibg][iplab]->Get(Form("hmep_%d",iaft))->Clone(Form("hmep_bg_tot_a_p%d",iplab));
       } else {
 	hmep_bg_tot_b[iplab]->Add(hmep_bg_b[ibg][iplab]);;
 	hmep_bg_tot_a[iplab]->Add(hmep_bg_a[ibg][iplab]);;
@@ -217,7 +217,6 @@ void kin_cuts2(int pass=14) {
     cout << "AFT(ip="<<iplab<<"): Sig/pi0pipm2 = " << stob_r( hmep_sg_a[iplab], hmep_bg_a[2][iplab]) << endl;
     cout << "AFT(ip="<<iplab<<"): Sig/Bgtot = " << stob_r( hmep_sg_a[iplab], hmep_bg_tot_a[iplab]) << endl;
 
-
     cout << "Rejection:" << endl;
     //
     //double nevt_xsect[5][3] = {{4.0e11, 1e11, 2e10}, {32780.0,50142.0,51860.0}, {1.15e12, 3.15e11, 6.84e10}, {3.19e12, 1.14e12, 2.92e11}, {94243.0, 157947.3, 177361.2}};
@@ -243,10 +242,10 @@ void kin_cuts2(int pass=14) {
     hmep_fg_b[iplab]->Draw();
     hmep_sg_b[iplab]->Draw("same");
     for (int ibg=0; ibg < nbg; ++ibg) hmep_bg_b[ibg][iplab]->Draw("same");
-    //gPad->SetLogy();
+    gPad->SetLogy();
     if (iplab==2) tl4->Draw();
   }
-  tc_bkf->Print("invm_bgsrc_bef_kinfit.pdf");
+  //tc_bkf->Print("invm_bgsrc_bef_kinfit.pdf");
 
   TCanvas *tc_akf = new TCanvas("invm_bgsrc_aft_kinfit", "tc_akf", 1600, 700);
   tc_akf->Divide(3,1);
@@ -257,10 +256,10 @@ void kin_cuts2(int pass=14) {
     hmep_fg_a[iplab]->Draw();
     hmep_sg_a[iplab]->Draw("same");
     for (int ibg=0; ibg < nbg; ++ibg) hmep_bg_a[ibg][iplab]->Draw("same");
-    //gPad->SetLogy();
+    gPad->SetLogy();
     if (iplab==2) tl4->Draw();
   }
-  tc_akf->Print(iaft==6?"invm_bgsrc_aft_chi2sig_cut.pdf":"invm_bgsrc_aft_kincuts.pdf");
+  //tc_akf->Print(iaft==6?"invm_bgsrc_aft_chi2sig_cut.pdf":"invm_bgsrc_aft_kincuts.pdf");
   //tc_akf->Print(iaft==6?"invm_bgsrc_aft_chi2sig_cut.png":"invm_bgsrc_aft_kincuts.png");
 
   TCanvas *tc[nplab];
@@ -278,7 +277,7 @@ void kin_cuts2(int pass=14) {
     hmep_sg_a[iplab]->Draw("same");
     tl2->Draw();
     for (int ibg=0; ibg < nbg; ++ibg) hmep_bg_a[ibg][iplab]->Draw("same");
-    //gPad->SetLogy();
+    gPad->SetLogy();
     //tc[iplab]->Print(Form("%s/marc_meeting/minv_sig_and_bghyp_pessimistic_norm_p%d.eps",bdir,iplab));
   }
 
@@ -289,9 +288,9 @@ void kin_cuts2(int pass=14) {
     tc_chi2[iplab]->cd();
     for (int ii=0; ii < nbg+1; ++ii) {
       if (iplab==0)
-	hpi0jpsi_chi24c[ii][iplab]->SetTitle(Form("#chi^{2} of SIG hyp. 4C kinematic fit (p_{#bar{p}} = %5.4g GeV/c); #chi^{2}; arb. unit",plab[iplab]));
+	hpi0jpsi_chi24c[ii][iplab]->SetTitle(Form("#chi^{2} of 2#gamma e^{+}e^{-} 4C kin fit (p_{#bar{p}} = %5.4g GeV/c); #chi^{2}; arb. unit",plab[iplab]));
       else
-	hpi0jpsi_chi24c[ii][iplab]->SetTitle(Form("#chi^{2} of SIG hyp. 4C kinematic fit (p_{#bar{p}} = %4.1f GeV/c); #chi^{2}; arb. unit",plab[iplab]));
+	hpi0jpsi_chi24c[ii][iplab]->SetTitle(Form("#chi^{2} of 2#gamma e^{+}e^{-} 4C kin. fit (p_{#bar{p}} = %4.1f GeV/c); #chi^{2}; arb. unit",plab[iplab]));
       hpi0jpsi_chi24c[ii][iplab]->GetXaxis()->SetNdivisions(505);
       hpi0jpsi_chi24c[ii][iplab]->DrawNormalized(ii==0?"":"same");
     }
@@ -311,7 +310,7 @@ void kin_cuts2(int pass=14) {
       hpi0jpsi_chi24cc[ii][iplab]->DrawNormalized(ii==0?"":"same");
     }
     //tc_chi2[iplab]->Print(Form("%s/marc_meeting/chi2_sighyp_p%d.eps",bdir,iplab));
-    //tc_chi2[iplab]->Print(Form("kinfit_4c_chi2_dists_p%d.pdf",iplab));
+    tc_chi2[iplab]->Print(Form("kinfit_4c_chi2_dists_p%d.pdf",iplab));
   }
 
   return;
