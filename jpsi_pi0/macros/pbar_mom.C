@@ -2,10 +2,12 @@ void pbar_mom() {
 
   double mp=0.9382;
   vector<double> pbarp;
+  pbarp.push_back(1.5);
   pbarp.push_back(5.519);
   pbarp.push_back(5.513);
   pbarp.push_back(8);
   pbarp.push_back(12);
+  pbarp.push_back(15);
   for (int i=0; i<pbarp.size(); ++i) {
     double sqrts = sqrt( 2*mp*(mp + sqrt((mp*mp)+(pbarp[i]*pbarp[i])) ) );
     double s = sqrts*sqrts;
