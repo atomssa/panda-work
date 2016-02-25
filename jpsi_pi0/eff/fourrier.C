@@ -55,13 +55,23 @@ double fourrier() {
 		    -3.23049e-06
   };
 
+  //TLegend *tl = new TLegend(0.25,0.2,0.65,0.4);
+  TLegend *tl = new TLegend(0.462644, 0.651163, 0.862069, 0.852008);
+  tl->SetBorderSize(0);
+
   TFile *f = TFile::Open("hadd_out/hadd.pi.root");
   TEfficiency* eff = (TEfficiency*) f->Get("prob_cut_9/eff1d_mom_e_id");
+  tl->AddEntry(eff,"#pi^{#pm} mis-id eff","pl");
 
-  TFile *f2 = TFile::Open("../new_test/eid90pct/anav2_pip_pim_brem_plab5.5.root");
-  TEfficiency* eff2 = (TEfficiency*) f2->Get("pi_eff1d_total_smooth1d_clone");
-  TList *list = (TList*) eff2->GetListOfFunctions();
-  TF1* fsmth = (TF1*) list->First();
+  bool draw_func = false;
+  if (draw_func) {
+    TFile *f2 = TFile::Open("../new_test/eid90pct/anav2_pip_pim_brem_plab5.5.root");
+    TEfficiency* eff2 = (TEfficiency*) f2->Get("pi_eff1d_total_smooth1d_clone");
+    TList *list = (TList*) eff2->GetListOfFunctions();
+    TF1* fsmth = (TF1*) list->First();
+    tl->AddEntry(fsmth,"parametrization");
+  }
+
   TCanvas *tc = new TCanvas("tc","tc");
   tc->cd();
   eff->Draw();
@@ -72,15 +82,15 @@ double fourrier() {
   eff->GetPaintedGraph()->SetMinimum(5e-6);
   eff->GetPaintedGraph()->SetMaximum(0.007);
   eff->Draw();
-  eff->SetTitle(Form("%s;p_{MC}[GeV/c];#varepsilon(#pi^{#pm})^{EID}",eff->GetTitle()));
+  //eff->SetTitle(Form("%s;p_{MC}[GeV/c];#varepsilon(#pi^{#pm})^{EID}",eff->GetTitle()));
+  eff->SetTitle(Form("#varepsilon(#pi^{#pm}) for combined eID prob > 90%%;p_{MC}[GeV/c];#varepsilon(#pi^{#pm})^{EID}"));
   set_style(eff->GetPaintedGraph());
-  fsmth->Draw("same");
+
+  if (draw_func) fsmth->Draw("same");
+
   gPad->SetLogy();
   tc->Update();
-  TLegend *tl = new TLegend(0.25,0.2,0.65,0.4);
-  tl->AddEntry(eff,"#pi^{#pm} mis-id eff");
-  tl->AddEntry(fsmth,"parametrization");
-  tl->SetBorderSize(0);
+
   tl->Draw();
 
   //TF1* f1 = new TF1("f1",func,0.0001,12,14);

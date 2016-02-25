@@ -68,12 +68,12 @@ double avg_eff(TEfficiency *eff, TH1* wt) {
   return num/den;
 }
 
-double avg_eff2d(TEfficiency *eff, TH2* _wt, int rebin) {
+double avg_eff2d(TEfficiency *eff, TH2* _h_wt, int rebin) {
   if (eff->GetDimension()!=2) {
     cout << "2d average not possible with 1d eff" << endl;
     return 0;
   }
-  TH2F* wt = (TH2F*) _wt->Clone("_wt");
+  TH2F* wt = (TH2F*) _h_wt->Clone("_wt");
   int ndim = eff->GetDimension();
   const TH1* href = eff->GetTotalHistogram();
   int nbinx = href->GetXaxis()->GetNbins();
@@ -243,16 +243,22 @@ void dist() {
   for (int ip=0; ip < np; ++ip) {
     tg[ip] = new TGraph(npt,xx[ip],yy[ip]);
     tg[ip]->SetMarkerStyle(20);
-    tg[ip]->SetMarkerSize(1.5);
+    //tg[ip]->SetMarkerSize(1.5);
+    tg[ip]->SetMarkerSize(0.3);
     tg[ip]->SetMarkerColor(col[ip]);
-    tleg->AddEntry(tg[ip], plab_tex[ip], "p" );
-    tmg->Add(tg[ip],"p");
+    tg[ip]->SetLineColor(col[ip]);
+    tg[ip]->SetLineWidth(2);
+    tleg->AddEntry(tg[ip], plab_tex[ip], "pl" );
+    //tmg->Add(tg[ip],"p");
+    tmg->Add(tg[ip],"pl");
   }
   TCanvas *tc_roc = new TCanvas("tc_roc","tc_roc");
   tc_roc->cd();
   tmg->Draw("a");
   gPad->Update();
-  avg_pim_min = tg[0]->GetHistogram()->GetXaxis()->GetXmin();
+  //tmg->GetHistogram()->GetXaxis()->SetRangeUser(0.01e-3,0.8e-3);
+  gPad->Update();
+  avg_pim_min = tg[0]->GetHistogram()->GetXaxis()->GetXmin() + 0.01e-3;
   avg_elec_min = tg[0]->GetHistogram()->GetYaxis()->GetXmin();
 
   set_style(tmg->GetHistogram(),0);
@@ -267,22 +273,30 @@ void dist() {
   ta[0]->SetLineStyle(9);
   for (int ip=np-1; ip >=0; --ip) {
     ta[0]->SetLineColor(col[ip]);
-    ta[0]->DrawArrow(avg_pim_90[ip], avg_elec_90[ip], avg_pim_min, avg_elec_90[ip], 0.03, ">");
-    ta[0]->DrawArrow(avg_pim_90[ip], avg_elec_90[ip], avg_pim_90[ip], avg_elec_min, 0.03, ">");
+    ta[0]->DrawArrow(avg_pim_90[ip], avg_elec_90[ip], avg_pim_min, avg_elec_90[ip], 0.02, ">");
+    ta[0]->DrawArrow(avg_pim_90[ip], avg_elec_90[ip], avg_pim_90[ip], avg_elec_min, 0.02, ">");
   }
   tleg2->AddEntry(ta[0], Form("prob_{comb}>90%%"), "l" );
 
-  ta[1] = new TArrow();
-  ta[1]->SetLineWidth(2);
-  ta[1]->SetLineStyle(6);
-  for (int ip=np-1; ip >= 0; --ip) {
-    ta[1]->SetLineColor(col[ip]);
-    ta[1]->DrawArrow(avg_pim_70[ip], avg_elec_70[ip], avg_pim_min, avg_elec_70[ip], 0.03, ">");
-    ta[1]->DrawArrow(avg_pim_70[ip], avg_elec_70[ip], avg_pim_70[ip], avg_elec_min, 0.03, ">");
-  }
-  tleg2->AddEntry(ta[1], Form("prob_{comb}>70%%"), "l" );
+  //ta[1] = new TArrow();
+  //ta[1]->SetLineWidth(2);
+  //ta[1]->SetLineStyle(6);
+  //for (int ip=np-1; ip >= 0; --ip) {
+  //  ta[1]->SetLineColor(col[ip]);
+  //  ta[1]->DrawArrow(avg_pim_70[ip], avg_elec_70[ip], avg_pim_min, avg_elec_70[ip], 0.03, ">");
+  //  ta[1]->DrawArrow(avg_pim_70[ip], avg_elec_70[ip], avg_pim_70[ip], avg_elec_min, 0.03, ">");
+  //}
+  //tleg2->AddEntry(ta[1], Form("prob_{comb}>70%%"), "l" );
 
   tleg2->Draw();
-  tc_roc->Print("roc.pdf");
+  //tc_roc->Print("roc.pdf");
+
+
+  TLatex *tl0 = new TLatex();
+  tl0->SetTextSize(0.03);
+  tl0->SetNDC(true);
+  tl0->DrawLatexNDC(0.8,0.82,"prob>10%");
+  tl0->SetTextAngle(90);
+  tl0->DrawLatexNDC(0.163,0.15,"prob>99.9%");
 
 }
