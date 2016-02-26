@@ -282,6 +282,10 @@ void AnaTdav2::init_hists() {
   hurecgg = new TH1F("hurecgg", "hurecgg", 1000, _tmin, 1);
   htrecep = new TH1F("htrecep", "htrecep", 1000, _tmin, 1);
   hurecep = new TH1F("hurecep", "hurecep", 1000, _tmin, 1);
+  htrecgg_excl = new TH1F("htrecgg_excl", "htrecgg_excl", 1000, _tmin, 1);
+  hurecgg_excl = new TH1F("hurecgg_excl", "hurecgg_excl", 1000, _tmin, 1);
+  htrecep_excl = new TH1F("htrecep_excl", "htrecep_excl", 1000, _tmin, 1);
+  hurecep_excl = new TH1F("hurecep_excl", "hurecep_excl", 1000, _tmin, 1);
   htrecgg_mcut = new TH1F("htrecgg_mcut", "htrecgg_mcut", 1000, _tmin, 1);
   hurecgg_mcut = new TH1F("hurecgg_mcut", "hurecgg_mcut", 1000, _tmin, 1);
   htrecep_mcut = new TH1F("htrecep_mcut", "htrecep_mcut", 1000, _tmin, 1);
@@ -1257,6 +1261,15 @@ void AnaTdav2::kin_excl_all() {
   rcl[iep_excl].Append(rcl[iep_asso_all][jep_most_btb]);
   rcl[gg_excl].Append(rcl[gg_sel][jgg_most_btb]);
 
+  double trecgg = t_gg(rcl[gg_excl][0]);
+  double urecgg = u_gg(rcl[gg_excl][0]);
+  double trecep = t_ep(rcl[iep_excl][0]);
+  double urecep = u_ep(rcl[iep_excl][0]);
+  htrecgg_excl->Fill(trecgg);
+  hurecgg_excl->Fill(urecgg);
+  htrecep_excl->Fill(trecep);
+  hurecep_excl->Fill(urecep);
+
   fill_dth_dph_cm(rcl[iep_excl],rcl[gg_excl], hcmoa);
   fill_mtot(rcl[iep_excl],rcl[gg_excl], hmtot);
   fill_mmiss(rcl[iep_excl],rcl[gg_excl], hmmiss, hmmiss2);
@@ -1871,6 +1884,10 @@ void AnaTdav2::write_hists() {
   hurecgg->Write();
   htrecep->Write();
   hurecep->Write();
+  htrecgg_excl->Write();
+  hurecgg_excl->Write();
+  htrecep_excl->Write();
+  hurecep_excl->Write();
   httrumc->Write();
   hutrumc->Write();
   htrecgg_mcut->Write();

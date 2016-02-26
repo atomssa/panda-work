@@ -196,6 +196,7 @@ class AnaTdav2 : public FairTask{
   TH1F* hmtot;
   TH2F* hcmoa;
   TH1F* htrecgg, *hurecgg, *htrecep, *hurecep;
+  TH1F* htrecgg_excl, *hurecgg_excl, *htrecep_excl, *hurecep_excl;
   TH1F* htrecgg_mcut, *hurecgg_mcut, *htrecep_mcut, *hurecep_mcut;
   TH1F* httrumc, *hutrumc;
   TH1F* httrumc_vb, *hutrumc_vb;
