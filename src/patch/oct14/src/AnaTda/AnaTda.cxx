@@ -839,119 +839,119 @@ double AnaTda::dist_jpsi_pair_match(RhoCandidate *c) {
 		      c->Daughter(1)->Energy()-c->Daughter(1)->GetMcTruth()->Energy());
 }
 
-//void AnaTda::find_primary_gg() {
-//
-//  if (verb)
-//    cout << "=============== FIND PRIMARY NEUTRAL PAIR (ng= "  << g.GetLength() << ") ================" << endl;
-//
-//  RhoCandidate *_match;
-//  double dist_min = 1e9;
-//  pi0.SetType(pdg_pi0);
-//  pi0.Combine(g, g);
-//  int tp = -1;
-//  int td[2] = {-1, -1};
-//  bool set_mc_match = false;
-//  for (int j = 0; j < pi0.GetLength(); ++j) {
-//    pi0[j]->SetType(pdg_pi0); // just to make sure in case it was forgotten
-//    // Let the framework do the matching first. This sets the matching to the full
-//    // arborescence if it scucees to find a primary match. Otherwise do it manually for the
-//    // case that fails (pi0->gg in BG simulation)
-//    fAnalysis->McTruthMatch(pi0[j]);
-//    bool framework_found = false;
-//    double dist_framework = 0;
-//    if (pi0[j]->GetMcTruth() and pi0[j]->Daughter(0)->GetMcTruth() and pi0[j]->Daughter(1)->GetMcTruth()){
-//      framework_found =true;
-//      dist_framework = dist_pi0_pair_match(pi0[j]);
-//      if (dist_framework < dist_min) {
-//	dist_min = dist_framework;
-//	_match = pi0[j];
-//	tp = pi0[j]->GetMcTruth()->GetTrackNumber();
-//	td[0] = pi0[j]->Daughter(0)->GetMcTruth()->GetTrackNumber();
-//	td[1] = pi0[j]->Daughter(1)->GetMcTruth()->GetTrackNumber();
-//      }
-//    }
-//
-//    int ip = 0, i0 = 0, i1 = 0;
-//    double dist_custom = primary_match_pair(pdg_pi0, pi0[j], ip, i0, i1);
-//    bool custom_found = false;
-//    if ( dist_custom >= 0 ) {
-//      custom_found = true;
-//      if (dist_custom < dist_min) {
-//        _match = pi0[j];
-//        dist_min = dist_custom;
-//	set_mc_match = true;
-//	tp = ip;
-//	td[0] = i0;
-//	td[1] = i1;
-//      }
-//    }
-//
-//    if (framework_found or custom_found ) {
-//      if (verb) {
-//	cout << "------------------------------------------------------------" << endl;
-//	if (framework_found) {
-//	  cout << "Framework gg=(" << pi0[j]->Daughter(0)->Uid() << "," << pi0[j]->Daughter(1)->Uid()
-//	       << "): " << pdg_pi0 << " M= " << pi0[j]->GetMcTruth()->GetTrackNumber()
-//	       << " d0= " << pi0[j]->Daughter(0)->GetMcTruth()->GetTrackNumber()
-//	       << " d1= " << pi0[j]->Daughter(1)->GetMcTruth()->GetTrackNumber()
-//	       << " dist= " << dist_framework << endl;
-//	} else {
-//	  cout << "Framework    " << pdg_pi0 << ": no match" << endl;
-//	}
-//	if (custom_found)
-//	  cout << "Custom:  gg=(" << pi0[j]->Daughter(0)->Uid() << "," << pi0[j]->Daughter(1)->Uid() << "): " << pdg_pi0 <<  " M= "
-//	       << ip << " d0= " << i0 << " d1= " << i1 << " dist= " << dist_custom << endl;
-//	else
-//	  cout << "Custom    " << pdg_pi0 << ": no match" << endl;
-//	cout << "------------------------------------------------------------" << endl;
-//      }
-//    }
-//  }
-//
-//  if (dist_min<1e8) {
-//    if (verb) {
-//      cout << "===========================================================" << endl;
-//      cout << "Custom Best Pair: TrackNum(pi0 " << _match->Daughter(0)->Uid() << "," << _match->Daughter(1)->Uid() << ")  M= "
-//	   << _match->GetTrackNumber() << " d0= " << _match->Daughter(0)->GetTrackNumber()
-//	   << " d1= " << _match->Daughter(1)->GetTrackNumber() << endl;
-//      cout << "Custom Best Pair: TruthMatch(pi0 " << _match->Daughter(0)->Uid() << "," << _match->Daughter(1)->Uid() << ")  M= "
-//	 << tp << " d0= " << td[0] << " d1= " << td[1] << " dist= " << dist_min << endl;
-//    }
-//    if (set_mc_match) {
-//      if (verb) cout << "Framwork didn't find match. Manually setting match" << endl;
-//      _match->SetMcTruth(mcList[tp]);
-//      for (int i=0; i<2; ++i) _match->Daughter(i)->SetMcTruth(mcList[td[i]]);
-//    }
-//    if (verb) {
-//      cout << "Custom  Check: TruthMatch(pi0): M= " << _match->GetMcTruth()->GetTrackNumber()
-//	   << " d0= " << _match->Daughter(0)->GetMcTruth()->GetTrackNumber()
-//	   << " d1= " << _match->Daughter(1)->GetMcTruth()->GetTrackNumber()  << endl;
-//      cout << "===========================================================" << endl;
-//    }
-//    pi0_true.Append(_match);
-//    fill_gamma_from_pi0s();
-//  }  else {
-//    if (g.GetLength()>1) {
-//      cout << "Nevt= " << nevt << " valid reonstructed photon pair, but no priamry match found" << endl;
-//    }
-//  }
-//}
-
-// Much simpler version, but there may be more than one "true" pi0 found per event
 void AnaTda::find_primary_gg() {
+
   if (verb)
     cout << "=============== FIND PRIMARY NEUTRAL PAIR (ng= "  << g.GetLength() << ") ================" << endl;
+
+  RhoCandidate *_match;
+  double dist_min = 1e9;
   pi0.SetType(pdg_pi0);
   pi0.Combine(g, g);
+  int tp = -1;
+  int td[2] = {-1, -1};
+  bool set_mc_match = false;
   for (int j = 0; j < pi0.GetLength(); ++j) {
     pi0[j]->SetType(pdg_pi0); // just to make sure in case it was forgotten
+    // Let the framework do the matching first. This sets the matching to the full
+    // arborescence if it scucees to find a primary match. Otherwise do it manually for the
+    // case that fails (pi0->gg in BG simulation)
     fAnalysis->McTruthMatch(pi0[j]);
+    bool framework_found = false;
+    double dist_framework = 0;
     if (pi0[j]->GetMcTruth() and pi0[j]->Daughter(0)->GetMcTruth() and pi0[j]->Daughter(1)->GetMcTruth()){
-      pi0_true.Append(pi0[j]);
+      framework_found =true;
+      dist_framework = dist_pi0_pair_match(pi0[j]);
+      if (dist_framework < dist_min) {
+	dist_min = dist_framework;
+	_match = pi0[j];
+	tp = pi0[j]->GetMcTruth()->GetTrackNumber();
+	td[0] = pi0[j]->Daughter(0)->GetMcTruth()->GetTrackNumber();
+	td[1] = pi0[j]->Daughter(1)->GetMcTruth()->GetTrackNumber();
+      }
+    }
+
+    int ip = 0, i0 = 0, i1 = 0;
+    double dist_custom = primary_match_pair(pdg_pi0, pi0[j], ip, i0, i1);
+    bool custom_found = false;
+    if ( dist_custom >= 0 ) {
+      custom_found = true;
+      if (dist_custom < dist_min) {
+        _match = pi0[j];
+        dist_min = dist_custom;
+	set_mc_match = true;
+	tp = ip;
+	td[0] = i0;
+	td[1] = i1;
+      }
+    }
+
+    if (framework_found or custom_found ) {
+      if (verb) {
+	cout << "------------------------------------------------------------" << endl;
+	if (framework_found) {
+	  cout << "Framework gg=(" << pi0[j]->Daughter(0)->Uid() << "," << pi0[j]->Daughter(1)->Uid()
+	       << "): " << pdg_pi0 << " M= " << pi0[j]->GetMcTruth()->GetTrackNumber()
+	       << " d0= " << pi0[j]->Daughter(0)->GetMcTruth()->GetTrackNumber()
+	       << " d1= " << pi0[j]->Daughter(1)->GetMcTruth()->GetTrackNumber()
+	       << " dist= " << dist_framework << endl;
+	} else {
+	  cout << "Framework    " << pdg_pi0 << ": no match" << endl;
+	}
+	if (custom_found)
+	  cout << "Custom:  gg=(" << pi0[j]->Daughter(0)->Uid() << "," << pi0[j]->Daughter(1)->Uid() << "): " << pdg_pi0 <<  " M= "
+	       << ip << " d0= " << i0 << " d1= " << i1 << " dist= " << dist_custom << endl;
+	else
+	  cout << "Custom    " << pdg_pi0 << ": no match" << endl;
+	cout << "------------------------------------------------------------" << endl;
+      }
     }
   }
-  fill_gamma_from_pi0s();
+
+  if (dist_min<1e8) {
+    if (verb) {
+      cout << "===========================================================" << endl;
+      cout << "Custom Best Pair: TrackNum(pi0 " << _match->Daughter(0)->Uid() << "," << _match->Daughter(1)->Uid() << ")  M= "
+	   << _match->GetTrackNumber() << " d0= " << _match->Daughter(0)->GetTrackNumber()
+	   << " d1= " << _match->Daughter(1)->GetTrackNumber() << endl;
+      cout << "Custom Best Pair: TruthMatch(pi0 " << _match->Daughter(0)->Uid() << "," << _match->Daughter(1)->Uid() << ")  M= "
+	 << tp << " d0= " << td[0] << " d1= " << td[1] << " dist= " << dist_min << endl;
+    }
+    if (set_mc_match) {
+      if (verb) cout << "Framwork didn't find match. Manually setting match" << endl;
+      _match->SetMcTruth(mcList[tp]);
+      for (int i=0; i<2; ++i) _match->Daughter(i)->SetMcTruth(mcList[td[i]]);
+    }
+    if (verb) {
+      cout << "Custom  Check: TruthMatch(pi0): M= " << _match->GetMcTruth()->GetTrackNumber()
+	   << " d0= " << _match->Daughter(0)->GetMcTruth()->GetTrackNumber()
+	   << " d1= " << _match->Daughter(1)->GetMcTruth()->GetTrackNumber()  << endl;
+      cout << "===========================================================" << endl;
+    }
+    pi0_true.Append(_match);
+    fill_gamma_from_pi0s();
+  }  else {
+    if (g.GetLength()>1) {
+      //cout << "Nevt= " << nevt << " valid reonstructed photon pair, but no priamry match found" << endl;
+    }
+  }
 }
+
+//// Much simpler version, but there may be more than one "true" pi0 found per event
+//void AnaTda::find_primary_gg() {
+//  if (verb)
+//    cout << "=============== FIND PRIMARY NEUTRAL PAIR (ng= "  << g.GetLength() << ") ================" << endl;
+//  pi0.SetType(pdg_pi0);
+//  pi0.Combine(g, g);
+//  for (int j = 0; j < pi0.GetLength(); ++j) {
+//    pi0[j]->SetType(pdg_pi0); // just to make sure in case it was forgotten
+//    fAnalysis->McTruthMatch(pi0[j]);
+//    if (pi0[j]->GetMcTruth() and pi0[j]->Daughter(0)->GetMcTruth() and pi0[j]->Daughter(1)->GetMcTruth()){
+//      pi0_true.Append(pi0[j]);
+//    }
+//  }
+//  fill_gamma_from_pi0s();
+//}
 
 void AnaTda::fill_gamma_from_pi0s() {
   if (pi0_true.GetLength()!=1) return;
