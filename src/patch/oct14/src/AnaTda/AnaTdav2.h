@@ -161,7 +161,7 @@ class AnaTdav2 : public FairTask{
   TH1F* hnevt;
   TH1F* hwt;
   TH1F* hng;
-  TH1F* hng20mev;
+  TH1F* hng20mev_nocut, *hng20mev_excl, *hng20mev_chi2sig, *hng20mev_chi2bg, *hng20mev_kinall;
   TH1F* hnch;
   TH1F* hmep_mct[nstep], *hmep_non_mct[nstep], *hthe_ep_mct[nstep], *hthe_ep_mct_fwd[nstep], *hthe_ep_mct_bwd[nstep];
   TH1F* hmgg_mct[nstep], *hmgg_non_mct[nstep], *hthe_gg_mct[nstep], *hthe_gg_mct_fwd[nstep], *hthe_gg_mct_bwd[nstep], *hoa_gg_mct[nstep];
@@ -308,6 +308,7 @@ class AnaTdav2 : public FairTask{
   double py_pull_f(RhoCandidate*, RhoCandidate*);
   double pz_pull_r(RhoCandidate*, RhoCandidate*);
   double pz_pull_f(RhoCandidate*, RhoCandidate*);
+  void count_ng20mev();
 
   TLorentzVector boost_transf(const TLorentzVector&, const TVector3&);
   double cost_b(const TLorentzVector&, const TVector3&);
@@ -372,7 +373,7 @@ class AnaTdav2 : public FairTask{
 
   double chi2_cut[3];
 
-  int ng20mev;
+  int m_ng20mev;
 
  public:
   void do_apply_pi0evsoa_cut(bool a) {apply_pi0evsoa_cut = a;}

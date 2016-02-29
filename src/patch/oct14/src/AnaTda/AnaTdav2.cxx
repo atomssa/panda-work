@@ -177,7 +177,11 @@ void AnaTdav2::init_hists() {
 
   // These do not depend on steps
   hng = new TH1F(Form("hng"),Form("hng"),11,-0.5,10.5);
-  hng20mev = new TH1F(Form("hng20mev"),Form("hng20mev"),11,-0.5,10.5);
+  hng20mev_nocut = new TH1F(Form("hng20mev_nocut"),Form("hng20mev_nocut"),11,-0.5,10.5);
+  hng20mev_excl = new TH1F(Form("hng20mev_excl"),Form("hng20mev_excl"),11,-0.5,10.5);
+  hng20mev_chi2sig = new TH1F(Form("hng20mev_chi2sig"),Form("hng20mev_chi2sig"),11,-0.5,10.5);
+  hng20mev_chi2bg = new TH1F(Form("hng20mev_chi2bg"),Form("hng20mev_chi2bg"),11,-0.5,10.5);
+  hng20mev_kinall = new TH1F(Form("hng20mev_kinall"),Form("hng20mev_kinall"),11,-0.5,10.5);
   hnch = new TH1F(Form("hnch"),Form("hnch"),11,-0.5,10.5);
 
   for (int is = 0; is< nstep; ++is) {
@@ -1046,14 +1050,20 @@ void AnaTdav2::fill_lists() {
     mctruth_match_jpsi(rcl[e], rcl[p]);
   }
 
+  count_ng20mev();
+  hng20mev_nocut->Fill(m_ng20mev);
   hng->Fill(rcl[g].GetLength());
-  ng20mev = 0;
-  for (int ig=0; ig < rcl[g].GetLength(); ++ig) {
-    if (rcl[g][ig]->Energy()>0.02) ng20mev++;
-  }
-  hng20mev->Fill(ng20mev);
   hnch->Fill(rcl[e].GetLength()+rcl[p].GetLength());
 
+}
+
+// counts the number of photons above 20MeV at any given
+// point in the analysis.
+void AnaTdav2::count_ng20mev() {
+  m_ng20mev = 0;
+  for (int ig=0; ig < rcl[g].GetLength(); ++ig) {
+    if (rcl[g][ig]->Energy()>0.02) m_ng20mev++;
+  }
 }
 
 bool AnaTdav2::is_dpm() {
@@ -1257,6 +1267,8 @@ void AnaTdav2::kin_excl_all() {
 
   // if no pairs, nothing to do
   if (jgg_most_btb<0||jep_most_btb<0) return;
+
+  hng20mev_excl->Fill(m_ng20mev);
 
   rcl[iep_excl].Append(rcl[iep_asso_all][jep_most_btb]);
   rcl[gg_excl].Append(rcl[gg_sel][jgg_most_btb]);
@@ -1478,6 +1490,7 @@ void AnaTdav2::kin_fit_4c() {
       if (_valid) fill_pair_mass(rcl[iep_excl], hmep_valid[6]);
       if (_valid) fill_pair_mass(rcl[gg_excl], hmgg_valid[6]);
       fill_mctruth(rcl[iep_excl], rcl[gg_excl], 6);
+      hng20mev_chi2sig->Fill(m_ng20mev);
       if (!xtra_pi0_found || (xtra_pi0_found && bg_chi2_4c > sig_chi2_4c)) {
     	rcl[iep_kinc_bg].Append(rcl[iep_excl][0]);
     	rcl[gg_kinc_bg].Append(rcl[gg_excl][0]);
@@ -1486,7 +1499,8 @@ void AnaTdav2::kin_fit_4c() {
 	if (_valid) fill_pair_mass(rcl[iep_excl], hmep_valid[7]);
 	if (_valid) fill_pair_mass(rcl[gg_excl], hmgg_valid[7]);
 	fill_mctruth(rcl[iep_excl], rcl[gg_excl], 7);
-    	if (ng20mev<4) {
+	hng20mev_chi2bg->Fill(m_ng20mev);
+    	if (m_ng20mev<4) {
     	  rcl[iep_ngcut].Append(rcl[iep_excl][0]);
     	  rcl[gg_ngcut].Append(rcl[gg_excl][0]);
     	  fill_pair_mass(rcl[iep_excl], hmep[8]);
@@ -1494,12 +1508,13 @@ void AnaTdav2::kin_fit_4c() {
 	  if (_valid) fill_pair_mass(rcl[iep_excl], hmep_valid[8]);
 	  if (_valid) fill_pair_mass(rcl[gg_excl], hmgg_valid[8]);
 	  fill_mctruth(rcl[iep_excl], rcl[gg_excl], 8);
+	  hng20mev_kinall->Fill(m_ng20mev);
     	}
       }
     }
 
     //// Put everything in
-    //if (ng20mev<3) {
+    //if (m_ng20mev<3) {
     //  rcl[iep_ngcut].Append(rcl[iep_excl][0]);
     //  rcl[gg_ngcut].Append(rcl[gg_excl][0]);
     //  fill_pair_mass(rcl[iep_excl], hmep[6]);
@@ -1771,7 +1786,11 @@ void AnaTdav2::write_hists() {
   hpi0vs2pi0_chi24c_c->Write();
 
   hng->Write();
-  hng20mev->Write();
+  hng20mev_nocut->Write();
+  hng20mev_excl->Write();
+  hng20mev_chi2sig->Write();
+  hng20mev_chi2bg->Write();
+  hng20mev_kinall->Write();
   hnch->Write();
 
   gDirectory->mkdir("epeff");
