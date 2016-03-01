@@ -1774,6 +1774,11 @@ void AnaTdav2::write_hists() {
   pi_eff->Write();
   heff_epm->Write();
 
+  hmiss_e_pvth_acc->Write();
+  hmiss_p_pvth_acc->Write();
+  hmiss_e_pvth_eid->Write();
+  hmiss_p_pvth_eid->Write();
+
   for (int is = 0; is< nstep; ++is) {
     hmep[is]->Write();
     hmgg[is]->Write();
