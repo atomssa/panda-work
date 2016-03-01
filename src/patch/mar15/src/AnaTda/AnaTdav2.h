@@ -55,6 +55,7 @@ class AnaTdav2 : public FairTask{
   void init_hists();
   void beam_cond();
 
+  void missing_track_dists();
   void nocut_ref();
   void ep_uniq();
   void ep_all();
@@ -172,6 +173,10 @@ class AnaTdav2 : public FairTask{
   TH1F* hnpi0jpsi[nstep];
   TH1F* hpi0cost_cm, *hpi0th;
   TH1F* hpi0cost_cm_mcut, *hpi0th_mcut;
+  TH2F *hmiss_e_pvth_acc;
+  TH2F *hmiss_p_pvth_acc;
+  TH2F *hmiss_e_pvth_eid;
+  TH2F *hmiss_p_pvth_eid;
 
   //static const int nbinth = 12;
   std::vector<double> tu_binning;

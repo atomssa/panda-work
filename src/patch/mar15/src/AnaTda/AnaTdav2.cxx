@@ -184,6 +184,11 @@ void AnaTdav2::init_hists() {
   hng20mev_kinall = new TH1F(Form("hng20mev_kinall"),Form("hng20mev_kinall"),11,-0.5,10.5);
   hnch = new TH1F(Form("hnch"),Form("hnch"),11,-0.5,10.5);
 
+  hmiss_e_pvth_acc = new TH2F("hmiss_e_pvth_acc","hmiss_e_pvth_acc",200,0,180,200,0,5);
+  hmiss_p_pvth_acc = new TH2F("hmiss_p_pvth_acc","hmiss_p_pvth_acc",200,0,180,200,0,5);
+  hmiss_e_pvth_eid = new TH2F("hmiss_e_pvth_eid","hmiss_e_pvth_eid",200,0,180,200,0,5);
+  hmiss_p_pvth_eid = new TH2F("hmiss_p_pvth_eid","hmiss_p_pvth_eid",200,0,180,200,0,5);
+
   for (int is = 0; is< nstep; ++is) {
     hmep[is] = new TH1F(Form("hmep_%d",is),Form("hmep_%d",is),400,0,5);
     hmep_valid[is] = new TH1F(Form("hmep_valid_%d",is),Form("hmep_valid_%d",is),400,0,5);
@@ -1093,6 +1098,26 @@ void AnaTdav2::nocut_ref() {
   fill_count_hists(gg,iep,1);
 }
 
+void AnaTdav2::missing_track_dists() {
+
+  if ( rcl[e].GetLength()==0 ) {
+    TVector3 mom3 = mcList[mc_elec]->GetMomentum();
+    hmiss_e_pvth_acc->Fill(mom3.Theta()*TMath::RadToDeg(), mom3.Mag());
+  } else if (rcl[p].GetLength()==0) {
+    TVector3 mom3 = mcList[mc_posit]->GetMomentum();
+    hmiss_e_pvth_acc->Fill(mom3.Theta()*TMath::RadToDeg(), mom3.Mag());
+  }
+
+  if ( rcl[ie].GetLength()==0 ) {
+    TVector3 mom3 = mcList[mc_elec]->GetMomentum();
+    hmiss_e_pvth_eid->Fill(mom3.Theta()*TMath::RadToDeg(), mom3.Mag());
+  } else if (rcl[ip].GetLength()==0) {
+    TVector3 mom3 = mcList[mc_posit]->GetMomentum();
+    hmiss_e_pvth_eid->Fill(mom3.Theta()*TMath::RadToDeg(), mom3.Mag());
+  }
+
+}
+
 /**
  * Makes a pid selected e-p pair list on the condition that there is
  * an exclusive e-p pair in a reasonable mass range, events with more than one
@@ -1691,6 +1716,8 @@ void AnaTdav2::Exec(Option_t* opt) {
   calc_evt_wt();
 
   nocut_ref();
+
+  missing_track_dists();
 
   bool old = false;
   if (old) {
