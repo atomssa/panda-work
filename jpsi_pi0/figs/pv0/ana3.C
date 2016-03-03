@@ -165,7 +165,7 @@ void ana3() {
   //const double scale[nplab][nbg] = {{1.,1.,1.,0.64}, {1.,1.,1.,0.64}, {1.,1.,1.,0.64}};
   // temporary, until fixed in effing macro
   //double nevt_sim[5][3] = {{814794.0,888292.0,898721.0}, {32780.0,50142.0,51860.0}, {214780.0,174864.0,160099.0}, {570751.0,609044.0,527506.0}, {200000.0,200000.0,200000.0}};
-  double nevt_sim[5][3] = {{814794.0,888292.0,898721.0}, {32780.0,50142.0,51860.0}, {214780.0,174864.0,160099.0}, {570751.0,609044.0,527506.0}, {1.98e6,2.0e6,1.98e6}};
+  double nevt_sim[5][3] = {{814794.0,888292.0,898721.0}, {32780.0,50142.0,51860.0}, {214780.0,174864.0,160099.0}, {570751.0,609044.0,527506.0}, {1.98e6,2.0e6,3.93e6}};
   double nevt_xsect[5][3] = {{4.0e11, 1e11, 2e10}, {32780.0,50142.0,51860.0}, {1.15e12, 3.15e11, 6.84e10}, {3.19e12, 1.14e12, 2.92e11}, {94243.0, 157947.3, 177361.2}};
   double pi0pi0jpsi_scale[3] = {1.0};
   for (int iplab=0; iplab < nplab; ++iplab) {
@@ -192,6 +192,7 @@ void ana3() {
       fsig[iplab] = TFile::Open(Form("%s/hists/%s/anav2_pi0jpsi_%s_msv_p%d_pass%d.root",bdir,subdir,(ibrem==0?"raw":"brem"), iplab, pass));
     else
       fsig[iplab] = TFile::Open(Form("%s/hists/%s/anav2_pi0jpsi_%s_p%d_pass%d.root",bdir,subdir,(ibrem==0?"raw":"brem"), iplab, pass));
+
     feff[iplab] = TFile::Open(Form("%s/hists/%s/anav2_pi0jpsi_%s4eff_p%d_pass%d.root",bdir,subdir,(ibrem==0?"raw":"brem"), iplab, pass));
     //fbg[0][iplab] = TFile::Open(Form("%s/hists/%s/anav2_pi0pipm_%s_p%d_pass13.root",bdir,subdir,(ibrem==0?"raw":"brem"), iplab));
     fbg[0][iplab] = TFile::Open(Form("%s/hists/%s/anav2_pi0pipm_%s_p%d_pass%d.root",bdir,subdir,(ibrem==0?"raw":"brem"), iplab, pass));
@@ -606,6 +607,7 @@ void ana3() {
     }
 
     //tc_stob_pbp[itu]->Print(Form("%s/figs/v2/%s/%s.pdf",bdir,(msv?"msv":"full"),tc_stob_pbp[itu]->GetName()));
+    tc_stob_pbp[itu]->Print(Form("%s.pdf",tc_stob_pbp[itu]->GetName()));
 
     tc_yield_cnt_pbp[itu] = new TCanvas(Form("fitted_yield_cnt_pbp%s",toru[itu]),Form("fitted_yield_cnt_pbp%s",toru[itu]));
     tc_yield_cnt_pbp[itu]->Divide(3,1);
@@ -640,7 +642,9 @@ void ana3() {
       legend[itu][iplab]->Draw();
 
     }
+
     //tc_yield_cnt_pbp[itu]->Print(Form("%s/figs/v2/%s/%s.pdf",bdir,(msv?"msv":"full"),tc_yield_cnt_pbp[itu]->GetName()));
+    tc_yield_cnt_pbp[itu]->Print(Form("%s.pdf",tc_yield_cnt_pbp[itu]->GetName()));
 
     tc_yield_cor_pbp[itu] = new TCanvas(Form("fitted_yield_cor_pbp%s",toru[itu]),Form("fitted_yield_cor_pbp%s",toru[itu]), 1400, 550);
     tc_yield_cor_pbp[itu]->Divide(3,1);
@@ -681,6 +685,7 @@ void ana3() {
     }
 
     //tc_yield_cor_pbp[itu]->Print(Form("%s/figs/v2/%s/%s.pdf",bdir,(msv?"msv":"full"),tc_yield_cor_pbp[itu]->GetName()));
+    tc_yield_cor_pbp[itu]->Print(Form("%s.pdf",tc_yield_cor_pbp[itu]->GetName()));
 
   }
 

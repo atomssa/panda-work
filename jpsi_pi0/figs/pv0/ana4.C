@@ -1,43 +1,4 @@
-//static int ibrem = 1;
-//static const int nplab = 3;
-//static const int nbg = 4;
-//static const double plab[nplab] = {5.513, 8., 12.};
-//// these are numbers derived from analytical formula for
-//// values of t at cos_theta_cm = {-1, 0, 1}
-//static double limits[nplab][3] =
-//  { {-1.50406, -0.443789, 0.616486},
-//    {-5.96462, -2.75368, 0.457248},
-//    {-13.2926, -6.48861, 0.31538} };
-//static double tmin[nplab]={-0.443789, -0.5, -0.5};
-//static double tmax[nplab]={0.616486, 0.457248, 0.31538};
-//
-//void set_style_ana(TH1* h, int col, int rebin, bool sumw2) {
-//  if (rebin>1)h->Rebin(rebin);
-//  if (sumw2)h->Sumw2();
-//  h->GetXaxis()->SetTitleSize(0.08);
-//  h->GetXaxis()->SetLabelSize(0.08);
-//  h->GetXaxis()->SetLabelOffset(0.);
-//  h->GetXaxis()->SetTitleOffset(0.8);
-//  h->GetYaxis()->SetTitleSize(0.08);
-//  h->GetYaxis()->SetLabelSize(0.08);
-//  h->GetYaxis()->SetLabelOffset(0.02);
-//  h->GetYaxis()->SetTitleOffset(0.8);
-//
-//  h->SetMarkerStyle(20);
-//  h->SetMarkerColor(col);
-//  h->SetMarkerSize(0.5);
-//  if (col>0) {
-//    h->SetLineWidth(2);
-//    h->SetLineColor(col);
-//  }
-//}
-//
-//double integrate_content(TH1F* h, double min, double max) {
-//  int i0 = h->GetXaxis()->FindBin(min);
-//  int i1 = h->GetXaxis()->FindBin(max);
-//  return h->Integral(i0, i1);
-//}
-//#include "ananote.C"
+#include "ananote.C"
 
 void ana4(int icth = 8) {
 
@@ -50,10 +11,10 @@ void ana4(int icth = 8) {
   //gStyle->SetTitleAlign(33);
   //TGaxis::SetMaxDigits(3);
 
-  bool verbose = true;
+  bool verbose = false;
   const char* bdir = "/Users/tujuba/panda/work/jpsi_pi0/";
 
-  gROOT->LoadMacro(Form("%s/figs/pv0/ananote.C",bdir));
+  //gROOT->LoadMacro(Form("%s/figs/pv0/ananote.C",bdir));
   //const int nplab =3;
 
   // Prepare to fit...
@@ -227,8 +188,8 @@ void ana4(int icth = 8) {
     //cout << "scale ip=" << iplab << " = " << pi0pi0jpsi_scale[iplab] << endl;
   }
 
-  //ofstream dat_out;
-  //dat_out.open(Form("%s/data_table_cth%d.dummy",msv?"msv":"full",icth));
+  ofstream dat_out;
+  dat_out.open(Form("%s/nowt/data_table_cth%d.dat",msv?"msv":"full",icth));
 
   bool kin_fitted = true;
   for (int iplab=0; iplab<nplab; ++iplab) {
@@ -237,7 +198,7 @@ void ana4(int icth = 8) {
     cout << "icth=" << icth << " iplab= " << iplab << endl;
 
     int pass = 18;
-    int ncth = (iplab==0)? 29:18;
+    int ncth = (iplab==0)? 99:60;
     int _icth = icth >= ncth? 0: icth;
 
     if (msv)
@@ -322,7 +283,6 @@ void ana4(int icth = 8) {
 	//if (itu==0&&(tvalidmin[iplab]>t[iplab][itbin]||t[iplab][itbin]>tvalidmax[iplab])) {continue;}
 	//if (itu==1&&(tvalidmin[iplab]>u[iplab][itbin]||u[iplab][itbin]>tvalidmax[iplab])) {continue;}
 
-
 	//double tbin_width = tu_bins[itbin+1] - tu_bins[itbin];
 	double tbin_width = 1.0;
 
@@ -331,8 +291,11 @@ void ana4(int icth = 8) {
 
 	//cout << "getting " << Form("%scosthbins/hmep_%s%d_cth%d",toru[itu/2],toru[itu/2],itu%2,itbin) << endl;
 
-	const char *name_in = Form("%scosthbins/hmep_%s%d_cth%d_wt0",toru[itu/2],toru[itu/2],itu%2,itbin);
-	if (kin_fitted) name_in = Form("%scosthbins/f_hmep_%s%d_cth%d_wt0",toru[itu/2],toru[itu/2],itu%2,itbin);
+	const char *name_in = Form("%scosthbins/hmep_%s%d_cth%d",toru[itu/2],toru[itu/2],itu%2,itbin);
+	if (kin_fitted) name_in = Form("%scosthbins/f_hmep_%s%d_cth%d",toru[itu/2],toru[itu/2],itu%2,itbin);
+	//const char *name_in = Form("%scosthbins/hmep_%s%d_cth%d_wt1",toru[itu/2],toru[itu/2],itu%2,itbin);
+	//if (kin_fitted) name_in = Form("%scosthbins/f_hmep_%s%d_cth%d_wt1",toru[itu/2],toru[itu/2],itu%2,itbin);
+
 	//const char *name_in = Form("%scosthbins/hmep_%s%d_cth%d",toru[itu/2],toru[itu/2],itu%2,itbin);
 	const char *name_out = Form("hmep_fg_p%d_%s%d_cth%d",iplab,toru[itu/2],itu%2,itbin);
 	hmfg_tu[itu][iplab][itbin] = (TH1F*) fsig[iplab]->Get(name_in)->Clone(name_out);
@@ -435,7 +398,7 @@ void ana4(int icth = 8) {
 	  fmfg_tu[itu][iplab][itbin]->SetParameter(pol3?4:3, fmfg_tu[itu][iplab][itbin]->GetParameter(pol3?4:3));
 	  hmfg_tu[itu][iplab][itbin]->Fit(Form("fmep_fg_p%d_%s%d_%d",iplab,toru[itu/2],itu%2,itbin), "Q+R", "ep");
 
-	  cout << "par4 = " << fmfg_tu[itu][iplab][itbin]->GetParameter(pol3?4:3) << endl;
+	  //cout << "par4 = " << fmfg_tu[itu][iplab][itbin]->GetParameter(pol3?4:3) << endl;
 	  yield[itu][iplab][nptok[itu][iplab]] = fmfg_tu[itu][iplab][itbin]->GetParameter(pol3?4:3);
 	  yield_er[itu][iplab][nptok[itu][iplab]] = fmfg_tu[itu][iplab][itbin]->GetParError(pol3?4:3);
 
@@ -560,8 +523,8 @@ void ana4(int icth = 8) {
       tg_yield_cor[itu][iplab]->Fit(func_name, "RINOQ+");
       //tg_yield_cor[itu][iplab]->Fit(func_name, "RNO");
 
-      //dat_out << Form("icth= %d itu= %d iplab= %d A= %5.2f #pm %5.2f", _icth, itu, iplab, fcosth_tu[itu][iplab]->GetParameter(1), fcosth_tu[itu][iplab]->GetParError(1)) << endl;
-      cout << Form("icth= %d itu= %d iplab= %d A= %5.2f #pm %5.2f", _icth, itu, iplab, fcosth_tu[itu][iplab]->GetParameter(1), fcosth_tu[itu][iplab]->GetParError(1)) << endl;
+      dat_out << Form("icth= %d itu= %d iplab= %d A= %5.2f #pm %5.2f", _icth, itu, iplab, fcosth_tu[itu][iplab]->GetParameter(1), fcosth_tu[itu][iplab]->GetParError(1)) << endl;
+      //cout << Form("icth= %d itu= %d iplab= %d A= %5.2f #pm %5.2f", _icth, itu, iplab, fcosth_tu[itu][iplab]->GetParameter(1), fcosth_tu[itu][iplab]->GetParError(1)) << endl;
 
       tmg_yield_cor[itu]->Add(tg_yield_cor[itu][iplab],"p");
       //tmg_yield_cor[itu]->Add(tg_yield[itu][iplab],"p");
@@ -578,23 +541,23 @@ void ana4(int icth = 8) {
       legend3[itu][iplab]->AddEntry(tg_stob[itu][iplab],"S/B ratio","pl");
 
 
-      //tc_mep_tbins[itu][iplab]->Close();
+      tc_mep_tbins[itu][iplab]->Close();
 
     }
 
-    //fsig[iplab]->Close();
-    //feff[iplab]->Close();
-    //fbg[0][iplab]->Close();
-    //fbg[1][iplab]->Close();
-    //fbg[2][iplab]->Close();
-    //fbg[3][iplab]->Close();
+    fsig[iplab]->Close();
+    feff[iplab]->Close();
+    fbg[0][iplab]->Close();
+    fbg[1][iplab]->Close();
+    fbg[2][iplab]->Close();
+    fbg[3][iplab]->Close();
 
   }
 
   tctmp->Close();
-  //dat_out.close();
+  dat_out.close();
 
-  //return;
+  return;
 
   TCanvas *tc_yield_pbp[ntu];
   TCanvas *tc_yield_cnt_pbp[ntu];
@@ -697,7 +660,7 @@ void ana4(int icth = 8) {
     }
 
     //tc_stob_pbp[itu]->Print(Form("%s/figs/v2/%s/%s.pdf",bdir,(msv?"msv":"full"),tc_stob_pbp[itu]->GetName()));
-    tc_stob_pbp[itu]->Print(Form("cth_%s_%s.pdf",tc_stob_pbp[itu]->GetName(),(msv?"msv":"full")));
+    //tc_stob_pbp[itu]->Print(Form("cth_%s_%s.pdf",tc_stob_pbp[itu]->GetName(),(msv?"msv":"full")));
 
     //tc_yield_cnt_pbp[itu] = new TCanvas(Form("fitted_yield_cnt_pbp_%s%d",toru[itu/2],itu%2),Form("fitted_yield_cnt_pbp_%s%d",toru[itu/2],itu%2));
     //tc_yield_cnt_pbp[itu]->Divide(3,1);
@@ -746,7 +709,7 @@ void ana4(int icth = 8) {
       }
     }
     //tc_yield_cnt_pbp[itu]->Print(Form("%s/figs/v2/%s/%s.pdf",bdir,(msv?"msv":"full"),tc_yield_cnt_pbp[itu]->GetName()));
-    tc_yield_cnt_pbp[itu]->Print(Form("cth_%s_%s.pdf",tc_yield_cnt_pbp[itu]->GetName(),(msv?"msv":"full")));
+    //tc_yield_cnt_pbp[itu]->Print(Form("cth_%s_%s.pdf",tc_yield_cnt_pbp[itu]->GetName(),(msv?"msv":"full")));
 
     tc_yield_cor_pbp[itu] = new TCanvas(Form("fitted_yield_cor_pbp_%s%d",toru[itu/2],itu%2),Form("fitted_yield_cor_pbp_%s%d",toru[itu/2],itu%2), 1400, 550);
     tc_yield_cor_pbp[itu]->Divide(3,1);
@@ -793,7 +756,7 @@ void ana4(int icth = 8) {
     }
 
     //tc_yield_cor_pbp[itu]->Print(Form("%s/figs/v2/%s/%s.pdf",bdir,(msv?"msv":"full"),tc_yield_cor_pbp[itu]->GetName()));
-    tc_yield_cor_pbp[itu]->Print(Form("cth_%s_%s.pdf",tc_yield_cor_pbp[itu]->GetName(),(msv?"msv":"full")));
+    //tc_yield_cor_pbp[itu]->Print(Form("cth_%s_%s.pdf",tc_yield_cor_pbp[itu]->GetName(),(msv?"msv":"full")));
 
   }
 

@@ -1,6 +1,7 @@
 void pi0cut() {
 
   const char* bdir = "/Users/tujuba/panda/work/jpsi_pi0/";
+  gROOT->LoadMacro(Form("%s/figs/pv0/ananote.C",bdir));
 
   TFile *fsig[nplab], *fbg[nplab];
   TH2F* sig_avg_true_mc[nplab], *sig_avg_true_rec[nplab], *sig_avg_all_rec[nplab], *sig_avg_all_cut[nplab];
@@ -31,21 +32,29 @@ void pi0cut() {
       tl[i][iplab]->SetTextSize(((i==2)?1.4:(i<4?1.5:1.2))*tl[i][iplab]->GetTextSize());
     }
 
-    fsig[iplab] = TFile::Open(Form("%s/test/ana/ana_jpsi_%s_plab%3.1f.root",bdir,(ibrem==0?"raw":"brem"),plab[iplab]));
-    fbg[iplab] = TFile::Open(Form("%s/test/ana/ana_pip_pim_%s_plab%3.1f.root",bdir,(ibrem==0?"raw":"brem"),plab[iplab]));
+    //fsig[iplab] = TFile::Open(Form("%s/test/ana/ana_jpsi_%s_plab%3.1f.root",bdir,(ibrem==0?"raw":"brem"),plab[iplab]));
+    //fbg[iplab] = TFile::Open(Form("%s/test/ana/ana_pip_pim_%s_plab%3.1f.root",bdir,(ibrem==0?"raw":"brem"),plab[iplab]));
+
+    fsig[iplab] = TFile::Open(Form("%s/hists/paper.v0.feb.2016/ana_pi0jpsi_%s_p%d.root",bdir,(ibrem==0?"raw":"brem"),iplab));
+    fbg[iplab] = TFile::Open(Form("%s/hists/paper.v0.feb.2016/ana_pi0jpsi10cm_%s_p%d.root",bdir,(ibrem==0?"raw":"brem"),iplab));
+    //fbg[iplab] = TFile::Open(Form("%s/hists/paper.v0.feb.2016/ana_pi0pipm_%s_p%d.root",bdir,(ibrem==0?"raw":"brem"),iplab));
+
+    // SIG 2D HISTS
     sig_avg_true_mc[iplab]= (TH2F*) fsig[iplab]->Get("gg/h_oa_gg_avg_e_g_truepi0_mc")->Clone(Form("sig_avg_true_mc_p%d", iplab));
     sig_avg_true_rec[iplab]= (TH2F*) fsig[iplab]->Get("gg/h_oa_gg_avg_e_g_truepi0_rec")->Clone(Form("sig_avg_true_rec_p%d", iplab));
     sig_avg_all_rec[iplab]= (TH2F*) fsig[iplab]->Get("gg/h_oa_gg_avg_e_g_all_rec")->Clone(Form("sig_avg_all_rec_p%d", iplab));
     sig_avg_all_cut[iplab]= (TH2F*) fsig[iplab]->Get("gg/h_oa_gg_avg_e_g_ana")->Clone(Form("sig_avg_all_cut_p%d", iplab));
+    // SIG 1D HISTS
     sig_all_minv[iplab] = (TH1F*) fsig[iplab]->Get("gg/h_m_gg_all_rec")->Clone(Form("sig_all_minv_p%d",iplab));
     sig_all_avg_cut_minv[iplab] = (TH1F*) fsig[iplab]->Get("pi0_ana/h_m_gg_ana_0")->Clone(Form("sig_all_minv_p%d",iplab));
     sig_true_minv[iplab] = (TH1F*) fsig[iplab]->Get("gg/h_m_gg_truepi0_rec")->Clone(Form("sig_true_minv_p%d",iplab));
     sig_true_avg_cut_minv[iplab] = (TH1F*) fsig[iplab]->Get("gg/h_m_gg_pm_ana")->Clone(Form("sig_true_avg_cut_minv_p%d",iplab));
-
+    // SIG 2D HISTS
     bg_avg_true_mc[iplab]= (TH2F*) fbg[iplab]->Get("gg/h_oa_gg_avg_e_g_truepi0_mc")->Clone(Form("sig_avg_true_mc_p%d", iplab));
     bg_avg_true_rec[iplab]= (TH2F*) fbg[iplab]->Get("gg/h_oa_gg_avg_e_g_truepi0_rec")->Clone(Form("sig_avg_true_rec_p%d", iplab));
     bg_avg_all_rec[iplab]= (TH2F*) fbg[iplab]->Get("gg/h_oa_gg_avg_e_g_all_rec")->Clone(Form("sig_avg_all_rec_p%d", iplab));
     bg_avg_all_cut[iplab]= (TH2F*) fbg[iplab]->Get("gg/h_oa_gg_avg_e_g_ana")->Clone(Form("sig_avg_all_cut_p%d", iplab));
+    // SIG 1D HISTS
     bg_all_minv[iplab] = (TH1F*) fbg[iplab]->Get("gg/h_m_gg_all_rec")->Clone(Form("sig_all_minv_p%d",iplab));
     bg_all_avg_cut_minv[iplab] = (TH1F*) fbg[iplab]->Get("pi0_ana/h_m_gg_ana_0")->Clone(Form("sig_all_minv_p%d",iplab));
     bg_true_minv[iplab] = (TH1F*) fbg[iplab]->Get("gg/h_m_gg_truepi0_rec")->Clone(Form("bg_true_minv_p%d",iplab));
@@ -72,8 +81,9 @@ void pi0cut() {
       sig_avg_all_cut[iplab]->SetTitle(";OA[rad];Avg(E_{#gamma 1},E_{#gamma 2})[GeV]");
       sig_avg_all_cut[iplab]->Draw("colz");
       tl[5][iplab]->DrawLatex(0.2,0.91,Form("#gamma-#gamma pairs after cut(RECO)"));
-      tc_sig_avg[iplab]->Print(Form("%s/figs/2015.09.15/pi0cut_%s.png",bdir,tc_sig_avg[iplab]->GetName()));
-      gSystem->Exec(Form("convert figs/2015.09.15/pi0cut_%s.png figs/2015.09.15/pi0cut_%s.pdf", tc_sig_avg[iplab]->GetName(), tc_sig_avg[iplab]->GetName()));
+
+      //tc_sig_avg[iplab]->Print(Form("%s/figs/2015.09.15/pi0cut_%s.png",bdir,tc_sig_avg[iplab]->GetName()));
+      //gSystem->Exec(Form("convert figs/2015.09.15/pi0cut_%s.png figs/2015.09.15/pi0cut_%s.pdf", tc_sig_avg[iplab]->GetName(), tc_sig_avg[iplab]->GetName()));
 
       tc_bg_avg[iplab] = new TCanvas(Form("bg_avg_p%d",iplab),Form("bg_avg_p%d",iplab),1000,1000);
       tc_bg_avg[iplab]->Divide(2,2);
@@ -86,8 +96,8 @@ void pi0cut() {
       bg_avg_all_rec[iplab]->Draw("colz");
       tc_bg_avg[iplab]->cd(4);
       bg_avg_all_cut[iplab]->Draw("colz");
-      tc_bg_avg[iplab]->Print(Form("%s/figs/2015.09.15/pi0cut_%s.png",bdir,tc_bg_avg[iplab]->GetName()));
-      gSystem->Exec(Form("convert %s/figs/2015.09.15/pi0cut_%s.png %s/figs/2015.09.15/pi0cut_%s.pdf", bdir, tc_bg_avg[iplab]->GetName(), bdir, tc_bg_avg[iplab]->GetName()));
+      //tc_bg_avg[iplab]->Print(Form("%s/figs/2015.09.15/pi0cut_%s.png",bdir,tc_bg_avg[iplab]->GetName()));
+      //gSystem->Exec(Form("convert %s/figs/2015.09.15/pi0cut_%s.png %s/figs/2015.09.15/pi0cut_%s.pdf", bdir, tc_bg_avg[iplab]->GetName(), bdir, tc_bg_avg[iplab]->GetName()));
 
     }
 
@@ -140,7 +150,7 @@ void pi0cut() {
     }
   }
 
-  tc_sig_minv_allplab->Print(Form("%s/figs/2015.09.15/pi0cut_%s.pdf",bdir,tc_sig_minv_allplab->GetName()));
-  tc_bg_minv_allplab->Print(Form("%s/figs/2015.09.15/pi0cut_%s.pdf",bdir,tc_bg_minv_allplab->GetName()));
+  //tc_sig_minv_allplab->Print(Form("%s/figs/2015.09.15/pi0cut_%s.pdf",bdir,tc_sig_minv_allplab->GetName()));
+  ///tc_bg_minv_allplab->Print(Form("%s/figs/2015.09.15/pi0cut_%s.pdf",bdir,tc_bg_minv_allplab->GetName()));
 
 }

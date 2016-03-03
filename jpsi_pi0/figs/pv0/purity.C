@@ -13,13 +13,13 @@ void purity(int iplab = 0, int step = 5) {
   const char* bdir = "/Users/tujuba/panda/work/jpsi_pi0/";
 
   //gROOT->LoadMacro(Form("%s/tda/tda.C",bdir));
-  //  gROOT->LoadMacro(Form("%s/figs/v2/ananote.C",bdir));
+  gROOT->LoadMacro(Form("%s/figs/v2/ananote.C",bdir));
 
   int ibrem = 1;
-  int pass = 15;
+  int pass = 23;
 
-  TFile *fsig = TFile::Open(Form("%s/hists/note.v2.oct.2015/anav2_pi0jpsi_%s4eff_p%d_pass%d.root",bdir,(ibrem==0?"raw":"brem"), iplab, pass));
-
+  //TFile *fsig = TFile::Open(Form("%s/hists/note.v2.oct.2015/anav2_pi0jpsi_%s4eff_p%d_pass%d.root",bdir,(ibrem==0?"raw":"brem"), iplab, pass));
+  TFile *fsig = TFile::Open(Form("%s/hists/paper.v0.feb.2016/anav2_pi0jpsi_%s4eff_p%d_pass%d.root",bdir,(ibrem==0?"raw":"brem"), iplab, pass));
   //int step = 8;
 
   TH1F* hmep = (TH1F* ) fsig->Get(Form("hmep_%d",step));
@@ -39,7 +39,6 @@ void purity(int iplab = 0, int step = 5) {
   double _purity = (100.0*hmep_mct->GetEntries())/hmep->GetEntries();
   cout << "& " <<  Form("%4.1f\\%%", _purity) << endl;
 
-  return;
   TLatex *tl = new TLatex();
   tl->SetTextSize(0.06);
   TCanvas *tc = new TCanvas("tc","tc");
@@ -47,7 +46,7 @@ void purity(int iplab = 0, int step = 5) {
   tc->cd(1);
   hmep->Draw();
   hmep_mct->Draw("same");
-  gPad->SetLogy();
+  //gPad->SetLogy();
   tl->DrawLatexNDC(.15,.85, Form("purity=%4.1f%%", _purity));
   tc->cd(2);
   hmgg->Draw();

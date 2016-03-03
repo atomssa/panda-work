@@ -55,23 +55,28 @@ void kin_cuts2(int iaft = 8) {
   const double tvalidmin[nplab] = {-0.092, -1.0, -1.0};
   const double tvalidmax[nplab] = {0.59, 0.43, 0.3};
 
-  double nevt_sim[5][3] = {{814794.0,888292.0,898721.0}, {32780.0,50142.0,51860.0}, {214780.0,174864.0,160099.0}, {570751.0,609044.0,527506.0}, {200000.0,200000.0,200000.0}};
+  double nevt_sim[5][3] = {{814794.0,888292.0,898721.0}, {32780.0,50142.0,51860.0}, {214780.0,174864.0,160099.0}, {570751.0,609044.0,527506.0}, {1.98e6,2.0e6,1.98e6}};
+  //double nevt_sim[5][3] = {{814794.0,888292.0,898721.0}, {32780.0,50142.0,51860.0}, {214780.0,174864.0,160099.0}, {570751.0,609044.0,527506.0}, {2.0e5,2.0e5,1.98e5}};
   double nevt_xsect[5][3] = {{4.0e11, 1e11, 2e10}, {32780.0,50142.0,51860.0}, {1.15e12, 3.15e11, 6.84e10}, {3.19e12, 1.14e12, 2.92e11}, {94243.0, 157947.3, 177361.2}};
 
   double purity[4][3] = { { 90.4, 89.3, 89.1}, {98.8, 98.7, 99.7}, {98.8, 98.7, 98.8}, {99.0, 99.0, 99.0} };
-  // temporary, until fixed in effing macro
-  //double pi0pi0jpsi_scale[3] = {1.0};
-  //for (int iplab=0; iplab < nplab; ++iplab) {
-  //  nevt_xsect[4][iplab] = nevt_xsect[1][iplab]*(nevt_xsect[2][iplab]/nevt_xsect[0][iplab]);
-  //  pi0pi0jpsi_scale[iplab] = nevt_xsect[4][iplab]/nevt_sim[4][iplab];
-  //  cout << "nxsect ip=" << iplab << " = " << nevt_xsect[4][iplab] << endl;
-  //  cout << "nsim ip=" << iplab << " = " << nevt_sim[4][iplab] << endl;
-  //  cout << "scale ip=" << iplab << " = " << pi0pi0jpsi_scale[iplab] << endl;
-  //}
+
+  //temporary, until fixed in effing macro
+  double pi0pi0jpsi_scale[3] = {1.0,1.0,1.0};
+  for (int iplab=0; iplab < nplab; ++iplab) {
+    //nevt_xsect[4][iplab] = nevt_xsect[1][iplab]*(nevt_xsect[2][iplab]/nevt_xsect[0][iplab]);
+    //pi0pi0jpsi_scale[iplab] = nevt_xsect[4][iplab]/nevt_sim[4][iplab];
+    pi0pi0jpsi_scale[iplab] = 200000.0/nevt_sim[4][iplab];
+    cout << "nxsect ip=" << iplab << " = " << nevt_xsect[4][iplab] << endl;
+    cout << "nsim ip=" << iplab << " = " << nevt_sim[4][iplab] << endl;
+    cout << "scale ip=" << iplab << " = " << pi0pi0jpsi_scale[iplab] << endl;
+  }
 
   double nevt_sig_sim_valid[3] = {24561.88, 33327.48, 23742.89};
 
-  double nevt_pi0pi0jpsi_sim_valid[3] = {200000.0,200000.0,200000.0};
+  double nevt_pi0pi0jpsi_sim_valid[3] = {1.98e6,2.0e6,1.98e6};
+  //double nevt_pi0pi0jpsi_sim_valid[3] = {200000.0,200000.0,200000.0};
+
   //double nevt_pi0pipm_sim_valid[3] = {814794.0,888292.0,898721.0};
   double nevt_pi0pipm_sim_valid[3] = {4.0e11, 1e11, 2e10};
 
@@ -136,20 +141,21 @@ void kin_cuts2(int iaft = 8) {
 
     hmep_sg_b[iplab] = (TH1F*) fsg[iplab]->Get(Form("hmep_%d",ibef)) ->Clone(Form("hmep_sg_b_p%d",iplab));
     hmep_sg_a[iplab] = (TH1F*) fsg[iplab]->Get(Form("hmep_%d",iaft)) ->Clone(Form("hmep_sg_a_p%d",iplab));
-
     hmep_valid_sg_b[iplab] = (TH1F*) fsg[iplab]->Get(Form("hmep_valid_%d",ibef)) ->Clone(Form("hmep_valid_sg_b_p%d",iplab));
     hmep_valid_sg_a[iplab] = (TH1F*) fsg[iplab]->Get(Form("hmep_valid_%d",iaft)) ->Clone(Form("hmep_valid_sg_a_p%d",iplab));
+    set_style(hmep_sg_b[iplab],2);
+    set_style(hmep_sg_a[iplab],2);
+    set_style(hmep_valid_sg_b[iplab],2);
+    set_style(hmep_valid_sg_a[iplab],2);
 
     hmep_fg_b[iplab] = (TH1F*) fsg[iplab]->Get(Form("hmep_%d",ibef)) ->Clone(Form("hmep_fg_b_p%d",iplab));
     hmep_fg_a[iplab] = (TH1F*) fsg[iplab]->Get(Form("hmep_%d",iaft)) ->Clone(Form("hmep_fg_a_p%d",iplab));
-
     hmep_valid_fg_b[iplab] = (TH1F*) fsg[iplab]->Get(Form("hmep_valid_%d",ibef)) ->Clone(Form("hmep_valid_fg_b_p%d",iplab));
     hmep_valid_fg_a[iplab] = (TH1F*) fsg[iplab]->Get(Form("hmep_valid_%d",iaft)) ->Clone(Form("hmep_valid_fg_a_p%d",iplab));
-
     set_style(hmep_fg_b[iplab],1);
     set_style(hmep_fg_a[iplab],1);
-    set_style(hmep_sg_b[iplab],2);
-    set_style(hmep_sg_a[iplab],2);
+    set_style(hmep_valid_fg_b[iplab],1);
+    set_style(hmep_valid_fg_a[iplab],1);
 
     //if (iplab==0) {
     //  //hmep_fg_b[iplab]->SetTitle(Form("Before cut on 4C fit #chi^{2} (p_{#bar{p}} = %5.4g GeV/c); M_{ee}[GeV/c^{2}]", plab[iplab]));
@@ -167,6 +173,8 @@ void kin_cuts2(int iaft = 8) {
 
     hmep_fg_b[iplab]->SetTitle(Form("; M_{ee}[GeV/c^{2}];dN/dm_{ee}[(%3.0f MeV/c^{2})^{-1}]", dm_ee, plab[iplab]));
     hmep_fg_a[iplab]->SetTitle(Form("; M_{ee}[GeV/c^{2}]", plab[iplab]));
+    hmep_valid_fg_b[iplab]->SetTitle(Form("; M_{ee}[GeV/c^{2}];dN/dm_{ee}[(%3.0f MeV/c^{2})^{-1}]", dm_ee, plab[iplab]));
+    hmep_valid_fg_a[iplab]->SetTitle(Form("; M_{ee}[GeV/c^{2}]", plab[iplab]));
 
     if (iplab==0) {
       //tl->AddEntry(hmep_fg_a[iplab],"FG+BG","l");
@@ -200,7 +208,6 @@ void kin_cuts2(int iaft = 8) {
     double i_umax = ttrumc->GetXaxis()->FindBin(mirror(tvalidmin[iplab],_s[iplab]));
     pi0pipm_frac_valid[iplab] = (ttrumc->Integral(i_tmin,i_tmax)+ttrumc->Integral(i_tmin,i_tmax))/ttrumc->Integral();
 
-
     for (int ibg=0; ibg < nbg; ++ibg) {
       hmep_bg_b[ibg][iplab] = (TH1F*) fbg[ibg][iplab]->Get(Form("hmep_%d",ibef))->Clone(Form("hmep_bg_b_p%d",iplab));
       hmep_bg_a[ibg][iplab] = (TH1F*) fbg[ibg][iplab]->Get(Form("hmep_%d",iaft))->Clone(Form("hmep_bg_a_p%d",iplab));
@@ -209,11 +216,15 @@ void kin_cuts2(int iaft = 8) {
 
       set_style(hmep_bg_b[ibg][iplab],col_bg[ibg]);
       set_style(hmep_bg_a[ibg][iplab],col_bg[ibg]);
+      set_style(hmep_valid_bg_b[ibg][iplab],col_bg[ibg]);
+      set_style(hmep_valid_bg_a[ibg][iplab],col_bg[ibg]);
 
-      //if (ibg==nbg-1){
-      //	hmep_bg_b[ibg][iplab]->Scale(pi0pi0jpsi_scale[iplab]);
-      //	hmep_bg_a[ibg][iplab]->Scale(pi0pi0jpsi_scale[iplab]);
-      //}
+      if (ibg==0){
+      	hmep_bg_b[ibg][iplab]->Scale(pi0pi0jpsi_scale[iplab]);
+      	hmep_bg_a[ibg][iplab]->Scale(pi0pi0jpsi_scale[iplab]);
+      	hmep_valid_bg_b[ibg][iplab]->Scale(pi0pi0jpsi_scale[iplab]);
+      	hmep_valid_bg_a[ibg][iplab]->Scale(pi0pi0jpsi_scale[iplab]);
+      }
 
       hmep_fg_b[iplab]->Add(hmep_bg_b[ibg][iplab]);
       hmep_fg_a[iplab]->Add(hmep_bg_a[ibg][iplab]);
@@ -224,12 +235,18 @@ void kin_cuts2(int iaft = 8) {
 	hmep_bg_tot_b[iplab] = (TH1F*) fbg[ibg][iplab]->Get(Form("hmep_%d",ibef))->Clone(Form("hmep_bg_tot_b_p%d",iplab));
 	hmep_bg_tot_a[iplab] = (TH1F*) fbg[ibg][iplab]->Get(Form("hmep_%d",iaft))->Clone(Form("hmep_bg_tot_b_p%d",iplab));
 	hmep_valid_bg_tot_b[iplab] = (TH1F*) fbg[ibg][iplab]->Get(Form("hmep_valid_%d",ibef))->Clone(Form("hmep_bg_tot_b_p%d",iplab));
-	hmep_valid_bg_tot_a[iplab] = (TH1F*) fbg[ibg][iplab]->Get(Form("hmep_valid_%d",iaft))->Clone(Form("hmep_bg_tot_b_p%d",iplab));
+	hmep_valid_bg_tot_a[iplab] = (TH1F*) fbg[ibg][iplab]->Get(Form("hmep_valid_%d",iaft))->Clone(Form("hmep_bg_tot_a_p%d",iplab));
+
+      	hmep_bg_tot_b[iplab]->Scale(pi0pi0jpsi_scale[iplab]);
+      	hmep_bg_tot_a[iplab]->Scale(pi0pi0jpsi_scale[iplab]);
+      	hmep_valid_bg_tot_b[iplab]->Scale(pi0pi0jpsi_scale[iplab]);
+      	hmep_valid_bg_tot_a[iplab]->Scale(pi0pi0jpsi_scale[iplab]);
+
       } else {
 	hmep_bg_tot_b[iplab]->Add(hmep_bg_b[ibg][iplab]);;
 	hmep_bg_tot_a[iplab]->Add(hmep_bg_a[ibg][iplab]);;
-	hmep_valid_bg_tot_b[iplab]->Add(hmep_bg_b[ibg][iplab]);;
-	hmep_valid_bg_tot_a[iplab]->Add(hmep_bg_a[ibg][iplab]);;
+	hmep_valid_bg_tot_b[iplab]->Add(hmep_valid_bg_b[ibg][iplab]);;
+	hmep_valid_bg_tot_a[iplab]->Add(hmep_valid_bg_a[ibg][iplab]);;
       }
 
       if (iplab==0) {
@@ -287,9 +304,14 @@ void kin_cuts2(int iaft = 8) {
     cout << "& " << Form("%3.1f\\%%", 100*hmep_valid_bg_a[0][iplab]->Integral(mmin,mmax)/ hmep_valid_sg_a[iplab]->Integral(mmin,mmax)) << endl;
     cout << "& " << Form("%3.1f\\%%", 100*hmep_valid_bg_a[1][iplab]->Integral(mmin,mmax)/ hmep_valid_sg_a[iplab]->Integral(mmin,mmax)) << endl;
 
+    cout << leg_bg[2] << " & " << Form("%10.8f\\%%", 100*hmep_valid_bg_a[2][iplab]->Integral(mmin,mmax)/ hmep_valid_sg_a[iplab]->Integral(mmin,mmax)) << endl;
+    cout << leg_bg[3] << " & " << Form("%10.8f\\%%", 100*hmep_valid_bg_a[3][iplab]->Integral(mmin,mmax)/ hmep_valid_sg_a[iplab]->Integral(mmin,mmax)) << endl;
+
     cout << "& " << Form("%4.1f\\%%", purity[iaft-5][iplab]) << endl;
 
     double bg_tot = hmep_valid_bg_tot_a[iplab]->Integral(mmin,mmax);
+    cout << "bgtot = " << bg_tot << endl;
+    cout << "bg sum = " << hmep_valid_sg_a[iplab]->Integral(mmin,mmax) + hmep_valid_sg_a[iplab]->Integral(mmin,mmax) << endl;
     cout << "& " << Form("%3.1f",  hmep_valid_sg_a[iplab]->Integral(mmin,mmax)/bg_tot) << endl;
     //double bg_tot = hmep_bg_tot_a[iplab]->Integral(mmin,mmax);
     //cout << "& " << Form("%3.1f",  hmep_sg_a[iplab]->Integral(mmin,mmax)/bg_tot) << endl;
@@ -344,17 +366,17 @@ void kin_cuts2(int iaft = 8) {
   for (int iplab=0; iplab < nplab; ++iplab) {
     tc_bkf->cd(1+iplab);
 
-    hmep_fg_b[iplab]->GetYaxis()->SetTitleOffset(1.2);
-    hmep_fg_b[iplab]->GetYaxis()->SetLabelOffset(0.0);
-    hmep_fg_b[iplab]->SetMaximum(4e4);
+    hmep_valid_fg_b[iplab]->GetYaxis()->SetTitleOffset(1.2);
+    hmep_valid_fg_b[iplab]->GetYaxis()->SetLabelOffset(0.0);
+    hmep_valid_fg_b[iplab]->SetMaximum(4e4);
 
-    hmep_fg_b[iplab]->Draw();
+    hmep_valid_fg_b[iplab]->Draw();
     if (iplab==2) {
       tl4->Draw();
-      hmep_fg_b[iplab]->Draw("same");
+      hmep_valid_fg_b[iplab]->Draw("same");
     }
-    hmep_sg_b[iplab]->Draw("same");
-    for (int ibg=0; ibg < nbg; ++ibg) hmep_bg_b[ibg][iplab]->Draw("same");
+    hmep_valid_sg_b[iplab]->Draw("same");
+    for (int ibg=0; ibg < nbg; ++ibg) hmep_valid_bg_b[ibg][iplab]->Draw("same");
     gPad->SetLogy();
 
     TLatex *tlat = new TLatex();
@@ -363,8 +385,9 @@ void kin_cuts2(int iaft = 8) {
     //tlat->DrawLatexNDC(0.65,0.88,Form("p_{#bar{p}} = %4.1f GeV/c", plab[iplab]));
     tlat->DrawLatexNDC(0.55,0.96,Form("p_{#bar{p}} = %4.1f GeV/c", plab[iplab]));
   }
-  //tc_bkf->Print("invm_bgsrc_bef_kinfit.pdf");
+  tc_bkf->Print("invm_bgsrc_bef_kinfit.pdf");
 
+  return;
 
   TCanvas *tc_akf = new TCanvas("invm_bgsrc_aft_kinfit", "tc_akf", 1600, 700);
   tc_akf->Divide(3,1);

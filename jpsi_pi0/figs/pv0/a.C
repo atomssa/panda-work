@@ -51,15 +51,15 @@ void a(int iwt=0) {
     }
   }
 
-  for (int icth=0; icth < 29; ++icth) {
+  for (int icth=0; icth < 80; ++icth) {
     //cout << "icth= " << icth << endl;
     ifstream inf;
-    inf.open(Form("full/%s/data_table_cth%d.dummy.dat", _wt[iwt], icth));
+    inf.open(Form("full/%s/data_table_cth%d.dat", _wt[iwt], icth));
     while (true) {
       inf >> d0 >> i0 >> d1 >> _itu >> d2 >> _iplab >> d3 >> a >> d4 >> a_er;
       if (!inf.good()) break;
       //cout << " a= " << a << endl;
-      int ncth = (_iplab==0)? 29:18;
+      int ncth = (_iplab==0)? 100:60;
       if (icth<ncth) h_a[_itu/2][_iplab]->Fill(a);
     }
     inf.close();
@@ -73,18 +73,26 @@ void a(int iwt=0) {
       //h_a[itu][iplab]->Draw();
       const char *fname = Form("a_gaus_itu%d_ip%d",itu/2,iplab);
       TF1* f_a = new TF1(fname,"gaus",f_min[iwt],f_max[iwt]);
-      h_a[itu][iplab]->Fit(fname,"RQO");
+
+      h_a[itu][iplab]->Draw();
+
       TLatex *tlat = new TLatex();
       tlat->SetTextSize(0.06);
-      tlat->DrawLatexNDC(0.53,0.8,Form("<M>=%4.2f#pm%4.2f", f_a->GetParameter(1), f_a->GetParError(1) ));
-      tlat->DrawLatexNDC(0.53,0.7,Form("  #sigma=%4.2f#pm%4.2f", f_a->GetParameter(2), f_a->GetParError(2) ));
-      tlat->SetTextSize(0.07);
-      tlat->DrawLatexNDC(0.15,0.75,Form("A_{true} = %3.1f", a_true[iwt]));
+      //tlat->SetTextSize(0.07);
+      tlat->DrawLatexNDC(0.55,0.8,Form("A_{true} = %3.1f", a_true[iwt]));
+      tlat->DrawLatexNDC(0.53,0.7,Form("<M>=%4.2f", h_a[itu][iplab]->GetMean()));
+      tlat->DrawLatexNDC(0.53,0.6,Form("  #sigma=%4.2f#pm%4.2f", h_a[itu][iplab]->GetRMS()));
+
+      //h_a[itu][iplab]->Fit(fname,"RQO");
+      //tlat->DrawLatexNDC(0.53,0.8,Form("<M>=%4.2f#pm%4.2f", f_a->GetParameter(1), f_a->GetParError(1) ));
+      //tlat->DrawLatexNDC(0.53,0.7,Form("  #sigma=%4.2f#pm%4.2f", f_a->GetParameter(2), f_a->GetParError(2) ));
+      //cout << plab[iplab] << " \& \$" << toru[itu] << "\$ \& "<<  a_true[iwt] << " \& "
+      //	   << Form("%4.2f",f_a->GetParameter(1)) << " \& " << Form("%4.2f",f_a->GetParameter(2))
+      //	   << " \& " << Form("%4.2f",f_a->GetParameter(2)/f_a->GetParameter(1)) <<  " \\\\ " << endl;
 
       cout << plab[iplab] << " \& \$" << toru[itu] << "\$ \& "<<  a_true[iwt] << " \& "
-	   << Form("%4.2f",f_a->GetParameter(1)) << " \& " << Form("%4.2f",f_a->GetParameter(2))
-	   << " \& " << Form("%4.2f",f_a->GetParameter(2)/f_a->GetParameter(1)) <<  " \\\\ " << endl;
-
+	   << Form("%4.2f",h_a[itu][iplab]->GetMean()) << " \& " << Form("%4.2f",h_a[itu][iplab]->GetRMS())
+	   << " \& " << Form("%4.2f",h_a[itu][iplab]->GetRMS()/h_a[itu][iplab]->GetMean()) <<  " \\\\ " << endl;
     }
   }
 

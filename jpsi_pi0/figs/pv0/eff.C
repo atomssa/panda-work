@@ -122,7 +122,7 @@ void eff(){
       bool u_ok = (tvalidmin[iplab] < _u && _u < tvalidmax[iplab]);
       bool _valid = t_ok || u_ok;
 
-      if (passed[iplab]->GetBinContent(i)>0.25*total[iplab]->GetBinContent(i)) {
+      if (passed[iplab]->GetBinContent(i)>0.5*total[iplab]->GetBinContent(i)) {
       	passed[iplab]->SetBinContent(i,0.0);
       }
       if (_valid && total[iplab]->GetBinContent(i)>0) {
@@ -196,7 +196,7 @@ void eff(){
   gPad->Update();
 
   //tceff->Print(Form("%s/figs/v2/efficiency_vs_t.pdf",bdir));
-  tceff->Print(Form("efficiency_vs_t.pdf",bdir));
+  //tceff->Print(Form("efficiency_vs_t.pdf",bdir));
 
   /*
   vector<double> tu_bins;

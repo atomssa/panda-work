@@ -17,6 +17,7 @@
   hepcosth_jpsi_mc_all_wt1->SetLineColor(2);
   hepcosth_jpsi_mc_all_wt0->SetLineColor(1);
   TLegend *tl = new TLegend(0.3,0.7,0.7,0.88);
+  //TLegend *tl = new TLegend(0.3,0.7,0.7,0.9);
   tl->AddEntry(hepcosth_jpsi_mc_all_wt0,"1+cos^{2}(#theta_{e^{+}})","l");
   tl->AddEntry(hepcosth_jpsi_mc_all_wt1,"1+0.4cos^{2}(#theta_{e^{+}})","l");
   tl->Draw();
