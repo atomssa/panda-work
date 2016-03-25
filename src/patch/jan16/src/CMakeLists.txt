@@ -1,0 +1,5 @@
+add_subdirectory(AnaTda)
+add_subdirectory(PhysListHadrG4)
+add_subdirectory(BremPidReader)
+add_subdirectory(EffHists)
+add_subdirectory(McBumpMatch)
