@@ -15,7 +15,7 @@ cd $SOFT_DIR
 echo PWD: $PWD
 ls -altr
 
-[ -e jul14p3 ] && mv -v build jul14p3.bkp.$(ls -d jul14p3.bkp.* 2>/dev/null | wc -l)
+[ -e jul14p3 ] && mv -v jul14p3 jul14p3.bkp.$(ls -d jul14p3.bkp.* 2>/dev/null | wc -l)
 
 # FairSoft
 echo installing jul14p3 externals release version

@@ -15,8 +15,8 @@ cd $SOFT_DIR
 echo PWD: $PWD
 ls -altr
 
-VFS=mar15
-VFR=v-15.03
+VFS=mar15p3
+VFR=v-15.11
 
 [ -e ${VFS} ] && mv -v ${VFS} ${VFS}.bkp.$(ls -d ${VFS}.bkp.* 2>/dev/null | wc -l)
 
@@ -27,6 +27,9 @@ cd $SOFT_DIR/${VFS}
 git checkout -b ${VFS} ${VFS}
 
 if [[ $HN == "rasalula" ]]; then
+    # on new mac-osx (El Capitan and more) openssl is not shipped with OS
+    # no option but to use the homebrew (still bottled) version
+    export OPENSSL_ROOT_DIR=/usr/local/opt/openssl
     ./configure.sh <<EOF
 5
 1

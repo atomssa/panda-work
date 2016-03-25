@@ -16,7 +16,7 @@ cd $SOFT_DIR
 echo PWD: $PWD
 ls -altr
 
-[ -e apr13 ] && mv -v build apr13.bkp.$(ls -d apr13.bkp.* 2>/dev/null | wc -l)
+[ -e apr13 ] && mv -v apr13 apr13.bkp.$(ls -d apr13.bkp.* 2>/dev/null | wc -l)
 
 echo installing apr13 externals release version
 svn co https://subversion.gsi.de/fairroot/fairsoft/release/apr13

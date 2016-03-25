@@ -18,7 +18,7 @@ ls -altr
 VFS=mar15p1
 VFR=v-15.03
 
-[ -e ${VFS} ] && mv -v build ${VFS}.bkp.$(ls -d ${VFS}.bkp.* 2>/dev/null | wc -l)
+[ -e ${VFS} ] && mv -v ${VFS} ${VFS}.bkp.$(ls -d ${VFS}.bkp.* 2>/dev/null | wc -l)
 
 # FairSoft
 echo installing ${VFS} externals release version
