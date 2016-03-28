@@ -6,7 +6,7 @@
 //
 //  Created 14/08/06  by S.Spataro
 //
-///////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////// 
 
 #include "PndEmcHitProducer.h"
 
@@ -14,8 +14,8 @@
 #include "PndEmcHit.h"
 #include "PndEmcPoint.h"
 #include "PndEmcGeoPar.h"
-#include "PndEmcDigiPar.h"
-#include "PndEmcDigiNonuniformityPar.h"
+#include "PndEmcDigiPar.h"		
+#include "PndEmcDigiNonuniformityPar.h"		
 #include "PndMCTrack.h"
 
 #include "PndEmcXtal.h"
@@ -52,7 +52,7 @@ PndEmcHitProducer::PndEmcHitProducer() :
 PndEmcHitProducer::PndEmcHitProducer(Bool_t val) :
 	FairTask("Ideal EMC hit Producer"),
 	fUse_nonuniformity(0), fNonuniformityFile(""), fPointArray(), fMCTrackArray(), fHitArray(), fVolumeArray(), fMapVersion(0), emcX(), emcY(), emcZ(), fEmcStr(), fMapper(), fDigiPar(), fGeoPar(), fNonuniformityPar(), fStoreHits(val), fEnergyThreshold(0)
-{
+{ 
 	fNonuniformityFile=gSystem->Getenv("VMCWORKDIR");
 	fNonuniformityFile+="/input/EmcDigiNoniformityPars.root";
 }
@@ -154,7 +154,7 @@ void PndEmcHitProducer::SetParContainers(){
 	fNonuniformityPar = (PndEmcDigiNonuniformityPar*) db->getContainer("PndEmcDigiNonuniformityPar");
 
 	fDigiPar->setChanged();
-	fDigiPar->setInputVersion(run->GetRunId(),1);
+	fDigiPar->setInputVersion(run->GetRunId(),1); 
 
 	fNonuniformityPar->setChanged();
 	fNonuniformityPar->setInputVersion(run->GetRunId(),1);
@@ -165,68 +165,54 @@ void PndEmcHitProducer::SetParContainers(){
 // Helper function, does not depend on class, identical to the one in PndEmcMakeCluster
 void PndEmcHitProducer::cleansortmclist( std::vector <Int_t> &newlist,TClonesArray* mcTrackArray)
 {
-  std::vector <Int_t> tmplist;
-  std::vector <Int_t> tmplist2;
-  // Sort list...
-  std::sort( newlist.begin(), newlist.end());
-  // and copy every id only once (even so it might be in the list several times)
-  std::unique_copy( newlist.begin(), newlist.end(), std::back_inserter( tmplist ) );
+	std::vector <Int_t> tmplist;
+	std::vector <Int_t> tmplist2;
+	// Sort list...
+	std::sort( newlist.begin(), newlist.end());
+	// and copy every id only once (even so it might be in the list several times)
+	std::unique_copy( newlist.begin(), newlist.end(), std::back_inserter( tmplist ) );
 
-  newlist.clear();
-  std::unique_copy( tmplist.begin(), tmplist.end(), std::back_inserter( newlist) );
+	// Now check if mother or (grand)^x-mother are already in the list
+	// (which means i am a secondary)... if so, remove myself
+	for(Int_t j=tmplist.size()-1; j>=0; j--){
+		bool flag = false;
+		PndMCTrack *pt;
+		//pt=((PndMCTrack*)mcTrackArray->At(tmplist[j]));
+		//if(pt->GetMotherID()<0) { 
+		//	tmplist2.push_back(tmplist[j]);
+		//	continue;
+		//}
+		Int_t id = tmplist[j];
+		if(id < 0) {
+			tmplist2.push_back(id);
+			continue;
+		}
+		while(!flag){
+			pt=((PndMCTrack*)mcTrackArray->At(id));
+			//id=pt->GetMotherID();
+			if(pt->GetMotherID()<0) {
+				tmplist2.push_back(id);
+				break;
+			}
+			id = pt->GetMotherID();
+			//pt=(PndMCTrack*)mcTrackArray->At(id);
+
+			for(Int_t k=j-1; k>=0; k--){
+				if(tmplist[k]==id){
+					tmplist.erase(tmplist.begin()+j);
+					flag=true;
+					break;
+				}
+			}
+		}
+	}
+	newlist.clear();
+	std::unique_copy( tmplist2.begin(), tmplist2.end(), std::back_inserter( newlist) );
 }
-
-//// Helper function, does not depend on class, identical to the one in PndEmcMakeCluster
-//void PndEmcHitProducer::cleansortmclist( std::vector <Int_t> &newlist,TClonesArray* mcTrackArray)
-//{
-//	std::vector <Int_t> tmplist;
-//	std::vector <Int_t> tmplist2;
-//	// Sort list...
-//	std::sort( newlist.begin(), newlist.end());
-//	// and copy every id only once (even so it might be in the list several times)
-//	std::unique_copy( newlist.begin(), newlist.end(), std::back_inserter( tmplist ) );
-//
-//	// Now check if mother or (grand)^x-mother are already in the list
-//	// (which means i am a secondary)... if so, remove myself
-//	for(Int_t j=tmplist.size()-1; j>=0; j--){
-//		bool flag = false;
-//		PndMCTrack *pt;
-//		//pt=((PndMCTrack*)mcTrackArray->At(tmplist[j]));
-//		//if(pt->GetMotherID()<0) {
-//		//	tmplist2.push_back(tmplist[j]);
-//		//	continue;
-//		//}
-//		Int_t id = tmplist[j];
-//		if(id < 0) {
-//			tmplist2.push_back(id);
-//			continue;
-//		}
-//		while(!flag){
-//			pt=((PndMCTrack*)mcTrackArray->At(id));
-//			//id=pt->GetMotherID();
-//			if(pt->GetMotherID()<0) {
-//				tmplist2.push_back(id);
-//				break;
-//			}
-//			id = pt->GetMotherID();
-//			//pt=(PndMCTrack*)mcTrackArray->At(id);
-//
-//			for(Int_t k=j-1; k>=0; k--){
-//				if(tmplist[k]==id){
-//					tmplist.erase(tmplist.begin()+j);
-//					flag=true;
-//					break;
-//				}
-//			}
-//		}
-//	}
-//	newlist.clear();
-//	std::unique_copy( tmplist2.begin(), tmplist2.end(), std::back_inserter( newlist) );
-//}
 
 // -----   Public method Exec   --------------------------------------------
 void PndEmcHitProducer::Exec(Option_t* opt)
-{
+{  
 	cout << " POINT EXECUTION *********************" << endl;
 	// Reset output array
 	if (! fHitArray ) Fatal("Exec", "No DigiArray");
@@ -259,7 +245,7 @@ void PndEmcHitProducer::Exec(Option_t* opt)
 	Int_t nPoints = fPointArray->GetEntriesFast();
 
 	Double_t point_time = 0.00;
-	//------- init containers ---
+	//------- init containers --- 
 
 	for (Int_t iPoint = 0; iPoint < nPoints; iPoint++){
 		PndEmcPoint* point  = (PndEmcPoint*) fPointArray->At(iPoint);
@@ -304,12 +290,12 @@ void PndEmcHitProducer::Exec(Option_t* opt)
 			energyscalefactor=c[0]+zpos*(c[1]+zpos*c[2]);
 			fTrackEnergy[DetId] += point->GetEnergyLoss() * energyscalefactor;
 			fPointMatch[DetId].push_back(iPoint);
-			//        printf("point with detID %d has z Position %f and energyloss %f scaled with %f\n",DetId,zpos, point->GetEnergyLoss(),energyscalefactor);
+			//        printf("point with detID %d has z Position %f and energyloss %f scaled with %f\n",DetId,zpos, point->GetEnergyLoss(),energyscalefactor);	
 			//        printf("front is at x: %f y: %f z: %f\n", frontvec.X(),frontvec.Y(),frontvec.Z());
 		} else {
 			fTrackEnergy[DetId] += point->GetEnergyLoss();
 			fPointMatch[DetId].push_back(iPoint);
-			//        printf("point with detID %d has z Position %f and energyloss %f not scaled\n",DetId,zpos, point->GetEnergyLoss());
+			//        printf("point with detID %d has z Position %f and energyloss %f not scaled\n",DetId,zpos, point->GetEnergyLoss());	
 		}
 		point_time=point->GetTime();
 
@@ -390,7 +376,7 @@ PndEmcHit* PndEmcHitProducer::AddHit(Int_t trackID,Int_t detID, Float_t energy,
 	//" << box << " tube " << tub << endl;
 	TClonesArray& clref = *fHitArray;
 	Int_t size = clref.GetEntriesFast();
-	return new(clref[size]) PndEmcHit(trackID, detID, energy, time, emcX[detID],
+	return new(clref[size]) PndEmcHit(trackID, detID, energy, time, emcX[detID], 
 			emcY[detID], emcZ[detID], mctruth);
 }
 // ----
