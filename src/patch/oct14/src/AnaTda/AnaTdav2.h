@@ -216,15 +216,15 @@ class AnaTdav2 : public FairTask{
   TH1F* hepcosth_res, *f_hepcosth_res;
   TH2F* hepcosth_jpsi_vs_epthlab_mc_all, *hepcosth_jpsi_vs_emthlab_mc_all;
   TH1F* hepcosth_jpsi_mc_all, *hepcosth_jpsi_mc_all_wt0, *hepcosth_jpsi_mc_all_wt1;
-  TH1F* hepcosth_jpsi_mc[4];
+  TH1F* hepcosth_jpsi_mc[4], *hepcosth_jpsi_mc_wt0[4], *hepcosth_jpsi_mc_wt1[4];
   TH2F* hepcosth_jpsi_vs_epthlab_mc[4], *hepcosth_jpsi_vs_emthlab_mc[4];
-  TH1F* hepcosth_jpsi_rec_all;
+  TH1F* hepcosth_jpsi_rec_all, *hepcosth_jpsi_rec_all_wt0, *hepcosth_jpsi_rec_all_wt1;
   TH2F* hepcosth_jpsi_vs_epthlab_rec_all, *hepcosth_jpsi_vs_emthlab_rec_all;
-  TH1F* hepcosth_jpsi_rec[4];
+  TH1F* hepcosth_jpsi_rec[4], *hepcosth_jpsi_rec_wt0[4], *hepcosth_jpsi_rec_wt1[4];
   TH2F* hepcosth_jpsi_vs_epthlab_rec[4], *hepcosth_jpsi_vs_emthlab_rec[4];
-  TH1F* f_hepcosth_jpsi_rec_all;
+  TH1F* f_hepcosth_jpsi_rec_all, *f_hepcosth_jpsi_rec_all_wt0, *f_hepcosth_jpsi_rec_all_wt1;
   TH2F* f_hepcosth_jpsi_vs_epthlab_rec_all, *f_hepcosth_jpsi_vs_emthlab_rec_all;
-  TH1F* f_hepcosth_jpsi_rec[4];
+  TH1F* f_hepcosth_jpsi_rec[4], *f_hepcosth_jpsi_rec_wt0[4], *f_hepcosth_jpsi_rec_wt1[4];
   TH2F* f_hepcosth_jpsi_vs_epthlab_rec[4], *f_hepcosth_jpsi_vs_emthlab_rec[4];
 
   TH1F *hmep_mconst;
