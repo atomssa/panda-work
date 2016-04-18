@@ -1,3 +1,21 @@
+void set_style_gen_dists(TH1* h, int col, int rebin=0, bool sumw2=false) {
+  if (rebin>0)h->Rebin(rebin);
+  if (sumw2)h->Sumw2();
+  h->GetXaxis()->SetTitleSize(0.07);
+  h->GetXaxis()->SetLabelSize(0.07);
+  h->GetXaxis()->SetTitleOffset(0.9);
+  h->GetYaxis()->SetTitleSize(0.07);
+  h->GetYaxis()->SetLabelSize(0.07);
+  h->GetYaxis()->SetLabelOffset(0.02);
+  h->SetMarkerStyle(20);
+  h->SetMarkerColor(col);
+  h->SetMarkerSize(0.5);
+  if (col>0) {
+    h->SetLineWidth(2);
+    h->SetLineColor(col);
+  }
+}
+
 double _Mpi = 0.135;
 double _MN = 0.938;
 double _Mj = 3.096;
@@ -117,12 +135,13 @@ void gen_dists() {
 
   gStyle->SetOptStat(0);
   gStyle->SetPadLeftMargin(0.13);
+  //gStyle->SetPadRightMargin(0.15);
   gStyle->SetPadBottomMargin(0.13);
   //gStyle->SetTitleOffset(0.0,"X");
   gStyle->SetTitleFontSize(0.08);
   gStyle->SetTitleFont(62);
   //gStyle->SetTitleAlign(33);
-  //TGaxis::SetMaxDigits(3);
+  TGaxis::SetMaxDigits(3);
 
   bool save = false;
   const char* bdir = "/Users/tujuba/panda/work/jpsi_pi0/";
@@ -223,8 +242,9 @@ void gen_dists() {
 
   TCanvas *tc_gen_thlab_sig = new TCanvas("gen_thlab_dist_sig","gen_thlab_dist_sig",1600,800);
   tc_gen_thlab_sig->Divide(3);
-  TCanvas *tc_gen_thlab_bg = new TCanvas("gen_thlab_dist_bg","gen_thlab_dist_bg",1600,800);
-  tc_gen_thlab_bg->Divide(3);
+
+  //TCanvas *tc_gen_thlab_bg = new TCanvas("gen_thlab_dist_bg","gen_thlab_dist_bg",1600,800);
+  //tc_gen_thlab_bg->Divide(3);
 
   TH1F *h_thlab_true_sig_deg[nplab];
   double thlab_min[nplab]={0};
@@ -232,8 +252,8 @@ void gen_dists() {
 
   for (int iplab=0; iplab < nplab; ++iplab) {
     int _numbin = h_thlab_true_sig[iplab]->GetXaxis()->GetNbins();
-    h_thlab_true_sig_deg[iplab] = new TH1F(Form("h_thlab_true_sig_deg_p%d",iplab),Form(";#theta_{LAB}[deg]"),_numbin,0,180);
-    set_style(h_thlab_true_sig_deg[iplab], 1, 0);
+    h_thlab_true_sig_deg[iplab] = new TH1F(Form("h_thlab_true_sig_deg_p%d",iplab),Form(";#theta_{LAB}[deg]; counts"),_numbin,0,180);
+    set_style_gen_dists(h_thlab_true_sig_deg[iplab], 1, 0);
     for (int ibin=0; ibin <= _numbin; ++ibin) {
       h_thlab_true_sig_deg[iplab]->SetBinContent(ibin,h_thlab_true_sig[iplab]->GetBinContent(ibin));
     }
@@ -251,7 +271,8 @@ void gen_dists() {
     double bwd_thmax = _thlab(_tt(-1.0, plab[iplab]), plab[iplab]);
 
     if (true){
-      gPad->SetRightMargin(0.04);
+      gPad->SetRightMargin(0.05);
+      gPad->SetTopMargin(0.05);
       //TGaxis::SetMaxDigits(3);
 
       //h_thlab_true_sig_deg[iplab]->GetXaxis()->SetRange(0.0,179);
@@ -266,20 +287,25 @@ void gen_dists() {
       b_bwd->Draw();
 
       h_thlab_true_sig_deg[iplab]->Draw("same");
-      h_thlab_true_sig_deg[iplab]->GetXaxis()->SetNdivisions(506,false);
-      tl[0][iplab]->DrawLatex(0.25,0.8,iplab==0?Form("p^{LAB}_{#bar{p}} = %5.3f GeV/c",plab[iplab]):Form("p^{LAB}_{#bar{p}} = %3.1f GeV/c",plab[iplab]));
+      h_thlab_true_sig_deg[iplab]->GetXaxis()->SetNdivisions(603,false);
+      h_thlab_true_sig_deg[iplab]->GetYaxis()->SetNdivisions(505);
+      //tl[0][iplab]->DrawLatex(0.25,0.8,iplab==0?Form("p^{LAB}_{#bar{p}} = %5.3f GeV/c",plab[iplab]):Form("p^{LAB}_{#bar{p}} = %3.1f GeV/c",plab[iplab]));
+      tl[0][iplab]->DrawLatex(0.35,0.8,Form("p^{LAB}_{#bar{p}} = %3.1f GeV/c",plab[iplab]));
 
-      TText *tt = new TText();
-      //tt->DrawText(2.0, 0.15*h_thlab_true_sig_deg[iplab]->GetMaximum(),"Fwd Kin");
-      //tt->DrawText(2.0, 0.07*h_thlab_true_sig_deg[iplab]->GetMaximum(),"Valid. range");
-      tt->SetTextAngle(90);
-      tt->DrawText(iplab!=2?12.0:7.0, 0.02*h_thlab_true_sig_deg[iplab]->GetMaximum(),"Fwd Kin");
+      if (iplab==0) {
+	TText *tt = new TText();
+	tt->SetTextSize(0.08);
+	//tt->DrawText(2.0, 0.15*h_thlab_true_sig_deg[iplab]->GetMaximum(),"Fwd Kin");
+	//tt->DrawText(2.0, 0.07*h_thlab_true_sig_deg[iplab]->GetMaximum(),"Valid. range");
+	tt->SetTextAngle(90);
+	//tt->DrawText(iplab!=2?12.0:7.0, 0.02*h_thlab_true_sig_deg[iplab]->GetMaximum(),"Fwd Kin");
+	tt->DrawText(18.0, 0.02*h_thlab_true_sig_deg[iplab]->GetMaximum(),"Fwd. Kin");
 
-      tt->SetTextAngle(0);
-      //TText *tt = new TText();
-      tt->DrawText(120, 0.2*h_thlab_true_sig_deg[iplab]->GetMaximum(),"Bwd Kin");
-      //tt->DrawText(120, 0.12*h_thlab_true_sig_deg[iplab]->GetMaximum(),"Valid. range");
-
+	tt->SetTextAngle(0);
+	//TText *tt = new TText();
+	tt->DrawText(90, 0.3*h_thlab_true_sig_deg[iplab]->GetMaximum(),"Bwd. Kin");
+	//tt->DrawText(120, 0.12*h_thlab_true_sig_deg[iplab]->GetMaximum(),"Valid. range");
+      }
       gPad->RedrawAxis();
 
     } else {
@@ -287,15 +313,17 @@ void gen_dists() {
       h_thlab_true_sig[iplab]->Draw();
       tl[0][iplab]->DrawLatex(0.25,0.8,iplab==0?Form("p^{LAB}_{#bar{p}} = %5.3f GeV/c",plab[iplab]):Form("p^{LAB}_{#bar{p}} = %3.1f GeV/c",plab[iplab]));
     }
-    tc_gen_thlab_bg->cd(1+iplab);
-    h_thlab_true_bg[iplab]->SetTitle(";#theta_{LAB}[rad]");
-    h_thlab_true_bg[iplab]->Draw();
-    tl[0][iplab]->DrawLatex(0.25,0.8,iplab==0?Form("p^{LAB}_{#bar{p}} = %5.3f GeV/c",plab[iplab]):Form("p^{LAB}_{#bar{p}} = %3.1f GeV/c",plab[iplab]));
+
+    //tc_gen_thlab_bg->cd(1+iplab);
+    //h_thlab_true_bg[iplab]->SetTitle(";#theta_{LAB}[rad]");
+    //h_thlab_true_bg[iplab]->Draw();
+    //tl[0][iplab]->DrawLatex(0.25,0.8,iplab==0?Form("p^{LAB}_{#bar{p}} = %5.3f GeV/c",plab[iplab]):Form("p^{LAB}_{#bar{p}} = %3.1f GeV/c",plab[iplab]));
+
   }
 
   if (save) {
     tc_gen_thlab_sig->Print(Form("%s/figs/2015.09.15/%s.pdf", bdir, tc_gen_thlab_sig->GetName()));
-    tc_gen_thlab_bg->Print(Form("%s/figs/2015.09.15/%s.pdf", bdir, tc_gen_thlab_bg->GetName()));
+    //tc_gen_thlab_bg->Print(Form("%s/figs/2015.09.15/%s.pdf", bdir, tc_gen_thlab_bg->GetName()));
   }
 
   //TCanvas *tc_gen_t_sig2 = new TCanvas("gen_rec_t_dist_sig","gen_rec_t_dist_sig",1600,800);

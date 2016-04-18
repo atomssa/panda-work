@@ -1,8 +1,22 @@
 #include "TGraphErrors.h"
+#include "TMultiGraph.h"
 #include "TCanvas.h"
 #include "TLegend.h"
+#include "TFitResult.h"
+#include "TFitResultPtr.h"
 #include "TH1.h"
-#include "TH1F.h"
+#include "TH2.h"
+#include "TMath.h"
+#include "TStyle.h"
+#include "TAxis.h"
+#include "TGAxis.h"
+#include "TLatex.h"
+#include "TLine.h"
+#include "TFile.h"
+#include "TVector.h"
+#include <iostream>
+#include <Riostream.h>
+#include <cassert>
 
 static int ibrem = 1;
 static const int nplab = 3;
@@ -16,6 +30,75 @@ static double limits[nplab][3] =
     {-13.2926, -6.48861, 0.31538} };
 static double tmin[nplab]={-0.443789, -0.5, -0.5};
 static double tmax[nplab]={0.616486, 0.457248, 0.31538};
+
+void print_covmat(int n, double *c) {
+  for (int ii=0; ii < n; ++ii) {
+    for (int ij=0; ij < n; ++ij) {
+      cout << c[n*ii+ij] << ", ";
+    }
+    cout << endl;
+  }
+  cout << endl;
+}
+
+void print_pars(int n, TF1 *func) {
+  for (int ii=0; ii < n; ++ii) {
+    cout << func->GetParameter(ii) << ", ";
+  }
+  cout << endl;
+}
+
+void print_pars(int n, double *p) {
+  for (int ii=0; ii < n; ++ii) {
+    cout << p[ii] << ", ";
+  }
+  cout << endl;
+}
+
+void get_covmat(int ns, int nf, TF1* func, TFitResultPtr fit_res, double *p, double *c) {
+
+  for (int ipar=0; ipar < ns; ++ipar) {
+    for (int ipar2=0; ipar2 < ns; ++ipar2) {
+      p[ipar] = func->GetParameter(ipar);
+      for (int ipar2=0; ipar2 < 4; ++ipar2) {
+	c[ns*ipar+ipar2] = fit_res->GetCovarianceMatrix().GetMatrixArray()[nf*ipar+ipar2];
+      }
+    }
+  }
+
+  //for (int ipar=0; ipar<n; ++ipar) {
+  //  if (pol3) {
+  //    for (int ipar=0; ipar < 4; ++ipar) {
+  //	params3[ipar] = fmfg_tu[itu][iplab][itbin]->GetParameter(ipar);
+  //	for (int ipar2=0; ipar2 < 4; ++ipar2) {
+  //	  covmat3[4*ipar+ipar2] = fit_res->GetCovarianceMatrix().GetMatrixArray()[7*ipar+ipar2];
+  //	}
+  //    }
+  //  } else {
+  //    for (int ipar=0; ipar < 3; ++ipar) {
+  //	params2[ipar] = fmfg_tu[itu][iplab][itbin]->GetParameter(ipar);
+  //	for (int ipar2=0; ipar2 < 3; ++ipar2) {
+  //	  covmat2[3*ipar+ipar2] = fit_res->GetCovarianceMatrix().GetMatrixArray()[6*ipar+ipar2];
+  //	}
+  //    }
+  //  }
+  //}
+}
+
+void graph_to_hist(TGraphErrors* tge, TH1F* h, double &min, double &max) {
+  min = 1e9;
+  max = -1e9;
+  for (int ipt=0; ipt < tge->GetN(); ++ipt) {
+    double x,val,err;
+    tge->GetPoint(ipt,x,val);
+    err = tge->GetErrorY(ipt);
+    int ibin = h->GetXaxis()->FindBin(x);
+    if (h->GetBinLowEdge(ibin)<min) min = h->GetBinLowEdge(ibin);
+    if (h->GetBinLowEdge(ibin+1)>min) max = h->GetBinLowEdge(ibin+1);
+    h->SetBinContent(ibin,val);
+    h->SetBinError(ibin,err);
+  }
+}
 
 void set_style(TH2* h) {
   h->GetXaxis()->SetTitleSize(0.06);
@@ -191,17 +274,19 @@ void figs(int _page) {
   gStyle->SetOptStat(0);
   gStyle->SetPadLeftMargin(0.13);
   gStyle->SetPadBottomMargin(0.13);
-  switch(_page) {
-  case 0: fig_tvsthcm_sig(); break;
-  case 1: fig_bg_xsect(); break;
-  case 2: fig_ana(); break;
-  case 3: fig_pi0cut(); break;
-  case 4: fig_npair(); break;
-  case 5: fig_gen_dists(); break;
-  case 6: fig_kin_cuts(); break;
-  case 7: fig_num_evt(); break;
-  case 8: fig_ana2(); break;
-  case 9: fig_ana3(); break;
-  default: return;
-  }
+
+  cout << "Figs: " << _page << endl;
+  //switch(_page) {
+  //case 0: fig_tvsthcm_sig(); break;
+  //case 1: fig_bg_xsect(); break;
+  //case 2: fig_ana(); break;
+  //case 3: fig_pi0cut(); break;
+  //case 4: fig_npair(); break;
+  //case 5: fig_gen_dists(); break;
+  //case 6: fig_kin_cuts(); break;
+  //case 7: fig_num_evt(); break;
+  //case 8: fig_ana2(); break;
+  //case 9: fig_ana3(); break;
+  //default: return;
+  //}
 }

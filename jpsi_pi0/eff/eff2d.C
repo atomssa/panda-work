@@ -12,21 +12,26 @@ void eff2d() {
   TGaxis::SetMaxDigits(3);
 
   TFile *fe = TFile::Open("hadd_out/hadd.e.root");
-  TH2F *histe = (TH2F*) fe->Get("prob_cut_5/eff2d_e_id");
-  histe->SetTitle("#varepsilon(e^{+},e^{-}) for combined eID prob > 50%;p_{MC}[GeV/c];#theta_{MC}[deg];");
+  TH2F *histe = (TH2F*) fe->Get("prob_cut_9/eff2d_e_id");
+  histe->SetTitle(";p_{MC}[GeV/c];#theta_{MC}[deg];");
   //histe->GetXaxis()->SetTitleSize(0.06);
   //histe->GetXaxis()->SetLabelSize(0.06);
   //histe->GetYaxis()->SetTitleSize(0.06);
   //histe->GetYaxis()->SetLabelSize(0.06);
+  TLegend *tl = new TLegend(0.3,0.7,0.7,0.8);
+  tl->SetBorderSize(0);
+  tl->SetFillStyle(0);
+  tl->AddEntry(histe,"#varepsilon(e^{#pm}), p^{EID}_{comb} > 90%","");
   TCanvas *tce = new TCanvas("tce","tce",1000,1000);
   tce->cd();
   histe->Draw("colz");
+  tl->Draw();
   tce->Print("eff2de.png");
 
-
+  return;
   TFile *fpi = TFile::Open("hadd_out/hadd.pi.root");
-  TH2F *histpi = (TH2F*) fpi->Get("prob_cut_5/eff2d_e_id");
-  histpi->SetTitle("#varepsilon(#pi^{+},#pi^{-}) for combined eID prob > 50%;p_{MC}[GeV/c];#theta_{MC}[deg];");
+  TH2F *histpi = (TH2F*) fpi->Get("prob_cut_9/eff2d_e_id");
+  histpi->SetTitle("#varepsilon(#pi^{+},#pi^{-}) for combined eID prob > 90%;p_{MC}[GeV/c];#theta_{MC}[deg];");
   //histpi->GetXaxis()->SetTitleSize(0.06);
   //histpi->GetXaxis()->SetLabelSize(0.06);
   //histpi->GetYaxis()->SetTitleSize(0.06);

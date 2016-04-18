@@ -157,7 +157,7 @@ TF1* get_func_mirror(int ip=0) {
   return fDel_sq_mir;
 }
 
-void set_style(TH1* h, int col) {
+void set_style_tda(TH1* h, int col) {
   h->GetXaxis()->SetTitleSize(0.06);
   h->GetXaxis()->SetTitleFont(62);
   h->GetXaxis()->SetLabelSize(0.05);
@@ -205,7 +205,7 @@ void tda_func(int ip=0, TPad *tp=0) {
   TH1F* h = (TH1F*) f->Get("tu/httrumc");
   //h->SetTitle(Form("Expected signal rates, s=%5.2f GeV^{2};t[GeV^{2}]; dN_{sig}/dt [Counts/GeV^{2}]",_s[ip]));
   h->SetTitle(Form("s = %5.2f GeV^{2};t[GeV^{2}]; dN_{sig}/dt [Counts/GeV^{2}]",_s[ip]));
-  set_style(h,1);
+  set_style_tda(h,1);
 
   if (ip==0) {h->GetXaxis()->SetRangeUser(-1.6,0.7);}
 

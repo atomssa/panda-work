@@ -53,7 +53,7 @@ void eff(){
 
   gStyle->SetOptStat(0);
   gStyle->SetPadLeftMargin(0.12);
-  gStyle->SetPadBottomMargin(0.12);
+  gStyle->SetPadBottomMargin(0.13);
   //gStyle->SetTitleOffset(0.0,"X");
   gStyle->SetTitleFontSize(0.08);
   gStyle->SetTitleFont(62);
@@ -76,12 +76,20 @@ void eff(){
   TGraphAsymmErrors* tge[nplab];
   int col[nplab] = {1,2,4};
 
-  TLegend *legend3 = new TLegend(0.15, 0.6, 0.4, 0.9);
+  TLegend *legend3 = new TLegend(0.15, 0.60, 0.4, 0.85);
   legend3->SetFillStyle(0);
   legend3->SetBorderSize(0);
-  legend3->SetTextSize(0.06);
+  legend3->SetTextSize(0.048);
 
-  TMultiGraph *tmg = new TMultiGraph("tmg",";t[GeV^{2}];Signal Reco #varepsilon_{tot}");
+  TGaxis *axis = new TGaxis(-14,0,-14,0.16,0,16,505,"");
+  axis->SetTitleSize(0.06);
+  axis->SetLabelFont(42);
+  axis->SetLabelSize(0.06);
+  axis->SetLabelOffset(0.02);
+  //axis->SetLineColor(kRed);
+  //axis->SetLabelColor(kRed);
+
+  TMultiGraph *tmg = new TMultiGraph("tmg",";t [GeV^{2}];#varepsilon_{tot} (%)");
   TCanvas *tceff = new TCanvas("tceff","tceff");
   tceff->cd();
   int nrebin = 10;
@@ -122,8 +130,11 @@ void eff(){
       bool u_ok = (tvalidmin[iplab] < _u && _u < tvalidmax[iplab]);
       bool _valid = t_ok || u_ok;
 
-      if (passed[iplab]->GetBinContent(i)>0.5*total[iplab]->GetBinContent(i)) {
+      if (passed[iplab]->GetBinContent(i)>0.2*total[iplab]->GetBinContent(i)
+      	  //|| passed[iplab]->GetBinContent(i)<0.01*total[iplab]->GetBinContent(i)
+      	  ) {
       	passed[iplab]->SetBinContent(i,0.0);
+      	total[iplab]->SetBinContent(i,0.0);
       }
       if (_valid && total[iplab]->GetBinContent(i)>0) {
 	eff_avg += passed[iplab]->GetBinContent(i)/total[iplab]->GetBinContent(i);
@@ -144,11 +155,13 @@ void eff(){
 
   }
 
-  legend3->AddEntry(tge[0], Form("p^{LAB}_{#bar{p}} = %5.3f GeV/c",plab[0]), "pl");
-  legend3->AddEntry(tge[1], Form("p^{LAB}_{#bar{p}} = %5.3g GeV/c",plab[1]), "pl");
-  legend3->AddEntry(tge[2], Form("p^{LAB}_{#bar{p}} = %5.3g GeV/c",plab[2]), "pl");
+  legend3->AddEntry(tge[0], Form("p^{LAB}_{#bar{p}} = %3.1f GeV/c",plab[0]), "pl");
+  legend3->AddEntry(tge[1], Form("p^{LAB}_{#bar{p}} = %3.1f GeV/c",plab[1]), "pl");
+  legend3->AddEntry(tge[2], Form("p^{LAB}_{#bar{p}} = %3.1f GeV/c",plab[2]), "pl");
 
   tmg->Draw("a");
+  tmg->GetHistogram()->SetMaximum(0.16);
+  tmg->GetXaxis()->SetLimits(-14,1);
   legend3->Draw();
 
   TLine *tlmin[2][nplab], *tlmax[2][nplab];
@@ -193,6 +206,11 @@ void eff(){
   TH1F* dum = (TH1F*) tmg->GetHistogram();
   dum->GetYaxis()->SetNdivisions(508);
   set_style(dum,4,0,false);
+  dum->GetYaxis()->SetLabelSize(0);
+  dum->GetYaxis()->SetTitleOffset(0.9);
+  dum->GetYaxis()->SetTickLength(0);
+  axis->Draw();
+
   gPad->Update();
 
   //tceff->Print(Form("%s/figs/v2/efficiency_vs_t.pdf",bdir));

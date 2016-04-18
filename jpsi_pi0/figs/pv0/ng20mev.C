@@ -6,8 +6,8 @@ TLegend *get_legend(TH1F*hsg, TH1F*hbg, TString hdr) {
   tl->SetBorderSize(0);
   tl->SetTextSize(0.05);
   tl->SetHeader(hdr);
-  tl->AddEntry(hsg,"#pi^{0}J/#psi (J/#psi #rightarrow e^{+}e^{-})","l");
-  tl->AddEntry(hbg,"2(#pi^{0})J/#psi (J/#psi #rightarrow e^{+}e^{-})","l");
+  tl->AddEntry(hsg,"#pi^{0}J/#psi (#rightarrow e^{+}e^{-})","l");
+  tl->AddEntry(hbg,"#pi^{0}#pi^{0}J/#psi (#rightarrow e^{+}e^{-})","l");
   return tl;
 }
 
@@ -48,11 +48,14 @@ void ng20mev() {
   TCanvas *tc_nocut = new TCanvas("tc_nocut", "tc_nocut");
   tc_nocut->cd();
   set_style(hng20_nocut_sg,1,0,false);
-  hng20_nocut_sg->SetTitle(Form("N_{#gamma>20MeV}/evt (p_{#bar{p}}=%3.1f GeV/c);N_{#gamma>20MeV}/evt;arb. unit",plab[iplab]));
+  //hng20_nocut_sg->SetTitle(Form("N_{#gamma>20MeV}/evt (p_{#bar{p}}=%3.1f GeV/c);N_{#gamma>20MeV}/evt;arb. unit",plab[iplab]));
+  hng20_nocut_sg->SetTitle(";N_{#gamma>20MeV};arb. unit");
   hng20_nocut_sg->DrawNormalized();
   set_style(hng20_nocut_bg,2,0,false);
   hng20_nocut_bg->DrawNormalized("same");
-  get_legend(hng20_nocut_sg,hng20_nocut_bg, "  All events")->Draw();
+  get_legend(hng20_nocut_sg,hng20_nocut_bg, Form(" All events, p_{#bar{p}} = %3.1f GeV/c", plab[iplab]))->Draw();
+  tc_nocut->Print("ng20mev_allevents_p0.pdf");
+  return;
 
   TCanvas *tc_excl = new TCanvas("tc_excl", "tc_excl");
   tc_excl->cd();
@@ -80,7 +83,7 @@ void ng20mev() {
   set_style(hng20_chi2bg_bg,2,0,false);
   hng20_chi2bg_bg->DrawNormalized("same");
   get_legend(hng20_chi2bg_sg,hng20_chi2bg_bg, "After #chi^{2}_{2#gamma e^{+}e^{-}} and #chi^{2}_{4#gamma e^{+}e^{-}} cuts")->Draw();
-  tc_chi2bg->Print("ng20mev_aft_chi2bg.pdf");
+  //tc_chi2bg->Print("ng20mev_aft_chi2bg.pdf");
 
   TCanvas *tc_kinall = new TCanvas("tc_kinall", "tc_kinall");
   tc_kinall->cd();

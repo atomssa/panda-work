@@ -104,7 +104,7 @@ void jpsi(){
   tlf->SetFillStyle(0);
   tlf->SetBorderSize(0);
   tlf->SetTextSize(0.05);
-  tlf->AddEntry(jpsibf, "J/#psi mass", "pl");
+  //tlf->AddEntry(jpsibf, "J/#psi mass", "pl");
   tlf->AddEntry(fgaus, "Gaussian fit", "pl");
   tlf->Draw();
   tlf->AddEntry(lu3s, "3#sigma window ", "l");

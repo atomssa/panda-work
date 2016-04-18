@@ -55,13 +55,13 @@ double fourrier() {
 		    -3.23049e-06
   };
 
-  //TLegend *tl = new TLegend(0.25,0.2,0.65,0.4);
-  TLegend *tl = new TLegend(0.462644, 0.651163, 0.862069, 0.852008);
+  TLegend *tl = new TLegend(0.25,0.6,0.85,0.8);
+  //TLegend *tl = new TLegend(0.462644, 0.651163, 0.862069, 0.852008);
   tl->SetBorderSize(0);
 
   TFile *f = TFile::Open("hadd_out/hadd.pi.root");
   TEfficiency* eff = (TEfficiency*) f->Get("prob_cut_9/eff1d_mom_e_id");
-  tl->AddEntry(eff,"#pi^{#pm} mis-id eff","pl");
+  tl->AddEntry(eff,"#pi^{#pm} mis-id prob. (p^{EID}_{comb} > 0.9)","pl");
 
   bool draw_func = false;
   if (draw_func) {
@@ -83,7 +83,9 @@ double fourrier() {
   eff->GetPaintedGraph()->SetMaximum(0.007);
   eff->Draw();
   //eff->SetTitle(Form("%s;p_{MC}[GeV/c];#varepsilon(#pi^{#pm})^{EID}",eff->GetTitle()));
-  eff->SetTitle(Form("#varepsilon(#pi^{#pm}) for combined eID prob > 90%%;p_{MC}[GeV/c];#varepsilon(#pi^{#pm})^{EID}"));
+  //eff->SetTitle(Form("#varepsilon(#pi^{#pm}) for combined eID prob > 90%%;p_{MC}[GeV/c];#varepsilon(#pi^{#pm})^{EID}"));
+  eff->SetTitle(Form(";p_{MC}[GeV/c];#varepsilon(#pi^{#pm})^{EID}"));
+
   set_style(eff->GetPaintedGraph());
 
   if (draw_func) fsmth->Draw("same");
